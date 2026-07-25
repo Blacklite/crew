@@ -1,6 +1,6 @@
 # PRD Mode
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to generate a requirements document:**
@@ -13,13 +13,13 @@ Write a PRD for a user authentication system with OAuth support
 Read the PRD at docs/product-spec.md and break it into work items
 ```
 
-Give Squad a product requirements document and the Lead breaks it into prioritized work items, assigns them to the team, and tracks progress with dependency management.
+Give Crew a product requirements document and the Lead breaks it into prioritized work items, assigns them to the team, and tracks progress with dependency management.
 
 ---
 
 ## How to Use
 
-Give Squad a product requirements document. The Lead agent breaks it into work items, assigns them to the team, and tracks progress.
+Give Crew a product requirements document. The Lead agent breaks it into work items, assigns them to the team, and tracks progress.
 
 ---
 
@@ -46,7 +46,7 @@ Or reference a file:
 1. **Lead decomposes the spec** into discrete work items (WI-1, WI-2, WI-3, etc.)
 2. **Each work item gets a priority**: P0 (must-have), P1 (important), P2 (nice-to-have)
 3. **Work items are assigned** to agents based on domain expertise
-4. **Dependencies are tracked** — Squad won't start WI-4 if it depends on WI-2 finishing first
+4. **Dependencies are tracked** — Crew won't start WI-4 if it depends on WI-2 finishing first
 5. **Parallel work** happens where possible — independent work items run simultaneously
 
 ### Example output
@@ -68,7 +68,7 @@ WI-8  [P2]  Build user profile page             → Dallas (Frontend)  [depends:
 
 ## Mid-Project PRD Updates
 
-Requirements change. When they do, give Squad the updated PRD:
+Requirements change. When they do, give Crew the updated PRD:
 
 ```
 > The PRD has been updated — re-read docs/product-spec.md

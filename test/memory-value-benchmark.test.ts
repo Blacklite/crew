@@ -3,7 +3,7 @@ import {
   createDefaultMemoryValueFixture,
   formatMemoryValueReport,
   runMemoryValueBenchmark,
-} from '../packages/squad-sdk/src/runtime/memory-value-benchmark.js';
+} from '../packages/crew-sdk/src/runtime/memory-value-benchmark.js';
 
 describe('memory value benchmark', () => {
   it('shows governed memory reducing context while preserving relevant facts', () => {

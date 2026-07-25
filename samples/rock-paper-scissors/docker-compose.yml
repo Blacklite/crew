@@ -3,7 +3,7 @@ services:
     build:
       context: ../..
       dockerfile: samples/rock-paper-scissors/Dockerfile
-    container_name: squad-rps-arena
+    container_name: crew-rps-arena
     restart: unless-stopped
     environment:
       - GITHUB_TOKEN=${GITHUB_TOKEN}

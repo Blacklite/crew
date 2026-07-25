@@ -1,9 +1,9 @@
 # Memory & Knowledge
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Squad remembers everything — coding conventions, architecture decisions, deployment patterns, your personal preferences. Memory grows with every session, compounding across three layers so agents stop making the same mistakes and start anticipating your needs.
+Crew remembers everything — coding conventions, architecture decisions, deployment patterns, your personal preferences. Memory grows with every session, compounding across three layers so agents stop making the same mistakes and start anticipating your needs.
 
 ---
 
@@ -30,8 +30,8 @@ Memory lives in three layers, each serving a different purpose:
 ```mermaid
 graph TD
     A["Skills Layer<br/>.copilot/skills/{name}/SKILL.md<br/>Reusable patterns • Portable<br/>How to set up CI with GitHub Actions"]
-    B["Shared Decisions Layer<br/>.squad/decisions.md<br/>Team-wide rules • Every agent reads<br/>Use PostgreSQL • No Friday deploys"]
-    C["Personal History Layer<br/>.squad/agents/{name}/history.md<br/>Per-agent memory • Only reads own<br/>Auth uses JWT • Config in src/config/"]
+    B["Shared Decisions Layer<br/>.crew/decisions.md<br/>Team-wide rules • Every agent reads<br/>Use PostgreSQL • No Friday deploys"]
+    C["Personal History Layer<br/>.crew/agents/{name}/history.md<br/>Per-agent memory • Only reads own<br/>Auth uses JWT • Config in src/config/"]
     
     A --> B
     B --> C
@@ -51,7 +51,7 @@ The first session is always the least capable. Give the team a few sessions to b
 
 ## Personal Memory: `history.md`
 
-Each agent has its own history file at `.squad/agents/{name}/history.md`. After every session, agents append what they learned — architecture decisions, conventions, file paths, user preferences.
+Each agent has its own history file at `.crew/agents/{name}/history.md`. After every session, agents append what they learned — architecture decisions, conventions, file paths, user preferences.
 
 **Only that agent reads its own history.** This means each team member builds specialized knowledge about their domain. Kane learns the auth system inside and out. Dallas masters the component library. Lambert memorizes the test infrastructure.
 
@@ -63,24 +63,24 @@ When an agent's `history.md` exceeds ~12KB, older entries get archived into a su
 
 ## Shared Decisions: `decisions.md`
 
-Team-wide decisions live in `.squad/decisions.md`. **Every agent reads this before working.** This is the team's shared brain.
+Team-wide decisions live in `.crew/decisions.md`. **Every agent reads this before working.** This is the team's shared brain.
 
 Decisions get captured three ways:
 
-1. **From agent work** — agents write to `.squad/decisions/inbox/{agent-name}-{slug}.md`
+1. **From agent work** — agents write to `.crew/decisions/inbox/{agent-name}-{slug}.md`
 2. **From your directives** — when you say "always…" or "never…" (see below)
 3. **From Scribe merges** — the Scribe agent periodically consolidates inbox files into the canonical `decisions.md`, deduplicating overlapping entries
 
 ### Decision Archiving
 
-As your project grows, `decisions.md` accumulates hundreds of blocks. Stale sprint artifacts and one-time planning fragments consume context without adding value. When this happens, old decisions archive to `.squad/decisions-archive.md` — preserved for reference but no longer loaded into agent context.
+As your project grows, `decisions.md` accumulates hundreds of blocks. Stale sprint artifacts and one-time planning fragments consume context without adding value. When this happens, old decisions archive to `.crew/decisions-archive.md` — preserved for reference but no longer loaded into agent context.
 
 Active decisions (ongoing policies, user preferences, current architecture) stay in `decisions.md`. Agents always read the lean, current shared brain.
 
 ### Memory Architecture
 
 ```
-.squad/
+.crew/
 ├── decisions.md                          # Shared — all agents read
 ├── decisions/inbox/                      # Drop-box for parallel writes
 │   ├── kane-api-versioning.md
@@ -94,7 +94,7 @@ Active decisions (ongoing policies, user preferences, current architecture) stay
 │   └── lambert/
 │       └── history.md                    # Lambert's personal memory
 └── skills/
-    ├── squad-conventions/SKILL.md        # Starter skill
+    ├── crew-conventions/SKILL.md        # Starter skill
     └── ci-github-actions/SKILL.md        # Earned skill
 ```
 
@@ -102,7 +102,7 @@ Active decisions (ongoing policies, user preferences, current architecture) stay
 
 ## Directives
 
-Directives are team rules that persist across sessions. Say "always" or "never" and Squad captures it permanently. Every agent reads directives before working.
+Directives are team rules that persist across sessions. Say "always" or "never" and Crew captures it permanently. Every agent reads directives before working.
 
 ### Signal Word Detection
 
@@ -123,14 +123,14 @@ The coordinator listens for these phrases and captures them as directives:
 sequenceDiagram
     participant You
     participant Coordinator
-    participant Squad as .squad/decisions/inbox/
+    participant Crew as .crew/decisions/inbox/
     participant Scribe
     participant Agents
     
     You->>Coordinator: "always..." or "never..."
     Coordinator->>Coordinator: Signal word detected
-    Coordinator->>Squad: Write to inbox/{timestamp}-{slug}.md
-    Squad->>Scribe: Merge inbox files
+    Coordinator->>Crew: Write to inbox/{timestamp}-{slug}.md
+    Crew->>Scribe: Merge inbox files
     Scribe->>Agents: decisions.md updated
     Agents->>Agents: All agents read before next task
 ```
@@ -163,7 +163,7 @@ What's our rule on testing?
 Remove the no-Friday-deploy rule
 ```
 
-You can also edit `.squad/decisions.md` directly — it's plain Markdown.
+You can also edit `.crew/decisions.md` directly — it's plain Markdown.
 
 ### Compliance
 
@@ -181,7 +181,7 @@ Skills are reusable knowledge files that live at `.copilot/skills/{skill-name}/S
 
 | Type | Source | Example |
 |------|--------|---------|
-| **Starter** | Bundled at init, prefixed `squad-` | `squad-conventions` |
+| **Starter** | Bundled at init, prefixed `crew-` | `crew-conventions` |
 | **Earned** | Written by agents from real work | `ci-github-actions` |
 
 Starter skills are overwritten on upgrade. Earned skills are never touched.
@@ -212,7 +212,7 @@ Skills export and import with your team. Move a trained team to a new repo, and 
 
 ## Knowledge persistence
 
-Not all knowledge in `.squad/` lasts forever. When files grow large, Squad compacts them to keep performance fast. Here's what persists and what gets summarized:
+Not all knowledge in `.crew/` lasts forever. When files grow large, Crew compacts them to keep performance fast. Here's what persists and what gets summarized:
 
 | What | File | Compacted? | Where old content goes | Who reads it |
 |------|------|-----------|----------------------|-------------|
@@ -233,7 +233,7 @@ Knowledge that needs to survive compaction belongs in **skills**. Reusable patte
 
 ## Tips
 
-- **Commit `.squad/`** — anyone who clones the repo gets the team with all their accumulated knowledge.
+- **Commit `.crew/`** — anyone who clones the repo gets the team with all their accumulated knowledge.
 - Directives ("always…", "never…") are the fastest way to shape team behavior. Use them liberally.
 - If an agent keeps making the same mistake, check `decisions.md` — the relevant convention might be missing.
 - You can edit `decisions.md`, `history.md`, and skill files directly. They're all plain Markdown.

@@ -10,7 +10,7 @@ I work across personal GitHub and Enterprise Managed Users
 Show me how to configure gh CLI for multiple GitHub accounts
 ```
 
-You have repositories in both personal GitHub (github.com) and GitHub Enterprise Cloud with Enterprise Managed Users (EMU). The `gh` CLI and git credentials are tied to one account at a time. Squad agents hit authentication errors when working across these boundaries.
+You have repositories in both personal GitHub (github.com) and GitHub Enterprise Cloud with Enterprise Managed Users (EMU). The `gh` CLI and git credentials are tied to one account at a time. Crew agents hit authentication errors when working across these boundaries.
 
 ---
 
@@ -20,7 +20,7 @@ GitHub Enterprise Managed Users (EMU) provisions user accounts managed by your e
 
 1. Your git credentials authenticate to one account at a time
 2. The `gh` CLI authenticates to one account at a time
-3. Squad agents inherit your authentication context
+3. Crew agents inherit your authentication context
 4. When an agent tries to access a repo tied to a different account, authentication fails
 
 **Common error messages:**
@@ -103,7 +103,7 @@ gh auth switch --user alice_acme --hostname ghe.mycompany.com
 
 ## Solution 2: Copilot instructions
 
-Add account mapping to `.github/copilot-instructions.md` so Squad agents know which account to use for which repositories.
+Add account mapping to `.github/copilot-instructions.md` so Crew agents know which account to use for which repositories.
 
 Create or update `.github/copilot-instructions.md` in your repository:
 
@@ -128,15 +128,15 @@ When working with repositories across multiple GitHub accounts, use the followin
 Before executing `gh` or `git` commands, check the repository URL and switch to the correct account with `gh auth switch --user <username>` if needed.
 ```
 
-Squad agents will read this instruction and switch accounts when they detect a cross-account operation.
+Crew agents will read this instruction and switch accounts when they detect a cross-account operation.
 
 **User-level instructions:** If you work across multiple repos, add the account mapping to your global Copilot instructions at `~/.github/copilot-instructions.md` (or `%USERPROFILE%\.github\copilot-instructions.md` on Windows).
 
 ---
 
-## Solution 3: Squad skill
+## Solution 3: Crew skill
 
-Capture the cross-org auth pattern as a Squad skill. When authentication fails, the skill detects the error and suggests or attempts account switching.
+Capture the cross-org auth pattern as a Crew skill. When authentication fails, the skill detects the error and suggests or attempts account switching.
 
 Create `.copilot/skills/cross-org-auth-recovery.md`:
 
@@ -219,7 +219,7 @@ git config --global credential.https://github.com/ORGANIZATION.helper "!gh auth 
 
 ## Verify active account
 
-Before running Squad agents, check which GitHub account is active:
+Before running Crew agents, check which GitHub account is active:
 
 ```bash
 gh auth status
@@ -241,9 +241,9 @@ Both should succeed without authentication errors.
 
 ## Tips
 
-- **Switch before starting Squad** — run `gh auth switch` before launching a Squad session if you know which repos you'll work on
+- **Switch before starting Crew** — run `gh auth switch` before launching a Crew session if you know which repos you'll work on
 - **Error detection works both ways** — if an agent hits an auth error, check `gh auth status` and switch manually before retrying
-- **Use Copilot instructions for documentation** — document account mappings in `.github/copilot-instructions.md` so Squad agents (and human teammates) know which account to use
+- **Use Copilot instructions for documentation** — document account mappings in `.github/copilot-instructions.md` so Crew agents (and human teammates) know which account to use
 - **Test both accounts** — verify both `gh` and `git` operations work for each account before relying on multi-account workflows
 - **EMU hostname varies** — some EMU orgs use `github.com` with organization-scoped access; others use dedicated hostnames like `ghe.mycompany.com`. Check with your GitHub admin.
 - **Token permissions matter** — EMU accounts may have restricted permissions. Ensure your token has `repo`, `read:org`, and `workflow` scopes.
@@ -252,6 +252,6 @@ Both should succeed without authentication errors.
 
 ## See also
 
-- [Private repos](./private-repos) — privacy and security for Squad on enterprise repos
+- [Private repos](./private-repos) — privacy and security for Crew on enterprise repos
 - [Enterprise platforms](../features/enterprise-platforms) — Azure DevOps and Microsoft Planner support
-- [Troubleshooting](./troubleshooting) — common Squad issues and fixes
+- [Troubleshooting](./troubleshooting) — common Crew issues and fixes

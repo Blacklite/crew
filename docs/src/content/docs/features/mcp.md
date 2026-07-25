@@ -1,6 +1,6 @@
-# MCP Setup Guide for Squad
+# MCP Setup Guide for Crew
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to discover available integrations:**
@@ -13,13 +13,13 @@ Show me which MCP servers are available
 Configure the GitHub MCP server
 ```
 
-MCP (Model Context Protocol) servers extend Squad with external services — GitHub, notifications, deployments, Trello, and more. Agents discover and use MCP tools automatically.
+MCP (Model Context Protocol) servers extend Crew with external services — GitHub, notifications, deployments, Trello, and more. Agents discover and use MCP tools automatically.
 
 ---
 
-## What MCP Means for Squad
+## What MCP Means for Crew
 
-MCP bridges Squad agents and external services. Agents use MCP tools to send notifications, query GitHub, monitor deployments, integrate with Trello, and more. You define which services are available; agents discover and use them automatically.
+MCP bridges Crew agents and external services. Agents use MCP tools to send notifications, query GitHub, monitor deployments, integrate with Trello, and more. You define which services are available; agents discover and use them automatically.
 
 ---
 
@@ -106,7 +106,7 @@ Then reference it in your config:
 copilot
 ```
 
-In your Squad session, ask:
+In your Crew session, ask:
 
 ```
 > Show me available MCP tools
@@ -167,7 +167,7 @@ Press `Cmd+Shift+P` (macOS) or `Ctrl+Shift+P` (Windows) and select **"Copilot: R
 
 ## Example: GitHub MCP (Already Included)
 
-Most Squad installs come with GitHub MCP pre-configured. Here's what it looks like:
+Most Crew installs come with GitHub MCP pre-configured. Here's what it looks like:
 
 ### CLI: `.copilot/mcp-config.json`
 
@@ -257,7 +257,7 @@ Find your **board ID** by opening any card on Trello and looking at the URL: `tr
 
 ### Step 3: Test it
 
-In your Squad session:
+In your Crew session:
 
 ```
 > Keaton, create a Trello card for the auth refactor
@@ -294,7 +294,7 @@ Replace `/absolute/path/to/aspire-mcp.js` with the actual path to your Aspire MC
 Agents can now ask:
 
 ```
-> Squad, check the Aspire dashboard — any service errors?
+> Crew, check the Aspire dashboard — any service errors?
 ```
 
 The monitoring agent (or any agent) pulls live deployment status and alerts you to issues.
@@ -436,7 +436,7 @@ Agents don't need special setup to discover tools. Here's the flow:
 I want to get pinged on Teams when agents need input. Walk me through it.
 ```
 
-Squad will point you to the [Notifications Guide](./notifications.md#quick-start-teams-simplest-path), where you configure a Teams webhook and an MCP notification server.
+Crew will point you to the [Notifications Guide](./notifications.md#quick-start-teams-simplest-path), where you configure a Teams webhook and an MCP notification server.
 
 ### Adding Trello integration
 

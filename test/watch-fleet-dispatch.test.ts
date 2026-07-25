@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classifyIssue } from '../packages/squad-cli/src/cli/commands/watch/capabilities/execute.js';
+import { classifyIssue } from '../packages/crew-cli/src/cli/commands/watch/capabilities/execute.js';
 
 describe('classifyIssue', () => {
   it('classifies research issues as read', () => {

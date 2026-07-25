@@ -7,7 +7,7 @@ const os = require('os');
 
 const CLI = path.join(__dirname, '..', 'index.cjs');
 
-function runSquad(args, cwd) {
+function runCrew(args, cwd) {
   try {
     const result = execFileSync(process.execPath, [CLI, ...args], {
       cwd,
@@ -25,7 +25,7 @@ function runSquad(args, cwd) {
 }
 
 function makeTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'squad-skills-test-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'crew-skills-test-'));
 }
 
 function cleanDir(dir) {
@@ -34,11 +34,11 @@ function cleanDir(dir) {
   } catch {}
 }
 
-function initSquad(dir) {
-  const result = runSquad([], dir);
+function initCrew(dir) {
+  const result = runCrew([], dir);
   assert.equal(result.exitCode, 0, `init should succeed: ${result.stdout}`);
   
-  // Create a minimal team.md file (normally created by Squad agent during init conversation)
+  // Create a minimal team.md file (normally created by Crew agent during init conversation)
   const teamMdDir = path.join(dir, '.ai-team');
   const teamMdPath = path.join(teamMdDir, 'team.md');
   if (!fs.existsSync(teamMdPath)) {
@@ -64,8 +64,8 @@ describe('Skills survive export/import round-trip (#82)', () => {
   });
 
   it('exports skills to JSON manifest', () => {
-    // Initialize squad in first temp dir
-    initSquad(tmpDir1);
+    // Initialize crew in first temp dir
+    initCrew(tmpDir1);
 
     // Create a test skill
     const skillDir = path.join(tmpDir1, '.copilot', 'skills', 'test-skill');
@@ -89,8 +89,8 @@ This is a test skill for verifying export/import functionality.
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), skillContent);
 
     // Export the team
-    const exportPath = path.join(tmpDir1, 'squad-export.json');
-    const exportResult = runSquad(['export'], tmpDir1);
+    const exportPath = path.join(tmpDir1, 'crew-export.json');
+    const exportResult = runCrew(['export'], tmpDir1);
     assert.equal(exportResult.exitCode, 0, `export should succeed: ${exportResult.stdout}`);
     assert.ok(fs.existsSync(exportPath), 'export file should be created');
 
@@ -105,8 +105,8 @@ This is a test skill for verifying export/import functionality.
   });
 
   it('imports skills from JSON manifest', () => {
-    // Initialize squad in first temp dir
-    initSquad(tmpDir1);
+    // Initialize crew in first temp dir
+    initCrew(tmpDir1);
 
     // Create a test skill with unique content
     const skillDir = path.join(tmpDir1, '.copilot', 'skills', 'import-test-skill');
@@ -131,15 +131,15 @@ This skill has unique content to verify import works correctly.
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), skillContent);
 
     // Export the team
-    const exportPath = path.join(tmpDir1, 'squad-export.json');
-    const exportResult = runSquad(['export'], tmpDir1);
+    const exportPath = path.join(tmpDir1, 'crew-export.json');
+    const exportResult = runCrew(['export'], tmpDir1);
     assert.equal(exportResult.exitCode, 0, `export should succeed: ${exportResult.stdout}`);
 
-    // Initialize squad in second temp dir (to have squad structure)
-    initSquad(tmpDir2);
+    // Initialize crew in second temp dir (to have crew structure)
+    initCrew(tmpDir2);
 
     // Import into second temp dir with --force
-    const importResult = runSquad(['import', exportPath, '--force'], tmpDir2);
+    const importResult = runCrew(['import', exportPath, '--force'], tmpDir2);
     assert.equal(importResult.exitCode, 0, `import should succeed: ${importResult.stdout}`);
 
     // Verify the skill exists in the new directory
@@ -152,8 +152,8 @@ This skill has unique content to verify import works correctly.
   });
 
   it('preserves multiple skills during export/import', () => {
-    // Initialize squad in first temp dir
-    initSquad(tmpDir1);
+    // Initialize crew in first temp dir
+    initCrew(tmpDir1);
 
     // Create multiple test skills
     const skills = [
@@ -178,8 +178,8 @@ ${skill.content}
     }
 
     // Export the team
-    const exportPath = path.join(tmpDir1, 'squad-export.json');
-    const exportResult = runSquad(['export'], tmpDir1);
+    const exportPath = path.join(tmpDir1, 'crew-export.json');
+    const exportResult = runCrew(['export'], tmpDir1);
     assert.equal(exportResult.exitCode, 0, `export should succeed: ${exportResult.stdout}`);
 
     // Read manifest and verify skill count
@@ -187,11 +187,11 @@ ${skill.content}
     // Should have at least our 3 skills (may have starter skills too)
     assert.ok(manifest.skills.length >= 3, 'should have at least 3 skills in export');
 
-    // Initialize squad in second temp dir
-    initSquad(tmpDir2);
+    // Initialize crew in second temp dir
+    initCrew(tmpDir2);
 
     // Import into second temp dir with --force
-    const importResult = runSquad(['import', exportPath, '--force'], tmpDir2);
+    const importResult = runCrew(['import', exportPath, '--force'], tmpDir2);
     assert.equal(importResult.exitCode, 0, `import should succeed: ${importResult.stdout}`);
 
     // Verify all skills exist
@@ -205,8 +205,8 @@ ${skill.content}
   });
 
   it('preserves skill confidence levels during export/import', () => {
-    // Initialize squad in first temp dir
-    initSquad(tmpDir1);
+    // Initialize crew in first temp dir
+    initCrew(tmpDir1);
 
     // Create a skill with high confidence
     const skillDir = path.join(tmpDir1, '.copilot', 'skills', 'confidence-test');
@@ -223,12 +223,12 @@ This skill should maintain its high confidence level after import.
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), skillContent);
 
     // Export
-    const exportPath = path.join(tmpDir1, 'squad-export.json');
-    runSquad(['export'], tmpDir1);
+    const exportPath = path.join(tmpDir1, 'crew-export.json');
+    runCrew(['export'], tmpDir1);
 
     // Initialize and import
-    initSquad(tmpDir2);
-    runSquad(['import', exportPath, '--force'], tmpDir2);
+    initCrew(tmpDir2);
+    runCrew(['import', exportPath, '--force'], tmpDir2);
 
     // Verify confidence is preserved
     const importedSkillPath = path.join(tmpDir2, '.copilot', 'skills', 'confidence-test', 'SKILL.md');
@@ -237,8 +237,8 @@ This skill should maintain its high confidence level after import.
   });
 
   it('reports skill count in import output', () => {
-    // Initialize squad in first temp dir
-    initSquad(tmpDir1);
+    // Initialize crew in first temp dir
+    initCrew(tmpDir1);
 
     // Create a skill
     const skillDir = path.join(tmpDir1, '.copilot', 'skills', 'report-test');
@@ -251,12 +251,12 @@ name: report-test
 `);
 
     // Export
-    const exportPath = path.join(tmpDir1, 'squad-export.json');
-    runSquad(['export'], tmpDir1);
+    const exportPath = path.join(tmpDir1, 'crew-export.json');
+    runCrew(['export'], tmpDir1);
 
     // Initialize and import
-    initSquad(tmpDir2);
-    const importResult = runSquad(['import', exportPath, '--force'], tmpDir2);
+    initCrew(tmpDir2);
+    const importResult = runCrew(['import', exportPath, '--force'], tmpDir2);
 
     // Verify import output mentions skills
     assert.ok(importResult.stdout.includes('skill'), 'import output should mention skills');
@@ -278,7 +278,7 @@ describe('decisions.md and team.md survive export/import round-trip (#1122)', ()
   });
 
   it('exports decisions.md and team.md content in manifest', () => {
-    initSquad(tmpDir1);
+    initCrew(tmpDir1);
 
     // Write content to decisions.md and team.md
     const aiTeamDir = path.join(tmpDir1, '.ai-team');
@@ -286,8 +286,8 @@ describe('decisions.md and team.md survive export/import round-trip (#1122)', ()
     fs.writeFileSync(path.join(aiTeamDir, 'team.md'), '# Team Roster\n\n## Lead Architect\nDesigns systems.\n');
 
     // Export
-    const exportPath = path.join(tmpDir1, 'squad-export.json');
-    const exportResult = runSquad(['export'], tmpDir1);
+    const exportPath = path.join(tmpDir1, 'crew-export.json');
+    const exportResult = runCrew(['export'], tmpDir1);
     assert.equal(exportResult.exitCode, 0, `export should succeed: ${exportResult.stdout}`);
 
     // Verify manifest contains decisions and team fields
@@ -297,7 +297,7 @@ describe('decisions.md and team.md survive export/import round-trip (#1122)', ()
   });
 
   it('imports decisions.md and team.md content from manifest', () => {
-    initSquad(tmpDir1);
+    initCrew(tmpDir1);
 
     // Write content to decisions.md and team.md
     const aiTeamDir = path.join(tmpDir1, '.ai-team');
@@ -305,12 +305,12 @@ describe('decisions.md and team.md survive export/import round-trip (#1122)', ()
     fs.writeFileSync(path.join(aiTeamDir, 'team.md'), '# Team\n\nTeam member info here.\n');
 
     // Export from dir1
-    const exportPath = path.join(tmpDir1, 'squad-export.json');
-    runSquad(['export'], tmpDir1);
+    const exportPath = path.join(tmpDir1, 'crew-export.json');
+    runCrew(['export'], tmpDir1);
 
     // Init and import into dir2
-    initSquad(tmpDir2);
-    const importResult = runSquad(['import', exportPath, '--force'], tmpDir2);
+    initCrew(tmpDir2);
+    const importResult = runCrew(['import', exportPath, '--force'], tmpDir2);
     assert.equal(importResult.exitCode, 0, `import should succeed: ${importResult.stdout}`);
 
     // Verify imported files have the correct content
@@ -321,13 +321,13 @@ describe('decisions.md and team.md survive export/import round-trip (#1122)', ()
   });
 
   it('imports older manifests without decisions/team fields successfully', () => {
-    initSquad(tmpDir1);
+    initCrew(tmpDir1);
 
     // Create a manifest without decisions and team fields (older format)
     const oldManifest = {
       version: '1.0',
       exported_at: new Date().toISOString(),
-      squad_version: '0.6.0',
+      crew_version: '0.6.0',
       casting: { registry: { agents: [] } },
       agents: {},
       skills: []
@@ -336,8 +336,8 @@ describe('decisions.md and team.md survive export/import round-trip (#1122)', ()
     fs.writeFileSync(exportPath, JSON.stringify(oldManifest, null, 2));
 
     // Init and import into dir2
-    initSquad(tmpDir2);
-    const importResult = runSquad(['import', exportPath, '--force'], tmpDir2);
+    initCrew(tmpDir2);
+    const importResult = runCrew(['import', exportPath, '--force'], tmpDir2);
     assert.equal(importResult.exitCode, 0, `import of old manifest should succeed: ${importResult.stdout}`);
 
     // Verify files exist (empty is fine for old manifests)

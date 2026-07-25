@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  SquadConfig,
+  CrewConfig,
   AgentConfig,
   defineConfig,
   validateConfig,
@@ -12,13 +12,13 @@ import {
   GitHubAgentSource,
   MarketplaceAgentSource,
   AgentRegistry,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 describe('Configuration Schema', () => {
   describe('DEFAULT_CONFIG', () => {
     it('should have required fields', () => {
       expect(DEFAULT_CONFIG.version).toBe('0.6.0');
-      expect(DEFAULT_CONFIG.team.name).toBe('Default Squad');
+      expect(DEFAULT_CONFIG.team.name).toBe('Default Crew');
       expect(DEFAULT_CONFIG.routing.fallbackBehavior).toBe('coordinator');
       expect(DEFAULT_CONFIG.models.default).toBe('claude-sonnet-4.6');
       expect(DEFAULT_CONFIG.agents).toEqual([]);
@@ -34,19 +34,19 @@ describe('Configuration Schema', () => {
   describe('defineConfig', () => {
     it('should merge with defaults', () => {
       const config = defineConfig({
-        team: { name: 'Test Squad' },
+        team: { name: 'Test Crew' },
       });
 
       expect(config.version).toBe('0.6.0');
-      expect(config.team.name).toBe('Test Squad');
+      expect(config.team.name).toBe('Test Crew');
       expect(config.routing.fallbackBehavior).toBe('coordinator');
     });
 
     it('should merge nested objects', () => {
       const config = defineConfig({
         team: {
-          name: 'My Squad',
-          description: 'A test squad',
+          name: 'My Crew',
+          description: 'A test crew',
         },
         models: {
           default: 'gpt-5.1-codex',
@@ -55,8 +55,8 @@ describe('Configuration Schema', () => {
         },
       });
 
-      expect(config.team.name).toBe('My Squad');
-      expect(config.team.description).toBe('A test squad');
+      expect(config.team.name).toBe('My Crew');
+      expect(config.team.description).toBe('A test crew');
       expect(config.models.default).toBe('gpt-5.1-codex');
     });
 

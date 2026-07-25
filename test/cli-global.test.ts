@@ -2,16 +2,16 @@
  * Integration tests for CLI --global flag and status command routing.
  *
  * Tests that main() in src/index.ts correctly:
- * - Routes init/upgrade with --global to resolveGlobalSquadPath()
- * - Shows "repo" type when .squad/ is present (status command)
- * - Shows "none" when no .squad/ exists (status command)
+ * - Routes init/upgrade with --global to resolveGlobalCrewPath()
+ * - Shows "repo" type when .crew/ is present (status command)
+ * - Shows "none" when no .crew/ exists (status command)
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdirSync, rmSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomBytes } from 'node:crypto';
-import { resolveSquad, resolveGlobalSquadPath, clearResolveSquadCache } from '@bradygaster/squad-sdk/resolution';
+import { resolveCrew, resolveGlobalCrewPath, clearResolveCrewCache } from '@blacklite/crew-sdk/resolution';
 
 const TMP = join(process.cwd(), `.test-cli-global-${randomBytes(4).toString('hex')}`);
 
@@ -25,70 +25,70 @@ function scaffold(...dirs: string[]): void {
 // Status command — resolution logic
 // ============================================================================
 
-describe('squad status routing logic', () => {
+describe('crew status routing logic', () => {
   beforeEach(() => {
-    clearResolveSquadCache();
+    clearResolveCrewCache();
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     mkdirSync(TMP, { recursive: true });
   });
 
   afterEach(() => {
-    clearResolveSquadCache();
+    clearResolveCrewCache();
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
   });
 
-  it('identifies "repo" type when .squad/ is in the repo tree', () => {
-    scaffold('.git', '.squad');
-    const repoSquad = resolveSquad(TMP);
-    expect(repoSquad).not.toBeNull();
-    // Status logic: if repoSquad is truthy → "repo" type
-    const activeType = repoSquad ? 'repo' : 'none';
+  it('identifies "repo" type when .crew/ is in the repo tree', () => {
+    scaffold('.git', '.crew');
+    const repoCrew = resolveCrew(TMP);
+    expect(repoCrew).not.toBeNull();
+    // Status logic: if repoCrew is truthy → "repo" type
+    const activeType = repoCrew ? 'repo' : 'none';
     expect(activeType).toBe('repo');
   });
 
-  it('identifies "none" when no .squad/ exists and no global squad', () => {
+  it('identifies "none" when no .crew/ exists and no global crew', () => {
     scaffold('.git');
-    const repoSquad = resolveSquad(TMP);
-    expect(repoSquad).toBeNull();
-    // Without a global personal-squad/ dir, status shows "none"
-    const globalPath = resolveGlobalSquadPath();
-    const globalSquadDir = join(globalPath, 'personal-squad');
-    // When repo squad is null and global personal-squad doesn't exist → "none"
-    const activeType = repoSquad ? 'repo' : existsSync(globalSquadDir) ? 'personal' : 'none';
+    const repoCrew = resolveCrew(TMP);
+    expect(repoCrew).toBeNull();
+    // Without a global personal-crew/ dir, status shows "none"
+    const globalPath = resolveGlobalCrewPath();
+    const globalCrewDir = join(globalPath, 'personal-crew');
+    // When repo crew is null and global personal-crew doesn't exist → "none"
+    const activeType = repoCrew ? 'repo' : existsSync(globalCrewDir) ? 'personal' : 'none';
     expect(activeType).toBe(activeType === 'personal' ? 'personal' : 'none');
-    // At minimum, repoSquad must be null
-    expect(repoSquad).toBeNull();
+    // At minimum, repoCrew must be null
+    expect(repoCrew).toBeNull();
   });
 
-  it('identifies "personal" when no repo .squad/ but global personal-squad/ exists', () => {
+  it('identifies "personal" when no repo .crew/ but global personal-crew/ exists', () => {
     scaffold('.git');
-    const repoSquad = resolveSquad(TMP);
-    expect(repoSquad).toBeNull();
+    const repoCrew = resolveCrew(TMP);
+    expect(repoCrew).toBeNull();
 
-    const globalPath = resolveGlobalSquadPath();
-    const globalSquadDir = join(globalPath, 'personal-squad');
-    // Create a personal-squad/ inside the global path
-    mkdirSync(globalSquadDir, { recursive: true });
+    const globalPath = resolveGlobalCrewPath();
+    const globalCrewDir = join(globalPath, 'personal-crew');
+    // Create a personal-crew/ inside the global path
+    mkdirSync(globalCrewDir, { recursive: true });
 
-    const activeType = repoSquad ? 'repo' : existsSync(globalSquadDir) ? 'personal' : 'none';
+    const activeType = repoCrew ? 'repo' : existsSync(globalCrewDir) ? 'personal' : 'none';
     expect(activeType).toBe('personal');
 
-    // Cleanup global personal-squad dir we created
-    rmSync(globalSquadDir, { recursive: true, force: true });
+    // Cleanup global personal-crew dir we created
+    rmSync(globalCrewDir, { recursive: true, force: true });
   });
 
-  it('repo squad takes priority over personal squad', () => {
-    scaffold('.git', '.squad');
-    const repoSquad = resolveSquad(TMP);
-    const globalPath = resolveGlobalSquadPath();
-    const globalSquadDir = join(globalPath, 'personal-squad');
-    mkdirSync(globalSquadDir, { recursive: true });
+  it('repo crew takes priority over personal crew', () => {
+    scaffold('.git', '.crew');
+    const repoCrew = resolveCrew(TMP);
+    const globalPath = resolveGlobalCrewPath();
+    const globalCrewDir = join(globalPath, 'personal-crew');
+    mkdirSync(globalCrewDir, { recursive: true });
 
     // Same logic as status command — repo wins
-    const activeType = repoSquad ? 'repo' : existsSync(globalSquadDir) ? 'personal' : 'none';
+    const activeType = repoCrew ? 'repo' : existsSync(globalCrewDir) ? 'personal' : 'none';
     expect(activeType).toBe('repo');
 
-    rmSync(globalSquadDir, { recursive: true, force: true });
+    rmSync(globalCrewDir, { recursive: true, force: true });
   });
 });
 
@@ -99,44 +99,44 @@ describe('squad status routing logic', () => {
 describe('--global flag routing', () => {
   it('init --global resolves to global path, not cwd', () => {
     // Replicate the routing logic from src/index.ts:
-    //   const dest = hasGlobal ? resolveGlobalSquadPath() : process.cwd();
+    //   const dest = hasGlobal ? resolveGlobalCrewPath() : process.cwd();
     const hasGlobal = true;
-    const dest = hasGlobal ? resolveGlobalSquadPath() : process.cwd();
+    const dest = hasGlobal ? resolveGlobalCrewPath() : process.cwd();
 
-    expect(dest).toBe(resolveGlobalSquadPath());
+    expect(dest).toBe(resolveGlobalCrewPath());
     expect(dest).not.toBe(process.cwd());
   });
 
   it('init without --global resolves to cwd', () => {
     const hasGlobal = false;
-    const dest = hasGlobal ? resolveGlobalSquadPath() : process.cwd();
+    const dest = hasGlobal ? resolveGlobalCrewPath() : process.cwd();
 
     expect(dest).toBe(process.cwd());
   });
 
   it('upgrade --global resolves to global path, not cwd', () => {
     const hasGlobal = true;
-    const dest = hasGlobal ? resolveGlobalSquadPath() : process.cwd();
+    const dest = hasGlobal ? resolveGlobalCrewPath() : process.cwd();
 
-    expect(dest).toBe(resolveGlobalSquadPath());
+    expect(dest).toBe(resolveGlobalCrewPath());
     expect(dest).not.toBe(process.cwd());
   });
 
   it('upgrade without --global resolves to cwd', () => {
     const hasGlobal = false;
-    const dest = hasGlobal ? resolveGlobalSquadPath() : process.cwd();
+    const dest = hasGlobal ? resolveGlobalCrewPath() : process.cwd();
 
     expect(dest).toBe(process.cwd());
   });
 
   it('global path is consistent across repeated calls', () => {
-    const first = resolveGlobalSquadPath();
-    const second = resolveGlobalSquadPath();
+    const first = resolveGlobalCrewPath();
+    const second = resolveGlobalCrewPath();
     expect(first).toBe(second);
   });
 
   it('global path differs from cwd', () => {
-    const globalPath = resolveGlobalSquadPath();
+    const globalPath = resolveGlobalCrewPath();
     expect(globalPath).not.toBe(process.cwd());
   });
 });

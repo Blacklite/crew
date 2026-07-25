@@ -3,7 +3,7 @@
  *
  * Verifies the watch capability:
  *   - Skips cleanly when the backend is not two-layer.
- *   - Promotes flagged squad notes when running on a two-layer repo.
+ *   - Promotes flagged crew notes when running on a two-layer repo.
  *   - Is idempotent (subsequent rounds find nothing to promote).
  */
 
@@ -12,20 +12,20 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { NotesPromoteCapability } from '../packages/squad-cli/src/cli/commands/watch/capabilities/notes-promote.js';
-import type { WatchContext } from '../packages/squad-cli/src/cli/commands/watch/types.js';
+import { NotesPromoteCapability } from '../packages/crew-cli/src/cli/commands/watch/capabilities/notes-promote.js';
+import type { WatchContext } from '../packages/crew-cli/src/cli/commands/watch/types.js';
 
 function mkRepo(backend: string): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'squad-cap-promote-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-cap-promote-'));
   execFileSync('git', ['init', '--quiet', '-b', 'main'], { cwd: dir });
   execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir });
-  execFileSync('git', ['config', 'user.name', 'Squad CapTest'], { cwd: dir });
+  execFileSync('git', ['config', 'user.name', 'Crew CapTest'], { cwd: dir });
   fs.writeFileSync(path.join(dir, 'README.md'), '# test\n');
   execFileSync('git', ['add', 'README.md'], { cwd: dir });
   execFileSync('git', ['commit', '-q', '-m', 'init'], { cwd: dir });
-  fs.mkdirSync(path.join(dir, '.squad'), { recursive: true });
+  fs.mkdirSync(path.join(dir, '.crew'), { recursive: true });
   fs.writeFileSync(
-    path.join(dir, '.squad', 'config.json'),
+    path.join(dir, '.crew', 'config.json'),
     JSON.stringify({ stateBackend: backend, teamRoot: '.' }, null, 2),
   );
   return dir;
@@ -74,7 +74,7 @@ describe('NotesPromoteCapability', () => {
   it('execute promotes flagged notes on a two-layer repo', { timeout: 30_000 }, async () => {
     dir = mkRepo('two-layer');
     execFileSync(
-      'git', ['notes', '--ref=squad/picard', 'add', '-f', '-m',
+      'git', ['notes', '--ref=crew/picard', 'add', '-f', '-m',
         JSON.stringify({ promote_to_permanent: true, decision: 'D1' }), 'HEAD'],
       { cwd: dir },
     );

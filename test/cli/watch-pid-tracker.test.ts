@@ -20,31 +20,31 @@ vi.mock('node:child_process', async (importOriginal) => {
 });
 
 import { execFileSync } from 'node:child_process';
-import { PidTracker, type TrackedProcess } from '../../packages/squad-cli/src/cli/commands/watch/pid-tracker.js';
+import { PidTracker, type TrackedProcess } from '../../packages/crew-cli/src/cli/commands/watch/pid-tracker.js';
 
-/** Create a temp directory with a .squad subdirectory for testing. */
+/** Create a temp directory with a .crew subdirectory for testing. */
 function makeTempTeamRoot(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'squad-pid-test-'));
-  fs.mkdirSync(path.join(dir, '.squad'), { recursive: true });
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-pid-test-'));
+  fs.mkdirSync(path.join(dir, '.crew'), { recursive: true });
   return dir;
 }
 
 /** Read the PID file directly. */
 function readPidFile(teamRoot: string): TrackedProcess[] {
-  const pidPath = path.join(teamRoot, '.squad', '.watch-pids');
+  const pidPath = path.join(teamRoot, '.crew', '.watch-pids');
   if (!fs.existsSync(pidPath)) return [];
   return JSON.parse(fs.readFileSync(pidPath, 'utf-8'));
 }
 
 /** Write a PID file directly. */
 function writePidFile(teamRoot: string, entries: TrackedProcess[]): void {
-  const pidPath = path.join(teamRoot, '.squad', '.watch-pids');
+  const pidPath = path.join(teamRoot, '.crew', '.watch-pids');
   fs.writeFileSync(pidPath, JSON.stringify(entries, null, 2), 'utf-8');
 }
 
 /** Check if PID file exists. */
 function pidFileExists(teamRoot: string): boolean {
-  return fs.existsSync(path.join(teamRoot, '.squad', '.watch-pids'));
+  return fs.existsSync(path.join(teamRoot, '.crew', '.watch-pids'));
 }
 
 describe('PidTracker', () => {
@@ -211,7 +211,7 @@ describe('PidTracker', () => {
 
     it('handles corrupted PID file gracefully', () => {
       // Write garbage to the PID file
-      const pidPath = path.join(teamRoot, '.squad', '.watch-pids');
+      const pidPath = path.join(teamRoot, '.crew', '.watch-pids');
       fs.writeFileSync(pidPath, '<<<not json>>>', 'utf-8');
 
       const tracker = new PidTracker(teamRoot);

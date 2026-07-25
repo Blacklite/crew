@@ -5,9 +5,9 @@ description: Built-in skill teaching agents to adapt when things fail — retry 
 
 # Error Recovery — Standard Failure Patterns
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-The `error-recovery` skill teaches every squad agent to **adapt** when something fails, not just report the failure. It ships as a built-in skill at `.copilot/skills/error-recovery/SKILL.md` and is available to every spawned agent.
+The `error-recovery` skill teaches every crew agent to **adapt** when something fails, not just report the failure. It ships as a built-in skill at `.copilot/skills/error-recovery/SKILL.md` and is available to every spawned agent.
 
 Without this skill, agents tend to encounter a failure (CI test red, API timeout, missing dependency) and stop. With it, they apply standard patterns to diagnose, retry, or escalate the right way.
 
@@ -78,18 +78,18 @@ Without this skill, agents tend to encounter a failure (CI test red, API timeout
 
 - **Don't retry on user-input errors.** If the user typed `gh repo create my-typo`, don't retry with `my-typoo`. Surface and ask.
 - **Don't fall back silently on security-sensitive operations.** If `git push origin main` fails because of branch protection, do NOT fall back to `--force`.
-- **Don't escalate without context.** *"It failed"* isn't an escalation; *"three attempts, each with `EACCES`, suggests user lacks write to `.squad/`, recommend chmod or different storage path"* is.
+- **Don't escalate without context.** *"It failed"* isn't an escalation; *"three attempts, each with `EACCES`, suggests user lacks write to `.crew/`, recommend chmod or different storage path"* is.
 
 ---
 
 ## Integration with Reviewer Rejection Protocol
 
-When the failure is a Reviewer rejection (a Reviewer agent rejects an artifact), the [Reviewer Rejection Protocol](/squad/docs/features/reviewer-protocol/) takes precedence. The original author is locked out and a different agent must own the revision. Error-recovery patterns apply within that constraint — the revision agent can use retry/fallback/diagnose patterns freely.
+When the failure is a Reviewer rejection (a Reviewer agent rejects an artifact), the [Reviewer Rejection Protocol](/crew/docs/features/reviewer-protocol/) takes precedence. The original author is locked out and a different agent must own the revision. Error-recovery patterns apply within that constraint — the revision agent can use retry/fallback/diagnose patterns freely.
 
 ---
 
 ## See also
 
-- [Reflect](/squad/docs/features/reflect/) — learning from corrections
-- [Reviewer Protocol](/squad/docs/features/reviewer-protocol/) — when a Reviewer rejects work
-- [Skills](/squad/docs/features/skills/) — how built-in skills work
+- [Reflect](/crew/docs/features/reflect/) — learning from corrections
+- [Reviewer Protocol](/crew/docs/features/reviewer-protocol/) — when a Reviewer rejects work
+- [Skills](/crew/docs/features/skills/) — how built-in skills work

@@ -3,8 +3,8 @@ import { execSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomBytes } from 'node:crypto';
-import { createStateMcpSession } from '../../packages/squad-cli/src/cli/commands/state-mcp.js';
-import { clearResolveSquadCache } from '../../packages/squad-sdk/src/resolution.js';
+import { createStateMcpSession } from '../../packages/crew-cli/src/cli/commands/state-mcp.js';
+import { clearResolveCrewCache } from '../../packages/crew-sdk/src/resolution.js';
 
 const TMP = join(process.cwd(), `.test-state-mcp-${randomBytes(4).toString('hex')}`);
 
@@ -19,9 +19,9 @@ function git(args: string): string {
   return execSync(`git ${args}`, { cwd: TMP, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }).trim();
 }
 
-function initTwoLayerSquad(): void {
-  mkdirSync(join(TMP, '.squad'), { recursive: true });
-  writeFileSync(join(TMP, '.squad', 'config.json'), JSON.stringify({ stateBackend: 'two-layer' }, null, 2));
+function initTwoLayerCrew(): void {
+  mkdirSync(join(TMP, '.crew'), { recursive: true });
+  writeFileSync(join(TMP, '.crew', 'config.json'), JSON.stringify({ stateBackend: 'two-layer' }, null, 2));
   writeFileSync(join(TMP, 'README.md'), '# state mcp test\n');
   git('init');
   git('config user.email "test@test.com"');
@@ -40,15 +40,15 @@ describe('state-mcp bridge', () => {
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     mkdirSync(TMP, { recursive: true });
-    initTwoLayerSquad();
+    initTwoLayerCrew();
   });
 
   afterEach(() => {
-    clearResolveSquadCache();
+    clearResolveCrewCache();
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
   });
 
-  it('lists Squad state tools for MCP clients', async () => {
+  it('lists Crew state tools for MCP clients', async () => {
     const messages: JsonRpcMessage[] = [];
     const session = createStateMcpSession(TMP, message => messages.push(message as JsonRpcMessage));
 
@@ -56,13 +56,13 @@ describe('state-mcp bridge', () => {
 
     const tools = resultAsRecord(messages[0]!)['tools'] as Array<{ name: string; inputSchema: Record<string, unknown> }>;
     const names = tools.map(tool => tool.name);
-    expect(names).toContain('squad_decide');
-    expect(names).toContain('squad_state_write');
-    expect(names).toContain('squad_state_append');
-    expect(tools.find(tool => tool.name === 'squad_state_write')?.inputSchema.required).toEqual(['key', 'content']);
+    expect(names).toContain('crew_decide');
+    expect(names).toContain('crew_state_write');
+    expect(names).toContain('crew_state_append');
+    expect(tools.find(tool => tool.name === 'crew_state_write')?.inputSchema.required).toEqual(['key', 'content']);
   });
 
-  it('writes and reads two-layer state without mutating the worktree .squad files', async () => {
+  it('writes and reads two-layer state without mutating the worktree .crew files', async () => {
     const messages: JsonRpcMessage[] = [];
     const session = createStateMcpSession(TMP, message => messages.push(message as JsonRpcMessage));
 
@@ -71,7 +71,7 @@ describe('state-mcp bridge', () => {
       id: 'write',
       method: 'tools/call',
       params: {
-        name: 'squad_state_write',
+        name: 'crew_state_write',
         arguments: { key: 'decisions/inbox/mcp-proof.md', content: '# MCP proof\n' },
       },
     });
@@ -80,7 +80,7 @@ describe('state-mcp bridge', () => {
       id: 'read',
       method: 'tools/call',
       params: {
-        name: 'squad_state_read',
+        name: 'crew_state_read',
         arguments: { key: 'decisions/inbox/mcp-proof.md' },
       },
     });
@@ -89,7 +89,7 @@ describe('state-mcp bridge', () => {
     const readResult = resultAsRecord(messages[1]!);
     expect(writeResult['isError']).not.toBe(true);
     expect(readResult['content']).toEqual([{ type: 'text', text: '# MCP proof\n' }]);
-    expect(existsSync(join(TMP, '.squad', 'decisions', 'inbox', 'mcp-proof.md'))).toBe(false);
-    expect(readFileSync(join(TMP, '.squad', 'config.json'), 'utf8')).toContain('two-layer');
+    expect(existsSync(join(TMP, '.crew', 'decisions', 'inbox', 'mcp-proof.md'))).toBe(false);
+    expect(readFileSync(join(TMP, '.crew', 'config.json'), 'utf8')).toContain('two-layer');
   });
 });

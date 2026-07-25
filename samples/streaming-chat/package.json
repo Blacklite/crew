@@ -1,16 +1,16 @@
 {
-  "name": "@squad-samples/streaming-chat",
+  "name": "@crew-samples/streaming-chat",
   "version": "1.0.0",
-  "description": "Interactive multi-agent streaming chat — Squad SDK sample for MVP Summit",
+  "description": "Interactive multi-agent streaming chat — Crew SDK sample for MVP Summit",
   "type": "module",
   "scripts": {
     "start": "npx tsx index.ts",
-    "start:demo": "SQUAD_DEMO_MODE=true npx tsx index.ts",
+    "start:demo": "CREW_DEMO_MODE=true npx tsx index.ts",
     "build": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
-    "@bradygaster/squad-sdk": "file:../../packages/squad-sdk"
+    "@blacklite/crew-sdk": "file:../../packages/crew-sdk"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

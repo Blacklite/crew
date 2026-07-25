@@ -2,7 +2,7 @@
  * M6-10: End-to-end migration path tests
  *
  * Validates full migration workflows from legacy .ai-team/ projects to
- * .squad/ typed config, including multi-version chains, rollback, and
+ * .crew/ typed config, including multi-version chains, rollback, and
  * edge cases.
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -16,7 +16,7 @@ import {
   compareSemVer,
   type Migration,
   type MigrationResult,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
   migrateMarkdownToConfig,
   parseTeamMarkdown,
@@ -24,24 +24,24 @@ import {
   generateConfigFromParsed,
   type MarkdownParseResult,
   type MarkdownMigrationOptions,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
-  exportSquadConfig,
+  exportCrewConfig,
   serializeBundle,
   type ExportBundle,
-} from '@bradygaster/squad-sdk/sharing';
+} from '@blacklite/crew-sdk/sharing';
 import {
-  importSquadConfig,
+  importCrewConfig,
   deserializeBundle,
   validateBundle,
-} from '@bradygaster/squad-sdk/sharing';
-import { DEFAULT_CONFIG, type SquadConfig } from '@bradygaster/squad-sdk/runtime';
+} from '@blacklite/crew-sdk/sharing';
+import { DEFAULT_CONFIG, type CrewConfig } from '@blacklite/crew-sdk/runtime';
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
-const BASE_DIR = join(tmpdir(), 'squad-e2e-migration-' + Date.now());
+const BASE_DIR = join(tmpdir(), 'crew-e2e-migration-' + Date.now());
 const SRC_DIR = join(BASE_DIR, 'src-project');
 const DST_DIR = join(BASE_DIR, 'dst-project');
 
@@ -99,14 +99,14 @@ function setupLegacyProject(dir: string): void {
   );
 }
 
-function setupSquadProject(dir: string, config?: Partial<SquadConfig>): void {
-  mkdirSync(join(dir, '.squad'), { recursive: true });
+function setupCrewProject(dir: string, config?: Partial<CrewConfig>): void {
+  mkdirSync(join(dir, '.crew'), { recursive: true });
   mkdirSync(join(dir, '.github', 'agents'), { recursive: true });
 
-  const squadConfig = { ...DEFAULT_CONFIG, ...config, version: config?.version ?? '1.0.0' };
+  const crewConfig = { ...DEFAULT_CONFIG, ...config, version: config?.version ?? '1.0.0' };
   writeFileSync(
-    join(dir, '.squad', 'config.json'),
-    JSON.stringify(squadConfig, null, 2),
+    join(dir, '.crew', 'config.json'),
+    JSON.stringify(crewConfig, null, 2),
   );
 
   writeFileSync(
@@ -172,10 +172,10 @@ afterEach(() => {
 });
 
 // ============================================================================
-// Full migration: .ai-team/ → .squad/ project
+// Full migration: .ai-team/ → .crew/ project
 // ============================================================================
 
-describe('full migration: .ai-team → .squad', () => {
+describe('full migration: .ai-team → .crew', () => {
   it('should parse team.md into agent list', () => {
     setupLegacyProject(SRC_DIR);
     const teamMd = readFileSync(join(SRC_DIR, '.ai-team', 'team.md'), 'utf-8');
@@ -289,10 +289,10 @@ describe('version chain migration: v0.4.x → v0.5.x → v0.6.x', () => {
 });
 
 // ============================================================================
-// Legacy squad.agent.md → typed config roundtrip
+// Legacy crew.agent.md → typed config roundtrip
 // ============================================================================
 
-describe('legacy squad.agent.md → typed config roundtrip', () => {
+describe('legacy crew.agent.md → typed config roundtrip', () => {
   it('should parse agent charter from markdown', () => {
     setupLegacyProject(SRC_DIR);
     const charter = readFileSync(
@@ -312,9 +312,9 @@ describe('legacy squad.agent.md → typed config roundtrip', () => {
 
   it('should roundtrip via export then import', () => {
     setupLegacyProject(SRC_DIR);
-    setupSquadProject(DST_DIR);
+    setupCrewProject(DST_DIR);
 
-    const bundle = exportSquadConfig(SRC_DIR);
+    const bundle = exportCrewConfig(SRC_DIR);
     expect(bundle.agents.length).toBeGreaterThan(0);
 
     const serialized = serializeBundle(bundle);
@@ -330,14 +330,14 @@ describe('legacy squad.agent.md → typed config roundtrip', () => {
 describe('export from beta → import into v1', () => {
   it('should export a bundle from a beta project', () => {
     setupLegacyProject(SRC_DIR);
-    const bundle = exportSquadConfig(SRC_DIR);
+    const bundle = exportCrewConfig(SRC_DIR);
     expect(bundle.metadata.version).toBeTruthy();
     expect(bundle.config).toBeDefined();
   });
 
   it('should serialize and deserialize bundle losslessly', () => {
     setupLegacyProject(SRC_DIR);
-    const bundle = exportSquadConfig(SRC_DIR);
+    const bundle = exportCrewConfig(SRC_DIR);
     const json = serializeBundle(bundle);
     const restored = deserializeBundle(json);
     expect(restored.agents).toEqual(bundle.agents);
@@ -346,20 +346,20 @@ describe('export from beta → import into v1', () => {
 
   it('should validate the exported bundle', () => {
     setupLegacyProject(SRC_DIR);
-    const bundle = exportSquadConfig(SRC_DIR);
+    const bundle = exportCrewConfig(SRC_DIR);
     const errors = validateBundle(bundle);
     expect(errors).toHaveLength(0);
   });
 
   it('should import bundle file into target project', () => {
     setupLegacyProject(SRC_DIR);
-    setupSquadProject(DST_DIR);
+    setupCrewProject(DST_DIR);
 
-    const bundle = exportSquadConfig(SRC_DIR);
+    const bundle = exportCrewConfig(SRC_DIR);
     // Write bundle to a file, then import from that file
     const bundlePath = join(BASE_DIR, 'bundle.json');
     writeFileSync(bundlePath, serializeBundle(bundle));
-    const result = importSquadConfig(bundlePath, DST_DIR, { dryRun: true });
+    const result = importCrewConfig(bundlePath, DST_DIR, { dryRun: true });
     expect(result.success).toBe(true);
     expect(result.changes.length).toBeGreaterThan(0);
   });

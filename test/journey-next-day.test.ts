@@ -4,7 +4,7 @@
  * Validates that a user can close the shell, return later, and resume
  * their previous session with full message history intact.
  *
- * @see https://github.com/bradygaster/squad-pr/issues/398
+ * @see https://github.com/Blacklite/crew-pr/issues/398
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -14,10 +14,10 @@ import { tmpdir } from 'node:os';
 import { rm } from 'node:fs/promises';
 import React from 'react';
 import { render, type RenderResponse } from 'ink-testing-library';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import { App, type ShellApi } from '../packages/squad-cli/src/cli/shell/components/App.js';
-import type { ParsedInput } from '../packages/squad-cli/src/cli/shell/router.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import { App, type ShellApi } from '../packages/crew-cli/src/cli/shell/components/App.js';
+import type { ParsedInput } from '../packages/crew-cli/src/cli/shell/router.js';
 import {
   createSession,
   saveSession,
@@ -25,7 +25,7 @@ import {
   loadSessionById,
   listSessions,
   type SessionData,
-} from '../packages/squad-cli/src/cli/shell/session-store.js';
+} from '../packages/crew-cli/src/cli/shell/session-store.js';
 
 const h = React.createElement;
 
@@ -42,14 +42,14 @@ function tick(ms = TICK): Promise<void> {
   return new Promise(r => setTimeout(r, ms));
 }
 
-function scaffoldSquadDir(root: string): void {
-  const squadDir = join(root, '.squad');
-  const agentsDir = join(squadDir, 'agents');
-  const identityDir = join(squadDir, 'identity');
+function scaffoldCrewDir(root: string): void {
+  const crewDir = join(root, '.crew');
+  const agentsDir = join(crewDir, 'agents');
+  const identityDir = join(crewDir, 'identity');
   mkdirSync(agentsDir, { recursive: true });
   mkdirSync(identityDir, { recursive: true });
 
-  writeFileSync(join(squadDir, 'team.md'), `# Squad Team — Journey Test
+  writeFileSync(join(crewDir, 'team.md'), `# Crew Team — Journey Test
 
 > A journey test project for session persistence.
 
@@ -57,8 +57,8 @@ function scaffoldSquadDir(root: string): void {
 
 | Name | Role | Charter | Status |
 |------|------|---------|--------|
-| Keaton | Lead | \`.squad/agents/keaton/charter.md\` | ✅ Active |
-| Fenster | Core Dev | \`.squad/agents/fenster/charter.md\` | ✅ Active |
+| Keaton | Lead | \`.crew/agents/keaton/charter.md\` | ✅ Active |
+| Fenster | Core Dev | \`.crew/agents/fenster/charter.md\` | ✅ Active |
 `);
 
   writeFileSync(join(identityDir, 'now.md'), `---
@@ -90,7 +90,7 @@ interface ShellHarness {
 
 async function createShellHarness(opts?: {
   agents?: Array<{ name: string; role: string }>;
-  withSquadDir?: boolean;
+  withCrewDir?: boolean;
   version?: string;
   tempDir?: string;
   onRestoreSession?: (session: SessionData) => void;
@@ -100,13 +100,13 @@ async function createShellHarness(opts?: {
       { name: 'Keaton', role: 'Lead' },
       { name: 'Fenster', role: 'Core Dev' },
     ],
-    withSquadDir = true,
+    withCrewDir = true,
     version = '0.0.0-test',
     onRestoreSession,
   } = opts ?? {};
 
-  const tempDir = opts?.tempDir ?? mkdtempSync(join(tmpdir(), 'squad-journey-'));
-  if (withSquadDir && !existsSync(join(tempDir, '.squad'))) scaffoldSquadDir(tempDir);
+  const tempDir = opts?.tempDir ?? mkdtempSync(join(tmpdir(), 'crew-journey-'));
+  if (withCrewDir && !existsSync(join(tempDir, '.crew'))) scaffoldCrewDir(tempDir);
 
   const registry = new SessionRegistry();
   for (const a of agents) registry.register(a.name, a.role);
@@ -187,8 +187,8 @@ describe('Journey: session-store persistence', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), 'squad-session-'));
-    mkdirSync(join(tempDir, '.squad'), { recursive: true });
+    tempDir = mkdtempSync(join(tmpdir(), 'crew-session-'));
+    mkdirSync(join(tempDir, '.crew'), { recursive: true });
   });
 
   afterEach(async () => {
@@ -207,11 +207,11 @@ describe('Journey: session-store persistence', () => {
     expect(() => new Date(session.lastActiveAt)).not.toThrow();
   });
 
-  it('saveSession writes a JSON file to .squad/sessions/', () => {
+  it('saveSession writes a JSON file to .crew/sessions/', () => {
     const session = createSession();
     session.messages.push({
       role: 'user',
-      content: 'hello squad',
+      content: 'hello crew',
       timestamp: new Date(),
     });
 
@@ -222,12 +222,12 @@ describe('Journey: session-store persistence', () => {
     const persisted = JSON.parse(raw) as SessionData;
     expect(persisted.id).toBe(session.id);
     expect(persisted.messages).toHaveLength(1);
-    expect(persisted.messages[0]!.content).toBe('hello squad');
+    expect(persisted.messages[0]!.content).toBe('hello crew');
   });
 
   it('saveSession creates the sessions directory if missing', () => {
     const session = createSession();
-    const sessDir = join(tempDir, '.squad', 'sessions');
+    const sessDir = join(tempDir, '.crew', 'sessions');
     expect(existsSync(sessDir)).toBe(false);
 
     saveSession(tempDir, session);
@@ -267,7 +267,7 @@ describe('Journey: session-store persistence', () => {
   });
 
   it('listSessions returns empty array when no sessions directory', async () => {
-    const emptyDir = mkdtempSync(join(tmpdir(), 'squad-empty-'));
+    const emptyDir = mkdtempSync(join(tmpdir(), 'crew-empty-'));
     const sessions = listSessions(emptyDir);
     expect(sessions).toEqual([]);
     await rm(emptyDir, { recursive: true, force: true });
@@ -293,7 +293,7 @@ describe('Journey: session-store persistence', () => {
 
     // Need to re-save with the old timestamp since saveSession updates lastActiveAt
     // Directly write the file with an old timestamp
-    const sessDir = join(tempDir, '.squad', 'sessions');
+    const sessDir = join(tempDir, '.crew', 'sessions');
     const files = require('node:fs').readdirSync(sessDir) as string[];
     const filePath = join(sessDir, files[0]!);
     const data = JSON.parse(readFileSync(filePath, 'utf-8')) as SessionData;
@@ -435,8 +435,8 @@ describe('Journey: I came back the next day', () => {
   beforeEach(() => {
     vi.stubEnv('NO_COLOR', '1');
     Object.defineProperty(process.stdout, 'columns', { value: 120, configurable: true });
-    tempDir = mkdtempSync(join(tmpdir(), 'squad-nextday-'));
-    scaffoldSquadDir(tempDir);
+    tempDir = mkdtempSync(join(tmpdir(), 'crew-nextday-'));
+    scaffoldCrewDir(tempDir);
   });
 
   afterEach(async () => {
@@ -521,7 +521,7 @@ describe('Journey: I came back the next day', () => {
     saveSession(tempDir, oldSession);
 
     // Manually backdate the file
-    const sessDir = join(tempDir, '.squad', 'sessions');
+    const sessDir = join(tempDir, '.crew', 'sessions');
     const files = require('node:fs').readdirSync(sessDir) as string[];
     const filePath = join(sessDir, files[0]!);
     const data = JSON.parse(readFileSync(filePath, 'utf-8')) as SessionData;

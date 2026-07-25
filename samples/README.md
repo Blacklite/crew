@@ -1,6 +1,6 @@
-# Squad SDK Samples
+# Crew SDK Samples
 
-Learn the Squad SDK by example. Each sample is a complete, working application demonstrating core patterns: agent casting, session management, streaming responses, governance, cost tracking, and real-time collaboration. Start with the beginner samples, then explore intermediate patterns, and finally the advanced showcase.
+Learn the Crew SDK by example. Each sample is a complete, working application demonstrating core patterns: agent casting, session management, streaming responses, governance, cost tracking, and real-time collaboration. Start with the beginner samples, then explore intermediate patterns, and finally the advanced showcase.
 
 ## Prerequisites
 
@@ -9,10 +9,10 @@ Learn the Squad SDK by example. Each sample is a complete, working application d
 
 ## Quick start
 
-1. Clone the repository and navigate to the `hello-squad` sample:
+1. Clone the repository and navigate to the `hello-crew` sample:
    ```bash
    git clone <repo>
-   cd samples/hello-squad
+   cd samples/hello-crew
    ```
 
 2. Install dependencies and start:
@@ -21,29 +21,29 @@ Learn the Squad SDK by example. Each sample is a complete, working application d
    npm start
    ```
 
-The `hello-squad` sample demonstrates core casting and onboarding mechanics in ~60 lines.
+The `hello-crew` sample demonstrates core casting and onboarding mechanics in ~60 lines.
 
 ## Samples
 
 | Sample | Difficulty | Description | Key Concepts |
 |--------|-----------|-------------|--------------|
-| [hello-squad](./hello-squad) | Beginner | Resolve `.squad/`, cast a team, onboard agents, print roster | `resolveSquad()`, `CastingEngine`, `onboardAgent()` |
+| [hello-crew](./hello-crew) | Beginner | Resolve `.crew/`, cast a team, onboard agents, print roster | `resolveCrew()`, `CastingEngine`, `onboardAgent()` |
 | [knock-knock](./knock-knock) | Beginner | Two agents stream knock-knock jokes via `StreamingPipeline` | `StreamingPipeline`, `onDelta()`, session streaming |
 | [rock-paper-scissors](./rock-paper-scissors) | Intermediate | Tournament: 9 agents with strategies compete; Sherlock learns opponent patterns | Multi-session pooling, strategy prompts, `EventBus`, learning |
 | [hook-governance](./hook-governance) | Intermediate | File guards, PII scrubbing, reviewer lockout, rate limiting — all hooks demoed | `HookPipeline`, governance hooks, audit logging |
-| [streaming-chat](./streaming-chat) | Intermediate | Interactive chat: user messages routed to agents, responses stream in real time | `SquadClient`, session routing, real-time streaming |
+| [streaming-chat](./streaming-chat) | Intermediate | Interactive chat: user messages routed to agents, responses stream in real time | `CrewClient`, session routing, real-time streaming |
 | [cost-aware-router](./cost-aware-router) | Intermediate–Advanced | Budget-aware routing: `CostTracker` monitors spend; router falls back to cheaper tiers | `CostTracker`, `EventBus`, cost monitoring, tier selection |
 | [skill-discovery](./skill-discovery) | Intermediate | Agents write, share, and promote `SKILL.md` files; team knowledge base grows | Skills system, confidence levels, knowledge sharing |
 | [autonomous-pipeline](./autonomous-pipeline) | Advanced | Full showcase: casting, governance, cost tracking, streaming, monitoring, live dashboard | All core APIs, terminal UI, comprehensive example |
-| [azure-function-squad](./azure-function-squad) | Intermediate | Serverless multi-agent review: HTTP endpoint → three specialist agents → JSON report | Azure Functions v4, SDK-First builder, JSON output |
-| [plugin-knowledge-graphify](./plugin-knowledge-graphify) | Intermediate | Declarative plugin example for the real `safishamsi/graphify` knowledge graph tool | `squad plugin`, `knowledge`, external metadata |
-| [plugin-knowledge-index-server](./plugin-knowledge-index-server) | Intermediate | Declarative plugin example for the real `jagilber-org/index-server` MCP instruction index | `squad plugin`, `knowledge`, `instructions`, MCP metadata |
-| [plugin-memory-mempalace](./plugin-memory-mempalace) | Intermediate | Declarative plugin example for the real `MemPalace/mempalace` memory CLI/MCP system | `squad plugin`, `memory`, external metadata |
+| [azure-function-crew](./azure-function-crew) | Intermediate | Serverless multi-agent review: HTTP endpoint → three specialist agents → JSON report | Azure Functions v4, SDK-First builder, JSON output |
+| [plugin-knowledge-graphify](./plugin-knowledge-graphify) | Intermediate | Declarative plugin example for the real `safishamsi/graphify` knowledge graph tool | `crew plugin`, `knowledge`, external metadata |
+| [plugin-knowledge-index-server](./plugin-knowledge-index-server) | Intermediate | Declarative plugin example for the real `jagilber-org/index-server` MCP instruction index | `crew plugin`, `knowledge`, `instructions`, MCP metadata |
+| [plugin-memory-mempalace](./plugin-memory-mempalace) | Intermediate | Declarative plugin example for the real `MemPalace/mempalace` memory CLI/MCP system | `crew plugin`, `memory`, external metadata |
 
 ## Recommended learning path
 
 **Beginner (start here):**
-1. `hello-squad` — Understand casting and agent onboarding
+1. `hello-crew` — Understand casting and agent onboarding
 2. `knock-knock` — See streaming and multi-agent patterns
 
 **Intermediate (expand your skills):**
@@ -51,7 +51,7 @@ The `hello-squad` sample demonstrates core casting and onboarding mechanics in ~
 4. `streaming-chat` — Master real-time session routing and user interaction
 5. `hook-governance` — Implement security and governance patterns
 6. `skill-discovery` — Explore team knowledge sharing
-7. `azure-function-squad` — Deploy to serverless; learn SDK-First patterns
+7. `azure-function-crew` — Deploy to serverless; learn SDK-First patterns
 
 **Advanced (integrate everything):**
 8. `autonomous-pipeline` — See all patterns in one working showcase
@@ -85,4 +85,4 @@ See each sample's `README.md` for detailed setup, expected output, and customiza
 
 ## Questions?
 
-Open an issue or check the [Squad SDK documentation](../../README.md).
+Open an issue or check the [Crew SDK documentation](../../README.md).

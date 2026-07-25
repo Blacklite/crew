@@ -1,10 +1,10 @@
 # Build an autonomous agent
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 Build a CLI-wrapped autonomous agent pipeline that picks up tasks, coordinates work across teammates, and runs unattended.
 
-**Try this:** Clone the [autonomous-pipeline sample](https://github.com/bradygaster/squad/tree/dev/samples/autonomous-pipeline) and run `npm run dev` to see the pattern in action.
+**Try this:** Clone the [autonomous-pipeline sample](https://github.com/Blacklite/crew/tree/dev/samples/autonomous-pipeline) and run `npm run dev` to see the pattern in action.
 
 This guide walks you through the pattern used by production autonomous agents — like a docs agent that monitors a repo for changes and generates documentation without human intervention.
 
@@ -20,19 +20,19 @@ An autonomous agent is a program that:
 - Records decisions and learnings for future runs
 - Reports results (cost, tokens, timeline)
 
-In Squad, you build this by composing SDK primitives — `CastingEngine`, `CostTracker`, `SkillRegistry`, and `StreamingPipeline` — into a loop that assigns work, collects results, and decides what to do next.
+In Crew, you build this by composing SDK primitives — `CastingEngine`, `CostTracker`, `SkillRegistry`, and `StreamingPipeline` — into a loop that assigns work, collects results, and decides what to do next.
 
 ---
 
 ## Set up the project
 
-Create a new directory and initialize it with the Squad SDK dependency:
+Create a new directory and initialize it with the Crew SDK dependency:
 
 ```bash
 mkdir my-autonomous-agent
 cd my-autonomous-agent
 npm init -y
-npm install @bradygaster/squad-sdk
+npm install @blacklite/crew-sdk
 npm install -D typescript
 ```
 
@@ -74,7 +74,7 @@ Set `"type": "module"` in your `package.json` and add scripts:
 Use `defineAgent()` to declare each agent's name, role, and capabilities:
 
 ```ts
-import { defineAgent } from '@bradygaster/squad-sdk';
+import { defineAgent } from '@blacklite/crew-sdk';
 
 const docsWriter = defineAgent({
   name: 'lori',
@@ -102,20 +102,20 @@ Each `defineAgent()` call validates the config at runtime and returns a typed `A
 
 ---
 
-## Build the squad
+## Build the crew
 
-Compose your agents into a squad with `defineSquad()`:
+Compose your agents into a crew with `defineCrew()`:
 
 ```ts
 import {
-  defineSquad,
+  defineCrew,
   defineTeam,
   defineAgent,
   defineRouting,
   defineDefaults,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
-export default defineSquad({
+export default defineCrew({
   version: '1.0.0',
 
   team: defineTeam({
@@ -158,7 +158,7 @@ export default defineSquad({
 });
 ```
 
-`defineSquad()` validates every nested section through its respective builder — `defineTeam()`, `defineAgent()`, `defineRouting()`, `defineDefaults()`. If any field is invalid, you get a `BuilderValidationError` at startup, not at runtime.
+`defineCrew()` validates every nested section through its respective builder — `defineTeam()`, `defineAgent()`, `defineRouting()`, `defineDefaults()`. If any field is invalid, you get a `BuilderValidationError` at startup, not at runtime.
 
 ---
 
@@ -169,8 +169,8 @@ Wrap your pipeline in a CLI entry point so you can invoke it from a terminal, cr
 ```ts
 #!/usr/bin/env node
 
-import { CastingEngine, CostTracker, SkillRegistry } from '@bradygaster/squad-sdk';
-import type { AgentRole, CastMember } from '@bradygaster/squad-sdk';
+import { CastingEngine, CostTracker, SkillRegistry } from '@blacklite/crew-sdk';
+import type { AgentRole, CastMember } from '@blacklite/crew-sdk';
 
 interface Task {
   id: string;
@@ -255,8 +255,8 @@ import {
   SkillRegistry,
   StreamingPipeline,
   selectResponseTier,
-} from '@bradygaster/squad-sdk';
-import type { CastMember, AgentRole, ResponseTier, TierContext } from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
+import type { CastMember, AgentRole, ResponseTier, TierContext } from '@blacklite/crew-sdk';
 
 interface Task {
   id: string;
@@ -349,14 +349,14 @@ The autonomous-pipeline sample demonstrates three coordination patterns that age
 
 | Tool | What it does | Example |
 |------|-------------|---------|
-| `squad_route` | Routes a follow-up task to a teammate | Developer finishes auth → routes test-writing to Tester |
-| `squad_decide` | Records an architectural decision | "Use JWT with RS256 signing for auth" |
-| `squad_memory` | Saves a learning for future sessions | "Connection pool sweet spot: 20 connections" |
+| `crew_route` | Routes a follow-up task to a teammate | Developer finishes auth → routes test-writing to Tester |
+| `crew_decide` | Records an architectural decision | "Use JWT with RS256 signing for auth" |
+| `crew_memory` | Saves a learning for future sessions | "Connection pool sweet spot: 20 connections" |
 
 These patterns let agents coordinate without a central orchestrator. Each agent makes local decisions that accumulate into a shared knowledge base.
 
-:::note[`squad_route` requires `fanOutDepsGetter`]
-For `squad_route` to actually spawn agent sessions, the `ToolRegistry` must be constructed with a `fanOutDepsGetter` callback that provides fan-out dependencies (`sessionPool`, `modelClient`, `squadRoot`, `configGetter`). Without it, the tool returns an honest `fan-out-deps-unavailable` error instead of silently succeeding. See the [SDK reference](/reference/sdk/#toolregistry) for wiring details.
+:::note[`crew_route` requires `fanOutDepsGetter`]
+For `crew_route` to actually spawn agent sessions, the `ToolRegistry` must be constructed with a `fanOutDepsGetter` callback that provides fan-out dependencies (`sessionPool`, `modelClient`, `crewRoot`, `configGetter`). Without it, the tool returns an honest `fan-out-deps-unavailable` error instead of silently succeeding. See the [SDK reference](/reference/sdk/#toolregistry) for wiring details.
 :::
 
 ---
@@ -369,16 +369,16 @@ Track cost, token usage, and agent activity with the built-in `CostTracker` and 
 import {
   CostTracker,
   TelemetryCollector,
-  initSquadTelemetry,
+  initCrewTelemetry,
   recordAgentSpawn,
   recordAgentDuration,
   recordTokenUsage,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
 // Initialize OTel (connects to Aspire dashboard if endpoint is set)
 const otelEndpoint = process.env['OTEL_EXPORTER_OTLP_ENDPOINT'];
 if (otelEndpoint) {
-  initSquadTelemetry({
+  initCrewTelemetry({
     endpoint: otelEndpoint,
     serviceName: 'my-autonomous-agent',
   });
@@ -390,7 +390,7 @@ const costTracker = new CostTracker();
 // Collect opt-in telemetry events
 const telemetry = new TelemetryCollector({ enabled: true });
 telemetry.collectEvent({
-  name: 'squad.init',
+  name: 'crew.init',
   properties: { agents: 3, sample: 'docs-agent' },
 });
 
@@ -428,8 +428,8 @@ import {
   CostTracker,
   SkillRegistry,
   StreamingPipeline,
-} from '@bradygaster/squad-sdk';
-import type { CastMember, AgentRole } from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
+import type { CastMember, AgentRole } from '@blacklite/crew-sdk';
 
 // Types
 interface Task {
@@ -535,9 +535,9 @@ streaming.clear();
 
 ## Next steps
 
-- Run the [autonomous-pipeline sample](https://github.com/bradygaster/squad/tree/dev/samples/autonomous-pipeline) to see the full pattern with OTel, cost dashboards, and skill matching
+- Run the [autonomous-pipeline sample](https://github.com/Blacklite/crew/tree/dev/samples/autonomous-pipeline) to see the full pattern with OTel, cost dashboards, and skill matching
 - Read the [SDK reference](/reference/sdk/) for the complete API surface
-- See the [extensibility guide](/guide/extensibility/) for where your agent fits in the Squad ecosystem
+- See the [extensibility guide](/guide/extensibility/) for where your agent fits in the Crew ecosystem
 - Check the [Aspire dashboard scenario](/scenarios/aspire-dashboard/) for observability setup
 
 ---

@@ -2,23 +2,23 @@
  * Multi-line paste handling tests
  *
  * Validates that multi-line pasted text is preserved correctly in the
- * Squad REPL. Covers InputPrompt behavior (buffering, submit), and
+ * Crew REPL. Covers InputPrompt behavior (buffering, submit), and
  * MessageStream rendering of multi-line user messages in scrollback.
  *
  * Bug context: Ink's useInput fires per-character. Newlines in pasted text
  * trigger key.return which submits the first line, then disabled=true causes
  * remaining newlines to be stripped — garbling multi-line pastes.
  *
- * @see packages/squad-cli/src/cli/shell/components/InputPrompt.tsx
- * @see packages/squad-cli/src/cli/shell/components/MessageStream.tsx
+ * @see packages/crew-cli/src/cli/shell/components/InputPrompt.tsx
+ * @see packages/crew-cli/src/cli/shell/components/MessageStream.tsx
  */
 
 import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render } from 'ink-testing-library';
-import { MessageStream } from '../packages/squad-cli/src/cli/shell/components/MessageStream.js';
-import { InputPrompt } from '../packages/squad-cli/src/cli/shell/components/InputPrompt.js';
-import type { ShellMessage, AgentSession } from '../packages/squad-cli/src/cli/shell/types.js';
+import { MessageStream } from '../packages/crew-cli/src/cli/shell/components/MessageStream.js';
+import { InputPrompt } from '../packages/crew-cli/src/cli/shell/components/InputPrompt.js';
+import type { ShellMessage, AgentSession } from '../packages/crew-cli/src/cli/shell/types.js';
 
 // ============================================================================
 // Helpers (same pattern as repl-ux.test.ts)
@@ -156,7 +156,7 @@ describe('Multi-line paste handling', () => {
       stdin.write('\r');
       await new Promise(r => setTimeout(r, 200));
       // After submit, the input field should clear the submitted text
-      // The prompt character (◆ squad>) may remain
+      // The prompt character (◆ crew>) may remain
       const frame = lastFrame()!;
       // If onSubmit was called, the component should have cleared
       expect(onSubmit).toHaveBeenCalledWith('test');

@@ -1,6 +1,6 @@
 # Skill-discovery
 
-Demonstrates the Squad SDK skills system, showing how agents load domain knowledge from `SKILL.md` files, match skills to tasks by triggers and role affinity, discover new patterns at runtime, and track skill confidence as it evolves from low to high.
+Demonstrates the Crew SDK skills system, showing how agents load domain knowledge from `SKILL.md` files, match skills to tasks by triggers and role affinity, discover new patterns at runtime, and track skill confidence as it evolves from low to high.
 
 ## Prerequisites
 
@@ -40,11 +40,11 @@ The sample walks through six steps. First, it creates three sample `SKILL.md` fi
 
 ```
 ╔════════════════════════════════════════════════════════════╗
-  🔍 Squad SDK — Skill Discovery Demo
+  🔍 Crew SDK — Skill Discovery Demo
 ╚════════════════════════════════════════════════════════════╝
 
   Creating temporary skill files...
-  📁 Skills directory: /tmp/squad-skills-demo-abc123/.squad/skills
+  📁 Skills directory: /tmp/crew-skills-demo-abc123/.crew/skills
   📄 Created 3 skill files
 
   ── Step 1: Load Skills from Directory ──

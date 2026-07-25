@@ -10,26 +10,26 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ToolRegistry, defineTool, type RouteRequest, type DecisionRecord, type MemoryEntry } from '@bradygaster/squad-sdk/tools';
+import { ToolRegistry, defineTool, type RouteRequest, type DecisionRecord, type MemoryEntry } from '@blacklite/crew-sdk/tools';
 import {
   HookPipeline,
   ReviewerLockoutHook,
   PolicyConfig,
   PreToolUseContext,
   PostToolUseContext,
-} from '@bradygaster/squad-sdk/hooks';
-import { compileCharter, type CharterCompileOptions } from '@bradygaster/squad-sdk/agents';
-import { resolveModel, type ModelResolutionOptions, type TaskType } from '@bradygaster/squad-sdk/agents';
-import { EventBus, type SquadEvent } from '@bradygaster/squad-sdk/runtime/event-bus';
-import { SquadClient } from '@bradygaster/squad-sdk/client';
+} from '@blacklite/crew-sdk/hooks';
+import { compileCharter, type CharterCompileOptions } from '@blacklite/crew-sdk/agents';
+import { resolveModel, type ModelResolutionOptions, type TaskType } from '@blacklite/crew-sdk/agents';
+import { EventBus, type CrewEvent } from '@blacklite/crew-sdk/runtime/event-bus';
+import { CrewClient } from '@blacklite/crew-sdk/client';
 import {
-  SquadError,
+  CrewError,
   ErrorFactory,
   ErrorCategory,
   ErrorSeverity,
   TelemetryCollector,
   RateLimitError,
-} from '@bradygaster/squad-sdk/adapter/errors';
+} from '@blacklite/crew-sdk/adapter/errors';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -79,13 +79,13 @@ describe('Integration: Tool → Hook Pipeline', () => {
     }
   });
 
-  describe('squad_route through HookPipeline', () => {
-    it('should allow squad_route when no blocking hooks', async () => {
+  describe('crew_route through HookPipeline', () => {
+    it('should allow crew_route when no blocking hooks', async () => {
       pipeline = new HookPipeline();
-      const tool = registry.getTool('squad_route')!;
+      const tool = registry.getTool('crew_route')!;
 
       const ctx: PreToolUseContext = {
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         arguments: { targetAgent: 'fenster', task: 'Implement feature' },
         agentName: 'coordinator',
         sessionId: 'session-1',
@@ -104,7 +104,7 @@ describe('Integration: Tool → Hook Pipeline', () => {
         {
           sessionId: 'session-1',
           toolCallId: 'call-1',
-          toolName: 'squad_route',
+          toolName: 'crew_route',
           arguments: {},
         }
       );
@@ -113,19 +113,19 @@ describe('Integration: Tool → Hook Pipeline', () => {
       expect((toolResult as { error?: string }).error).toBe('fan-out-deps-unavailable');
     });
 
-    it('should block squad_route when custom hook blocks it', async () => {
+    it('should block crew_route when custom hook blocks it', async () => {
       pipeline = new HookPipeline();
       
       // Add custom hook that blocks routing to specific agents
       pipeline.addPreToolHook(async (ctx) => {
-        if (ctx.toolName === 'squad_route' && (ctx.arguments as any).targetAgent === 'blocked-agent') {
+        if (ctx.toolName === 'crew_route' && (ctx.arguments as any).targetAgent === 'blocked-agent') {
           return { action: 'block', reason: 'Agent blocked-agent is not available' };
         }
         return { action: 'allow' };
       });
 
       const ctx: PreToolUseContext = {
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         arguments: { targetAgent: 'blocked-agent', task: 'Do something' },
         agentName: 'coordinator',
         sessionId: 'session-1',
@@ -137,10 +137,10 @@ describe('Integration: Tool → Hook Pipeline', () => {
     });
   });
 
-  describe('squad_decide with file-write guard', () => {
+  describe('crew_decide with file-write guard', () => {
     it('should allow writes to inbox when allowed patterns match', async () => {
       const config: PolicyConfig = {
-        allowedWritePaths: ['**/.squad/decisions/inbox/**', '.test-integration-*/**'],
+        allowedWritePaths: ['**/.crew/decisions/inbox/**', '.test-integration-*/**'],
       };
       pipeline = new HookPipeline(config);
 
@@ -156,8 +156,8 @@ describe('Integration: Tool → Hook Pipeline', () => {
       const hookResult = await pipeline.runPreToolHooks(ctx);
       expect(hookResult.action).toBe('allow');
 
-      // Execute squad_decide tool
-      const tool = registry.getTool('squad_decide')!;
+      // Execute crew_decide tool
+      const tool = registry.getTool('crew_decide')!;
       const toolResult = await tool.handler(
         {
           author: 'fenster',
@@ -167,7 +167,7 @@ describe('Integration: Tool → Hook Pipeline', () => {
         {
           sessionId: 'session-1',
           toolCallId: 'call-1',
-          toolName: 'squad_decide',
+          toolName: 'crew_decide',
           arguments: {},
         }
       );
@@ -183,7 +183,7 @@ describe('Integration: Tool → Hook Pipeline', () => {
 
     it('should block writes outside allowed paths', async () => {
       const config: PolicyConfig = {
-        allowedWritePaths: ['.squad/decisions/inbox/**'],
+        allowedWritePaths: ['.crew/decisions/inbox/**'],
       };
       pipeline = new HookPipeline(config);
 
@@ -200,7 +200,7 @@ describe('Integration: Tool → Hook Pipeline', () => {
     });
   });
 
-  describe('squad_memory with PII scrubbing', () => {
+  describe('crew_memory with PII scrubbing', () => {
     it('should scrub email addresses from tool result', async () => {
       // Create agent history file
       const agentDir = path.join(testRoot, 'agents', 'fenster');
@@ -216,8 +216,8 @@ describe('Integration: Tool → Hook Pipeline', () => {
       };
       pipeline = new HookPipeline(config);
 
-      // Execute squad_memory
-      const tool = registry.getTool('squad_memory')!;
+      // Execute crew_memory
+      const tool = registry.getTool('crew_memory')!;
       const toolResult = await tool.handler(
         {
           agent: 'fenster',
@@ -227,7 +227,7 @@ describe('Integration: Tool → Hook Pipeline', () => {
         {
           sessionId: 'session-1',
           toolCallId: 'call-1',
-          toolName: 'squad_memory',
+          toolName: 'crew_memory',
           arguments: {},
         }
       );
@@ -236,7 +236,7 @@ describe('Integration: Tool → Hook Pipeline', () => {
 
       // Scrub the result using post-tool hook
       const postCtx: PostToolUseContext = {
-        toolName: 'squad_memory',
+        toolName: 'crew_memory',
         arguments: {},
         result: toolResult,
         agentName: 'fenster',
@@ -245,7 +245,7 @@ describe('Integration: Tool → Hook Pipeline', () => {
 
       const scrubbedResult = await pipeline.runPostToolHooks(postCtx);
       
-      // Check file content was written (PII in file system is OK for squad_memory)
+      // Check file content was written (PII in file system is OK for crew_memory)
       const historyContent = fs.readFileSync(path.join(agentDir, 'history.md'), 'utf-8');
       expect(historyContent).toContain('john.doe@example.com');
 
@@ -287,7 +287,7 @@ describe('Integration: Tool → Hook Pipeline', () => {
   describe('Blocked tool calls return proper error messages', () => {
     it('should return descriptive error for blocked file writes', async () => {
       const config: PolicyConfig = {
-        allowedWritePaths: ['.squad/**'],
+        allowedWritePaths: ['.crew/**'],
       };
       pipeline = new HookPipeline(config);
 
@@ -460,7 +460,7 @@ describe('Integration: Hook Enforcement Scenarios', () => {
       reviewerLockout: true,
       scrubPii: true,
       maxAskUserPerSession: 2,
-      allowedWritePaths: ['.squad/**'],
+      allowedWritePaths: ['.crew/**'],
       blockedCommands: ['rm -rf', 'git push --force'],
     };
     pipeline = new HookPipeline(config);
@@ -539,7 +539,7 @@ describe('Integration: Hook Enforcement Scenarios', () => {
 
   describe('PII scrub applies across tool outputs', () => {
     it('should scrub emails from different tool outputs', async () => {
-      const tools = ['view', 'grep', 'squad_memory', 'powershell'];
+      const tools = ['view', 'grep', 'crew_memory', 'powershell'];
       
       for (const toolName of tools) {
         const ctx: PostToolUseContext = {
@@ -721,13 +721,13 @@ describe('Integration: Session Pool + Event Bus', () => {
 
   describe('Sessions emit events that event bus delivers', () => {
     it('should emit and receive session:created event', async () => {
-      const receivedEvents: SquadEvent[] = [];
+      const receivedEvents: CrewEvent[] = [];
 
       eventBus.subscribe('session:created', (event) => {
         receivedEvents.push(event);
       });
 
-      const event: SquadEvent = {
+      const event: CrewEvent = {
         type: 'session:created',
         sessionId: 'session-1',
         agentName: 'fenster',
@@ -743,7 +743,7 @@ describe('Integration: Session Pool + Event Bus', () => {
     });
 
     it('should emit and receive multiple event types', async () => {
-      const events: SquadEvent[] = [];
+      const events: CrewEvent[] = [];
 
       eventBus.subscribe('session:created', (e) => events.push(e));
       eventBus.subscribe('session:idle', (e) => events.push(e));
@@ -777,7 +777,7 @@ describe('Integration: Session Pool + Event Bus', () => {
     });
 
     it('should support wildcard handlers for all events', async () => {
-      const allEvents: SquadEvent[] = [];
+      const allEvents: CrewEvent[] = [];
 
       eventBus.subscribeAll((event) => {
         allEvents.push(event);
@@ -801,7 +801,7 @@ describe('Integration: Session Pool + Event Bus', () => {
     });
 
     it('should unsubscribe handlers', async () => {
-      const events: SquadEvent[] = [];
+      const events: CrewEvent[] = [];
 
       const unsubscribe = eventBus.subscribe('session:created', (e) => events.push(e));
 
@@ -869,12 +869,12 @@ describe('Integration: Error Hierarchy', () => {
       const wrappedError = ErrorFactory.wrap(originalError, {
         sessionId: 'session-1',
         agentName: 'fenster',
-        toolName: 'squad_route',
+        toolName: 'crew_route',
       });
 
-      expect(wrappedError).toBeInstanceOf(SquadError);
+      expect(wrappedError).toBeInstanceOf(CrewError);
       expect(wrappedError.category).toBe(ErrorCategory.TOOL_EXECUTION);
-      expect(wrappedError.context.toolName).toBe('squad_route');
+      expect(wrappedError.context.toolName).toBe('crew_route');
       expect(wrappedError.originalError).toBe(originalError);
     });
 
@@ -913,7 +913,7 @@ describe('Integration: Error Hierarchy', () => {
       const telemetryPoints: any[] = [];
       collector.onData((point) => telemetryPoints.push(point));
 
-      const stopwatch = collector.start('squad_route', {
+      const stopwatch = collector.start('crew_route', {
         sessionId: 'session-1',
         agentName: 'fenster',
         metadata: { targetAgent: 'brady' },
@@ -922,7 +922,7 @@ describe('Integration: Error Hierarchy', () => {
       stopwatch.success();
 
       expect(telemetryPoints.length).toBe(1);
-      expect(telemetryPoints[0].operation).toBe('squad_route');
+      expect(telemetryPoints[0].operation).toBe('crew_route');
       expect(telemetryPoints[0].success).toBe(true);
       expect(telemetryPoints[0].sessionId).toBe('session-1');
       expect(telemetryPoints[0].agentName).toBe('fenster');
@@ -932,14 +932,14 @@ describe('Integration: Error Hierarchy', () => {
       const telemetryPoints: any[] = [];
       collector.onData((point) => telemetryPoints.push(point));
 
-      const stopwatch = collector.start('squad_decide', {
+      const stopwatch = collector.start('crew_decide', {
         sessionId: 'session-1',
       });
 
       stopwatch.failure(new Error('Write failed'));
 
       expect(telemetryPoints.length).toBe(1);
-      expect(telemetryPoints[0].operation).toBe('squad_decide');
+      expect(telemetryPoints[0].operation).toBe('crew_decide');
       expect(telemetryPoints[0].success).toBe(false);
       expect(telemetryPoints[0].errorCategory).toBeDefined();
     });
@@ -948,7 +948,7 @@ describe('Integration: Error Hierarchy', () => {
       const telemetryPoints: any[] = [];
       collector.onData((point) => telemetryPoints.push(point));
 
-      const stopwatch = collector.start('squad_memory', {});
+      const stopwatch = collector.start('crew_memory', {});
 
       // Simulate some work
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -964,17 +964,17 @@ describe('Integration: Error Hierarchy', () => {
       collector.onData((point) => telemetryPoints.push(point));
 
       // Track multiple operations
-      const stopwatch1 = collector.start('squad_route', {});
+      const stopwatch1 = collector.start('crew_route', {});
       stopwatch1.success();
 
-      const stopwatch2 = collector.start('squad_decide', {});
+      const stopwatch2 = collector.start('crew_decide', {});
       stopwatch2.success();
 
-      const stopwatch3 = collector.start('squad_route', {});
+      const stopwatch3 = collector.start('crew_route', {});
       stopwatch3.failure(new Error('Failed'));
 
       expect(telemetryPoints.length).toBe(3);
-      expect(telemetryPoints.filter(p => p.operation === 'squad_route').length).toBe(2);
+      expect(telemetryPoints.filter(p => p.operation === 'crew_route').length).toBe(2);
       expect(telemetryPoints.filter(p => p.success).length).toBe(2);
       expect(telemetryPoints.filter(p => !p.success).length).toBe(1);
     });
@@ -986,7 +986,7 @@ describe('Integration: Error Hierarchy', () => {
       const error = ErrorFactory.wrap(originalError, {
         sessionId: 'session-123',
         agentName: 'fenster',
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         metadata: {
           targetAgent: 'brady',
           attempt: 1,
@@ -995,7 +995,7 @@ describe('Integration: Error Hierarchy', () => {
 
       expect(error.context.sessionId).toBe('session-123');
       expect(error.context.agentName).toBe('fenster');
-      expect(error.context.toolName).toBe('squad_route');
+      expect(error.context.toolName).toBe('crew_route');
       expect(error.context.metadata?.targetAgent).toBe('brady');
       expect(error.context.timestamp).toBeInstanceOf(Date);
     });
@@ -1055,7 +1055,7 @@ describe('Integration: End-to-End Scenarios', () => {
   });
 
   it('should execute complete tool pipeline with hooks and events', async () => {
-    const events: SquadEvent[] = [];
+    const events: CrewEvent[] = [];
     eventBus.subscribeAll((e) => events.push(e));
 
     // Emit session created
@@ -1069,7 +1069,7 @@ describe('Integration: End-to-End Scenarios', () => {
 
     // Pre-tool hook check
     const preCtx: PreToolUseContext = {
-      toolName: 'squad_decide',
+      toolName: 'crew_decide',
       arguments: { author: 'fenster', summary: 'Test', body: 'Content' },
       agentName: 'fenster',
       sessionId: 'session-1',
@@ -1079,7 +1079,7 @@ describe('Integration: End-to-End Scenarios', () => {
     expect(preResult.action).toBe('allow');
 
     // Execute tool
-    const tool = registry.getTool('squad_decide')!;
+    const tool = registry.getTool('crew_decide')!;
     const toolResult = await tool.handler(
       {
         author: 'fenster',
@@ -1089,7 +1089,7 @@ describe('Integration: End-to-End Scenarios', () => {
       {
         sessionId: 'session-1',
         toolCallId: 'call-1',
-        toolName: 'squad_decide',
+        toolName: 'crew_decide',
         arguments: {},
       }
     );
@@ -1098,7 +1098,7 @@ describe('Integration: End-to-End Scenarios', () => {
 
     // Post-tool hook (PII scrubbing)
     const postCtx: PostToolUseContext = {
-      toolName: 'squad_decide',
+      toolName: 'crew_decide',
       arguments: {},
       result: toolResult,
       agentName: 'fenster',
@@ -1113,7 +1113,7 @@ describe('Integration: End-to-End Scenarios', () => {
       type: 'session:tool_call',
       sessionId: 'session-1',
       agentName: 'fenster',
-      payload: { toolName: 'squad_decide', success: true },
+      payload: { toolName: 'crew_decide', success: true },
       timestamp: new Date(),
     });
 

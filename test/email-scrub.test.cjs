@@ -7,7 +7,7 @@ const os = require('os');
 
 const CLI = path.join(__dirname, '..', 'index.cjs');
 
-function runSquad(args, cwd) {
+function runCrew(args, cwd) {
   try {
     const result = execFileSync(process.execPath, [CLI, ...args], {
       cwd,
@@ -25,7 +25,7 @@ function runSquad(args, cwd) {
 }
 
 function makeTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'squad-email-scrub-test-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'crew-email-scrub-test-'));
 }
 
 function cleanDir(dir) {
@@ -63,16 +63,16 @@ Contact admin.
 `);
 
     // Run migration
-    const result = runSquad(['upgrade', '--migrate-directory'], tempDir);
+    const result = runCrew(['upgrade', '--migrate-directory'], tempDir);
     assert.equal(result.exitCode, 0, `Migration should succeed: ${result.stdout}`);
 
-    // Check that .squad/ exists
-    const squadDir = path.join(tempDir, '.squad');
-    assert.ok(fs.existsSync(squadDir), '.squad/ should exist after migration');
+    // Check that .crew/ exists
+    const crewDir = path.join(tempDir, '.crew');
+    assert.ok(fs.existsSync(crewDir), '.crew/ should exist after migration');
     assert.ok(!fs.existsSync(aiTeamDir), '.ai-team/ should be renamed');
 
     // Verify email addresses are scrubbed from team.md
-    const scrubbedTeamMd = fs.readFileSync(path.join(squadDir, 'team.md'), 'utf8');
+    const scrubbedTeamMd = fs.readFileSync(path.join(crewDir, 'team.md'), 'utf8');
     
     // The existing scrubber removes " (email)" pattern for names
     assert.ok(scrubbedTeamMd.includes('Brady Gaster'), 'team.md should keep names');
@@ -86,11 +86,11 @@ Contact admin.
   });
 
   it('should scrub email addresses during regular upgrade', () => {
-    // Create .squad/ manually (no init so upgrade takes the full path, not the early-exit path)
-    const squadDir = path.join(tempDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
+    // Create .crew/ manually (no init so upgrade takes the full path, not the early-exit path)
+    const crewDir = path.join(tempDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
     
-    const teamMd = path.join(squadDir, 'team.md');
+    const teamMd = path.join(crewDir, 'team.md');
     fs.writeFileSync(teamMd, `# Team
 
 - Alice (alice@corp.io)
@@ -98,7 +98,7 @@ Contact admin.
 `);
 
     // Run upgrade (without --migrate-directory)
-    const result = runSquad(['upgrade'], tempDir);
+    const result = runCrew(['upgrade'], tempDir);
     assert.equal(result.exitCode, 0, `Upgrade should succeed: ${result.stdout}`);
 
     // Verify emails are scrubbed
@@ -114,11 +114,11 @@ Contact admin.
   });
 
   it('should handle files without email addresses gracefully', () => {
-    // Create .squad/ manually (no init so upgrade takes the full path)
-    const squadDir = path.join(tempDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
+    // Create .crew/ manually (no init so upgrade takes the full path)
+    const crewDir = path.join(tempDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
     
-    const teamMd = path.join(squadDir, 'team.md');
+    const teamMd = path.join(crewDir, 'team.md');
     fs.writeFileSync(teamMd, `# Team
 
 - Alice
@@ -126,7 +126,7 @@ Contact admin.
 `);
 
     // Run upgrade
-    const result = runSquad(['upgrade'], tempDir);
+    const result = runCrew(['upgrade'], tempDir);
     assert.equal(result.exitCode, 0, `Upgrade should succeed: ${result.stdout}`);
 
     // Verify file is unchanged

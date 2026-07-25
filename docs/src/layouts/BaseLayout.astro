@@ -5,11 +5,11 @@ interface Props {
 }
 
 import { ClientRouter } from 'astro:transitions';
-import squadLogo from '../assets/images/squad-logo.png';
-const { title, description = 'Squad — Your AI Development Team. Describe what you\'re building. Get a team of specialists that live in your repo.' } = Astro.props;
-const fullTitle = `${title} — Squad Docs`;
+import crewLogo from '../assets/images/crew-logo.png';
+const { title, description = 'Crew — Your AI Development Team. Describe what you\'re building. Get a team of specialists that live in your repo.' } = Astro.props;
+const fullTitle = `${title} — Crew Docs`;
 const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : undefined;
-const ogImage = Astro.site ? new URL(squadLogo.src, Astro.site).href : squadLogo.src;
+const ogImage = Astro.site ? new URL(crewLogo.src, Astro.site).href : crewLogo.src;
 ---
 
 <!doctype html>
@@ -19,7 +19,7 @@ const ogImage = Astro.site ? new URL(squadLogo.src, Astro.site).href : squadLogo
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/png" href={squadLogo.src} />
+    <link rel="icon" type="image/png" href={crewLogo.src} />
     <title>{fullTitle}</title>
 
     <!-- Open Graph -->
@@ -60,7 +60,7 @@ const ogImage = Astro.site ? new URL(squadLogo.src, Astro.site).href : squadLogo
         document.querySelectorAll('pre').forEach((pre) => {
           if (pre.querySelector('.copy-btn')) return;
           const btn = document.createElement('button');
-          btn.className = 'copy-btn absolute top-2 right-2 px-2 py-1 text-xs rounded bg-surface-700 text-surface-100 hover:bg-squad-600 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100';
+          btn.className = 'copy-btn absolute top-2 right-2 px-2 py-1 text-xs rounded bg-surface-700 text-surface-100 hover:bg-crew-600 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100';
           btn.setAttribute('aria-label', 'Copy code');
           btn.textContent = 'Copy';
           pre.classList.add('relative', 'group');

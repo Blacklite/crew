@@ -5,7 +5,7 @@
  */
 import { test, expect } from '@playwright/test';
 
-const BASE = '/squad/docs/reference/api/';
+const BASE = '/crew/docs/reference/api/';
 // Screenshots are gitignored — used for local verification and PR descriptions only
 const SCREENSHOT_DIR = 'tests/screenshots';
 
@@ -57,11 +57,11 @@ test.describe('API reference class page', () => {
 test.describe('API reference function page', () => {
 
   test('function page renders signature block', async ({ page }) => {
-    await page.goto(`${BASE}function-definesquad/`);
+    await page.goto(`${BASE}function-definecrew/`);
     const heading = page.locator('article h1').first();
     await expect(heading).toBeVisible();
     const headingText = await heading.textContent();
-    expect(headingText.toLowerCase()).toContain('definesquad');
+    expect(headingText.toLowerCase()).toContain('definecrew');
     // Function pages show where they're defined
     const article = page.locator('article').first();
     await expect(article).toContainText('Defined in');
@@ -72,11 +72,11 @@ test.describe('API reference function page', () => {
 test.describe('API reference interface page', () => {
 
   test('interface page renders content', async ({ page }) => {
-    await page.goto(`${BASE}interface-squadconfig/`);
+    await page.goto(`${BASE}interface-crewconfig/`);
     const heading = page.locator('article h1').first();
     await expect(heading).toBeVisible();
     const headingText = await heading.textContent();
-    expect(headingText.toLowerCase()).toContain('squadconfig');
+    expect(headingText.toLowerCase()).toContain('crewconfig');
     // Interface pages contain definition details
     const article = page.locator('article').first();
     await expect(article).toContainText('Defined in');
@@ -105,7 +105,7 @@ test.describe('API reference navigation', () => {
 test.describe('API reference search', () => {
 
   test('search finds an API entry if Pagefind is active', async ({ page }) => {
-    await page.goto('/squad/');
+    await page.goto('/crew/');
     const searchBtn = page.locator('#search-btn');
     // Only run if search button exists (Pagefind may not be built)
     if (await searchBtn.isVisible({ timeout: 3000 }).catch(() => false)) {

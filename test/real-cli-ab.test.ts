@@ -111,7 +111,7 @@ describe('real Copilot CLI A/B harness', () => {
       run,
       JSON.stringify({
         type: 'user.message',
-        data: { content: 'Do not run `squad memory` in this baseline turn.' },
+        data: { content: 'Do not run `crew memory` in this baseline turn.' },
       }),
       '',
     );

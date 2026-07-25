@@ -13,15 +13,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-import { SessionRegistry } from '@bradygaster/squad-cli/shell/sessions';
-import { ShellLifecycle, type LifecycleOptions, type DiscoveredAgent } from '@bradygaster/squad-cli/shell/lifecycle';
-import { ShellRenderer } from '@bradygaster/squad-cli/shell/render';
-import { parseInput, type ParsedInput, type MessageType } from '@bradygaster/squad-cli/shell/router';
+import { SessionRegistry } from '@blacklite/crew-cli/shell/sessions';
+import { ShellLifecycle, type LifecycleOptions, type DiscoveredAgent } from '@blacklite/crew-cli/shell/lifecycle';
+import { ShellRenderer } from '@blacklite/crew-cli/shell/render';
+import { parseInput, type ParsedInput, type MessageType } from '@blacklite/crew-cli/shell/router';
 import {
   parseCoordinatorResponse,
   formatConversationContext,
   type RoutingDecision,
-} from '@bradygaster/squad-cli/shell/coordinator';
+} from '@blacklite/crew-cli/shell/coordinator';
 
 // ============================================================================
 // Helpers
@@ -37,7 +37,7 @@ function cleanDir(dir: string): void {
 
 function makeTeamMd(agents: Array<{ name: string; role: string; status?: string }>): string {
   const rows = agents
-    .map(a => `| ${a.name} | ${a.role} | \`.squad/agents/${a.name.toLowerCase()}/charter.md\` | ✅ ${a.status ?? 'Active'} |`)
+    .map(a => `| ${a.name} | ${a.role} | \`.crew/agents/${a.name.toLowerCase()}/charter.md\` | ✅ ${a.status ?? 'Active'} |`)
     .join('\n');
   return `# Team Manifest
 
@@ -75,13 +75,13 @@ describe('ShellLifecycle — startup', () => {
     });
   }
 
-  it('throws when .squad/ directory does not exist', async () => {
+  it('throws when .crew/ directory does not exist', async () => {
     const lc = makeLifecycle(tmpDir);
     await expect(lc.initialize()).rejects.toThrow('No team found');
   });
 
   it('throws when team.md is missing', async () => {
-    fs.mkdirSync(path.join(tmpDir, '.squad'), { recursive: true });
+    fs.mkdirSync(path.join(tmpDir, '.crew'), { recursive: true });
     const lc = makeLifecycle(tmpDir);
     await expect(lc.initialize()).rejects.toThrow('No team manifest found');
   });
@@ -93,9 +93,9 @@ describe('ShellLifecycle — startup', () => {
   });
 
   it('discovers agents from team.md', async () => {
-    const squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(path.join(squadDir, 'team.md'), makeTeamMd([
+    const crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(path.join(crewDir, 'team.md'), makeTeamMd([
       { name: 'Fenster', role: 'Core Dev' },
       { name: 'Hockney', role: 'Tester' },
     ]));
@@ -109,9 +109,9 @@ describe('ShellLifecycle — startup', () => {
   });
 
   it('registers active agents in session registry', async () => {
-    const squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(path.join(squadDir, 'team.md'), makeTeamMd([
+    const crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(path.join(crewDir, 'team.md'), makeTeamMd([
       { name: 'Keaton', role: 'Lead' },
     ]));
     const registry = new SessionRegistry();
@@ -123,9 +123,9 @@ describe('ShellLifecycle — startup', () => {
   });
 
   it('sets state to ready after successful init', async () => {
-    const squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(path.join(squadDir, 'team.md'), makeTeamMd([
+    const crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(path.join(crewDir, 'team.md'), makeTeamMd([
       { name: 'Fenster', role: 'Core Dev' },
     ]));
     const lc = makeLifecycle(tmpDir);
@@ -134,9 +134,9 @@ describe('ShellLifecycle — startup', () => {
   });
 
   it('tracks message history after init', async () => {
-    const squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(path.join(squadDir, 'team.md'), makeTeamMd([
+    const crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(path.join(crewDir, 'team.md'), makeTeamMd([
       { name: 'A', role: 'R' },
     ]));
     const lc = makeLifecycle(tmpDir);
@@ -337,9 +337,9 @@ describe('Session cleanup on shutdown', () => {
   it('all sessions cleared on shutdown', async () => {
     const tmpDir = makeTempDir('shell-cleanup-');
     try {
-      const squadDir = path.join(tmpDir, '.squad');
-      fs.mkdirSync(squadDir, { recursive: true });
-      fs.writeFileSync(path.join(squadDir, 'team.md'), makeTeamMd([
+      const crewDir = path.join(tmpDir, '.crew');
+      fs.mkdirSync(crewDir, { recursive: true });
+      fs.writeFileSync(path.join(crewDir, 'team.md'), makeTeamMd([
         { name: 'Fenster', role: 'Core Dev' },
         { name: 'Hockney', role: 'Tester' },
       ]));
@@ -363,9 +363,9 @@ describe('Session cleanup on shutdown', () => {
   it('message history cleared on shutdown', async () => {
     const tmpDir = makeTempDir('shell-cleanup2-');
     try {
-      const squadDir = path.join(tmpDir, '.squad');
-      fs.mkdirSync(squadDir, { recursive: true });
-      fs.writeFileSync(path.join(squadDir, 'team.md'), makeTeamMd([
+      const crewDir = path.join(tmpDir, '.crew');
+      fs.mkdirSync(crewDir, { recursive: true });
+      fs.writeFileSync(path.join(crewDir, 'team.md'), makeTeamMd([
         { name: 'A', role: 'R' },
       ]));
 
@@ -389,7 +389,7 @@ describe('Session cleanup on shutdown', () => {
 describe('Error handling — graceful degradation', () => {
   it('HealthMonitor check() returns unhealthy when client not connected', async () => {
     // Lazy import to avoid pulling in real SDK deps at top level
-    const { HealthMonitor } = await import('../packages/squad-sdk/src/runtime/health.js');
+    const { HealthMonitor } = await import('../packages/crew-sdk/src/runtime/health.js');
 
     const mockClient = {
       isConnected: () => false,
@@ -409,9 +409,9 @@ describe('Error handling — graceful degradation', () => {
   it('ShellLifecycle shutdown is safe to call multiple times', async () => {
     const tmpDir = makeTempDir('shell-err-');
     try {
-      const squadDir = path.join(tmpDir, '.squad');
-      fs.mkdirSync(squadDir, { recursive: true });
-      fs.writeFileSync(path.join(squadDir, 'team.md'), makeTeamMd([
+      const crewDir = path.join(tmpDir, '.crew');
+      fs.mkdirSync(crewDir, { recursive: true });
+      fs.writeFileSync(path.join(crewDir, 'team.md'), makeTeamMd([
         { name: 'A', role: 'R' },
       ]));
 

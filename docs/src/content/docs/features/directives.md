@@ -1,6 +1,6 @@
 # Directives
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to establish team coding standards:**
@@ -18,18 +18,18 @@ Always use single quotes in TypeScript
 Never commit directly to main
 ```
 
-Directives are team rules that persist across sessions. When you say "always" or "never", Squad captures it and writes it to the team's permanent memory. Every agent reads these before working.
+Directives are team rules that persist across sessions. When you say "always" or "never", Crew captures it and writes it to the team's permanent memory. Every agent reads these before working.
 
 ---
 
 ## How Directives Work
 
-A directive is a preference, rule, or constraint the team remembers across sessions. When you say "always do X" or "never do Y", Squad captures it as a directive, writes it to the decisions inbox, and the Scribe merges it into `.squad/decisions.md` — the team's permanent memory.
+A directive is a preference, rule, or constraint the team remembers across sessions. When you say "always do X" or "never do Y", Crew captures it as a directive, writes it to the decisions inbox, and the Scribe merges it into `.crew/decisions.md` — the team's permanent memory.
 
 ## How Directives Work
 
 1. **Signal Word Detection** — The coordinator listens for: "always", "never", "from now on", "remember to", "don't", "make sure to".
-2. **Capture** — Directive is written to `.squad/decisions/inbox/{timestamp}-{brief-slug}.md`.
+2. **Capture** — Directive is written to `.crew/decisions/inbox/{timestamp}-{brief-slug}.md`.
 3. **Scribe Merge** — Scribe consolidates inbox files into `decisions.md` during the next coordination cycle.
 4. **Agent Awareness** — All agents read `decisions.md` before starting work. Directives shape behavior.
 
@@ -91,10 +91,10 @@ Every new API endpoint requires at least one integration test covering the happy
 
 ## Decisions Inbox
 
-New directives land in `.squad/decisions/inbox/` as individual files:
+New directives land in `.crew/decisions/inbox/` as individual files:
 
 ```
-.squad/decisions/inbox/
+.crew/decisions/inbox/
 ├── 2024-01-15-1420-single-quotes.md
 ├── 2024-01-15-1435-no-friday-deploys.md
 └── 2024-01-15-1450-api-test-coverage.md
@@ -145,7 +145,7 @@ Coordinator searches `decisions.md` for testing-related directives.
 
 Scribe edits `decisions.md` and removes that section.
 
-Or edit `.squad/decisions.md` directly.
+Or edit `.crew/decisions.md` directly.
 
 ## Agent Directive Compliance
 

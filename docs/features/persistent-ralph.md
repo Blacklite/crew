@@ -12,22 +12,22 @@ Ralph, who's been idle the longest?
 
 **Try this to get a summary:**
 ```
-Ralph, summarize squad activity in the last hour
+Ralph, summarize crew activity in the last hour
 ```
 
-Ralph now runs continuously with persistent state. Track agent activity trends, detect stuck processes, and maintain squad health 24/7.
+Ralph now runs continuously with persistent state. Track agent activity trends, detect stuck processes, and maintain crew health 24/7.
 
 ---
 
 ## What Persistent Ralph Does
 
-Ralph evolved from an ephemeral monitor to a **persistent, stateful squad guardian**:
+Ralph evolved from an ephemeral monitor to a **persistent, stateful crew guardian**:
 
 1. **Continuous Monitoring** — Ralph runs 24/7 via GitHub Actions heartbeat
 2. **State Persistence** — Session data survives restarts and crashes
 3. **Activity Tracking** — Know what each agent is working on, when they start/stop
 4. **Stale Detection** — Automatically flag idle or hung processes
-5. **Trend Analysis** — Understand squad productivity over time
+5. **Trend Analysis** — Understand crew productivity over time
 
 ## Quick Start
 
@@ -36,7 +36,7 @@ Ralph evolved from an ephemeral monitor to a **persistent, stateful squad guardi
 Ralph runs automatically once enabled. To check status:
 
 ```bash
-Ralph, show squad status
+Ralph, show crew status
 ```
 
 Ralph reports:
@@ -50,10 +50,10 @@ Ralph reports:
 Enable Ralph's background heartbeat:
 
 ```bash
-squad schedule init ralph-heartbeat --trigger interval:300
+crew schedule init ralph-heartbeat --trigger interval:300
 ```
 
-This adds a 5-minute polling cycle to `.squad/schedule.json`. Ralph checks:
+This adds a 5-minute polling cycle to `.crew/schedule.json`. Ralph checks:
 - All active sessions
 - Agent health
 - Pending work
@@ -61,7 +61,7 @@ This adds a 5-minute polling cycle to `.squad/schedule.json`. Ralph checks:
 
 Commit the schedule:
 ```bash
-git add .squad/schedule.json
+git add .crew/schedule.json
 git commit -m "Enable Ralph heartbeat"
 ```
 
@@ -96,7 +96,7 @@ Session 3 (8:30 AM - 8:45 AM, 15 min)
 
 ## Configuration
 
-Ralph's persistent state is stored in `.squad/.ralph-state.json`:
+Ralph's persistent state is stored in `.crew/.ralph-state.json`:
 
 ```json
 {
@@ -121,7 +121,7 @@ Ralph's persistent state is stored in `.squad/.ralph-state.json`:
 }
 ```
 
-Add to `.squad/config.json` to customize:
+Add to `.crew/config.json` to customize:
 
 ```json
 {
@@ -158,7 +158,7 @@ Ralph subscribes to agent lifecycle events:
 
 Example session with milestones:
 ```
-Session: squad-copilot-data (14:25 - 14:42)
+Session: crew-copilot-data (14:25 - 14:42)
 ├─ 14:25:00 session:created
 ├─ 14:26:15 session:milestone "dependencies analyzed"
 ├─ 14:28:30 session:milestone "tests written"
@@ -172,7 +172,7 @@ Session: squad-copilot-data (14:25 - 14:42)
 Ralph tracks inactivity:
 
 ```
-Session: squad-copilot-platform (10:00 - still running)
+Session: crew-copilot-platform (10:00 - still running)
 ├─ Last activity: 11:45 (25 minutes ago)
 ├─ Status: STALE (no activity since 11:30 threshold)
 ├─ Likely causes: hung process, waiting for input, network issue
@@ -211,21 +211,21 @@ Completed Sessions (today): 12
 
 ## Persistent Heartbeat
 
-Ralph's background heartbeat is defined in `.squad/schedule.json`:
+Ralph's background heartbeat is defined in `.crew/schedule.json`:
 
 ```json
 {
   "id": "ralph-heartbeat",
   "name": "Ralph Health Monitor",
   "trigger": { "type": "interval", "intervalSeconds": 300 },
-  "task": { "type": "script", "command": "squad ralph watch --duration 25s" },
+  "task": { "type": "script", "command": "crew ralph watch --duration 25s" },
   "providers": ["local-polling", "github-actions"],
   "retry": { "maxRetries": 1, "backoffSeconds": 10 }
 }
 ```
 
 This runs:
-- **Locally**: Every 5 minutes while you're working (via `squad schedule watch`)
+- **Locally**: Every 5 minutes while you're working (via `crew schedule watch`)
 - **In GitHub Actions**: Every 5 minutes 24/7 (via generated workflow)
 
 ## Use Cases
@@ -242,7 +242,7 @@ Session: copilot-linter (14:00 - still running)
 
 ### Trend Analysis
 
-See what the squad was productive on:
+See what the crew was productive on:
 
 ```bash
 Ralph, summarize productivity for week
@@ -269,16 +269,16 @@ Trends:
 - Time to merge: 2.1h (↓ from 3.2h)
 ```
 
-### Squad Health Dashboard
+### Crew Health Dashboard
 
 As part of Ralph's monitoring:
 
 ```bash
-Ralph, show squad health
+Ralph, show crew health
 ```
 
 ```
-Squad Health: 92% (Excellent)
+Crew Health: 92% (Excellent)
 
 Active Contributors: 4
 ├─ copilot-data: 35% productivity
@@ -299,12 +299,12 @@ Work Queue:
 ## Data Retention
 
 Ralph persists state to:
-- `.squad/.ralph-state.json` — Current state and session history
-- `.squad/.ralph-archive/` — Historical snapshots (weekly)
+- `.crew/.ralph-state.json` — Current state and session history
+- `.crew/.ralph-archive/` — Historical snapshots (weekly)
 
 Archive format:
 ```
-.squad/.ralph-archive/
+.crew/.ralph-archive/
 ├─ 2026-03-10.json (week of Mar 3-9)
 ├─ 2026-03-17.json (week of Mar 10-16)
 └─ 2026-03-24.json (week of Mar 17-23)
@@ -334,10 +334,10 @@ Ralph now detects the platform and adapts:
 - Monitors plan status
 - Integrates with Planner tasks
 
-Ralph adjusts its monitoring based on what platform the squad uses.
+Ralph adjusts its monitoring based on what platform the crew uses.
 
 ## See Also
 
 - [Generic Scheduler](/features/generic-scheduler) — Schedule Ralph's heartbeat
 - [Upstream Auto-Sync](/features/upstream-sync) — Ralph can monitor sync status
-- [Cross-Squad Orchestration](/features/cross-squad-orchestration) — Ralph tracks delegation status
+- [Cross-Crew Orchestration](/features/cross-crew-orchestration) — Ralph tracks delegation status

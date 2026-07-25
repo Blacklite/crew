@@ -19,24 +19,24 @@ import {
   setVersionFetcher,
   setPackageJsonReader,
   setPackageJsonWriter,
-} from '@bradygaster/squad-cli/upgrade';
+} from '@blacklite/crew-cli/upgrade';
 import type {
   UpdateInfo,
   UpgradeOptions,
   SDKUpgradeOptions,
   ReleaseChannel,
-} from '@bradygaster/squad-cli/upgrade';
-import { MigrationRegistry } from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-cli/upgrade';
+import { MigrationRegistry } from '@blacklite/crew-sdk/config';
 import {
   detectCopilotEnvironment,
   getInstallInstructions,
   installFromCopilot,
-} from '@bradygaster/squad-cli/copilot-install';
+} from '@blacklite/crew-cli/copilot-install';
 import type {
   CopilotEnvironment,
   InstallConfig,
   EnvironmentIndicators,
-} from '@bradygaster/squad-cli/copilot-install';
+} from '@blacklite/crew-cli/copilot-install';
 
 // ============================================================================
 // Upgrade — version parsing & comparison
@@ -184,7 +184,7 @@ describe('upgradeSDK', () => {
     setVersionFetcher(async () => '2.0.0');
     setPackageJsonReader(async () => ({
       version: '1.0.0',
-      dependencies: { '@bradygaster/squad': '^1.0.0' },
+      dependencies: { '@blacklite/crew': '^1.0.0' },
     }));
     setPackageJsonWriter(async () => {});
   });
@@ -269,7 +269,7 @@ describe('detectCopilotEnvironment', () => {
   });
 
   it('detects cli via --copilot-cli argv', () => {
-    const ind: EnvironmentIndicators = { env: {}, argv: ['node', 'squad', '--copilot-cli'] };
+    const ind: EnvironmentIndicators = { env: {}, argv: ['node', 'crew', '--copilot-cli'] };
     expect(detectCopilotEnvironment(ind)).toBe('cli');
   });
 
@@ -362,7 +362,7 @@ describe('installFromCopilot', () => {
   });
 
   it('returns failure with message on error', async () => {
-    // non-writable dir would fail, but simpler: pass empty agents which initSquad rejects
+    // non-writable dir would fail, but simpler: pass empty agents which initCrew rejects
     const result = await installFromCopilot('cli', INSTALL_TEST_ROOT, {
       projectName: 'fail-proj',
       agents: [],

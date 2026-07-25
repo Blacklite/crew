@@ -1,16 +1,16 @@
 # Building extensions
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-You've decided your idea is a Squad Extension (Layer 2). Now package it so another team can install it, enable it, and give their agents better context in five minutes.
+You've decided your idea is a Crew Extension (Layer 2). Now package it so another team can install it, enable it, and give their agents better context in five minutes.
 
 ---
 
 ## What is an extension?
 
-An extension is a reusable collection of Squad agents, knowledge, workflows, ceremonies, memory guidance, provider contracts, generated artifacts, and directives that any team can install. It lives outside Squad core, packaged as a GitHub repository or marketplace plugin. Extensions let you codify workflows, domain expertise, memory lenses, knowledge graphs, or testing ceremonies that other teams benefit from.
+An extension is a reusable collection of Crew agents, knowledge, workflows, ceremonies, memory guidance, provider contracts, generated artifacts, and directives that any team can install. It lives outside Crew core, packaged as a GitHub repository or marketplace plugin. Extensions let you codify workflows, domain expertise, memory lenses, knowledge graphs, or testing ceremonies that other teams benefit from.
 
-If your extension needs a Copilot plugin, declare it as a dependency in the manifest. If it points to an external CLI, package, or MCP server, record that in `repository`, `upstream`, or `mcp` metadata. If it uses an approved built-in provider such as Graphify, `squad plugin refresh` can generate artifacts for agents to consume. Squad does not install external packages, run plugin-supplied commands, start MCP servers, or manage Copilot plugins.
+If your extension needs a Copilot plugin, declare it as a dependency in the manifest. If it points to an external CLI, package, or MCP server, record that in `repository`, `upstream`, or `mcp` metadata. If it uses an approved built-in provider such as Graphify, `crew plugin refresh` can generate artifacts for agents to consume. Crew does not install external packages, run plugin-supplied commands, start MCP servers, or manage Copilot plugins.
 
 ---
 
@@ -62,7 +62,7 @@ Brief problem statement.
 
 **Step 3 (optional): Add a ceremony**
 
-Create `ceremonies/code-review.md` following Squad ceremony format (decision gate, verdicts, escalation).
+Create `ceremonies/code-review.md` following Crew ceremony format (decision gate, verdicts, escalation).
 
 **Step 4: Add a manifest**
 
@@ -76,7 +76,7 @@ Create `plugin.manifest.json`:
   "description": "Reusable workflow patterns for my team.",
   "authors": ["Your Team"],
   "license": "MIT",
-  "squad": ">=0.9.1",
+  "crew": ">=0.9.1",
   "components": {
     "knowledge": ["example-guidance"],
     "workflows": ["review-workflow"]
@@ -116,18 +116,18 @@ The MVP manifest is declarative. Do not add scripts, commands, lifecycle hooks, 
 **Step 5: Validate and dry-run**
 
 ```bash
-squad plugin validate .
-squad plugin dry-run .
+crew plugin validate .
+crew plugin dry-run .
 ```
 
-Dry-run prints the exact files Squad would write without changing `.squad/`.
+Dry-run prints the exact files Crew would write without changing `.crew/`.
 
 **Step 6: Install and enable locally**
 
 ```bash
-squad plugin install .
-squad plugin enable my-extension
-squad plugin list --json
+crew plugin install .
+crew plugin enable my-extension
+crew plugin list --json
 ```
 
 Install records the plugin disabled by default. Enable activates the roles declared in `components`.
@@ -144,8 +144,8 @@ Codifies client-delivery workflows for consulting teams.
 
 ## Install
 
-squad plugin install .
-squad plugin enable my-extension
+crew plugin install .
+crew plugin enable my-extension
 
 ## What's Inside
 
@@ -156,7 +156,7 @@ squad plugin enable my-extension
 
 **Step 8: Test locally**
 
-Run `squad plugin verify`, then run `squad plugin refresh <plugin-id>` if your plugin declares an approved built-in provider. Load your Squad session and verify the installed Squad knowledge, workflows, and generated artifacts appear and work as expected. If you declared Copilot dependencies, verify those are installed separately through Copilot.
+Run `crew plugin verify`, then run `crew plugin refresh <plugin-id>` if your plugin declares an approved built-in provider. Load your Crew session and verify the installed Crew knowledge, workflows, and generated artifacts appear and work as expected. If you declared Copilot dependencies, verify those are installed separately through Copilot.
 
 ---
 
@@ -173,14 +173,14 @@ git push
 Register with a marketplace or pin directly by repository URL:
 
 ```
-squad plugin marketplace add github/my-org/my-team-plugins
+crew plugin marketplace add github/my-org/my-team-plugins
 ```
 
 ---
 
 ## Real examples
 
-- **Client-delivery workflow** ([RFC #328](https://github.com/bradygaster/squad/issues/328)) — discovery, research, multi-round review with evidence gates
+- **Client-delivery workflow** ([RFC #328](https://github.com/Blacklite/crew/issues/328)) — discovery, research, multi-round review with evidence gates
 - **Azure infrastructure patterns** — VM provisioning, Cosmos DB design, monitoring rules
 - **Knowledge libraries** — document structured analysis, reference synthesis
 - **External integration samples** — see `samples/plugin-knowledge-graphify` for the real Graphify knowledge graph tool, `samples/plugin-knowledge-index-server` for the real Index Server instruction/knowledge MCP server, and `samples/plugin-memory-mempalace` for the real MemPalace memory CLI/MCP system
@@ -191,9 +191,9 @@ squad plugin marketplace add github/my-org/my-team-plugins
 
 - [Extensibility guide](./extensibility.md#decision-tree) — Where does your idea belong? (decision tree)
 - [Plugin Marketplace](../features/plugins.md) — How teams discover and install your extension
-- [Skills](../features/skills.md) — Existing Squad skills concepts; plugin manifests should use `knowledge` unless they are declaring a Copilot dependency
+- [Skills](../features/skills.md) — Existing Crew skills concepts; plugin manifests should use `knowledge` unless they are declaring a Copilot dependency
 - [Ceremonies](../features/ceremonies.md) — How to define decision gates and review rituals
 
 ---
 
-**Ready to share?** [Open a discussion](https://github.com/bradygaster/squad/discussions) in the Squad community.
+**Ready to share?** [Open a discussion](https://github.com/Blacklite/crew/discussions) in the Crew community.

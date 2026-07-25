@@ -1,5 +1,5 @@
 /**
- * Generate API reference markdown from the Squad SDK source using TypeDoc.
+ * Generate API reference markdown from the Crew SDK source using TypeDoc.
  *
  * Usage:
  *   node scripts/generate-api-docs.mjs
@@ -16,7 +16,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
-const SDK_DIR = join(ROOT, 'packages', 'squad-sdk');
+const SDK_DIR = join(ROOT, 'packages', 'crew-sdk');
 const API_OUT = join(ROOT, 'docs', 'src', 'content', 'docs', 'reference', 'api');
 
 /** Convert a TypeDoc filename to an Astro-safe slug (lowercase, dots → dashes). */
@@ -116,14 +116,14 @@ const total = classCount + ifaceCount + fnCount + typeCount + varCount;
 
 let landing = `---
 title: SDK API reference
-description: Auto-generated TypeScript API reference for @bradygaster/squad-sdk.
+description: Auto-generated TypeScript API reference for @blacklite/crew-sdk.
 ---
 
 # SDK API reference
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs may change between releases.
 
-Auto-generated from the \`@bradygaster/squad-sdk\` TypeScript source using [TypeDoc](https://typedoc.org/).
+Auto-generated from the \`@blacklite/crew-sdk\` TypeScript source using [TypeDoc](https://typedoc.org/).
 This reference covers **${total}** public exports: ${classCount} classes, ${ifaceCount} interfaces, ${fnCount} functions, ${typeCount} type aliases, and ${varCount} variables.
 
 To regenerate, run:
@@ -149,9 +149,9 @@ landing += `---
 
 ## See also
 
-- [SDK quick reference](/squad/docs/reference/sdk) — curated examples for common SDK usage
-- [Tools & hooks](/squad/docs/reference/tools-and-hooks) — custom tools and hook pipeline
-- [Config reference](/squad/docs/reference/config) — configuration file options
+- [SDK quick reference](/crew/docs/reference/sdk) — curated examples for common SDK usage
+- [Tools & hooks](/crew/docs/reference/tools-and-hooks) — custom tools and hook pipeline
+- [Config reference](/crew/docs/reference/config) — configuration file options
 `;
 
 // Remove the TypeDoc-generated index.md before writing ours

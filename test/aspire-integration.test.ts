@@ -33,7 +33,7 @@ function playwrightBrowserSkipReason(): string | null {
 
 const SKIP_REASON = dockerSkipReason() ?? playwrightBrowserSkipReason();
 
-const CONTAINER_NAME = 'squad-aspire-dashboard';
+const CONTAINER_NAME = 'crew-aspire-dashboard';
 const DASHBOARD_URL = 'http://localhost:18888';
 const OTLP_GRPC_TARGET = 'http://localhost:4317';
 
@@ -87,8 +87,8 @@ let sdk: NodeSDK | undefined;
 function initOTelForAspire(): void {
   sdk = new NodeSDK({
     resource: resourceFromAttributes({
-      'service.name': 'squad-integration-test',
-      'squad.version': 'test',
+      'service.name': 'crew-integration-test',
+      'crew.version': 'test',
     }),
     traceExporter: new OTLPTraceExporter({ url: OTLP_GRPC_TARGET }),
     metricReader: new PeriodicExportingMetricReader({
@@ -163,16 +163,16 @@ describe.skipIf(SKIP_REASON !== null)(
     // Test 1: Traces appear in Aspire dashboard
     // ------------------------------------------------------------------
     it('traces appear in Aspire dashboard', async () => {
-      // Create Squad-style spans
-      const tracer = trace.getTracer('squad.test');
+      // Create Crew-style spans
+      const tracer = trace.getTracer('crew.test');
 
-      tracer.startActiveSpan('squad.session', (sessionSpan) => {
-        sessionSpan.setAttribute('squad.session.id', 'test-session-001');
-        sessionSpan.setAttribute('squad.team', 'suspects');
+      tracer.startActiveSpan('crew.session', (sessionSpan) => {
+        sessionSpan.setAttribute('crew.session.id', 'test-session-001');
+        sessionSpan.setAttribute('crew.team', 'suspects');
 
-        tracer.startActiveSpan('squad.agent', (agentSpan) => {
-          agentSpan.setAttribute('squad.agent.name', 'saul');
-          agentSpan.setAttribute('squad.agent.role', 'observability');
+        tracer.startActiveSpan('crew.agent', (agentSpan) => {
+          agentSpan.setAttribute('crew.agent.name', 'saul');
+          agentSpan.setAttribute('crew.agent.role', 'observability');
           agentSpan.end();
         });
 
@@ -196,7 +196,7 @@ describe.skipIf(SKIP_REASON !== null)(
         // Wait for trace data to render
         const traceContent = await page.locator('fluent-data-grid, table, [class*="trace"], [class*="grid"], main').first().textContent({ timeout: 15_000 });
 
-        // The trace list should contain our squad.test resource or span names
+        // The trace list should contain our crew.test resource or span names
         expect(traceContent).toBeTruthy();
 
         // Verify we're on the traces page
@@ -211,19 +211,19 @@ describe.skipIf(SKIP_REASON !== null)(
     // ------------------------------------------------------------------
     it('metrics appear in Aspire dashboard', async () => {
       // Record some metrics
-      const meter = metrics.getMeter('squad.test');
+      const meter = metrics.getMeter('crew.test');
 
-      const sessionCounter = meter.createCounter('squad.sessions.total', {
-        description: 'Total Squad sessions created',
+      const sessionCounter = meter.createCounter('crew.sessions.total', {
+        description: 'Total Crew sessions created',
       });
-      sessionCounter.add(5, { 'squad.team': 'suspects' });
+      sessionCounter.add(5, { 'crew.team': 'suspects' });
 
-      const latencyHistogram = meter.createHistogram('squad.agent.latency', {
+      const latencyHistogram = meter.createHistogram('crew.agent.latency', {
         description: 'Agent response latency in ms',
         unit: 'ms',
       });
-      latencyHistogram.record(42, { 'squad.agent.name': 'saul' });
-      latencyHistogram.record(108, { 'squad.agent.name': 'fenster' });
+      latencyHistogram.record(42, { 'crew.agent.name': 'saul' });
+      latencyHistogram.record(108, { 'crew.agent.name': 'fenster' });
 
       // Flush metrics via the global provider
       const mp = metrics.getMeterProvider();
@@ -251,21 +251,21 @@ describe.skipIf(SKIP_REASON !== null)(
     }, 60_000);
 
     // ------------------------------------------------------------------
-    // Test 3: squad aspire command lifecycle
+    // Test 3: crew aspire command lifecycle
     // ------------------------------------------------------------------
-    it('squad aspire command exists and exports runAspire', async () => {
-      const mod = await import('@bradygaster/squad-cli/commands/aspire');
+    it('crew aspire command exists and exports runAspire', async () => {
+      const mod = await import('@blacklite/crew-cli/commands/aspire');
       expect(typeof mod.runAspire).toBe('function');
     });
 
-    it('squad aspire command has AspireOptions with docker flag', async () => {
+    it('crew aspire command has AspireOptions with docker flag', async () => {
       // Type-level validation: if this compiles, the interface is correct
-      const mod = await import('@bradygaster/squad-cli/commands/aspire');
+      const mod = await import('@blacklite/crew-cli/commands/aspire');
       const opts: Parameters<typeof mod.runAspire>[0] = { docker: true, port: 18888 };
       expect(opts.docker).toBe(true);
     });
 
-    it('squad aspire Docker lifecycle: container starts and stops', async () => {
+    it('crew aspire Docker lifecycle: container starts and stops', async () => {
       // The test suite already started the container in beforeAll —
       // verify it is running and will be stopped in afterAll
       const output = execSync(

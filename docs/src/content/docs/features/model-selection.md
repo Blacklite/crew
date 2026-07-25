@@ -6,7 +6,7 @@ order: 34
 
 # Per-Agent Model Selection
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to set a persistent preference (survives across sessions):**
@@ -34,19 +34,19 @@ Use Sonnet for code, Haiku for everything else
 Switch back to automatic model selection
 ```
 
-Squad adjusts model selection based on your directive. Agents writing code get quality models (Sonnet/Opus), agents doing docs/logs get cost-optimized models (Haiku). You can override anytime — and persistent overrides survive across sessions.
+Crew adjusts model selection based on your directive. Agents writing code get quality models (Sonnet/Opus), agents doing docs/logs get cost-optimized models (Haiku). You can override anytime — and persistent overrides survive across sessions.
 
 ---
 
 ## How It Works
 
-Squad routes each agent to the right model based on what they're doing — not a one-size-fits-all default. The governing principle: **cost first, unless code is being written** — but your preferences always take priority.
+Crew routes each agent to the right model based on what they're doing — not a one-size-fits-all default. The governing principle: **cost first, unless code is being written** — but your preferences always take priority.
 
 ## 5-Layer Model Resolution
 
 Model selection uses a layered system. First match wins:
 
-1. **Persistent Config** (`.squad/config.json`) — You said "always use opus"? It's saved to disk. Every session, every agent, until you change it. Per-agent overrides (`agentModelOverrides`) take priority over the global `defaultModel`.
+1. **Persistent Config** (`.crew/config.json`) — You said "always use opus"? It's saved to disk. Every session, every agent, until you change it. Per-agent overrides (`agentModelOverrides`) take priority over the global `defaultModel`.
 2. **Session Directive** — You said "use opus for this session"? Done. Applies until the session ends.
 3. **Charter Preference** — The agent's charter specifies a `## Model` section with a preferred model.
 4. **Task-Aware Auto-Selection** — The coordinator checks what the agent is actually doing:
@@ -62,7 +62,7 @@ Model selection uses a layered system. First match wins:
 
 ## Persistent Model Preferences
 
-Squad stores your model preferences in `.squad/config.json`:
+Crew stores your model preferences in `.crew/config.json`:
 
 ```json
 {
@@ -94,7 +94,7 @@ Squad stores your model preferences in `.squad/config.json`:
 
 ## 18-Model Catalog
 
-Squad supports 18 models across three tiers:
+Crew supports 18 models across three tiers:
 
 - **Premium:** claude-opus-4.6, claude-opus-4.6-fast, claude-opus-4.5
 - **Standard:** claude-sonnet-4.6, gpt-5.4, gpt-5.3-codex, gpt-5.2-codex, claude-sonnet-4, gpt-5.2, gpt-5.1-codex, gpt-5.1, gpt-5, gemini-3-pro-preview
@@ -102,7 +102,7 @@ Squad supports 18 models across three tiers:
 
 ## Fallback Chains
 
-If a model is unavailable (plan restriction, rate limit, deprecation), Squad silently retries with the next in chain:
+If a model is unavailable (plan restriction, rate limit, deprecation), Crew silently retries with the next in chain:
 
 ```
 Premium:  claude-opus-4.6 → claude-opus-4.6-fast → claude-opus-4.5 → claude-sonnet-4.6
@@ -117,7 +117,7 @@ Never falls back UP in tier — a fast task won't land on a premium model.
 Tell the coordinator what you want:
 
 - `"use opus for this"` — one-off premium for current task
-- `"always use opus"` — **persistent** preference saved to `.squad/config.json` (survives sessions)
+- `"always use opus"` — **persistent** preference saved to `.crew/config.json` (survives sessions)
 - `"use gpt-5.2-codex for Fenster"` — **persistent** per-agent override
 - `"switch back to automatic"` — clears persistent preference
 
@@ -135,7 +135,7 @@ Switch to economy mode
 Turn off economy mode
 ```
 
-When economy mode is active, Squad remaps models using the `ECONOMY_MODEL_MAP`:
+When economy mode is active, Crew remaps models using the `ECONOMY_MODEL_MAP`:
 
 | Normal Tier | Economy Model |
 |-------------|--------------|
@@ -146,7 +146,7 @@ When economy mode is active, Squad remaps models using the `ECONOMY_MODEL_MAP`:
 
 **Cost tradeoffs:** Economy mode trades output quality for lower cost and reduced rate limit pressure. Use it for bulk triage, log analysis, or changelog generation — not for architecture work or complex refactors where quality matters.
 
-**Persistent economy mode** saves to `.squad/config.json`:
+**Persistent economy mode** saves to `.crew/config.json`:
 ```json
 {
   "version": 1,

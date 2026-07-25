@@ -18,11 +18,11 @@ import {
   compileCharter,
   compileCharterFull,
   type CharterCompileOptions,
-} from '@bradygaster/squad-sdk/agents';
+} from '@blacklite/crew-sdk/agents';
 
 // --- Fixtures ---
 
-const FIXTURES_ROOT = path.resolve(__dirname, '..', 'test-fixtures', '.squad');
+const FIXTURES_ROOT = path.resolve(__dirname, '..', 'test-fixtures', '.crew');
 const FENSTER_CHARTER = path.join(FIXTURES_ROOT, 'agents', 'fenster', 'charter.md');
 const HOCKNEY_CHARTER = path.join(FIXTURES_ROOT, 'agents', 'hockney', 'charter.md');
 

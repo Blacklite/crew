@@ -7,7 +7,7 @@ const os = require('os');
 
 const CLI = path.join(__dirname, '..', 'index.cjs');
 
-function runSquad(args, cwd) {
+function runCrew(args, cwd) {
   try {
     const result = execFileSync(process.execPath, [CLI, ...args], {
       cwd,
@@ -25,7 +25,7 @@ function runSquad(args, cwd) {
 }
 
 function makeTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'squad-mcp-test-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'crew-mcp-test-'));
 }
 
 function cleanDir(dir) {
@@ -45,26 +45,26 @@ describe('MCP config handling (#11)', () => {
     cleanDir(tmpDir);
   });
 
-  describe('squad init with MCP config', () => {
-    it('squad init succeeds when .copilot/ directory does not exist', () => {
+  describe('crew init with MCP config', () => {
+    it('crew init succeeds when .copilot/ directory does not exist', () => {
       assert.ok(!fs.existsSync(path.join(tmpDir, '.copilot')));
-      const result = runSquad([], tmpDir);
+      const result = runCrew([], tmpDir);
       assert.equal(result.exitCode, 0, `init should succeed without .copilot/: ${result.stdout}`);
     });
 
-    it('squad init succeeds when .copilot/ directory already exists', () => {
+    it('crew init succeeds when .copilot/ directory already exists', () => {
       fs.mkdirSync(path.join(tmpDir, '.copilot'), { recursive: true });
-      const result = runSquad([], tmpDir);
+      const result = runCrew([], tmpDir);
       assert.equal(result.exitCode, 0, `init should succeed with existing .copilot/: ${result.stdout}`);
     });
 
-    it('squad init succeeds when .copilot/mcp-config.json already exists', () => {
+    it('crew init succeeds when .copilot/mcp-config.json already exists', () => {
       const copilotDir = path.join(tmpDir, '.copilot');
       fs.mkdirSync(copilotDir, { recursive: true });
       const userConfig = { mcpServers: { trello: { command: 'npx', args: ['trello-mcp'] } } };
       fs.writeFileSync(path.join(copilotDir, 'mcp-config.json'), JSON.stringify(userConfig));
 
-      const result = runSquad([], tmpDir);
+      const result = runCrew([], tmpDir);
       assert.equal(result.exitCode, 0, `init should succeed with existing mcp config: ${result.stdout}`);
 
       // Verify existing config was not clobbered
@@ -74,7 +74,7 @@ describe('MCP config handling (#11)', () => {
     });
 
     it('if init creates mcp-config.json sample, it must be valid JSON', () => {
-      const result = runSquad([], tmpDir);
+      const result = runCrew([], tmpDir);
       assert.equal(result.exitCode, 0);
 
       const mcpConfigPath = path.join(tmpDir, '.copilot', 'mcp-config.json');
@@ -87,8 +87,8 @@ describe('MCP config handling (#11)', () => {
   });
 
   describe('MCP config validation', () => {
-    it('squad runs correctly when .copilot/mcp-config.json has valid config', () => {
-      runSquad([], tmpDir);
+    it('crew runs correctly when .copilot/mcp-config.json has valid config', () => {
+      runCrew([], tmpDir);
 
       const copilotDir = path.join(tmpDir, '.copilot');
       fs.mkdirSync(copilotDir, { recursive: true });
@@ -103,48 +103,48 @@ describe('MCP config handling (#11)', () => {
       };
       fs.writeFileSync(path.join(copilotDir, 'mcp-config.json'), JSON.stringify(validConfig, null, 2));
 
-      const result = runSquad(['upgrade'], tmpDir);
+      const result = runCrew(['upgrade'], tmpDir);
       assert.equal(result.exitCode, 0, `upgrade should work with MCP config present: ${result.stdout}`);
     });
 
-    it('squad runs correctly when .copilot/mcp-config.json is empty object', () => {
-      runSquad([], tmpDir);
+    it('crew runs correctly when .copilot/mcp-config.json is empty object', () => {
+      runCrew([], tmpDir);
 
       const copilotDir = path.join(tmpDir, '.copilot');
       fs.mkdirSync(copilotDir, { recursive: true });
       fs.writeFileSync(path.join(copilotDir, 'mcp-config.json'), '{}');
 
-      const result = runSquad(['upgrade'], tmpDir);
+      const result = runCrew(['upgrade'], tmpDir);
       assert.equal(result.exitCode, 0, `upgrade should work with empty MCP config: ${result.stdout}`);
     });
 
-    it('squad does not crash when .copilot/ contains non-JSON files', () => {
-      runSquad([], tmpDir);
+    it('crew does not crash when .copilot/ contains non-JSON files', () => {
+      runCrew([], tmpDir);
 
       const copilotDir = path.join(tmpDir, '.copilot');
       fs.mkdirSync(copilotDir, { recursive: true });
       fs.writeFileSync(path.join(copilotDir, 'mcp-config.json'), 'not valid json {{{');
 
-      const result = runSquad(['upgrade'], tmpDir);
+      const result = runCrew(['upgrade'], tmpDir);
       assert.equal(result.exitCode, 0, `upgrade should not crash on invalid mcp-config.json: ${result.stdout}`);
     });
   });
 
   describe('MCP config directory edge cases', () => {
     it('gracefully handles read-only .copilot/ directory', () => {
-      runSquad([], tmpDir);
-      const result = runSquad(['--version'], tmpDir);
+      runCrew([], tmpDir);
+      const result = runCrew(['--version'], tmpDir);
       assert.equal(result.exitCode, 0);
     });
 
-    it('squad help works regardless of MCP config presence', () => {
-      const result = runSquad(['help'], tmpDir);
+    it('crew help works regardless of MCP config presence', () => {
+      const result = runCrew(['help'], tmpDir);
       assert.equal(result.exitCode, 0);
-      assert.ok(result.stdout.includes('squad'), 'help should display squad info');
+      assert.ok(result.stdout.includes('crew'), 'help should display crew info');
     });
 
-    it('squad --version works regardless of MCP config presence', () => {
-      const result = runSquad(['--version'], tmpDir);
+    it('crew --version works regardless of MCP config presence', () => {
+      const result = runCrew(['--version'], tmpDir);
       assert.equal(result.exitCode, 0);
       assert.match(result.stdout.trim(), /^Package: \d+\.\d+\.\d+/, 'should output package version');
     });

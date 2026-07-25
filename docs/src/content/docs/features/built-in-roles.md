@@ -2,7 +2,7 @@
 
 ## Overview
 
-- Squad ships with 20 curated base roles covering software development and business operations.
+- Crew ships with 20 curated base roles covering software development and business operations.
 - Base roles provide deep, substantive charter content out of the box — no LLM generation needed.
 - During team casting, base roles serve as starting points that get refined for your project context.
 - Role content is adapted from [agency-agents](https://github.com/msitarzewski/agency-agents) by AgentLand Contributors (MIT License).
@@ -50,7 +50,7 @@
 ### During Init
 
 ```bash
-$ squad init
+$ crew init
 What are you building? > A React + Node.js API with Stripe integration
 
 Suggested team:
@@ -62,12 +62,12 @@ Suggested team:
 Look right? [Yes] [Add someone] [Change a role] [Browse all roles]
 ```
 
-### In squad.config.ts (SDK Mode)
+### In crew.config.ts (SDK Mode)
 
 ```typescript
-import { useRole, defineSquad } from '@bradygaster/squad-sdk';
+import { useRole, defineCrew } from '@blacklite/crew-sdk';
 
-export default defineSquad({
+export default defineCrew({
   agents: [
     useRole('lead', { name: 'ripley' }),
     useRole('frontend', { name: 'dallas' }),
@@ -80,9 +80,9 @@ export default defineSquad({
 ### CLI: Browse Roles
 
 ```bash
-$ squad roles                          # list all 20 roles
-$ squad roles --category engineering   # filter by category
-$ squad roles --search "security"      # search by keyword
+$ crew roles                          # list all 20 roles
+$ crew roles --category engineering   # filter by category
+$ crew roles --search "security"      # search by keyword
 ```
 
 ## Customization

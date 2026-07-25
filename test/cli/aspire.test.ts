@@ -1,14 +1,14 @@
 /**
- * CLI: `squad aspire` Command Tests — Issue #267
+ * CLI: `crew aspire` Command Tests — Issue #267
  *
- * Proactive tests for the `squad aspire` command that starts/stops an
+ * Proactive tests for the `crew aspire` command that starts/stops an
  * Aspire dashboard container for local OTel telemetry visualization.
  *
  * The aspire command is expected to:
  * - Check Docker availability (docker info / docker --version)
  * - Start a container with the correct image and port mappings
  * - Configure OTLP endpoint (default: http://localhost:4318)
- * - Stop the container cleanly on `squad aspire stop`
+ * - Stop the container cleanly on `crew aspire stop`
  *
  * Since the command may not be implemented yet, tests pass gracefully
  * with [PROACTIVE] warnings when the module is not found.
@@ -48,7 +48,7 @@ function buildAspireRunCommand(options: {
   const {
     port = 18888,
     otlpPort = 4318,
-    name = 'squad-aspire-dashboard',
+    name = 'crew-aspire-dashboard',
     image = 'mcr.microsoft.com/dotnet/aspire-dashboard:latest',
   } = options;
 
@@ -62,7 +62,7 @@ function buildAspireRunCommand(options: {
   ];
 }
 
-function buildAspireStopCommands(name = 'squad-aspire-dashboard'): string[][] {
+function buildAspireStopCommands(name = 'crew-aspire-dashboard'): string[][] {
   return [
     ['docker', 'stop', name],
     ['docker', 'rm', name],
@@ -74,7 +74,7 @@ function buildAspireStopCommands(name = 'squad-aspire-dashboard'): string[][] {
 // ===========================================================================
 
 describe.skipIf(SKIP_REASON !== null)(
-  `CLI: squad aspire — Docker availability (${SKIP_REASON ?? 'enabled'})`,
+  `CLI: crew aspire — Docker availability (${SKIP_REASON ?? 'enabled'})`,
   { timeout: 30_000 },
   () => {
   it('checkDockerAvailability returns version string when Docker is present', () => {
@@ -88,7 +88,7 @@ describe.skipIf(SKIP_REASON !== null)(
 // Docker availability — mocked (always runs, no Docker required)
 // ===========================================================================
 
-describe('CLI: squad aspire — Docker detection (mocked)', () => {
+describe('CLI: crew aspire — Docker detection (mocked)', () => {
   it('checkDockerAvailability returns null when Docker CLI is absent', () => {
     const mockExecSync = vi.fn(() => { throw new Error('docker not found'); });
     let result: string | null;
@@ -110,14 +110,14 @@ describe('CLI: squad aspire — Docker detection (mocked)', () => {
 // Container command generation
 // ===========================================================================
 
-describe('CLI: squad aspire — container commands', () => {
+describe('CLI: crew aspire — container commands', () => {
   it('buildAspireRunCommand generates correct default docker run command', () => {
     const cmd = buildAspireRunCommand();
     expect(cmd[0]).toBe('docker');
     expect(cmd[1]).toBe('run');
     expect(cmd[2]).toBe('-d');
     expect(cmd).toContain('--name');
-    expect(cmd).toContain('squad-aspire-dashboard');
+    expect(cmd).toContain('crew-aspire-dashboard');
     expect(cmd).toContain('-p');
     expect(cmd).toContain('18888:18888');
     expect(cmd).toContain('4318:18889');
@@ -163,7 +163,7 @@ describe('CLI: squad aspire — container commands', () => {
 // OTLP endpoint configuration
 // ===========================================================================
 
-describe('CLI: squad aspire — OTLP endpoint configuration', () => {
+describe('CLI: crew aspire — OTLP endpoint configuration', () => {
   const savedEnv = process.env['OTEL_EXPORTER_OTLP_ENDPOINT'];
 
   afterEach(() => {
@@ -195,12 +195,12 @@ describe('CLI: squad aspire — OTLP endpoint configuration', () => {
 // Stop / cleanup commands
 // ===========================================================================
 
-describe('CLI: squad aspire — stop/cleanup', () => {
+describe('CLI: crew aspire — stop/cleanup', () => {
   it('buildAspireStopCommands generates docker stop + rm', () => {
     const cmds = buildAspireStopCommands();
     expect(cmds.length).toBe(2);
-    expect(cmds[0]).toEqual(['docker', 'stop', 'squad-aspire-dashboard']);
-    expect(cmds[1]).toEqual(['docker', 'rm', 'squad-aspire-dashboard']);
+    expect(cmds[0]).toEqual(['docker', 'stop', 'crew-aspire-dashboard']);
+    expect(cmds[1]).toEqual(['docker', 'rm', 'crew-aspire-dashboard']);
   });
 
   it('buildAspireStopCommands accepts custom container name', () => {
@@ -216,9 +216,9 @@ describe('CLI: squad aspire — stop/cleanup', () => {
     expect(stopCmds[0]![0]).toBe('docker');
     expect(startCmd[0]).toBe('docker');
     // Container name matches between stop/rm and run
-    expect(stopCmds[0]![2]).toBe('squad-aspire-dashboard');
+    expect(stopCmds[0]![2]).toBe('crew-aspire-dashboard');
     const nameIdx = startCmd.indexOf('--name');
-    expect(startCmd[nameIdx + 1]).toBe('squad-aspire-dashboard');
+    expect(startCmd[nameIdx + 1]).toBe('crew-aspire-dashboard');
   });
 });
 
@@ -226,11 +226,11 @@ describe('CLI: squad aspire — stop/cleanup', () => {
 // Aspire command module resolution (proactive)
 // ===========================================================================
 
-describe('CLI: squad aspire — module resolution', () => {
+describe('CLI: crew aspire — module resolution', () => {
   it('[PROACTIVE] aspire command source file exists in expected location', () => {
-    const aspirePath = join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'aspire.ts');
+    const aspirePath = join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'aspire.ts');
     if (!existsSync(aspirePath)) {
-      console.warn('[PROACTIVE] squad aspire command not yet implemented — source file not found');
+      console.warn('[PROACTIVE] crew aspire command not yet implemented — source file not found');
       return;
     }
     expect(existsSync(aspirePath)).toBe(true);

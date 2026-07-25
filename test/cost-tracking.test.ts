@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 
-import { defineBudget } from '../packages/squad-sdk/src/builders/index.js';
-import { CostTracker } from '../packages/squad-sdk/src/runtime/cost-tracker.js';
+import { defineBudget } from '../packages/crew-sdk/src/builders/index.js';
+import { CostTracker } from '../packages/crew-sdk/src/runtime/cost-tracker.js';
 
 function parseUsageFromLog(content: string): {
   inputTokens: number;

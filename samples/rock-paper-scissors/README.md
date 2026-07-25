@@ -73,7 +73,7 @@ Match #1: ⚔️  Rocky vs. Sherlock
 |---|---|
 | `index.ts` | Main tournament loop with match execution and scoring |
 | `prompts.ts` | Player definitions, strategies, and system prompts |
-| `package.json` | Dependencies (squad-sdk, copilot-sdk) |
+| `package.json` | Dependencies (crew-sdk, copilot-sdk) |
 | `docker-compose.yml` | Containerized deployment configuration |
 | `tests/rock-paper-scissors.test.ts` | Tests for move parsing and winner determination |
 
@@ -102,5 +102,5 @@ Each player is a Copilot session with a fixed personality:
 ## Next steps
 
 - See [autonomous-pipeline](../autonomous-pipeline/README.md) for a showcase combining multiple SDK components
-- Check the [Squad SDK documentation](../../README.md) for more session management patterns
+- Check the [Crew SDK documentation](../../README.md) for more session management patterns
 - Review `prompts.ts` to customize player strategies

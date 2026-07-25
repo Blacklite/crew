@@ -15,60 +15,60 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 vi.mock(
-  '../packages/squad-cli/src/cli/core/npm-registry.js',
+  '../packages/crew-cli/src/cli/core/npm-registry.js',
   () => ({
-    isSquadCliVersionPublished: vi.fn(),
+    isCrewCliVersionPublished: vi.fn(),
   }),
 );
 
 import {
-  resolveSquadStateMcpSpec,
+  resolveCrewStateMcpSpec,
   _resetMcpSpecCache,
-} from '../packages/squad-cli/src/cli/core/mcp-spec.js';
-import { isSquadCliVersionPublished } from '../packages/squad-cli/src/cli/core/npm-registry.js';
+} from '../packages/crew-cli/src/cli/core/mcp-spec.js';
+import { isCrewCliVersionPublished } from '../packages/crew-cli/src/cli/core/npm-registry.js';
 
-const mockIsPublished = vi.mocked(isSquadCliVersionPublished);
+const mockIsPublished = vi.mocked(isCrewCliVersionPublished);
 
-describe('resolveSquadStateMcpSpec (iter-7: 2-tier resolver)', () => {
+describe('resolveCrewStateMcpSpec (iter-7: 2-tier resolver)', () => {
   beforeEach(() => {
     mockIsPublished.mockReset();
     _resetMcpSpecCache();
   });
 
   it('returns a pinned npx spec when the version is published on npm', async () => {
-    const spec = await resolveSquadStateMcpSpec('0.9.6-preview.42', {
+    const spec = await resolveCrewStateMcpSpec('0.9.6-preview.42', {
       publishedCheck: async () => true,
     });
     expect(spec.source).toBe('pinned');
     expect(spec.command).toBe('npx');
     expect(spec.args).toEqual([
       '-y',
-      '@bradygaster/squad-cli@0.9.6-preview.42',
+      '@blacklite/crew-cli@0.9.6-preview.42',
       'state-mcp',
     ]);
   });
 
   it('falls back to @insider when the version is NOT published', async () => {
-    const spec = await resolveSquadStateMcpSpec('0.9.6-preview.99999', {
+    const spec = await resolveCrewStateMcpSpec('0.9.6-preview.99999', {
       publishedCheck: async () => false,
     });
     expect(spec.source).toBe('insider');
     expect(spec.command).toBe('npx');
-    expect(spec.args).toEqual(['-y', '@bradygaster/squad-cli@insider', 'state-mcp']);
+    expect(spec.args).toEqual(['-y', '@blacklite/crew-cli@insider', 'state-mcp']);
   });
 
   it('short-circuits the registry check for the placeholder 0.0.0 version (returns @insider)', async () => {
-    const spec = await resolveSquadStateMcpSpec('0.0.0', {
+    const spec = await resolveCrewStateMcpSpec('0.0.0', {
       publishedCheck: async () => {
         throw new Error('publishedCheck should not be called for 0.0.0');
       },
     });
     expect(spec.source).toBe('insider');
-    expect(spec.args[1]).toBe('@bradygaster/squad-cli@insider');
+    expect(spec.args[1]).toBe('@blacklite/crew-cli@insider');
   });
 
   it('short-circuits the registry check for empty version (returns @insider)', async () => {
-    const spec = await resolveSquadStateMcpSpec('', {
+    const spec = await resolveCrewStateMcpSpec('', {
       publishedCheck: async () => {
         throw new Error('publishedCheck should not be called for empty version');
       },
@@ -77,7 +77,7 @@ describe('resolveSquadStateMcpSpec (iter-7: 2-tier resolver)', () => {
   });
 
   it('never throws — always returns a usable spec (no hard-error tier in iter-7)', async () => {
-    const spec = await resolveSquadStateMcpSpec('0.9.6-preview.99999', {
+    const spec = await resolveCrewStateMcpSpec('0.9.6-preview.99999', {
       publishedCheck: async () => false,
     });
     expect(spec).toBeDefined();
@@ -85,46 +85,46 @@ describe('resolveSquadStateMcpSpec (iter-7: 2-tier resolver)', () => {
   });
 
   it('short-circuits for versions with build metadata (+ suffix) — returns @insider (#1204)', async () => {
-    const spec = await resolveSquadStateMcpSpec('0.10.0+local.1234', {
+    const spec = await resolveCrewStateMcpSpec('0.10.0+local.1234', {
       publishedCheck: async () => {
         throw new Error('publishedCheck should not be called for build metadata version');
       },
     });
     expect(spec.source).toBe('insider');
-    expect(spec.args[1]).toBe('@bradygaster/squad-cli@insider');
+    expect(spec.args[1]).toBe('@blacklite/crew-cli@insider');
   });
 
   it('uses the real npm-registry probe by default when publishedCheck is not injected', async () => {
     mockIsPublished.mockResolvedValue(false);
-    const spec = await resolveSquadStateMcpSpec('0.9.6-preview.99999');
+    const spec = await resolveCrewStateMcpSpec('0.9.6-preview.99999');
     expect(mockIsPublished).toHaveBeenCalledWith('0.9.6-preview.99999');
     expect(spec.source).toBe('insider');
   });
 });
 
-describe('init.ts uses resolveSquadStateMcpSpec (asymmetry fix)', () => {
+describe('init.ts uses resolveCrewStateMcpSpec (asymmetry fix)', () => {
   // Source-level architectural check: init.ts must reference the shared
   // resolver to keep the npm-registry fallback consistent with upgrade.ts.
-  it('packages/squad-cli/src/cli/core/init.ts imports and calls resolveSquadStateMcpSpec', () => {
+  it('packages/crew-cli/src/cli/core/init.ts imports and calls resolveCrewStateMcpSpec', () => {
     const initPath = path.join(
       process.cwd(),
       'packages',
-      'squad-cli',
+      'crew-cli',
       'src',
       'cli',
       'core',
       'init.ts',
     );
     const src = readFileSync(initPath, 'utf-8');
-    expect(src).toMatch(/resolveSquadStateMcpSpec/);
+    expect(src).toMatch(/resolveCrewStateMcpSpec/);
     expect(src).toMatch(/from ['"]\.\/mcp-spec\.js['"]/);
   });
 
-  it('upgrade.ts re-exports resolveSquadStateMcpSpec from mcp-spec (compat)', () => {
+  it('upgrade.ts re-exports resolveCrewStateMcpSpec from mcp-spec (compat)', () => {
     const upgradePath = path.join(
       process.cwd(),
       'packages',
-      'squad-cli',
+      'crew-cli',
       'src',
       'cli',
       'core',
@@ -140,7 +140,7 @@ describe('isLocalOrUnpublishedVersion guard (#1204)', () => {
   let isLocalOrUnpublishedVersion: (version: string) => boolean;
 
   beforeEach(async () => {
-    const mod = await import('../packages/squad-cli/src/cli/core/upgrade.js');
+    const mod = await import('../packages/crew-cli/src/cli/core/upgrade.js');
     isLocalOrUnpublishedVersion = mod.isLocalOrUnpublishedVersion;
   });
 

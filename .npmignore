@@ -1,9 +1,9 @@
-# Squad Squad — team state and development files
+# Crew Crew — team state and development files
 # These are excluded from the distributed package.
-# The product ships: index.js, templates/, CHANGELOG.md, .github/agents/squad.agent.md
+# The product ships: index.js, templates/, CHANGELOG.md, .github/agents/crew.agent.md
 # (also enforced by package.json "files" field)
 
-# Squad Squad (the AI team that builds Squad)
+# Crew Crew (the AI team that builds Crew)
 .ai-team/
 .ai-team-templates/
 

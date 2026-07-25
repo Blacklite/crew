@@ -1,6 +1,6 @@
 /**
  * CLI Scrub-Emails Command Integration Tests
- * Tests that the scrub-emails command removes email addresses from Squad state files
+ * Tests that the scrub-emails command removes email addresses from Crew state files
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -9,8 +9,8 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { randomBytes } from 'crypto';
 import { tmpdir } from 'os';
-import { runInit } from '@bradygaster/squad-cli/core/init';
-import { scrubEmails } from '@bradygaster/squad-cli/core/email-scrub';
+import { runInit } from '@blacklite/crew-cli/core/init';
+import { scrubEmails } from '@blacklite/crew-cli/core/email-scrub';
 
 const TEST_ROOT = join(tmpdir(), `.test-cli-scrub-${randomBytes(4).toString('hex')}`);
 
@@ -21,7 +21,7 @@ describe('CLI: scrub-emails command', () => {
     }
     await mkdir(TEST_ROOT, { recursive: true });
     
-    // Initialize a squad
+    // Initialize a crew
     await runInit(TEST_ROOT);
   });
 
@@ -32,7 +32,7 @@ describe('CLI: scrub-emails command', () => {
   });
 
   it('should scrub emails from team.md', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     const contentWithEmail = `# Team
     
 ## Lead
@@ -42,7 +42,7 @@ describe('CLI: scrub-emails command', () => {
     
     await writeFile(teamPath, contentWithEmail);
     
-    const count = await scrubEmails(join(TEST_ROOT, '.squad'));
+    const count = await scrubEmails(join(TEST_ROOT, '.crew'));
     
     expect(count).toBeGreaterThan(0);
     
@@ -53,7 +53,7 @@ describe('CLI: scrub-emails command', () => {
   });
 
   it('should scrub emails from decisions.md', async () => {
-    const decisionsPath = join(TEST_ROOT, '.squad', 'decisions.md');
+    const decisionsPath = join(TEST_ROOT, '.crew', 'decisions.md');
     const contentWithEmail = `# Decisions
 
 ## Decision 1
@@ -65,7 +65,7 @@ We decided to use TypeScript.
     
     await writeFile(decisionsPath, contentWithEmail);
     
-    const count = await scrubEmails(join(TEST_ROOT, '.squad'));
+    const count = await scrubEmails(join(TEST_ROOT, '.crew'));
     
     // decisions.md is in the scrub list, so it should be scrubbed if it has emails
     if (count > 0) {
@@ -80,7 +80,7 @@ We decided to use TypeScript.
   });
 
   it('should scrub emails from agent history files', async () => {
-    const agentDir = join(TEST_ROOT, '.squad', 'agents', 'lead');
+    const agentDir = join(TEST_ROOT, '.crew', 'agents', 'lead');
     await mkdir(agentDir, { recursive: true });
     
     const historyPath = join(agentDir, 'history.md');
@@ -95,7 +95,7 @@ Pair programmed with Bob (bob.jones@example.com).
     
     await writeFile(historyPath, contentWithEmail);
     
-    const count = await scrubEmails(join(TEST_ROOT, '.squad'));
+    const count = await scrubEmails(join(TEST_ROOT, '.crew'));
     
     expect(count).toBeGreaterThan(0);
     
@@ -106,7 +106,7 @@ Pair programmed with Bob (bob.jones@example.com).
   });
 
   it('should scrub emails from log files', async () => {
-    const logDir = join(TEST_ROOT, '.squad', 'log');
+    const logDir = join(TEST_ROOT, '.crew', 'log');
     await mkdir(logDir, { recursive: true });
     
     const logPath = join(logDir, 'session-2024-01-01.md');
@@ -118,7 +118,7 @@ Assigned to developer
     
     await writeFile(logPath, contentWithEmail);
     
-    const count = await scrubEmails(join(TEST_ROOT, '.squad'));
+    const count = await scrubEmails(join(TEST_ROOT, '.crew'));
     
     // Log files are scrubbed - verify file exists and no emails present
     const exists = existsSync(logPath);
@@ -129,7 +129,7 @@ Assigned to developer
   });
 
   it('should handle name (email) format correctly', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     const content = `# Team
 
 - Alice Anderson (alice@example.com)
@@ -138,7 +138,7 @@ Assigned to developer
     
     await writeFile(teamPath, content);
     
-    await scrubEmails(join(TEST_ROOT, '.squad'));
+    await scrubEmails(join(TEST_ROOT, '.crew'));
     
     const scrubbed = await readFile(teamPath, 'utf-8');
     
@@ -153,7 +153,7 @@ Assigned to developer
   });
 
   it('should preserve example.com URLs and code examples', async () => {
-    const decisionsPath = join(TEST_ROOT, '.squad', 'decisions.md');
+    const decisionsPath = join(TEST_ROOT, '.crew', 'decisions.md');
     const content = `# Decisions
 
 ## API Documentation
@@ -167,7 +167,7 @@ const email = 'test@example.com'; // Example only
     
     await writeFile(decisionsPath, content);
     
-    await scrubEmails(join(TEST_ROOT, '.squad'));
+    await scrubEmails(join(TEST_ROOT, '.crew'));
     
     const scrubbed = await readFile(decisionsPath, 'utf-8');
     
@@ -177,7 +177,7 @@ const email = 'test@example.com'; // Example only
   });
 
   it('should preserve URLs with emails in them', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     const content = `# Team
 
 Contact: https://forms.example.com/contact?email=support@example.com
@@ -185,7 +185,7 @@ Contact: https://forms.example.com/contact?email=support@example.com
     
     await writeFile(teamPath, content);
     
-    await scrubEmails(join(TEST_ROOT, '.squad'));
+    await scrubEmails(join(TEST_ROOT, '.crew'));
     
     const scrubbed = await readFile(teamPath, 'utf-8');
     
@@ -194,7 +194,7 @@ Contact: https://forms.example.com/contact?email=support@example.com
   });
 
   it('should return 0 if no emails found', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     const content = `# Team
 
 - Alice Anderson
@@ -205,13 +205,13 @@ No email addresses here.
     
     await writeFile(teamPath, content);
     
-    const count = await scrubEmails(join(TEST_ROOT, '.squad'));
+    const count = await scrubEmails(join(TEST_ROOT, '.crew'));
     
     expect(count).toBe(0);
   });
 
   it('should handle multiple emails in the same file', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     const content = `# Team
 
 Lead: Alice Anderson
@@ -221,7 +221,7 @@ Designer: Charlie Jones
     
     await writeFile(teamPath, content);
     
-    await scrubEmails(join(TEST_ROOT, '.squad'));
+    await scrubEmails(join(TEST_ROOT, '.crew'));
     
     const scrubbed = await readFile(teamPath, 'utf-8');
     
@@ -233,7 +233,7 @@ Designer: Charlie Jones
   });
 
   it('should scrub routing.md if present', async () => {
-    const routingPath = join(TEST_ROOT, '.squad', 'routing.md');
+    const routingPath = join(TEST_ROOT, '.crew', 'routing.md');
     const content = `# Routing
 
 For routing issues, contact your administrator.
@@ -241,7 +241,7 @@ For routing issues, contact your administrator.
     
     await writeFile(routingPath, content);
     
-    const count = await scrubEmails(join(TEST_ROOT, '.squad'));
+    const count = await scrubEmails(join(TEST_ROOT, '.crew'));
     
     // routing.md is in the scrub list, but this content has no emails
     expect(count).toBeGreaterThanOrEqual(0);
@@ -251,7 +251,7 @@ For routing issues, contact your administrator.
   });
 
   it('should scrub ceremonies.md if it contains emails', async () => {
-    const ceremoniesPath = join(TEST_ROOT, '.squad', 'ceremonies.md');
+    const ceremoniesPath = join(TEST_ROOT, '.crew', 'ceremonies.md');
     
     // Read existing ceremonies.md and add an email
     let content = '';
@@ -262,7 +262,7 @@ For routing issues, contact your administrator.
     content += '\n\nStandups led by: standup-lead@company.com\n';
     await writeFile(ceremoniesPath, content);
     
-    const count = await scrubEmails(join(TEST_ROOT, '.squad'));
+    const count = await scrubEmails(join(TEST_ROOT, '.crew'));
     
     expect(count).toBeGreaterThan(0);
     

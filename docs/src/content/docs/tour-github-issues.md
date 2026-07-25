@@ -1,6 +1,6 @@
 # GitHub Issues Walkthrough
 
-A step-by-step tour of Squad's GitHub Issues workflow. This connects your team to a real repository's issue tracker so agents can pick up issues, create branches, open PRs, and handle review feedback.
+A step-by-step tour of Crew's GitHub Issues workflow. This connects your team to a real repository's issue tracker so agents can pick up issues, create branches, open PRs, and handle review feedback.
 
 **Prerequisite:** The `gh` CLI must be installed and authenticated (`gh auth login`).
 
@@ -8,20 +8,20 @@ A step-by-step tour of Squad's GitHub Issues workflow. This connects your team t
 
 ## 1. Connect to a Repository
 
-Tell Squad which repo to track:
+Tell Crew which repo to track:
 
 ```
 > Connect to myorg/recipe-app
 ```
 
-Squad stores the issue source in team state:
+Crew stores the issue source in team state:
 
 ```
 ✅ Issue source stored: myorg/recipe-app
    Using gh CLI for issue tracking.
 ```
 
-From now on, Squad can read issues from that repo and create branches and PRs against it.
+From now on, Crew can read issues from that repo and create branches and PRs against it.
 
 ---
 
@@ -33,7 +33,7 @@ Ask to see open issues:
 > Show the backlog
 ```
 
-Squad pulls open issues via `gh` and displays them:
+Crew pulls open issues via `gh` and displays them:
 
 ```
 ┌─────┬──────────────────────────────────────────┬───────────┬────────────┐
@@ -58,7 +58,7 @@ Pick an issue for an agent to work on:
 > Work on #12
 ```
 
-Squad reads the issue details, routes it to the right agent, and kicks off the workflow:
+Crew reads the issue details, routes it to the right agent, and kicks off the workflow:
 
 ```
 🔧 Dallas — picking up #12 (Add ingredient search)
@@ -100,7 +100,7 @@ You can assign multiple issues at once:
 📋 Scribe  — logging session
 ```
 
-Each agent creates its own branch and works independently. If your repo supports worktrees, Squad can work on multiple branches simultaneously.
+Each agent creates its own branch and works independently. If your repo supports worktrees, Crew can work on multiple branches simultaneously.
 
 ---
 
@@ -112,7 +112,7 @@ After a PR is open, reviewers may leave comments. When you see feedback:
 > There's review feedback on PR #24
 ```
 
-Squad routes the review to the agent who opened the PR:
+Crew routes the review to the agent who opened the PR:
 
 ```
 🔧 Dallas — reading review comments on PR #24
@@ -157,7 +157,7 @@ After merging, see what's left:
 > What's left?
 ```
 
-Squad refreshes the backlog:
+Crew refreshes the backlog:
 
 ```
 ┌─────┬──────────────────────────────────────────┬───────────┬────────────┐
@@ -192,8 +192,8 @@ Status       →  "what's left?"
 
 ## Tips
 
-- **You don't pick the agent.** Squad routes the issue to the agent whose expertise matches the issue's domain. A bug in the API goes to the backend agent. A UI issue goes to the frontend agent.
+- **You don't pick the agent.** Crew routes the issue to the agent whose expertise matches the issue's domain. A bug in the API goes to the backend agent. A UI issue goes to the frontend agent.
 - **Agents name branches sensibly.** Branch names include the issue number and a slugified title, so they're easy to find in `git branch`.
 - **PRs link to issues.** The PR description includes a `Closes #N` reference so merging automatically closes the issue.
-- **Review feedback is incremental.** When you tell Squad about review feedback, the agent pushes new commits to the existing branch — no force-pushes, no new PRs.
+- **Review feedback is incremental.** When you tell Crew about review feedback, the agent pushes new commits to the existing branch — no force-pushes, no new PRs.
 - **Check `decisions.md` after issue work.** Agents often record decisions while working on issues (e.g., "chose cursor pagination" or "added text index for search"). These decisions carry forward to future issues.

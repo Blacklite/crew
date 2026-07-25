@@ -2,30 +2,30 @@
 
 **Try this to see all scheduled tasks:**
 ```
-squad schedule list
+crew schedule list
 ```
 
 **Try this to check next run times:**
 ```
-squad schedule status
+crew schedule status
 ```
 
 **Try this to trigger a task manually:**
 ```
-squad schedule run ralph-heartbeat
+crew schedule run ralph-heartbeat
 ```
 
-The generic scheduler unifies cron jobs, polling loops, and manual triggers. Define all recurring squad tasks in one place and let Squad orchestrate them.
+The generic scheduler unifies cron jobs, polling loops, and manual triggers. Define all recurring crew tasks in one place and let Crew orchestrate them.
 
 ---
 
 ## What the Generic Scheduler Does
 
-The generic scheduler gives squads a **unified way to schedule and run recurring tasks**:
+The generic scheduler gives crews a **unified way to schedule and run recurring tasks**:
 
-1. **Define** tasks in `.squad/schedule.json` (cron, interval, event-driven, startup)
-2. **Trigger** locally via `squad schedule run` or automatically via polling
-3. **Monitor** with `squad schedule status` to see run history and next run times
+1. **Define** tasks in `.crew/schedule.json` (cron, interval, event-driven, startup)
+2. **Trigger** locally via `crew schedule run` or automatically via polling
+3. **Monitor** with `crew schedule status` to see run history and next run times
 4. **Recover** from failures with configurable retry and backoff
 5. **Scale** to GitHub Actions for headless/CI environments
 
@@ -35,9 +35,9 @@ No more scattered cron jobs, polling scripts, or manual triggers.
 
 ### Initialize a Schedule
 
-Create a default `.squad/schedule.json`:
+Create a default `.crew/schedule.json`:
 ```bash
-squad schedule init
+crew schedule init
 ```
 
 This creates:
@@ -49,7 +49,7 @@ This creates:
       "name": "Ralph Work Monitor",
       "enabled": true,
       "trigger": { "type": "interval", "intervalSeconds": 300 },
-      "task": { "type": "script", "command": "squad ralph watch --duration 30s" },
+      "task": { "type": "script", "command": "crew ralph watch --duration 30s" },
       "providers": ["local-polling"],
       "retry": { "maxRetries": 1, "backoffSeconds": 5 }
     }
@@ -60,7 +60,7 @@ This creates:
 ### List All Schedules
 
 ```bash
-squad schedule list
+crew schedule list
 ```
 
 Output:
@@ -74,7 +74,7 @@ ci-daily-report       Daily CI Report             Mon-Fri 8am          Enabled
 ### Check Status
 
 ```bash
-squad schedule status
+crew schedule status
 ```
 
 Output:
@@ -92,12 +92,12 @@ upstream-sync
 
 Trigger a task immediately:
 ```bash
-squad schedule run ralph-heartbeat
+crew schedule run ralph-heartbeat
 ```
 
 ## Schedule Configuration
 
-The schedule manifest lives in `.squad/schedule.json`:
+The schedule manifest lives in `.crew/schedule.json`:
 
 ```json
 {
@@ -138,7 +138,7 @@ Run when something happens:
 ```
 
 #### Startup
-Run once when squad initializes:
+Run once when crew initializes:
 ```json
 { "type": "startup" }
 ```
@@ -148,7 +148,7 @@ Run once when squad initializes:
 #### Script
 Run a shell command:
 ```json
-{ "type": "script", "command": "squad upstream sync" }
+{ "type": "script", "command": "crew upstream sync" }
 ```
 
 #### Workflow
@@ -166,18 +166,18 @@ Run a Copilot agent task:
 #### Webhook
 POST to a URL:
 ```json
-{ "type": "webhook", "url": "https://example.com/hooks/squad-task" }
+{ "type": "webhook", "url": "https://example.com/hooks/crew-task" }
 ```
 
 ### Providers
 
 #### Local Polling
-Run in-process when `squad` is running:
+Run in-process when `crew` is running:
 ```json
 { "providers": ["local-polling"] }
 ```
 
-Use this for development and testing. Runs until you stop the squad CLI.
+Use this for development and testing. Runs until you stop the crew CLI.
 
 #### GitHub Actions
 Automatically generate and trigger GitHub Actions workflows:
@@ -185,7 +185,7 @@ Automatically generate and trigger GitHub Actions workflows:
 { "providers": ["github-actions"] }
 ```
 
-Use this for production. Squad generates `.github/workflows/schedule-{id}.yml` and GitHub runs it on schedule.
+Use this for production. Crew generates `.github/workflows/schedule-{id}.yml` and GitHub runs it on schedule.
 
 ## Real-World Example
 
@@ -198,7 +198,7 @@ Use this for production. Squad generates `.github/workflows/schedule-{id}.yml` a
       "id": "ralph-monitor",
       "name": "Ralph Work Monitor",
       "trigger": { "type": "interval", "intervalSeconds": 300 },
-      "task": { "type": "script", "command": "squad ralph watch --duration 25s" },
+      "task": { "type": "script", "command": "crew ralph watch --duration 25s" },
       "providers": ["local-polling", "github-actions"],
       "retry": { "maxRetries": 2, "backoffSeconds": 10 }
     },
@@ -206,7 +206,7 @@ Use this for production. Squad generates `.github/workflows/schedule-{id}.yml` a
       "id": "upstream-sync",
       "name": "Upstream Sync",
       "trigger": { "type": "cron", "expression": "0 */6 * * *" },
-      "task": { "type": "script", "command": "squad upstream sync --auto-pr" },
+      "task": { "type": "script", "command": "crew upstream sync --auto-pr" },
       "providers": ["github-actions"],
       "retry": { "maxRetries": 1, "backoffSeconds": 30 }
     },
@@ -228,25 +228,25 @@ This schedule:
 
 ## Local vs. GitHub Actions
 
-### Local Polling (`squad schedule`)
+### Local Polling (`crew schedule`)
 
 Run while working locally:
 ```bash
-cd my-squad
-squad schedule watch
+cd my-crew
+crew schedule watch
 ```
 
 The scheduler runs in your terminal until you exit. Tasks execute in-process. Perfect for development.
 
 ### GitHub Actions
 
-For production and headless environments, Squad generates workflows:
+For production and headless environments, Crew generates workflows:
 
 ```bash
-squad schedule init-ci
+crew schedule init-ci
 ```
 
-This creates `.github/workflows/squad-schedule-*.yml` files. GitHub Actions runs them on your schedule.
+This creates `.github/workflows/crew-schedule-*.yml` files. GitHub Actions runs them on your schedule.
 
 Advantages:
 - Runs 24/7 (no local machine needed)
@@ -256,7 +256,7 @@ Advantages:
 
 ## State & History
 
-Squad maintains schedule state in `.squad/.schedule-state.json`:
+Crew maintains schedule state in `.crew/.schedule-state.json`:
 
 ```json
 {
@@ -278,25 +278,25 @@ This is auto-managed. You can inspect it but shouldn't edit it directly.
 ### Monitoring Loop
 Monitor work queue every 5 minutes:
 ```bash
-squad schedule init ralph-monitor
+crew schedule init ralph-monitor
 ```
 
 ### Hourly Syncs
-Keep multiple squads synchronized:
+Keep multiple crews synchronized:
 ```bash
-squad upstream sync --interval hourly
+crew upstream sync --interval hourly
 ```
 
 ### Daily Reports
 Generate daily team status reports:
 ```bash
-squad schedule run daily-report
+crew schedule run daily-report
 ```
 
 ### Event Hooks
 Trigger on session complete:
 ```bash
-squad schedule new downstream-notify --event session:complete
+crew schedule new downstream-notify --event session:complete
 ```
 
 ## Error Handling
@@ -322,5 +322,5 @@ If a task fails:
 ## See Also
 
 - [Upstream Auto-Sync](/features/upstream-sync) — Use scheduler to sync automatically
-- [Persistent Ralph](/features/persistent-ralph) — Monitor squad work continuously
-- [Cross-Squad Orchestration](/features/cross-squad-orchestration) — Delegate across squads
+- [Persistent Ralph](/features/persistent-ralph) — Monitor crew work continuously
+- [Cross-Crew Orchestration](/features/cross-crew-orchestration) — Delegate across crews

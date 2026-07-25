@@ -25,16 +25,16 @@ export function registerCLISteps(registry: StepDefinitions): void {
         throw new Error(`Directory ${dirPath} does not exist`);
       }
 
-      context.squadDirExists = true;
+      context.crewDirExists = true;
     },
     registry
   );
 
   registerStep(
     'Given',
-    /a directory without a "\.squad" directory/,
+    /a directory without a "\.crew" directory/,
     async (_stepText, context) => {
-      const tempDir = mkdtempSync(join(tmpdir(), 'squad-e2e-'));
+      const tempDir = mkdtempSync(join(tmpdir(), 'crew-e2e-'));
       context.tempDir = tempDir;
     },
     registry
@@ -50,7 +50,7 @@ export function registerCLISteps(registry: StepDefinitions): void {
       if (!match) throw new Error('Pattern match failed');
 
       const command = match[1];
-      const args = command.replace(/^squad\s*/, '').split(/\s+/).filter(Boolean);
+      const args = command.replace(/^crew\s*/, '').split(/\s+/).filter(Boolean);
       const cwd = context.tempDir as string;
 
       const harness = await TerminalHarness.spawnWithArgs(args, { cwd });
@@ -76,7 +76,7 @@ export function registerCLISteps(registry: StepDefinitions): void {
       if (!match) throw new Error('Pattern match failed');
 
       const command = match[1];
-      const args = command.replace(/^squad\s*/, '').split(/\s+/).filter(Boolean);
+      const args = command.replace(/^crew\s*/, '').split(/\s+/).filter(Boolean);
 
       const harness = await TerminalHarness.spawnWithArgs(args);
 
@@ -160,8 +160,8 @@ export function registerCLISteps(registry: StepDefinitions): void {
     /the temp directory has no "(.+)" entry/,
     async (stepText, context) => {
       // Guards against regressions where a `--help` intercept misfires and
-      // the underlying command still scaffolds files (e.g. `squad init --help`
-      // writing `.squad/`, `.github/`, `.gitignore`).
+      // the underlying command still scaffolds files (e.g. `crew init --help`
+      // writing `.crew/`, `.github/`, `.gitignore`).
       const match = stepText.match(/the temp directory has no "(.+)" entry/);
       if (!match) throw new Error('Pattern match failed');
 

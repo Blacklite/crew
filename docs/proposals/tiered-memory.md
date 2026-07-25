@@ -1,6 +1,6 @@
 # Proposal: Tiered Agent Memory Skill
 
-**Issue:** bradygaster/squad#600
+**Issue:** Blacklite/crew#600
 **Author:** tamirdresher
 **Date:** 2026-03-26
 **Status:** Proposal
@@ -10,13 +10,13 @@
 > **Related follow-up:** [Memory Governance Provider](memory-governance-provider.md)
 > extends this tiered-memory proposal with provider boundaries, memory classification,
 > Copilot Memory positioning, and safety rules. This document still describes the
-> hot/cold/wiki context model for bradygaster/squad#600.
+> hot/cold/wiki context model for Blacklite/crew#600.
 
 ---
 
 ## Problem Statement
 
-Squad agents load their full conversation history on every spawn. In production, top agents carry:
+Crew agents load their full conversation history on every spawn. In production, top agents carry:
 
 | Agent | Context Size | Old Noise % |
 |-------|-------------|-------------|
@@ -60,15 +60,15 @@ Scribe automates tier promotion:
 
 - **Complements** Scribe's existing session summary role (formalizes it with structured output)
 - **No changes to existing agents** — coordinators opt in by including cold/wiki sections
-- **File layout** uses existing .squad/ directory convention
+- **File layout** uses existing .crew/ directory convention
 - **No code changes** — template-only skill, spawn templates are guidelines
 
 ---
 
 ## What Changes
 
-- New skill: packages/squad-cli/templates/skills/tiered-memory/SKILL.md
-- New skill: packages/squad-sdk/templates/skills/tiered-memory/SKILL.md
+- New skill: packages/crew-cli/templates/skills/tiered-memory/SKILL.md
+- New skill: packages/crew-sdk/templates/skills/tiered-memory/SKILL.md
 - New changeset: .changeset/tiered-memory.md
 
 ## What Stays the Same
@@ -91,5 +91,5 @@ Scribe automates tier promotion:
 
 ## References
 
-- Issue: bradygaster/squad#600
+- Issue: Blacklite/crew#600
 - Production measurements: tamirdresher/tamresearch1 (June 2025)

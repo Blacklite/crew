@@ -13,11 +13,11 @@ function makeTempWorkspace(version: string) {
   const dir = mkdtempSync(join(tmpdir(), 'bump-build-'));
   const paths = [
     join(dir, 'package.json'),
-    join(dir, 'packages', 'squad-sdk', 'package.json'),
-    join(dir, 'packages', 'squad-cli', 'package.json'),
+    join(dir, 'packages', 'crew-sdk', 'package.json'),
+    join(dir, 'packages', 'crew-cli', 'package.json'),
   ];
-  mkdirSync(join(dir, 'packages', 'squad-sdk'), { recursive: true });
-  mkdirSync(join(dir, 'packages', 'squad-cli'), { recursive: true });
+  mkdirSync(join(dir, 'packages', 'crew-sdk'), { recursive: true });
+  mkdirSync(join(dir, 'packages', 'crew-cli'), { recursive: true });
   mkdirSync(join(dir, 'scripts'), { recursive: true });
 
   // Copy the real script but patch __dirname to point at temp

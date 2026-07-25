@@ -26,7 +26,7 @@ npm run dev
 - How `SkillRegistry` matches domain skills to tasks by keyword and role
 - How `StreamingPipeline` processes simulated message deltas and usage events per session
 - How `selectResponseTier` routes tasks to the right model tier based on complexity
-- How agents use `squad_route`, `squad_decide`, and `squad_memory` to coordinate work
+- How agents use `crew_route`, `crew_decide`, and `crew_memory` to coordinate work
 - How OpenTelemetry metrics export agent spawn, duration, destroy, and token usage data
 
 ## How it works
@@ -37,7 +37,7 @@ The sample casts four agents from The Usual Suspects universe: Keyser (Lead), Mc
 
 ```
 ╔════════════════════════════════════════════════════════════╗
-║   🎭 Autonomous Pipeline — Squad SDK Showcase              ║
+║   🎭 Autonomous Pipeline — Crew SDK Showcase              ║
 ║   Casting · Routing · Decision Recording · Telemetry       ║
 ╚════════════════════════════════════════════════════════════╝
 
@@ -79,17 +79,17 @@ The sample casts four agents from The Usual Suspects universe: Keyser (Lead), Mc
 | File | Purpose |
 |---|---|
 | `index.ts` | Main application with task loop, agent dispatch, and reporting |
-| `package.json` | Dependencies (squad-sdk, chalk) and scripts |
+| `package.json` | Dependencies (crew-sdk, chalk) and scripts |
 | `tsconfig.json` | TypeScript configuration (ES2022, ESM) |
 | `tests/autonomous-pipeline.test.ts` | Vitest tests for all major components |
 
-## Squad tool patterns
+## Crew tool patterns
 
 The sample demonstrates three key SDK tools for agent coordination:
 
-- **`squad_route`** — Agents route follow-up tasks to teammates (e.g., developer → tester for QA)
-- **`squad_decide`** — Agents record architectural decisions (e.g., "Use JWT with RS256")
-- **`squad_memory`** — Agents save learnings for future sessions (e.g., "Pool size 20 optimal")
+- **`crew_route`** — Agents route follow-up tasks to teammates (e.g., developer → tester for QA)
+- **`crew_decide`** — Agents record architectural decisions (e.g., "Use JWT with RS256")
+- **`crew_memory`** — Agents save learnings for future sessions (e.g., "Pool size 20 optimal")
 
 ## OpenTelemetry integration
 
@@ -112,10 +112,10 @@ OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317 npm run dev
 
 Metrics exported:
 
-- `squad.agent.spawns` — Agent spawn counter
-- `squad.agent.duration` — Task execution duration histogram
-- `squad.tokens.input` / `squad.tokens.output` — Token usage counters
-- `squad.sessions.created` / `squad.sessions.closed` — Session lifecycle
+- `crew.agent.spawns` — Agent spawn counter
+- `crew.agent.duration` — Task execution duration histogram
+- `crew.tokens.input` / `crew.tokens.output` — Token usage counters
+- `crew.sessions.created` / `crew.sessions.closed` — Session lifecycle
 
 ## Running tests
 
@@ -135,6 +135,6 @@ Tests validate:
 
 ## Next steps
 
-- See [azure-function-squad](../azure-function-squad/README.md) for deployment on Azure Functions
-- Check the [Squad SDK documentation](../../README.md) for more patterns and best practices
+- See [azure-function-crew](../azure-function-crew/README.md) for deployment on Azure Functions
+- Check the [Crew SDK documentation](../../README.md) for more patterns and best practices
 - Review individual sample READMEs for focused concepts

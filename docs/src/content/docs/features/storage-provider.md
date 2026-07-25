@@ -1,6 +1,6 @@
 # Storage Provider
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to switch storage backends:**
@@ -10,7 +10,7 @@ Use SQLite for persistent team state
 
 **Try this to see where session data is stored:**
 ```
-Where is my squad data stored?
+Where is my crew data stored?
 ```
 
 **Try this to build a cloud storage backend:**
@@ -18,18 +18,18 @@ Where is my squad data stored?
 Create a StorageProvider for Azure Blob Storage
 ```
 
-All of Squad's data — sessions, decisions, agent memories, event logs — flows through a pluggable storage interface. Pick the provider that matches your deployment: filesystem, database, or cloud.
+All of Crew's data — sessions, decisions, agent memories, event logs — flows through a pluggable storage interface. Pick the provider that matches your deployment: filesystem, database, or cloud.
 
 ---
 
 ## What is StorageProvider?
 
-`StorageProvider` is Squad's I/O contract. Every read, write, delete, and directory operation goes through this interface. This decoupling means:
+`StorageProvider` is Crew's I/O contract. Every read, write, delete, and directory operation goes through this interface. This decoupling means:
 
-- **Local development** uses the filesystem. Sessions and state live in `.squad/`.
+- **Local development** uses the filesystem. Sessions and state live in `.crew/`.
 - **Testing** uses in-memory storage. No disk I/O, no test pollution.
 - **Production** can use SQLite, cloud storage, or a database.
-- **Multi-team deployments** can route different squads to different backends.
+- **Multi-team deployments** can route different crews to different backends.
 
 The interface is minimal — just 12 core async methods[^1]:
 
@@ -59,9 +59,9 @@ stat(targetPath: string): Promise<StorageStats | undefined>
 **When to use it:**
 - Local development
 - Single-machine deployments
-- Monorepo setups where squad data is part of the project
+- Monorepo setups where crew data is part of the project
 
-**How it works:** Maps all Squad paths to disk directories. Create parent directories on write. Returns `undefined` on ENOENT instead of throwing.
+**How it works:** Maps all Crew paths to disk directories. Create parent directories on write. Returns `undefined` on ENOENT instead of throwing.
 
 ### InMemoryStorageProvider
 
@@ -70,7 +70,7 @@ stat(targetPath: string): Promise<StorageStats | undefined>
 **When to use it:**
 - Unit tests for agent logic
 - Ephemeral sessions that don't need persistence
-- CI environments where `.squad/` is discarded
+- CI environments where `.crew/` is discarded
 
 **How it works:** All paths stored in memory as POSIX strings. Fast, isolated, perfect for test fixtures.
 
@@ -100,7 +100,7 @@ stat(targetPath: string): Promise<StorageStats | undefined>
 Implement the `StorageProvider` interface to plug in any backend. Here's a skeleton:
 
 ```typescript
-import type { StorageProvider, StorageStats } from '@bradygaster/squad-sdk';
+import type { StorageProvider, StorageStats } from '@blacklite/crew-sdk';
 
 export class MyCustomStorageProvider implements StorageProvider {
   async read(filePath: string): Promise<string | undefined> {
@@ -174,11 +174,11 @@ export class MyCustomStorageProvider implements StorageProvider {
 Pass it to the runtime:
 
 ```typescript
-import { SquadClient } from '@bradygaster/squad-sdk';
+import { CrewClient } from '@blacklite/crew-sdk';
 
-const client = new SquadClient({
+const client = new CrewClient({
   storageProvider: new MyCustomStorageProvider(),
-  teamRoot: '.squad',
+  teamRoot: '.crew',
 });
 ```
 

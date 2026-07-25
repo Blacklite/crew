@@ -1,4 +1,4 @@
-# Getting Started with Squad: Empty Directory to Multi-Agent App
+# Getting Started with Crew: Empty Directory to Multi-Agent App
 
 > Internal doc. For experienced developers with 30 minutes.
 
@@ -21,8 +21,8 @@ git init
 npm init -y
 
 # Install both packages
-npm install --save-dev @bradygaster/squad-cli
-npm install @bradygaster/squad-sdk
+npm install --save-dev @blacklite/crew-cli
+npm install @blacklite/crew-sdk
 ```
 
 Set ESM mode in `package.json`:
@@ -37,19 +37,19 @@ Set ESM mode in `package.json`:
 ## 2. Create Your Team
 
 ```bash
-npx squad init
+npx crew init
 ```
 
-This is idempotent — run it again and nothing breaks. It scaffolds `.squad/` in your repo root.
+This is idempotent — run it again and nothing breaks. It scaffolds `.crew/` in your repo root.
 
 ---
 
-## 3. The `.squad/` Directory
+## 3. The `.crew/` Directory
 
-After `squad init`, you have this:
+After `crew init`, you have this:
 
 ```
-.squad/
+.crew/
 ├── team.md              # Roster — who's on the team, their roles
 ├── routing.md           # Rules for who handles what kind of work
 ├── decisions.md         # Shared decision log — every agent reads this
@@ -90,17 +90,17 @@ Create `src/hello.ts`:
 
 ```typescript
 import {
-  resolveSquad,
+  resolveCrew,
   loadConfig,
   CastingEngine,
   onboardAgent,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
-// Step 1: Find .squad/ from current directory
-const squadPath = resolveSquad();
+// Step 1: Find .crew/ from current directory
+const crewPath = resolveCrew();
 
 // Step 2: Load the typed config
-const config = await loadConfig(squadPath);
+const config = await loadConfig(crewPath);
 
 // Step 3: Cast agents from a thematic universe
 const casting = new CastingEngine({
@@ -117,7 +117,7 @@ for (const member of cast) {
   await onboardAgent({
     agentName: member.agentName,
     role: member.role,
-    squadPath,
+    crewPath,
   });
   console.log(`✅ ${member.agentName} — ${member.role}`);
 }
@@ -146,10 +146,10 @@ Names are deterministic. Same universe, same roles, same names every time.
 Create `src/session.ts`:
 
 ```typescript
-import { SquadClient } from '@bradygaster/squad-sdk';
+import { CrewClient } from '@blacklite/crew-sdk';
 
-// Create a client — connects to the Squad runtime
-const client = new SquadClient({
+// Create a client — connects to the Crew runtime
+const client = new CrewClient({
   useStdio: true,
   autoStart: true,
   autoReconnect: true,
@@ -160,7 +160,7 @@ const client = new SquadClient({
 const session = await client.createSession({
   agentName: 'Backend',
   task: 'Implement user authentication endpoints',
-  persistPath: '.squad/sessions/backend-auth.json',
+  persistPath: '.crew/sessions/backend-auth.json',
 });
 
 // Send a message — the agent streams a response
@@ -168,11 +168,11 @@ await session.sendMessage('Set up JWT-based auth with bcrypt password hashing.')
 
 // Session state is persisted to disk automatically.
 // If the process crashes, resume later:
-// const resumed = await client.resumeSession('.squad/sessions/backend-auth.json');
+// const resumed = await client.resumeSession('.crew/sessions/backend-auth.json');
 ```
 
 Key concepts:
-- **`SquadClient`** manages the connection to the runtime.
+- **`CrewClient`** manages the connection to the runtime.
 - **`createSession()`** gives an agent a task with a persistent identity.
 - **`persistPath`** enables crash recovery — the session writes state to disk.
 - **`resumeSession()`** picks up where a crashed session left off.
@@ -186,7 +186,7 @@ Governance isn't prompt engineering. It's code that runs before and after every 
 Create `src/governed.ts`:
 
 ```typescript
-import { HookPipeline } from '@bradygaster/squad-sdk';
+import { HookPipeline } from '@blacklite/crew-sdk';
 
 // Create a pipeline with multiple governance rules
 const pipeline = new HookPipeline({
@@ -194,7 +194,7 @@ const pipeline = new HookPipeline({
   allowedWritePaths: [
     'src/**/*.ts',
     'test/**/*.ts',
-    '.squad/**',
+    '.crew/**',
     'docs/**',
   ],
 
@@ -252,7 +252,7 @@ What this buys you:
 Create `src/cost-aware.ts`:
 
 ```typescript
-import { CostTracker, EventBus } from '@bradygaster/squad-sdk';
+import { CostTracker, EventBus } from '@blacklite/crew-sdk';
 
 const bus = new EventBus();
 const costTracker = new CostTracker();
@@ -305,13 +305,13 @@ Create `src/pipeline.ts`:
 
 ```typescript
 import {
-  SquadClient,
+  CrewClient,
   EventBus,
   HookPipeline,
   CostTracker,
   CastingEngine,
   StreamingPipeline,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
 // --- Infrastructure ---
 const bus = new EventBus();
@@ -319,7 +319,7 @@ const costTracker = new CostTracker();
 costTracker.wireToEventBus(bus);
 
 const hooks = new HookPipeline({
-  allowedWritePaths: ['src/**', 'test/**', '.squad/**'],
+  allowedWritePaths: ['src/**', 'test/**', '.crew/**'],
   scrubPii: true,
   maxAskUserPerSession: 3,
 });
@@ -340,14 +340,14 @@ const cast = casting.castTeam({
 });
 
 // --- Create sessions ---
-const client = new SquadClient({ useStdio: true });
+const client = new CrewClient({ useStdio: true });
 
 const sessions = new Map();
 for (const member of cast) {
   const session = await client.createSession({
     agentName: member.agentName,
     task: `${member.role} work`,
-    persistPath: `.squad/sessions/${member.agentName.toLowerCase()}.json`,
+    persistPath: `.crew/sessions/${member.agentName.toLowerCase()}.json`,
   });
   sessions.set(member.role, session);
 }
@@ -383,15 +383,15 @@ Ralph is a persistent monitor that subscribes to the event bus and watches every
 Create `src/monitored.ts`:
 
 ```typescript
-import { RalphMonitor, EventBus } from '@bradygaster/squad-sdk';
+import { RalphMonitor, EventBus } from '@blacklite/crew-sdk';
 
 const bus = new EventBus();
 
 const ralph = new RalphMonitor({
-  teamRoot: '.squad',
+  teamRoot: '.crew',
   healthCheckInterval: 30000,    // Check every 30s
   staleSessionThreshold: 300000, // 5 minutes = stale
-  statePath: '.squad/ralph-state.json',
+  statePath: '.crew/ralph-state.json',
 });
 
 // Subscribe to events
@@ -429,22 +429,22 @@ Ralph persists its state to disk. If your process restarts, Ralph reads `ralph-s
 ### Export your team
 
 ```bash
-npx squad export
-# → squad-export.json (portable snapshot of entire .squad/ directory)
+npx crew export
+# → crew-export.json (portable snapshot of entire .crew/ directory)
 ```
 
 ### Import into another repo
 
 ```bash
-npx squad import squad-export.json
+npx crew import crew-export.json
 ```
 
 ### Share via upstream inheritance
 
 ```bash
 # In the downstream repo:
-npx squad upstream add --source ../shared-team --name org-standards
-npx squad upstream sync
+npx crew upstream add --source ../shared-team --name org-standards
+npx crew upstream sync
 ```
 
 Upstream inheritance lets you maintain org-wide agent charters, routing rules, and governance policies in one place. Downstream repos inherit and can override.
@@ -452,10 +452,10 @@ Upstream inheritance lets you maintain org-wide agent charters, routing rules, a
 ### Remote team mode
 
 ```bash
-npx squad init --mode remote /path/to/shared-team
+npx crew init --mode remote /path/to/shared-team
 ```
 
-This creates a dual-root setup: project-specific state lives in `.squad/`, but team identity (charters, casting, routing) lives in the shared location. Multiple repos share one team.
+This creates a dual-root setup: project-specific state lives in `.crew/`, but team identity (charters, casting, routing) lives in the shared location. Multiple repos share one team.
 
 ---
 
@@ -465,20 +465,20 @@ Here's the full stack in one script — `src/full-stack.ts`:
 
 ```typescript
 import {
-  resolveSquad,
+  resolveCrew,
   loadConfig,
-  SquadClient,
+  CrewClient,
   EventBus,
   HookPipeline,
   CostTracker,
   CastingEngine,
   RalphMonitor,
   StreamingPipeline,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
 // Resolve and configure
-const squadPath = resolveSquad();
-const config = await loadConfig(squadPath);
+const crewPath = resolveCrew();
+const config = await loadConfig(crewPath);
 
 // Infrastructure
 const bus = new EventBus();
@@ -486,7 +486,7 @@ const costTracker = new CostTracker();
 costTracker.wireToEventBus(bus);
 
 const hooks = new HookPipeline({
-  allowedWritePaths: ['src/**', 'test/**', '.squad/**'],
+  allowedWritePaths: ['src/**', 'test/**', '.crew/**'],
   scrubPii: true,
   maxAskUserPerSession: 3,
 });
@@ -502,20 +502,20 @@ const cast = casting.castTeam({
 
 // Monitor
 const ralph = new RalphMonitor({
-  teamRoot: squadPath,
+  teamRoot: crewPath,
   healthCheckInterval: 30000,
-  statePath: `${squadPath}/ralph-state.json`,
+  statePath: `${crewPath}/ralph-state.json`,
 });
 await ralph.start(bus);
 
 // Create client and sessions
-const client = new SquadClient({ useStdio: true, autoReconnect: true });
+const client = new CrewClient({ useStdio: true, autoReconnect: true });
 
 for (const member of cast) {
   const session = await client.createSession({
     agentName: member.agentName,
     task: `Handle ${member.role} responsibilities`,
-    persistPath: `${squadPath}/sessions/${member.agentName.toLowerCase()}.json`,
+    persistPath: `${crewPath}/sessions/${member.agentName.toLowerCase()}.json`,
   });
   console.log(`🎭 ${member.agentName} (${member.role}) — ready`);
 }
@@ -536,24 +536,24 @@ await ralph.stop();
 
 | Concept | What it is | When you need it |
 |---------|-----------|-----------------|
-| `resolveSquad()` | Finds `.squad/` from cwd | Always — first call in any script |
-| `loadConfig()` | Parses squad config into typed objects | When you need team/agent definitions |
+| `resolveCrew()` | Finds `.crew/` from cwd | Always — first call in any script |
+| `loadConfig()` | Parses crew config into typed objects | When you need team/agent definitions |
 | `CastingEngine` | Assigns persistent names from a universe | Team setup, adding agents |
-| `SquadClient` | Connects to the runtime | Any session-based work |
+| `CrewClient` | Connects to the runtime | Any session-based work |
 | `createSession()` | Gives an agent a task with crash recovery | Every agent interaction |
 | `HookPipeline` | Pre/post tool governance | Always — production requirement |
 | `EventBus` | Pub/sub for session events | Monitoring, cost tracking, coordination |
 | `CostTracker` | Token usage and cost reporting | Budget awareness, routing decisions |
 | `RalphMonitor` | Health checks and event logging | Production monitoring |
 | `StreamingPipeline` | Real-time response streaming | Interactive UX |
-| `squad export/import` | Portable team snapshots | Sharing, backup, migration |
-| `squad upstream` | Org-wide policy inheritance | Multi-repo teams |
+| `crew export/import` | Portable team snapshots | Sharing, backup, migration |
+| `crew upstream` | Org-wide policy inheritance | Multi-repo teams |
 
 ---
 
 ## Next Steps
 
 - **Explore the samples** — `samples/` has 6 working examples from basic to advanced.
-- **Read the SDK README** — `packages/squad-sdk/README.md` for full API reference.
-- **Try the interactive shell** — Run `npx squad` with no args for the REPL experience.
+- **Read the SDK README** — `packages/crew-sdk/README.md` for full API reference.
+- **Try the interactive shell** — Run `npx crew` with no args for the REPL experience.
 - **Add governance first** — `HookPipeline` should be in every production script. Don't skip it.

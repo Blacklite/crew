@@ -1,6 +1,6 @@
 # Sample Prompts
 
-Ready-to-use prompts for Squad. Copy any prompt, open Copilot, select **Squad**, and paste it in.
+Ready-to-use prompts for Crew. Copy any prompt, open Copilot, select **Crew**, and paste it in.
 
 ---
 
@@ -111,7 +111,7 @@ One agent designs cards/balance, another builds engine/rules, another builds UI,
 
 ---
 
-### Squad Blog Engine (Meta Demo)
+### Crew Blog Engine (Meta Demo)
 
 ```
 Static blog engine rendering markdown posts to HTML (no frameworks):
@@ -132,7 +132,7 @@ Build parser, template engine, RSS generator, static output (dist/). Include `no
 ```
 
 **What it demonstrates:**
-- Meta-demo where Squad builds its own publishing tool
+- Meta-demo where Crew builds its own publishing tool
 - All components (parser, templating, RSS, CSS) build in parallel
 - Finished product is visual, functional, and self-documenting
 

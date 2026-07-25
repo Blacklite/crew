@@ -1,7 +1,7 @@
 /**
  * Cross-package export smoke test
  *
- * Validates that every value import squad-cli uses from squad-sdk actually
+ * Validates that every value import crew-cli uses from crew-sdk actually
  * exists at runtime.  TypeScript can resolve from source during development,
  * but the compiled npm output may diverge (missing re-exports, renamed files,
  * ESM/CJS mismatches).  This test catches that class of bug.
@@ -11,7 +11,7 @@
  *   module and assert every named export the CLI relies on is defined.
  *
  * Maintenance:
- *   When a new import from @bradygaster/squad-sdk is added to squad-cli,
+ *   When a new import from @blacklite/crew-sdk is added to crew-cli,
  *   add a corresponding assertion here.  The grep one-liner in the test
  *   description shows how to audit.
  *
@@ -32,37 +32,37 @@ function expectExports(mod: Record<string, unknown>, names: string[], subpath: s
   }
 }
 
-// ─── Root barrel: @bradygaster/squad-sdk ─────────────────────────────────
+// ─── Root barrel: @blacklite/crew-sdk ─────────────────────────────────
 
 describe('cross-package exports — CLI → SDK', () => {
-  describe('@bradygaster/squad-sdk (root barrel)', () => {
+  describe('@blacklite/crew-sdk (root barrel)', () => {
     it('exports FSStorageProvider and core runtime symbols', async () => {
-      const sdk = await import('@bradygaster/squad-sdk');
+      const sdk = await import('@blacklite/crew-sdk');
       expectExports(sdk, [
         'FSStorageProvider',
-        'SquadState',
+        'CrewState',
         'TIMEOUTS',
         'StreamingPipeline',
         'RuntimeEventBus',
-        'resolveSquad',
-        'resolveGlobalSquadPath',
-        'initSquadTelemetry',
+        'resolveCrew',
+        'resolveGlobalCrewPath',
+        'initCrewTelemetry',
         'recordAgentSpawn',
         'recordAgentDuration',
         'recordAgentError',
         'recordAgentDestroy',
         'safeTimestamp',
         'getMeter',
-        'addSquadStateGitignoreBlock',
-        'removeSquadStateGitignoreBlock',
-        'readSquadRegistry',
+        'addCrewStateGitignoreBlock',
+        'removeCrewStateGitignoreBlock',
+        'readCrewRegistry',
         'addRegistryEntry',
         'removeRegistryEntry',
-      ], '@bradygaster/squad-sdk');
+      ], '@blacklite/crew-sdk');
     });
 
     it('exports role helpers', async () => {
-      const sdk = await import('@bradygaster/squad-sdk');
+      const sdk = await import('@blacklite/crew-sdk');
       expectExports(sdk, [
         'listRoles',
         'searchRoles',
@@ -70,182 +70,182 @@ describe('cross-package exports — CLI → SDK', () => {
         'getRoleById',
         'generateCharterFromRole',
         'addAgentToConfig',
-      ], '@bradygaster/squad-sdk');
+      ], '@blacklite/crew-sdk');
     });
 
-    it('exports init / personal-squad helpers', async () => {
-      const sdk = await import('@bradygaster/squad-sdk');
+    it('exports init / personal-crew helpers', async () => {
+      const sdk = await import('@blacklite/crew-sdk');
       expectExports(sdk, [
-        'initSquad',
+        'initCrew',
         'cleanupOrphanInitPrompt',
-        'ensurePersonalSquadDir',
-        'resolvePersonalSquadDir',
-      ], '@bradygaster/squad-sdk');
+        'ensurePersonalCrewDir',
+        'resolvePersonalCrewDir',
+      ], '@blacklite/crew-sdk');
     });
 
     it('exports external-state helpers', async () => {
-      const sdk = await import('@bradygaster/squad-sdk');
+      const sdk = await import('@blacklite/crew-sdk');
       expectExports(sdk, [
         'resolveExternalStateDir',
         'deriveProjectKey',
-      ], '@bradygaster/squad-sdk');
+      ], '@blacklite/crew-sdk');
     });
 
     it('exports consult-mode helpers', async () => {
-      const sdk = await import('@bradygaster/squad-sdk');
+      const sdk = await import('@blacklite/crew-sdk');
       expectExports(sdk, [
         'setupConsultMode',
         'isConsultMode',
-        'PersonalSquadNotFoundError',
+        'PersonalCrewNotFoundError',
         'detectLicense',
         'loadStagedLearnings',
         'logConsultation',
-        'mergeToPersonalSquad',
-        'getPersonalSquadRoot',
-      ], '@bradygaster/squad-sdk');
+        'mergeToPersonalCrew',
+        'getPersonalCrewRoot',
+      ], '@blacklite/crew-sdk');
     });
 
-    it('exports cross-squad helpers', async () => {
-      const sdk = await import('@bradygaster/squad-sdk');
+    it('exports cross-crew helpers', async () => {
+      const sdk = await import('@blacklite/crew-sdk');
       expectExports(sdk, [
-        'discoverSquads',
+        'discoverCrews',
         'formatDiscoveryTable',
-        'findSquadByName',
+        'findCrewByName',
         'buildDelegationArgs',
-        'loadSubSquadsConfig',
-        'resolveSubSquad',
-      ], '@bradygaster/squad-sdk');
+        'loadSubCrewsConfig',
+        'resolveSubCrew',
+      ], '@blacklite/crew-sdk');
     });
 
     it('exports RemoteBridge', async () => {
-      const sdk = await import('@bradygaster/squad-sdk');
-      expectExports(sdk, ['RemoteBridge'], '@bradygaster/squad-sdk');
+      const sdk = await import('@blacklite/crew-sdk');
+      expectExports(sdk, ['RemoteBridge'], '@blacklite/crew-sdk');
     });
   });
 
   // ─── Subpath: /config ──────────────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/config', () => {
+  describe('@blacklite/crew-sdk/config', () => {
     it('exports config helpers used by CLI', async () => {
-      const mod = await import('@bradygaster/squad-sdk/config');
+      const mod = await import('@blacklite/crew-sdk/config');
       expectExports(mod, [
-        'initSquad',
+        'initCrew',
         'MigrationRegistry',
         'writeEconomyMode',
         'readEconomyMode',
-      ], '@bradygaster/squad-sdk/config');
+      ], '@blacklite/crew-sdk/config');
     });
   });
 
   // ─── Subpath: /config/agent-source ─────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/config/agent-source', () => {
+  describe('@blacklite/crew-sdk/config/agent-source', () => {
     it('exports LocalAgentSource', async () => {
-      const mod = await import('@bradygaster/squad-sdk/config/agent-source');
-      expectExports(mod, ['LocalAgentSource'], '@bradygaster/squad-sdk/config/agent-source');
+      const mod = await import('@blacklite/crew-sdk/config/agent-source');
+      expectExports(mod, ['LocalAgentSource'], '@blacklite/crew-sdk/config/agent-source');
     });
   });
 
   // ─── Subpath: /resolution ──────────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/resolution', () => {
+  describe('@blacklite/crew-sdk/resolution', () => {
     it('exports resolution helpers', async () => {
-      const mod = await import('@bradygaster/squad-sdk/resolution');
+      const mod = await import('@blacklite/crew-sdk/resolution');
       expectExports(mod, [
-        'resolveSquad',
-        'resolveSquadPaths',
-        'resolveGlobalSquadPath',
-        'resolvePersonalSquadDir',
-        'ensurePersonalSquadDir',
-      ], '@bradygaster/squad-sdk/resolution');
+        'resolveCrew',
+        'resolveCrewPaths',
+        'resolveGlobalCrewPath',
+        'resolvePersonalCrewDir',
+        'ensurePersonalCrewDir',
+      ], '@blacklite/crew-sdk/resolution');
     });
   });
 
   // ─── Subpath: /client ──────────────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/client', () => {
-    it('exports SquadClient', async () => {
-      const mod = await import('@bradygaster/squad-sdk/client');
-      expectExports(mod, ['SquadClient'], '@bradygaster/squad-sdk/client');
+  describe('@blacklite/crew-sdk/client', () => {
+    it('exports CrewClient', async () => {
+      const mod = await import('@blacklite/crew-sdk/client');
+      expectExports(mod, ['CrewClient'], '@blacklite/crew-sdk/client');
     });
   });
 
   // ─── Subpath: /adapter/errors ──────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/adapter/errors', () => {
+  describe('@blacklite/crew-sdk/adapter/errors', () => {
     it('exports RateLimitError', async () => {
-      const mod = await import('@bradygaster/squad-sdk/adapter/errors');
-      expectExports(mod, ['RateLimitError'], '@bradygaster/squad-sdk/adapter/errors');
+      const mod = await import('@blacklite/crew-sdk/adapter/errors');
+      expectExports(mod, ['RateLimitError'], '@blacklite/crew-sdk/adapter/errors');
     });
   });
 
   // ─── Subpath: /agents/personal ─────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/agents/personal', () => {
+  describe('@blacklite/crew-sdk/agents/personal', () => {
     it('exports personal-agent helpers', async () => {
-      const mod = await import('@bradygaster/squad-sdk/agents/personal');
+      const mod = await import('@blacklite/crew-sdk/agents/personal');
       expectExports(mod, [
         'resolvePersonalAgents',
         'mergeSessionCast',
-      ], '@bradygaster/squad-sdk/agents/personal');
+      ], '@blacklite/crew-sdk/agents/personal');
     });
   });
 
   // ─── Subpath: /casting ─────────────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/casting', () => {
+  describe('@blacklite/crew-sdk/casting', () => {
     it('exports CastingEngine', async () => {
-      const mod = await import('@bradygaster/squad-sdk/casting');
-      expectExports(mod, ['CastingEngine'], '@bradygaster/squad-sdk/casting');
+      const mod = await import('@blacklite/crew-sdk/casting');
+      expectExports(mod, ['CastingEngine'], '@blacklite/crew-sdk/casting');
     });
   });
 
   // ─── Subpath: /platform ────────────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/platform', () => {
+  describe('@blacklite/crew-sdk/platform', () => {
     it('exports createPlatformAdapter', async () => {
-      const mod = await import('@bradygaster/squad-sdk/platform');
-      expectExports(mod, ['createPlatformAdapter'], '@bradygaster/squad-sdk/platform');
+      const mod = await import('@blacklite/crew-sdk/platform');
+      expectExports(mod, ['createPlatformAdapter'], '@blacklite/crew-sdk/platform');
     });
   });
 
   // ─── Subpath: /ralph ───────────────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/ralph', () => {
+  describe('@blacklite/crew-sdk/ralph', () => {
     it('exports RalphMonitor', async () => {
-      const mod = await import('@bradygaster/squad-sdk/ralph');
-      expectExports(mod, ['RalphMonitor'], '@bradygaster/squad-sdk/ralph');
+      const mod = await import('@blacklite/crew-sdk/ralph');
+      expectExports(mod, ['RalphMonitor'], '@blacklite/crew-sdk/ralph');
     });
   });
 
-  describe('@bradygaster/squad-sdk/ralph/triage', () => {
+  describe('@blacklite/crew-sdk/ralph/triage', () => {
     it('exports triage helpers', async () => {
-      const mod = await import('@bradygaster/squad-sdk/ralph/triage');
+      const mod = await import('@blacklite/crew-sdk/ralph/triage');
       expectExports(mod, [
         'parseRoster',
         'parseRoutingRules',
         'parseModuleOwnership',
         'triageIssue',
-      ], '@bradygaster/squad-sdk/ralph/triage');
+      ], '@blacklite/crew-sdk/ralph/triage');
     });
   });
 
-  describe('@bradygaster/squad-sdk/ralph/rate-limiting', () => {
+  describe('@blacklite/crew-sdk/ralph/rate-limiting', () => {
     it('exports rate-limiting helpers', async () => {
-      const mod = await import('@bradygaster/squad-sdk/ralph/rate-limiting');
+      const mod = await import('@blacklite/crew-sdk/ralph/rate-limiting');
       expectExports(mod, [
         'PredictiveCircuitBreaker',
         'getTrafficLight',
-      ], '@bradygaster/squad-sdk/ralph/rate-limiting');
+      ], '@blacklite/crew-sdk/ralph/rate-limiting');
     });
   });
 
   // ─── Subpath: /runtime/* ───────────────────────────────────────────────
 
-  describe('@bradygaster/squad-sdk/runtime/event-bus', () => {
+  describe('@blacklite/crew-sdk/runtime/event-bus', () => {
     it('exports EventBus', async () => {
-      const mod = await import('@bradygaster/squad-sdk/runtime/event-bus');
-      expectExports(mod, ['EventBus'], '@bradygaster/squad-sdk/runtime/event-bus');
+      const mod = await import('@blacklite/crew-sdk/runtime/event-bus');
+      expectExports(mod, ['EventBus'], '@blacklite/crew-sdk/runtime/event-bus');
     });
   });
 
@@ -255,11 +255,11 @@ describe('cross-package exports — CLI → SDK', () => {
     it('every exports-map entry points to an existing file', async () => {
       const fs = await import('node:fs');
 
-      // In a workspace monorepo the SDK lives at packages/squad-sdk.
+      // In a workspace monorepo the SDK lives at packages/crew-sdk.
       // In CI / installed scenarios, find it under node_modules.
       const candidates = [
-        resolve(process.cwd(), 'packages', 'squad-sdk'),
-        resolve(process.cwd(), 'node_modules', '@bradygaster', 'squad-sdk'),
+        resolve(process.cwd(), 'packages', 'crew-sdk'),
+        resolve(process.cwd(), 'node_modules', '@blacklite', 'crew-sdk'),
       ];
       const sdkRoot = candidates.find(
         (p) => existsSync(resolve(p, 'package.json')),

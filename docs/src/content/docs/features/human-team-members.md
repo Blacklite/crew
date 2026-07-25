@@ -1,6 +1,6 @@
 # Human Team Members
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to add a human specialist:**
@@ -45,11 +45,11 @@ Human team members have no charter, no history file, and are never spawned as su
 
 When the coordinator determines that a task should go to a human team member:
 
-1. **Squad pauses** and tells you that a human needs to act
-2. You relay the task to the person outside of Squad
-3. When they respond, you tell Squad what happened
+1. **Crew pauses** and tells you that a human needs to act
+2. You relay the task to the person outside of Crew
+3. When they respond, you tell Crew what happened
 
-If the human hasn't responded after a while, Squad sends **stale reminders** prompting you to follow up.
+If the human hasn't responded after a while, Crew sends **stale reminders** prompting you to follow up.
 
 ---
 
@@ -61,7 +61,7 @@ Human team members can serve as reviewers in the [reviewer protocol](../concepts
 > Add Jordan as security reviewer
 ```
 
-When work requires security review, Squad routes it to Jordan and waits.
+When work requires security review, Crew routes it to Jordan and waits.
 
 ---
 
@@ -73,7 +73,7 @@ Same as removing any team member — they move to alumni:
 > Remove Sarah from the team
 ```
 
-Their entry moves to `.squad/agents/_alumni/`. They can be re-added later.
+Their entry moves to `.crew/agents/_alumni/`. They can be re-added later.
 
 ---
 
@@ -91,7 +91,7 @@ Not every collaborator needs a roster entry. Use this table to decide:
 
 **Litmus test:** If you want agents to *stop and wait* for someone's input before proceeding, add them. If they review asynchronously through normal GitHub flows, a roster entry adds no value.
 
-**You don't need to add yourself.** Squad reads `git config user.name` every session, so the team always knows who's driving. Adding yourself to the roster is optional — it formalizes routing and review tracking but isn't required for day-to-day interaction.
+**You don't need to add yourself.** Crew reads `git config user.name` every session, so the team always knows who's driving. Adding yourself to the roster is optional — it formalizes routing and review tracking but isn't required for day-to-day interaction.
 
 ---
 
@@ -99,7 +99,7 @@ Not every collaborator needs a roster entry. Use this table to decide:
 
 - Use human members for approval gates — design review, compliance, final sign-off.
 - Human members work well alongside [ceremonies](ceremonies.md) — add a human as a required participant in a design review ceremony.
-- You're the relay. Squad can't message humans directly — it tells you, and you coordinate.
+- You're the relay. Crew can't message humans directly — it tells you, and you coordinate.
 
 ## Sample Prompts
 

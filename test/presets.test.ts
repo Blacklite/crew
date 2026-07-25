@@ -1,13 +1,13 @@
 /**
- * Tests for SQUAD_HOME resolution and preset system.
+ * Tests for CREW_HOME resolution and preset system.
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mkdirSync, rmSync, existsSync, writeFileSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomBytes } from 'node:crypto';
-import { resolveSquadHome, ensureSquadHome, resolvePresetsDir } from '@bradygaster/squad-sdk/resolution';
-import { listPresets, loadPreset, applyPreset, savePreset, seedBuiltinPresets } from '@bradygaster/squad-sdk/presets';
+import { resolveCrewHome, ensureCrewHome, resolvePresetsDir } from '@blacklite/crew-sdk/resolution';
+import { listPresets, loadPreset, applyPreset, savePreset, seedBuiltinPresets } from '@blacklite/crew-sdk/presets';
 
 const TMP = join(process.cwd(), `.test-presets-${randomBytes(4).toString('hex')}`);
 
@@ -24,11 +24,11 @@ function writeFile(relativePath: string, content: string): void {
 }
 
 // ============================================================================
-// resolveSquadHome()
+// resolveCrewHome()
 // ============================================================================
 
-describe('resolveSquadHome()', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+describe('resolveCrewHome()', () => {
+  const originalEnv = process.env['CREW_HOME'];
 
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
@@ -38,43 +38,43 @@ describe('resolveSquadHome()', () => {
   afterEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     if (originalEnv !== undefined) {
-      process.env['SQUAD_HOME'] = originalEnv;
+      process.env['CREW_HOME'] = originalEnv;
     } else {
-      delete process.env['SQUAD_HOME'];
+      delete process.env['CREW_HOME'];
     }
   });
 
-  it('returns null when SQUAD_HOME points to a nonexistent path', () => {
-    // Point SQUAD_HOME to a nonexistent path
-    process.env['SQUAD_HOME'] = join(TMP, 'nonexistent');
-    expect(resolveSquadHome()).toBeNull();
+  it('returns null when CREW_HOME points to a nonexistent path', () => {
+    // Point CREW_HOME to a nonexistent path
+    process.env['CREW_HOME'] = join(TMP, 'nonexistent');
+    expect(resolveCrewHome()).toBeNull();
   });
 
-  it('returns the directory when SQUAD_HOME points to an existing dir', () => {
-    const homeDir = join(TMP, 'my-squad-home');
+  it('returns the directory when CREW_HOME points to an existing dir', () => {
+    const homeDir = join(TMP, 'my-crew-home');
     mkdirSync(homeDir, { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
-    expect(resolveSquadHome()).toBe(homeDir);
+    expect(resolveCrewHome()).toBe(homeDir);
   });
 
-  it('creates directory when create=true and SQUAD_HOME is set', () => {
-    const homeDir = join(TMP, 'new-squad-home');
-    process.env['SQUAD_HOME'] = homeDir;
+  it('creates directory when create=true and CREW_HOME is set', () => {
+    const homeDir = join(TMP, 'new-crew-home');
+    process.env['CREW_HOME'] = homeDir;
 
     expect(existsSync(homeDir)).toBe(false);
-    const result = resolveSquadHome(true);
+    const result = resolveCrewHome(true);
     expect(result).toBe(homeDir);
     expect(existsSync(homeDir)).toBe(true);
   });
 });
 
 // ============================================================================
-// ensureSquadHome()
+// ensureCrewHome()
 // ============================================================================
 
-describe('ensureSquadHome()', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+describe('ensureCrewHome()', () => {
+  const originalEnv = process.env['CREW_HOME'];
 
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
@@ -84,17 +84,17 @@ describe('ensureSquadHome()', () => {
   afterEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     if (originalEnv !== undefined) {
-      process.env['SQUAD_HOME'] = originalEnv;
+      process.env['CREW_HOME'] = originalEnv;
     } else {
-      delete process.env['SQUAD_HOME'];
+      delete process.env['CREW_HOME'];
     }
   });
 
   it('creates agents/ and presets/ subdirectories', () => {
     const homeDir = join(TMP, 'ensure-home');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
-    const result = ensureSquadHome();
+    const result = ensureCrewHome();
     expect(result).toBe(homeDir);
     expect(existsSync(join(homeDir, 'agents'))).toBe(true);
     expect(existsSync(join(homeDir, 'presets'))).toBe(true);
@@ -102,10 +102,10 @@ describe('ensureSquadHome()', () => {
 
   it('is idempotent', () => {
     const homeDir = join(TMP, 'idempotent-home');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
-    ensureSquadHome();
-    ensureSquadHome(); // should not throw
+    ensureCrewHome();
+    ensureCrewHome(); // should not throw
     expect(existsSync(join(homeDir, 'agents'))).toBe(true);
   });
 });
@@ -115,7 +115,7 @@ describe('ensureSquadHome()', () => {
 // ============================================================================
 
 describe('listPresets()', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+  const originalEnv = process.env['CREW_HOME'];
 
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
@@ -125,28 +125,28 @@ describe('listPresets()', () => {
   afterEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     if (originalEnv !== undefined) {
-      process.env['SQUAD_HOME'] = originalEnv;
+      process.env['CREW_HOME'] = originalEnv;
     } else {
-      delete process.env['SQUAD_HOME'];
+      delete process.env['CREW_HOME'];
     }
   });
 
   it('returns empty array when no presets directory exists', () => {
-    process.env['SQUAD_HOME'] = join(TMP, 'no-presets');
+    process.env['CREW_HOME'] = join(TMP, 'no-presets');
     expect(listPresets()).toEqual([]);
   });
 
   it('returns empty array when presets directory is empty', () => {
     const homeDir = join(TMP, 'empty-presets');
     mkdirSync(join(homeDir, 'presets'), { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     expect(listPresets()).toEqual([]);
   });
 
   it('lists presets with valid manifest', () => {
     const homeDir = join(TMP, 'has-presets');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('has-presets/presets/my-team/agents/dev');
     writeFile('has-presets/presets/my-team/preset.json', JSON.stringify({
@@ -164,7 +164,7 @@ describe('listPresets()', () => {
 
   it('skips directories without valid preset.json', () => {
     const homeDir = join(TMP, 'mixed-presets');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('mixed-presets/presets/valid/agents/dev');
     scaffold('mixed-presets/presets/invalid');
@@ -187,7 +187,7 @@ describe('listPresets()', () => {
 // ============================================================================
 
 describe('loadPreset()', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+  const originalEnv = process.env['CREW_HOME'];
 
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
@@ -197,23 +197,23 @@ describe('loadPreset()', () => {
   afterEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     if (originalEnv !== undefined) {
-      process.env['SQUAD_HOME'] = originalEnv;
+      process.env['CREW_HOME'] = originalEnv;
     } else {
-      delete process.env['SQUAD_HOME'];
+      delete process.env['CREW_HOME'];
     }
   });
 
   it('returns null for nonexistent preset', () => {
     const homeDir = join(TMP, 'load-preset');
     mkdirSync(join(homeDir, 'presets'), { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     expect(loadPreset('nope')).toBeNull();
   });
 
   it('loads a valid preset', () => {
     const homeDir = join(TMP, 'load-valid');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('load-valid/presets/test-preset/agents/alpha');
     writeFile('load-valid/presets/test-preset/preset.json', JSON.stringify({
@@ -237,7 +237,7 @@ describe('loadPreset()', () => {
 // ============================================================================
 
 describe('applyPreset()', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+  const originalEnv = process.env['CREW_HOME'];
 
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
@@ -247,15 +247,15 @@ describe('applyPreset()', () => {
   afterEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     if (originalEnv !== undefined) {
-      process.env['SQUAD_HOME'] = originalEnv;
+      process.env['CREW_HOME'] = originalEnv;
     } else {
-      delete process.env['SQUAD_HOME'];
+      delete process.env['CREW_HOME'];
     }
   });
 
   it('installs preset agents into target directory', () => {
     const homeDir = join(TMP, 'apply-home');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     // Create preset
     scaffold('apply-home/presets/starter/agents/dev');
@@ -268,7 +268,7 @@ describe('applyPreset()', () => {
     writeFile('apply-home/presets/starter/agents/dev/charter.md', '# Dev Agent');
 
     // Create target
-    const targetDir = join(TMP, 'target-squad', 'agents');
+    const targetDir = join(TMP, 'target-crew', 'agents');
     mkdirSync(targetDir, { recursive: true });
 
     const results = applyPreset('starter', targetDir);
@@ -280,7 +280,7 @@ describe('applyPreset()', () => {
 
   it('skips existing agents by default', () => {
     const homeDir = join(TMP, 'apply-skip');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('apply-skip/presets/starter/agents/dev');
     writeFile('apply-skip/presets/starter/preset.json', JSON.stringify({
@@ -303,7 +303,7 @@ describe('applyPreset()', () => {
 
   it('overwrites existing agents with --force', () => {
     const homeDir = join(TMP, 'apply-force');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('apply-force/presets/starter/agents/dev');
     writeFile('apply-force/presets/starter/preset.json', JSON.stringify({
@@ -326,20 +326,20 @@ describe('applyPreset()', () => {
   it('returns error for nonexistent preset', () => {
     const homeDir = join(TMP, 'apply-missing');
     mkdirSync(join(homeDir, 'presets'), { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     const results = applyPreset('nope', '/tmp/anywhere');
     expect(results[0]!.status).toBe('error');
   });
 
-  // Regression tests for bradygaster/squad#1288 — applyPreset must wire the
+  // Regression tests for Blacklite/crew#1288 — applyPreset must wire the
   // preset agents into team.md, routing.md, and the casting state files so
   // the coordinator's mode-switch check sees a populated ## Members table
   // and skips Init Mode.
 
   it('wires preset agents into team.md ## Members (#1288)', () => {
     const homeDir = join(TMP, 'apply-team');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('apply-team/presets/starter/agents/dev', 'apply-team/presets/starter/agents/qa');
     writeFile('apply-team/presets/starter/preset.json', JSON.stringify({
@@ -354,23 +354,23 @@ describe('applyPreset()', () => {
     writeFile('apply-team/presets/starter/agents/dev/charter.md', '# Dev');
     writeFile('apply-team/presets/starter/agents/qa/charter.md', '# QA');
 
-    const squadDir = join(TMP, 'target-team');
-    const agentsDir = join(squadDir, 'agents');
+    const crewDir = join(TMP, 'target-team');
+    const agentsDir = join(crewDir, 'agents');
     mkdirSync(agentsDir, { recursive: true });
 
     applyPreset('starter', agentsDir);
 
-    const teamMd = readFileSync(join(squadDir, 'team.md'), 'utf-8');
+    const teamMd = readFileSync(join(crewDir, 'team.md'), 'utf-8');
     expect(teamMd).toContain('## Members');
     expect(teamMd).toContain('| dev | developer |');
     expect(teamMd).toContain('| qa | reviewer |');
-    expect(teamMd).toContain('`.squad/agents/dev/charter.md`');
-    expect(teamMd).toContain('`.squad/agents/qa/charter.md`');
+    expect(teamMd).toContain('`.crew/agents/dev/charter.md`');
+    expect(teamMd).toContain('`.crew/agents/qa/charter.md`');
   });
 
   it('merges preset agents into an existing team.md without duplicating rows (#1288)', () => {
     const homeDir = join(TMP, 'apply-team-merge');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('apply-team-merge/presets/starter/agents/qa');
     writeFile('apply-team-merge/presets/starter/preset.json', JSON.stringify({
@@ -381,24 +381,24 @@ describe('applyPreset()', () => {
     }));
     writeFile('apply-team-merge/presets/starter/agents/qa/charter.md', '# QA');
 
-    const squadDir = join(TMP, 'target-team-merge');
-    const agentsDir = join(squadDir, 'agents');
+    const crewDir = join(TMP, 'target-team-merge');
+    const agentsDir = join(crewDir, 'agents');
     mkdirSync(agentsDir, { recursive: true });
-    // Pre-existing team.md from a prior squad init/cast with one member
-    writeFileSync(join(squadDir, 'team.md'), [
-      '# Squad Team',
+    // Pre-existing team.md from a prior crew init/cast with one member
+    writeFileSync(join(crewDir, 'team.md'), [
+      '# Crew Team',
       '',
       '## Coordinator',
       '',
       '| Name | Role | Notes |',
       '|------|------|-------|',
-      '| Squad | Coordinator | Routes work. |',
+      '| Crew | Coordinator | Routes work. |',
       '',
       '## Members',
       '',
       '| Name | Role | Charter | Status |',
       '|------|------|---------|--------|',
-      '| Picard | Lead | `.squad/agents/picard/charter.md` | ✅ Active |',
+      '| Picard | Lead | `.crew/agents/picard/charter.md` | ✅ Active |',
       '',
       '## Project Context',
       '',
@@ -408,21 +408,21 @@ describe('applyPreset()', () => {
 
     applyPreset('starter', agentsDir);
 
-    const teamMd = readFileSync(join(squadDir, 'team.md'), 'utf-8');
+    const teamMd = readFileSync(join(crewDir, 'team.md'), 'utf-8');
     expect(teamMd).toContain('| Picard | Lead |');
     expect(teamMd).toContain('| qa | reviewer |');
     expect(teamMd).toContain('## Project Context'); // section after Members preserved
 
     // Idempotency: a second apply must not duplicate the qa row
     applyPreset('starter', agentsDir);
-    const teamMdAfter = readFileSync(join(squadDir, 'team.md'), 'utf-8');
+    const teamMdAfter = readFileSync(join(crewDir, 'team.md'), 'utf-8');
     const qaCount = (teamMdAfter.match(/\| qa \| reviewer \|/g) ?? []).length;
     expect(qaCount).toBe(1);
   });
 
   it('writes casting registry.json, history.json, and policy.json (#1288)', () => {
     const homeDir = join(TMP, 'apply-casting');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('apply-casting/presets/starter/agents/dev');
     writeFile('apply-casting/presets/starter/preset.json', JSON.stringify({
@@ -433,19 +433,19 @@ describe('applyPreset()', () => {
     }));
     writeFile('apply-casting/presets/starter/agents/dev/charter.md', '# Dev');
 
-    const squadDir = join(TMP, 'target-casting');
-    const agentsDir = join(squadDir, 'agents');
+    const crewDir = join(TMP, 'target-casting');
+    const agentsDir = join(crewDir, 'agents');
     mkdirSync(agentsDir, { recursive: true });
 
     applyPreset('starter', agentsDir);
 
-    const registry = JSON.parse(readFileSync(join(squadDir, 'casting', 'registry.json'), 'utf-8'));
+    const registry = JSON.parse(readFileSync(join(crewDir, 'casting', 'registry.json'), 'utf-8'));
     expect(registry.agents).toHaveProperty('dev');
     expect(registry.agents.dev.persistent_name).toBe('dev');
     expect(registry.agents.dev.universe).toBe('preset:starter');
     expect(registry.agents.dev.status).toBe('active');
 
-    const history = JSON.parse(readFileSync(join(squadDir, 'casting', 'history.json'), 'utf-8'));
+    const history = JSON.parse(readFileSync(join(crewDir, 'casting', 'history.json'), 'utf-8'));
     expect(Object.keys(history.assignment_cast_snapshots).length).toBeGreaterThan(0);
     const firstSnapshot = Object.values<{ agents: string[]; universe: string }>(
       history.assignment_cast_snapshots,
@@ -454,7 +454,7 @@ describe('applyPreset()', () => {
     expect(firstSnapshot.universe).toBe('preset:starter');
     expect(history.universe_usage_history.length).toBeGreaterThan(0);
 
-    const policy = JSON.parse(readFileSync(join(squadDir, 'casting', 'policy.json'), 'utf-8'));
+    const policy = JSON.parse(readFileSync(join(crewDir, 'casting', 'policy.json'), 'utf-8'));
     expect(policy.universe_allowlist).toContain('*');
     expect(policy.max_capacity).toBeGreaterThan(0);
   });
@@ -462,13 +462,13 @@ describe('applyPreset()', () => {
   it('preserves built-in role status labels in team.md (Scribe/Ralph/Rai/Fact Checker) — review on #1293', () => {
     // A preset that happens to ship one of the always-on built-ins (Scribe,
     // Ralph, Rai, Fact Checker) must produce the same Status cell that a
-    // fresh `squad init` cast would — '📋 Silent', '🔄 Monitor', '🛡️ RAI',
+    // fresh `crew init` cast would — '📋 Silent', '🔄 Monitor', '🛡️ RAI',
     // '🔍 Verifier' respectively — NOT '✅ Active'. Pre-fix, memberRow()
     // hardcoded '✅ Active' for every preset agent, which made
     // preset-scaffolded teams visually disagree with cast-scaffolded teams
     // for the same roster.
     const homeDir = join(TMP, 'apply-status-roles');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold(
       'apply-status-roles/presets/builtins/agents/scribe',
@@ -493,24 +493,24 @@ describe('applyPreset()', () => {
       writeFile(`apply-status-roles/presets/builtins/agents/${a}/charter.md`, `# ${a}`);
     }
 
-    const squadDir = join(TMP, 'target-status-roles');
-    const agentsDir = join(squadDir, 'agents');
+    const crewDir = join(TMP, 'target-status-roles');
+    const agentsDir = join(crewDir, 'agents');
     mkdirSync(agentsDir, { recursive: true });
 
     applyPreset('builtins', agentsDir);
 
-    const teamMd = readFileSync(join(squadDir, 'team.md'), 'utf-8');
-    expect(teamMd).toContain('| scribe | Session Logger | `.squad/agents/scribe/charter.md` | 📋 Silent |');
-    expect(teamMd).toContain('| ralph | Work Monitor | `.squad/agents/ralph/charter.md` | 🔄 Monitor |');
-    expect(teamMd).toContain('| rai | RAI Reviewer | `.squad/agents/rai/charter.md` | 🛡️ RAI |');
-    expect(teamMd).toContain('| fact-checker | Fact Checker | `.squad/agents/fact-checker/charter.md` | 🔍 Verifier |');
+    const teamMd = readFileSync(join(crewDir, 'team.md'), 'utf-8');
+    expect(teamMd).toContain('| scribe | Session Logger | `.crew/agents/scribe/charter.md` | 📋 Silent |');
+    expect(teamMd).toContain('| ralph | Work Monitor | `.crew/agents/ralph/charter.md` | 🔄 Monitor |');
+    expect(teamMd).toContain('| rai | RAI Reviewer | `.crew/agents/rai/charter.md` | 🛡️ RAI |');
+    expect(teamMd).toContain('| fact-checker | Fact Checker | `.crew/agents/fact-checker/charter.md` | 🔍 Verifier |');
     // Regular agent still gets ✅ Active.
-    expect(teamMd).toContain('| dev | developer | `.squad/agents/dev/charter.md` | ✅ Active |');
+    expect(teamMd).toContain('| dev | developer | `.crew/agents/dev/charter.md` | ✅ Active |');
   });
 
   it('appends routing rows for preset agents to routing.md (#1288)', () => {
     const homeDir = join(TMP, 'apply-routing');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     scaffold('apply-routing/presets/starter/agents/dev');
     writeFile('apply-routing/presets/starter/preset.json', JSON.stringify({
@@ -521,13 +521,13 @@ describe('applyPreset()', () => {
     }));
     writeFile('apply-routing/presets/starter/agents/dev/charter.md', '# Dev');
 
-    const squadDir = join(TMP, 'target-routing');
-    const agentsDir = join(squadDir, 'agents');
+    const crewDir = join(TMP, 'target-routing');
+    const agentsDir = join(crewDir, 'agents');
     mkdirSync(agentsDir, { recursive: true });
 
     applyPreset('starter', agentsDir);
 
-    const routing = readFileSync(join(squadDir, 'routing.md'), 'utf-8');
+    const routing = readFileSync(join(crewDir, 'routing.md'), 'utf-8');
     expect(routing).toContain('## Work Type → Agent');
     expect(routing).toContain('| developer | dev |');
   });
@@ -538,7 +538,7 @@ describe('applyPreset()', () => {
 // ============================================================================
 
 describe('seedBuiltinPresets()', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+  const originalEnv = process.env['CREW_HOME'];
 
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
@@ -548,15 +548,15 @@ describe('seedBuiltinPresets()', () => {
   afterEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     if (originalEnv !== undefined) {
-      process.env['SQUAD_HOME'] = originalEnv;
+      process.env['CREW_HOME'] = originalEnv;
     } else {
-      delete process.env['SQUAD_HOME'];
+      delete process.env['CREW_HOME'];
     }
   });
 
-  it('seeds the default preset into squad home', () => {
+  it('seeds the default preset into crew home', () => {
     const homeDir = join(TMP, 'seed-home');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     const seeded = seedBuiltinPresets();
     expect(seeded).toContain('default');
@@ -568,7 +568,7 @@ describe('seedBuiltinPresets()', () => {
 
   it('does not overwrite existing presets', () => {
     const homeDir = join(TMP, 'seed-existing');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     // Create a custom default preset
     mkdirSync(join(homeDir, 'presets', 'default'), { recursive: true });
@@ -585,7 +585,7 @@ describe('seedBuiltinPresets()', () => {
 // ============================================================================
 
 describe('resolvePresetsDir()', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+  const originalEnv = process.env['CREW_HOME'];
 
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
@@ -595,21 +595,21 @@ describe('resolvePresetsDir()', () => {
   afterEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     if (originalEnv !== undefined) {
-      process.env['SQUAD_HOME'] = originalEnv;
+      process.env['CREW_HOME'] = originalEnv;
     } else {
-      delete process.env['SQUAD_HOME'];
+      delete process.env['CREW_HOME'];
     }
   });
 
-  it('returns null when squad home does not exist', () => {
-    process.env['SQUAD_HOME'] = join(TMP, 'nonexistent');
+  it('returns null when crew home does not exist', () => {
+    process.env['CREW_HOME'] = join(TMP, 'nonexistent');
     expect(resolvePresetsDir()).toBeNull();
   });
 
   it('returns null when presets/ does not exist', () => {
     const homeDir = join(TMP, 'no-presets-dir');
     mkdirSync(homeDir, { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     expect(resolvePresetsDir()).toBeNull();
   });
@@ -617,7 +617,7 @@ describe('resolvePresetsDir()', () => {
   it('returns presets/ path when it exists', () => {
     const homeDir = join(TMP, 'with-presets');
     mkdirSync(join(homeDir, 'presets'), { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     expect(resolvePresetsDir()).toBe(join(homeDir, 'presets'));
   });
@@ -628,7 +628,7 @@ describe('resolvePresetsDir()', () => {
 // ============================================================================
 
 describe('savePreset()', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+  const originalEnv = process.env['CREW_HOME'];
 
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
@@ -638,24 +638,24 @@ describe('savePreset()', () => {
   afterEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     if (originalEnv !== undefined) {
-      process.env['SQUAD_HOME'] = originalEnv;
+      process.env['CREW_HOME'] = originalEnv;
     } else {
-      delete process.env['SQUAD_HOME'];
+      delete process.env['CREW_HOME'];
     }
   });
 
   it('saves current project agents as a named preset', () => {
     const homeDir = join(TMP, 'save-home');
     mkdirSync(homeDir, { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
-    // Create a fake project squad with agents
-    const squadDir = join(TMP, 'project', '.squad');
-    const agentsDir = join(squadDir, 'agents');
+    // Create a fake project crew with agents
+    const crewDir = join(TMP, 'project', '.crew');
+    const agentsDir = join(crewDir, 'agents');
     mkdirSync(join(agentsDir, 'helper'), { recursive: true });
     writeFileSync(join(agentsDir, 'helper', 'charter.md'), '## Helper — Utility Agent\nHelps with misc tasks.');
 
-    const destDir = savePreset('my-team', squadDir);
+    const destDir = savePreset('my-team', crewDir);
 
     expect(existsSync(destDir)).toBe(true);
     expect(existsSync(join(destDir, 'preset.json'))).toBe(true);
@@ -672,49 +672,49 @@ describe('savePreset()', () => {
     const homeDir = join(TMP, 'save-dup');
     mkdirSync(join(homeDir, 'presets', 'existing'), { recursive: true });
     writeFileSync(join(homeDir, 'presets', 'existing', 'preset.json'), '{}');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
-    const squadDir = join(TMP, 'proj', '.squad');
-    mkdirSync(join(squadDir, 'agents', 'a1'), { recursive: true });
-    writeFileSync(join(squadDir, 'agents', 'a1', 'charter.md'), '# Agent');
+    const crewDir = join(TMP, 'proj', '.crew');
+    mkdirSync(join(crewDir, 'agents', 'a1'), { recursive: true });
+    writeFileSync(join(crewDir, 'agents', 'a1', 'charter.md'), '# Agent');
 
-    expect(() => savePreset('existing', squadDir)).toThrow(/already exists/);
+    expect(() => savePreset('existing', crewDir)).toThrow(/already exists/);
   });
 
   it('overwrites existing preset with force', () => {
     const homeDir = join(TMP, 'save-force');
     mkdirSync(join(homeDir, 'presets', 'team'), { recursive: true });
     writeFileSync(join(homeDir, 'presets', 'team', 'preset.json'), '{}');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
-    const squadDir = join(TMP, 'proj2', '.squad');
-    mkdirSync(join(squadDir, 'agents', 'bot'), { recursive: true });
-    writeFileSync(join(squadDir, 'agents', 'bot', 'charter.md'), '# Bot');
+    const crewDir = join(TMP, 'proj2', '.crew');
+    mkdirSync(join(crewDir, 'agents', 'bot'), { recursive: true });
+    writeFileSync(join(crewDir, 'agents', 'bot', 'charter.md'), '# Bot');
 
-    const destDir = savePreset('team', squadDir, { force: true });
+    const destDir = savePreset('team', crewDir, { force: true });
     expect(existsSync(join(destDir, 'agents', 'bot', 'charter.md'))).toBe(true);
   });
 
   it('round-trips: save then apply to a new project', () => {
     const homeDir = join(TMP, 'roundtrip');
     mkdirSync(homeDir, { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     // Create source project with 2 agents
-    const srcSquad = join(TMP, 'src-proj', '.squad');
-    mkdirSync(join(srcSquad, 'agents', 'alpha'), { recursive: true });
-    mkdirSync(join(srcSquad, 'agents', 'beta'), { recursive: true });
-    writeFileSync(join(srcSquad, 'agents', 'alpha', 'charter.md'), '## Alpha — Lead\nLeads the team.');
-    writeFileSync(join(srcSquad, 'agents', 'beta', 'charter.md'), '## Beta — Reviewer\nReviews code.');
+    const srcCrew = join(TMP, 'src-proj', '.crew');
+    mkdirSync(join(srcCrew, 'agents', 'alpha'), { recursive: true });
+    mkdirSync(join(srcCrew, 'agents', 'beta'), { recursive: true });
+    writeFileSync(join(srcCrew, 'agents', 'alpha', 'charter.md'), '## Alpha — Lead\nLeads the team.');
+    writeFileSync(join(srcCrew, 'agents', 'beta', 'charter.md'), '## Beta — Reviewer\nReviews code.');
 
     // Save as preset
-    savePreset('my-squad', srcSquad, { description: 'My custom squad' });
+    savePreset('my-crew', srcCrew, { description: 'My custom crew' });
 
     // Apply to new project
-    const destAgents = join(TMP, 'dest-proj', '.squad', 'agents');
+    const destAgents = join(TMP, 'dest-proj', '.crew', 'agents');
     mkdirSync(destAgents, { recursive: true });
 
-    const results = applyPreset('my-squad', destAgents);
+    const results = applyPreset('my-crew', destAgents);
     expect(results.filter(r => r.status === 'installed')).toHaveLength(2);
     expect(readFileSync(join(destAgents, 'alpha', 'charter.md'), 'utf-8')).toContain('Alpha');
     expect(readFileSync(join(destAgents, 'beta', 'charter.md'), 'utf-8')).toContain('Beta');
@@ -723,17 +723,17 @@ describe('savePreset()', () => {
   it('round-trips routing.md with custom rules (#1412)', () => {
     const homeDir = join(TMP, 'roundtrip-routing');
     mkdirSync(homeDir, { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     // Create source project with agents and a custom routing.md
-    const srcSquad = join(TMP, 'src-routing', '.squad');
-    mkdirSync(join(srcSquad, 'agents', 'alpha'), { recursive: true });
-    mkdirSync(join(srcSquad, 'agents', 'beta'), { recursive: true });
-    writeFileSync(join(srcSquad, 'agents', 'alpha', 'charter.md'), '## Alpha — Lead\nLeads the team.');
-    writeFileSync(join(srcSquad, 'agents', 'beta', 'charter.md'), '## Beta — Reviewer\nReviews code.');
+    const srcCrew = join(TMP, 'src-routing', '.crew');
+    mkdirSync(join(srcCrew, 'agents', 'alpha'), { recursive: true });
+    mkdirSync(join(srcCrew, 'agents', 'beta'), { recursive: true });
+    writeFileSync(join(srcCrew, 'agents', 'alpha', 'charter.md'), '## Alpha — Lead\nLeads the team.');
+    writeFileSync(join(srcCrew, 'agents', 'beta', 'charter.md'), '## Beta — Reviewer\nReviews code.');
 
     const customRouting = [
-      '# Squad Routing',
+      '# Crew Routing',
       '',
       '## Work Type → Agent',
       '',
@@ -757,26 +757,26 @@ describe('savePreset()', () => {
       '| src/tests/** | Beta |',
       '',
     ].join('\n');
-    writeFileSync(join(srcSquad, 'routing.md'), customRouting);
+    writeFileSync(join(srcCrew, 'routing.md'), customRouting);
 
     // Save as preset
-    savePreset('routed-squad', srcSquad, { description: 'Squad with routing' });
+    savePreset('routed-crew', srcCrew, { description: 'Crew with routing' });
 
     // Verify routing.md was captured in the preset
-    const presetDir = join(homeDir, 'presets', 'routed-squad');
+    const presetDir = join(homeDir, 'presets', 'routed-crew');
     expect(existsSync(join(presetDir, 'routing.md'))).toBe(true);
     expect(readFileSync(join(presetDir, 'routing.md'), 'utf-8')).toBe(customRouting);
 
     // Apply to a new project
-    const destSquad = join(TMP, 'dest-routing', '.squad');
-    const destAgentsDir = join(destSquad, 'agents');
+    const destCrew = join(TMP, 'dest-routing', '.crew');
+    const destAgentsDir = join(destCrew, 'agents');
     mkdirSync(destAgentsDir, { recursive: true });
 
-    const results = applyPreset('routed-squad', destAgentsDir);
+    const results = applyPreset('routed-crew', destAgentsDir);
     expect(results.filter(r => r.status === 'installed')).toHaveLength(2);
 
     // Verify routing.md was faithfully restored (not regenerated from template)
-    const restoredRouting = readFileSync(join(destSquad, 'routing.md'), 'utf-8');
+    const restoredRouting = readFileSync(join(destCrew, 'routing.md'), 'utf-8');
     expect(restoredRouting).toContain('## Label Routing');
     expect(restoredRouting).toContain('## Module Ownership');
     expect(restoredRouting).toContain('src/core/**');
@@ -786,15 +786,15 @@ describe('savePreset()', () => {
   it('restores preset routing.md over existing skeleton when overwriteRouting is set (#1412)', () => {
     const homeDir = join(TMP, 'overwrite-routing');
     mkdirSync(homeDir, { recursive: true });
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
 
     // Create source project with agents and a custom routing.md
-    const srcSquad = join(TMP, 'src-overwrite', '.squad');
-    mkdirSync(join(srcSquad, 'agents', 'alpha'), { recursive: true });
-    writeFileSync(join(srcSquad, 'agents', 'alpha', 'charter.md'), '## Alpha — Lead\nLeads the team.');
+    const srcCrew = join(TMP, 'src-overwrite', '.crew');
+    mkdirSync(join(srcCrew, 'agents', 'alpha'), { recursive: true });
+    writeFileSync(join(srcCrew, 'agents', 'alpha', 'charter.md'), '## Alpha — Lead\nLeads the team.');
 
     const customRouting = [
-      '# Squad Routing',
+      '# Crew Routing',
       '',
       '## Work Type → Agent',
       '',
@@ -809,23 +809,23 @@ describe('savePreset()', () => {
       '| src/core/** | Alpha |',
       '',
     ].join('\n');
-    writeFileSync(join(srcSquad, 'routing.md'), customRouting);
+    writeFileSync(join(srcCrew, 'routing.md'), customRouting);
 
     // Save as preset
-    savePreset('overwrite-test', srcSquad, { description: 'Test overwrite' });
+    savePreset('overwrite-test', srcCrew, { description: 'Test overwrite' });
 
-    // Simulate squad init having already created a skeleton routing.md
-    const destSquad = join(TMP, 'dest-overwrite', '.squad');
-    const destAgentsDir = join(destSquad, 'agents');
+    // Simulate crew init having already created a skeleton routing.md
+    const destCrew = join(TMP, 'dest-overwrite', '.crew');
+    const destAgentsDir = join(destCrew, 'agents');
     mkdirSync(destAgentsDir, { recursive: true });
-    writeFileSync(join(destSquad, 'routing.md'), '# Squad Routing\n\n## Work Type → Agent\n\n| Work Type | Primary | Secondary |\n|-----------|---------|----------|\n');
+    writeFileSync(join(destCrew, 'routing.md'), '# Crew Routing\n\n## Work Type → Agent\n\n| Work Type | Primary | Secondary |\n|-----------|---------|----------|\n');
 
     // Apply with overwriteRouting
     const results = applyPreset('overwrite-test', destAgentsDir, { overwriteRouting: true });
     expect(results.filter(r => r.status === 'installed')).toHaveLength(1);
 
     // Verify the preset's routing was used, not the skeleton
-    const restoredRouting = readFileSync(join(destSquad, 'routing.md'), 'utf-8');
+    const restoredRouting = readFileSync(join(destCrew, 'routing.md'), 'utf-8');
     expect(restoredRouting).toContain('## Module Ownership');
     expect(restoredRouting).toContain('src/core/**');
   });
@@ -842,23 +842,23 @@ describe('savePreset()', () => {
 // the same code path via resolveInstallSource — splitting the git clone
 // into a small helper so it can be stubbed is a separate follow-up.
 
-import { installPresetFromSource } from '@bradygaster/squad-sdk/presets';
+import { installPresetFromSource } from '@blacklite/crew-sdk/presets';
 
 describe('installPresetFromSource() — local paths', () => {
-  const originalEnv = process.env['SQUAD_HOME'];
+  const originalEnv = process.env['CREW_HOME'];
   beforeEach(() => {
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     mkdirSync(TMP, { recursive: true });
   });
   afterEach(() => {
-    if (originalEnv === undefined) delete process.env['SQUAD_HOME'];
-    else process.env['SQUAD_HOME'] = originalEnv;
+    if (originalEnv === undefined) delete process.env['CREW_HOME'];
+    else process.env['CREW_HOME'] = originalEnv;
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
   });
 
   it('installs a single-preset local source (startDir/preset.json present)', () => {
     const homeDir = join(TMP, 'home-single');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
     const src = join(TMP, 'source-single');
     mkdirSync(join(src, 'agents', 'a1'), { recursive: true });
     writeFileSync(join(src, 'preset.json'), JSON.stringify({ name: 'starter', version: '1.0.0', description: 'demo', agents: [{ name: 'a1', role: 'lead' }] }));
@@ -872,7 +872,7 @@ describe('installPresetFromSource() — local paths', () => {
 
   it('selects a preset from a collection via --name', () => {
     const homeDir = join(TMP, 'home-collection');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
     const src = join(TMP, 'source-collection');
     for (const name of ['alpha', 'beta']) {
       mkdirSync(join(src, 'presets', name, 'agents', 'lead'), { recursive: true });
@@ -887,7 +887,7 @@ describe('installPresetFromSource() — local paths', () => {
 
   it('throws on collection source without --name (instead of silently grabbing one)', () => {
     const homeDir = join(TMP, 'home-collection-nopick');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
     const src = join(TMP, 'source-collection-nopick');
     for (const name of ['alpha', 'beta']) {
       mkdirSync(join(src, 'presets', name, 'agents', 'lead'), { recursive: true });
@@ -899,7 +899,7 @@ describe('installPresetFromSource() — local paths', () => {
 
   it('--force overwrites an existing preset of the same name', () => {
     const homeDir = join(TMP, 'home-force');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
     const src = join(TMP, 'source-force');
     mkdirSync(join(src, 'agents', 'a1'), { recursive: true });
     writeFileSync(join(src, 'preset.json'), JSON.stringify({ name: 'collision', version: '1.0.0', description: 'v1', agents: [{ name: 'a1', role: 'lead' }] }));
@@ -919,7 +919,7 @@ describe('installPresetFromSource() — local paths', () => {
 
   it('--name renames the preset AND stamps manifest.name with the new name', () => {
     const homeDir = join(TMP, 'home-rename');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
     const src = join(TMP, 'source-rename');
     mkdirSync(join(src, 'agents', 'a1'), { recursive: true });
     writeFileSync(join(src, 'preset.json'), JSON.stringify({ name: 'upstream-name', version: '1.0.0', description: 'demo', agents: [{ name: 'a1', role: 'lead' }] }));
@@ -938,7 +938,7 @@ describe('installPresetFromSource() — local paths', () => {
 
   it('rejects --name containing path separators (defends against ../escape)', () => {
     const homeDir = join(TMP, 'home-reject-name');
-    process.env['SQUAD_HOME'] = homeDir;
+    process.env['CREW_HOME'] = homeDir;
     const src = join(TMP, 'source-reject-name');
     mkdirSync(join(src, 'agents', 'a1'), { recursive: true });
     writeFileSync(join(src, 'preset.json'), JSON.stringify({ name: 'demo', version: '1.0.0', description: 'demo', agents: [{ name: 'a1', role: 'lead' }] }));

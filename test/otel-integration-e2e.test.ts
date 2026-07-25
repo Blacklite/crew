@@ -18,10 +18,10 @@ import {
 } from '@opentelemetry/sdk-trace-base';
 import { trace, context, SpanStatusCode } from '@opentelemetry/api';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
-import { createOTelTransport } from '@bradygaster/squad-sdk/runtime/otel-bridge';
-import type { TelemetryEvent } from '@bradygaster/squad-sdk/runtime/telemetry';
-import { TelemetryCollector, setTelemetryTransport } from '@bradygaster/squad-sdk/runtime/telemetry';
-import { EventBus } from '@bradygaster/squad-sdk/runtime/event-bus';
+import { createOTelTransport } from '@blacklite/crew-sdk/runtime/otel-bridge';
+import type { TelemetryEvent } from '@blacklite/crew-sdk/runtime/telemetry';
+import { TelemetryCollector, setTelemetryTransport } from '@blacklite/crew-sdk/runtime/telemetry';
+import { EventBus } from '@blacklite/crew-sdk/runtime/event-bus';
 
 // ===========================================================================
 // Test OTel infrastructure
@@ -56,18 +56,18 @@ describe('OTel Integration — full trace hierarchy', () => {
   afterEach(() => teardownTestProvider());
 
   it('nested spans share the same traceId when context is propagated', () => {
-    const tracer = trace.getTracer('squad-e2e');
+    const tracer = trace.getTracer('crew-e2e');
 
-    const requestSpan = tracer.startSpan('squad.request');
+    const requestSpan = tracer.startSpan('crew.request');
     const requestCtx = trace.setSpan(context.active(), requestSpan);
 
-    const routeSpan = tracer.startSpan('squad.coordinator.route', {}, requestCtx);
+    const routeSpan = tracer.startSpan('crew.coordinator.route', {}, requestCtx);
     const routeCtx = trace.setSpan(requestCtx, routeSpan);
 
-    const agentSpan = tracer.startSpan('squad.agent.spawn', {}, routeCtx);
+    const agentSpan = tracer.startSpan('crew.agent.spawn', {}, routeCtx);
     const agentCtx = trace.setSpan(routeCtx, agentSpan);
 
-    const toolSpan = tracer.startSpan('squad.tool.execute', {}, agentCtx);
+    const toolSpan = tracer.startSpan('crew.tool.execute', {}, agentCtx);
 
     toolSpan.end();
     agentSpan.end();
@@ -82,18 +82,18 @@ describe('OTel Integration — full trace hierarchy', () => {
   });
 
   it('parent-child hierarchy is correct: request → route → agent → tool', () => {
-    const tracer = trace.getTracer('squad-e2e');
+    const tracer = trace.getTracer('crew-e2e');
 
-    const requestSpan = tracer.startSpan('squad.request');
+    const requestSpan = tracer.startSpan('crew.request');
     const requestCtx = trace.setSpan(context.active(), requestSpan);
 
-    const routeSpan = tracer.startSpan('squad.coordinator.route', {}, requestCtx);
+    const routeSpan = tracer.startSpan('crew.coordinator.route', {}, requestCtx);
     const routeCtx = trace.setSpan(requestCtx, routeSpan);
 
-    const agentSpan = tracer.startSpan('squad.agent.spawn', {}, routeCtx);
+    const agentSpan = tracer.startSpan('crew.agent.spawn', {}, routeCtx);
     const agentCtx = trace.setSpan(routeCtx, agentSpan);
 
-    const toolSpan = tracer.startSpan('squad.tool.execute', {}, agentCtx);
+    const toolSpan = tracer.startSpan('crew.tool.execute', {}, agentCtx);
 
     toolSpan.end();
     agentSpan.end();
@@ -103,10 +103,10 @@ describe('OTel Integration — full trace hierarchy', () => {
     const spans = exporter.getFinishedSpans();
     const byName = (name: string) => spans.find((s) => s.name === name)!;
 
-    const req = byName('squad.request');
-    const route = byName('squad.coordinator.route');
-    const agent = byName('squad.agent.spawn');
-    const tool = byName('squad.tool.execute');
+    const req = byName('crew.request');
+    const route = byName('crew.coordinator.route');
+    const agent = byName('crew.agent.spawn');
+    const tool = byName('crew.tool.execute');
 
     // SDK v2 uses parentSpanContext (not parentSpanId)
     expect(req.parentSpanContext).toBeUndefined();
@@ -116,15 +116,15 @@ describe('OTel Integration — full trace hierarchy', () => {
   });
 
   it('error in tool span propagates status without breaking hierarchy', () => {
-    const tracer = trace.getTracer('squad-e2e');
+    const tracer = trace.getTracer('crew-e2e');
 
-    const requestSpan = tracer.startSpan('squad.request');
+    const requestSpan = tracer.startSpan('crew.request');
     const requestCtx = trace.setSpan(context.active(), requestSpan);
 
-    const agentSpan = tracer.startSpan('squad.agent.spawn', {}, requestCtx);
+    const agentSpan = tracer.startSpan('crew.agent.spawn', {}, requestCtx);
     const agentCtx = trace.setSpan(requestCtx, agentSpan);
 
-    const toolSpan = tracer.startSpan('squad.tool.execute', {}, agentCtx);
+    const toolSpan = tracer.startSpan('crew.tool.execute', {}, agentCtx);
     toolSpan.setStatus({ code: SpanStatusCode.ERROR, message: 'tool failed' });
     toolSpan.addEvent('exception', { 'exception.message': 'tool failed' });
     toolSpan.end();
@@ -133,56 +133,56 @@ describe('OTel Integration — full trace hierarchy', () => {
     requestSpan.end();
 
     const spans = exporter.getFinishedSpans();
-    const tool = spans.find((s) => s.name === 'squad.tool.execute')!;
-    const req = spans.find((s) => s.name === 'squad.request')!;
+    const tool = spans.find((s) => s.name === 'crew.tool.execute')!;
+    const req = spans.find((s) => s.name === 'crew.request')!;
 
     expect(tool.status.code).toBe(SpanStatusCode.ERROR);
     expect(req.status.code).not.toBe(SpanStatusCode.ERROR);
   });
 
   it('attributes flow correctly through the hierarchy', () => {
-    const tracer = trace.getTracer('squad-e2e');
+    const tracer = trace.getTracer('crew-e2e');
 
-    const requestSpan = tracer.startSpan('squad.request', { attributes: { 'squad.request.id': 'req-1' } });
+    const requestSpan = tracer.startSpan('crew.request', { attributes: { 'crew.request.id': 'req-1' } });
     const requestCtx = trace.setSpan(context.active(), requestSpan);
 
-    const agentSpan = tracer.startSpan('squad.agent.spawn', { attributes: { 'agent.name': 'fenster', mode: 'standard' } }, requestCtx);
+    const agentSpan = tracer.startSpan('crew.agent.spawn', { attributes: { 'agent.name': 'fenster', mode: 'standard' } }, requestCtx);
     const agentCtx = trace.setSpan(requestCtx, agentSpan);
 
-    const toolSpan = tracer.startSpan('squad.tool.execute', { attributes: { 'tool.name': 'readFile', 'tool.args': '/src/index.ts' } }, agentCtx);
+    const toolSpan = tracer.startSpan('crew.tool.execute', { attributes: { 'tool.name': 'readFile', 'tool.args': '/src/index.ts' } }, agentCtx);
 
     toolSpan.end();
     agentSpan.end();
     requestSpan.end();
 
     const spans = exporter.getFinishedSpans();
-    const req = spans.find((s) => s.name === 'squad.request')!;
-    const agent = spans.find((s) => s.name === 'squad.agent.spawn')!;
-    const tool = spans.find((s) => s.name === 'squad.tool.execute')!;
+    const req = spans.find((s) => s.name === 'crew.request')!;
+    const agent = spans.find((s) => s.name === 'crew.agent.spawn')!;
+    const tool = spans.find((s) => s.name === 'crew.tool.execute')!;
 
-    expect(req.attributes['squad.request.id']).toBe('req-1');
+    expect(req.attributes['crew.request.id']).toBe('req-1');
     expect(agent.attributes['agent.name']).toBe('fenster');
     expect(tool.attributes['tool.name']).toBe('readFile');
   });
 
   it('parallel agent spans under one route maintain correct parentage', () => {
-    const tracer = trace.getTracer('squad-e2e');
+    const tracer = trace.getTracer('crew-e2e');
 
-    const routeSpan = tracer.startSpan('squad.coordinator.route');
+    const routeSpan = tracer.startSpan('crew.coordinator.route');
     const routeCtx = trace.setSpan(context.active(), routeSpan);
 
-    const agent1 = tracer.startSpan('squad.agent.fenster', { attributes: { 'agent.name': 'fenster' } }, routeCtx);
+    const agent1 = tracer.startSpan('crew.agent.fenster', { attributes: { 'agent.name': 'fenster' } }, routeCtx);
     agent1.end();
 
-    const agent2 = tracer.startSpan('squad.agent.edie', { attributes: { 'agent.name': 'edie' } }, routeCtx);
+    const agent2 = tracer.startSpan('crew.agent.edie', { attributes: { 'agent.name': 'edie' } }, routeCtx);
     agent2.end();
 
     routeSpan.end();
 
     const spans = exporter.getFinishedSpans();
-    const route = spans.find((s) => s.name === 'squad.coordinator.route')!;
-    const a1 = spans.find((s) => s.name === 'squad.agent.fenster')!;
-    const a2 = spans.find((s) => s.name === 'squad.agent.edie')!;
+    const route = spans.find((s) => s.name === 'crew.coordinator.route')!;
+    const a1 = spans.find((s) => s.name === 'crew.agent.fenster')!;
+    const a2 = spans.find((s) => s.name === 'crew.agent.edie')!;
 
     expect((a1 as any).parentSpanContext?.spanId).toBe(route.spanContext().spanId);
     expect((a2 as any).parentSpanContext?.spanId).toBe(route.spanContext().spanId);
@@ -197,7 +197,7 @@ describe('OTel Integration — full trace hierarchy', () => {
 describe('OTel Integration — zero-overhead when unconfigured', () => {
   it('no-op tracer produces spans that do not throw', () => {
     trace.disable();
-    const tracer = trace.getTracer('squad-no-op');
+    const tracer = trace.getTracer('crew-no-op');
     const span = tracer.startSpan('test-no-op');
     expect(span).toBeDefined();
     expect(typeof span.end).toBe('function');
@@ -211,9 +211,9 @@ describe('OTel Integration — zero-overhead when unconfigured', () => {
     trace.disable();
     const transport = createOTelTransport();
     const events: TelemetryEvent[] = [
-      { name: 'squad.init', timestamp: Date.now() },
-      { name: 'squad.agent.spawn', properties: { agent: 'fenster' }, timestamp: Date.now() },
-      { name: 'squad.error', properties: { message: 'test' }, timestamp: Date.now() },
+      { name: 'crew.init', timestamp: Date.now() },
+      { name: 'crew.agent.spawn', properties: { agent: 'fenster' }, timestamp: Date.now() },
+      { name: 'crew.error', properties: { message: 'test' }, timestamp: Date.now() },
     ];
     await expect(transport(events, '')).resolves.not.toThrow();
   });
@@ -221,13 +221,13 @@ describe('OTel Integration — zero-overhead when unconfigured', () => {
   it('no spans are exported when no provider is configured', async () => {
     trace.disable();
     const transport = createOTelTransport();
-    await transport([{ name: 'squad.init', timestamp: Date.now() }], '');
+    await transport([{ name: 'crew.init', timestamp: Date.now() }], '');
     // No exporter to capture — this is the zero-overhead path
   });
 
   it('nested span operations do not throw without a provider', () => {
     trace.disable();
-    const tracer = trace.getTracer('squad-no-op');
+    const tracer = trace.getTracer('crew-no-op');
     expect(() => {
       const outer = tracer.startSpan('outer');
       const inner = tracer.startSpan('inner');
@@ -239,8 +239,8 @@ describe('OTel Integration — zero-overhead when unconfigured', () => {
 
   it('metric operations are safe no-ops without provider', async () => {
     trace.disable();
-    const { getTracer, getMeter } = await vi.importActual<typeof import('@bradygaster/squad-sdk/runtime/otel')>(
-      '@bradygaster/squad-sdk/runtime/otel',
+    const { getTracer, getMeter } = await vi.importActual<typeof import('@blacklite/crew-sdk/runtime/otel')>(
+      '@blacklite/crew-sdk/runtime/otel',
     );
     const tracer = getTracer('test');
     expect(() => tracer.startSpan('noop').end()).not.toThrow();
@@ -257,7 +257,7 @@ describe('OTel Integration — zero-overhead when unconfigured', () => {
 
 describe('OTel Integration — metrics across operations', () => {
   it('StreamingPipeline processes usage events and tracks data', async () => {
-    const { StreamingPipeline } = await import('@bradygaster/squad-sdk/runtime/streaming');
+    const { StreamingPipeline } = await import('@blacklite/crew-sdk/runtime/streaming');
     const pipeline = new StreamingPipeline();
     pipeline.attachToSession('sess-e2e');
 
@@ -280,7 +280,7 @@ describe('OTel Integration — metrics across operations', () => {
   });
 
   it('StreamingPipeline TTFT tracking works with message_delta events', async () => {
-    const { StreamingPipeline } = await import('@bradygaster/squad-sdk/runtime/streaming');
+    const { StreamingPipeline } = await import('@blacklite/crew-sdk/runtime/streaming');
     const pipeline = new StreamingPipeline();
     pipeline.attachToSession('sess-ttft');
 
@@ -317,7 +317,7 @@ describe('OTel Integration — metrics across operations', () => {
   });
 
   it('StreamingPipeline ignores events from unattached sessions', async () => {
-    const { StreamingPipeline } = await import('@bradygaster/squad-sdk/runtime/streaming');
+    const { StreamingPipeline } = await import('@blacklite/crew-sdk/runtime/streaming');
     const pipeline = new StreamingPipeline();
 
     await pipeline.processEvent({
@@ -335,7 +335,7 @@ describe('OTel Integration — metrics across operations', () => {
   });
 
   it('multiple sessions accumulate metrics independently', async () => {
-    const { StreamingPipeline } = await import('@bradygaster/squad-sdk/runtime/streaming');
+    const { StreamingPipeline } = await import('@blacklite/crew-sdk/runtime/streaming');
     const pipeline = new StreamingPipeline();
     pipeline.attachToSession('sess-a');
     pipeline.attachToSession('sess-b');
@@ -370,22 +370,22 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
     const collector = new TelemetryCollector({ enabled: true });
     setTelemetryTransport(transport);
 
-    collector.collectEvent({ name: 'squad.init', properties: { version: '1.0.0' } });
-    collector.collectEvent({ name: 'squad.agent.spawn', properties: { agent: 'fenster' } });
-    collector.collectEvent({ name: 'squad.run', properties: { command: 'test' } });
+    collector.collectEvent({ name: 'crew.init', properties: { version: '1.0.0' } });
+    collector.collectEvent({ name: 'crew.agent.spawn', properties: { agent: 'fenster' } });
+    collector.collectEvent({ name: 'crew.run', properties: { command: 'test' } });
     await collector.flush();
 
     const spans = exporter.getFinishedSpans();
     expect(spans.length).toBe(3);
     expect(spans.map((s) => s.name).sort()).toEqual([
-      'squad.agent.spawn',
-      'squad.init',
-      'squad.run',
+      'crew.agent.spawn',
+      'crew.init',
+      'crew.run',
     ]);
   });
 
   it('EventBus subscribeAll → OTel span bridge produces correct spans', async () => {
-    const tracer = trace.getTracer('squad-sdk');
+    const tracer = trace.getTracer('crew-sdk');
     const bus = new EventBus();
 
     // Manual bridge pattern (equivalent to bridgeEventBusToOTel)
@@ -396,7 +396,7 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
       if (event.sessionId) attrs['session.id'] = event.sessionId;
       if (event.agentName) attrs['agent.name'] = event.agentName;
 
-      const span = tracer.startSpan(`squad.${event.type}`, { attributes: attrs });
+      const span = tracer.startSpan(`crew.${event.type}`, { attributes: attrs });
       if (event.type === 'session:error') {
         span.setStatus({ code: SpanStatusCode.ERROR });
       }
@@ -421,16 +421,16 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
 
     const spans = exporter.getFinishedSpans();
     expect(spans.length).toBe(2);
-    expect(spans[0]!.name).toBe('squad.session:created');
+    expect(spans[0]!.name).toBe('crew.session:created');
     expect(spans[0]!.attributes['session.id']).toBe('sess-1');
     expect(spans[0]!.attributes['agent.name']).toBe('fenster');
-    expect(spans[1]!.name).toBe('squad.session:destroyed');
+    expect(spans[1]!.name).toBe('crew.session:destroyed');
 
     detach();
   });
 
   it('EventBus → OTel bridge handles tool_call events with correct attributes', async () => {
-    const tracer = trace.getTracer('squad-sdk');
+    const tracer = trace.getTracer('crew-sdk');
     const bus = new EventBus();
 
     const detach = bus.subscribeAll((event) => {
@@ -438,7 +438,7 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
         'event.type': event.type,
       };
       if (event.sessionId) attrs['session.id'] = event.sessionId;
-      const span = tracer.startSpan(`squad.${event.type}`, { attributes: attrs });
+      const span = tracer.startSpan(`crew.${event.type}`, { attributes: attrs });
       span.end();
     });
 
@@ -451,7 +451,7 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
 
     const spans = exporter.getFinishedSpans();
     expect(spans.length).toBe(1);
-    expect(spans[0]!.name).toBe('squad.session:tool_call');
+    expect(spans[0]!.name).toBe('crew.session:tool_call');
     expect(spans[0]!.attributes['event.type']).toBe('session:tool_call');
     expect(spans[0]!.attributes['session.id']).toBe('sess-1');
 
@@ -459,11 +459,11 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
   });
 
   it('EventBus → OTel bridge sets ERROR status for session:error events', async () => {
-    const tracer = trace.getTracer('squad-sdk');
+    const tracer = trace.getTracer('crew-sdk');
     const bus = new EventBus();
 
     const detach = bus.subscribeAll((event) => {
-      const span = tracer.startSpan(`squad.${event.type}`, {
+      const span = tracer.startSpan(`crew.${event.type}`, {
         attributes: { 'event.type': event.type },
       });
       if (event.type === 'session:error') {
@@ -481,7 +481,7 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
 
     const spans = exporter.getFinishedSpans();
     expect(spans.length).toBe(1);
-    expect(spans[0]!.name).toBe('squad.session:error');
+    expect(spans[0]!.name).toBe('crew.session:error');
     expect(spans[0]!.status.code).toBe(SpanStatusCode.ERROR);
 
     detach();
@@ -491,7 +491,7 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
     const transport = createOTelTransport();
 
     const events: TelemetryEvent[] = Array.from({ length: 50 }, (_, i) => ({
-      name: 'squad.run' as const,
+      name: 'crew.run' as const,
       properties: { iteration: i },
       timestamp: Date.now(),
     }));
@@ -505,21 +505,21 @@ describe('OTel Integration — EventBus → OTel bridge', () => {
   it('OTel transport is no-op after trace.disable()', async () => {
     const transport = createOTelTransport();
 
-    await transport([{ name: 'squad.init', timestamp: Date.now() }], '');
+    await transport([{ name: 'crew.init', timestamp: Date.now() }], '');
     expect(exporter.getFinishedSpans().length).toBe(1);
 
     teardownTestProvider();
     await expect(
-      transport([{ name: 'squad.run', timestamp: Date.now() }], ''),
+      transport([{ name: 'crew.run', timestamp: Date.now() }], ''),
     ).resolves.not.toThrow();
   });
 
   it('EventBus bridge detach stops span creation', async () => {
-    const tracer = trace.getTracer('squad-sdk');
+    const tracer = trace.getTracer('crew-sdk');
     const bus = new EventBus();
 
     const detach = bus.subscribeAll((event) => {
-      const span = tracer.startSpan(`squad.${event.type}`);
+      const span = tracer.startSpan(`crew.${event.type}`);
       span.end();
     });
 

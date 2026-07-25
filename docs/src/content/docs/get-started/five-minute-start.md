@@ -1,8 +1,8 @@
 # Quick start
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Your first 5 minutes with Squad. Prove it works before you learn anything.
+Your first 5 minutes with Crew. Prove it works before you learn anything.
 
 ---
 
@@ -16,48 +16,48 @@ Your first 5 minutes with Squad. Prove it works before you learn anything.
 ## Install
 
 ```bash
-npm install --save-dev @bradygaster/squad-cli
+npm install --save-dev @blacklite/crew-cli
 ```
 
 Then initialize:
 
 ```bash
-npx squad init
+npx crew init
 ```
 
 You'll see:
 
 ```
-✅ Squad installed.
-   .github/agents/squad.agent.md — coordinator agent
-   .squad/templates/ — 11 template files
+✅ Crew installed.
+   .github/agents/crew.agent.md — coordinator agent
+   .crew/templates/ — 11 template files
 
-Open GitHub Copilot and select Squad from the agent list.
+Open GitHub Copilot and select Crew from the agent list.
 ```
 
 ---
 
 ## Validate
 
-Check that Squad created your team directory:
+Check that Crew created your team directory:
 
 ```bash
-ls .squad/
+ls .crew/
 ```
 
 You should see: `team.md`, `routing.md`, `decisions.md`, `agents/`, and more.
 
-Confirm Squad is ready:
+Confirm Crew is ready:
 
 ```bash
-npx squad status
+npx crew status
 ```
 
 ---
 
 ## Try it
 
-Open GitHub Copilot in your terminal or VS Code. Select **Squad** from the agent list (`/agent Squad` in CLI or `/agents` in VS Code).
+Open GitHub Copilot in your terminal or VS Code. Select **Crew** from the agent list (`/agent Crew` in CLI or `/agents` in VS Code).
 
 Say something simple:
 
@@ -66,19 +66,19 @@ Say something simple:
 > Users can create, update, and delete tasks.
 ```
 
-Squad forms your team and responds with agent names and roles. Say yes, or just give your first task:
+Crew forms your team and responds with agent names and roles. Say yes, or just give your first task:
 
 ```
 > Team, create a basic Express server with a /health endpoint.
 ```
 
-Squad spawns agents and does the work.
+Crew spawns agents and does the work.
 
 ---
 
 ## What just happened?
 
-Squad read your description, formed a team of specialists, wrote their charters to `.squad/agents/`, and coordinated parallel work. Check `.squad/decisions.md` to see what they decided.
+Crew read your description, formed a team of specialists, wrote their charters to `.crew/agents/`, and coordinated parallel work. Check `.crew/decisions.md` to see what they decided.
 
 ---
 

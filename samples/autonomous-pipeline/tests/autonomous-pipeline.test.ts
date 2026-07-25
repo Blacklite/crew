@@ -14,8 +14,8 @@ import {
   selectResponseTier,
   StreamingPipeline,
   VERSION,
-} from '@bradygaster/squad-sdk';
-import type { CastMember, ResponseTier, SquadConfig, TierContext } from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
+import type { CastMember, ResponseTier, CrewConfig, TierContext } from '@blacklite/crew-sdk';
 
 // ============================================================================
 // CastingEngine — cast a 4-agent team
@@ -116,7 +116,7 @@ describe('CostTracker', () => {
     });
 
     const formatted = tracker.formatSummary();
-    expect(formatted).toContain('Squad Cost Summary');
+    expect(formatted).toContain('Crew Cost Summary');
     expect(formatted).toContain('Agent3');
   });
 });
@@ -128,14 +128,14 @@ describe('CostTracker', () => {
 describe('TelemetryCollector', () => {
   it('collects events when enabled', () => {
     const collector = new TelemetryCollector({ enabled: true });
-    collector.collectEvent({ name: 'squad.init' });
-    collector.collectEvent({ name: 'squad.agent.spawn', properties: { agent: 'Keyser' } });
+    collector.collectEvent({ name: 'crew.init' });
+    collector.collectEvent({ name: 'crew.agent.spawn', properties: { agent: 'Keyser' } });
     expect(collector.pendingCount).toBe(2);
   });
 
   it('ignores events when disabled', () => {
     const collector = new TelemetryCollector({ enabled: false });
-    collector.collectEvent({ name: 'squad.init' });
+    collector.collectEvent({ name: 'crew.init' });
     expect(collector.pendingCount).toBe(0);
   });
 
@@ -144,7 +144,7 @@ describe('TelemetryCollector', () => {
     expect(collector.getConsentStatus()).toBe(false);
     collector.setConsent(true);
     expect(collector.getConsentStatus()).toBe(true);
-    collector.collectEvent({ name: 'squad.run' });
+    collector.collectEvent({ name: 'crew.run' });
     expect(collector.pendingCount).toBe(1);
   });
 });
@@ -273,9 +273,9 @@ describe('StreamingPipeline', () => {
 // ============================================================================
 
 describe('selectResponseTier', () => {
-  const config: SquadConfig = {
+  const config: CrewConfig = {
     version: '1.0',
-    team: { name: 'Test Squad' },
+    team: { name: 'Test Crew' },
     routing: {
       rules: [
         { pattern: 'security|audit', agents: ['Agent1'], tier: 'full' },
@@ -327,11 +327,11 @@ describe('Pipeline integration', () => {
     const tracker = new CostTracker();
     const telemetry = new TelemetryCollector({ enabled: true });
 
-    telemetry.collectEvent({ name: 'squad.init', properties: { agents: cast.length } });
+    telemetry.collectEvent({ name: 'crew.init', properties: { agents: cast.length } });
 
     for (const member of cast) {
       telemetry.collectEvent({
-        name: 'squad.agent.spawn',
+        name: 'crew.agent.spawn',
         properties: { agent: member.name, role: member.role },
       });
       tracker.recordUsage({

@@ -1,6 +1,6 @@
 # Proposal: Memory Governance Provider
 
-**Issue:** bradygaster/squad#600
+**Issue:** Blacklite/crew#600
 **Author:** tamirdresher
 **Date:** 2026-05-18
 **Status:** Design
@@ -9,7 +9,7 @@
 
 ## Problem Statement
 
-Squad currently treats memory as files under `.squad/` loaded through state and storage
+Crew currently treats memory as files under `.crew/` loaded through state and storage
 helpers. That is the right default for local worktrees, but it blurs three different
 concerns:
 
@@ -18,7 +18,7 @@ concerns:
 3. Retrieving the right memory for a task.
 
 As provider work expands, especially around Copilot Memory and external memory systems,
-Squad needs a higher-level memory governance layer without turning `StorageProvider` into
+Crew needs a higher-level memory governance layer without turning `StorageProvider` into
 a semantic database, policy engine, or agent behavior system.
 
 ---
@@ -42,7 +42,7 @@ remote blobs, and future plugin-backed state backends.
 
 ### Memory governance sits above state and storage
 
-A new `MemoryGovernanceProvider` / `MemoryStore` should sit above `SquadState` and
+A new `MemoryGovernanceProvider` / `MemoryStore` should sit above `CrewState` and
 `StorageProvider`.
 
 ```text
@@ -54,13 +54,13 @@ MemoryStore / MemoryGovernanceProvider
         +--> classification, policy, routing, retrieval, promotion
         |
         v
-SquadState
+CrewState
         |
         v
 StorageProvider
 ```
 
-`SquadState` remains the structured state surface for `.squad/` data. The governance
+`CrewState` remains the structured state surface for `.crew/` data. The governance
 provider decides what should become memory, where it belongs, and whether it is allowed
 to become durable.
 
@@ -73,9 +73,9 @@ Every proposed memory write should be classified before persistence.
 | Class | Meaning | Default destination |
 |-------|---------|---------------------|
 | `TRANSIENT` | Short-lived task state, CI/PR status, scratch observations, temporary blockers | Do not persist as durable memory |
-| `LOCAL` | Repo-specific context useful in this worktree, such as conventions, file locations, and implementation notes | `.squad/agents/{name}/history.md` or local inbox |
-| `DECISION` | User-approved or team-relevant decision that should guide future work | `.squad/decisions/inbox/` then `decisions.md` |
-| `POLICY` | Durable directive, security rule, workflow rule, or governance constraint | `.squad/decisions.md` / policy section |
+| `LOCAL` | Repo-specific context useful in this worktree, such as conventions, file locations, and implementation notes | `.crew/agents/{name}/history.md` or local inbox |
+| `DECISION` | User-approved or team-relevant decision that should guide future work | `.crew/decisions/inbox/` then `decisions.md` |
+| `POLICY` | Durable directive, security rule, workflow rule, or governance constraint | `.crew/decisions.md` / policy section |
 | `COPILOT_MEMORY` | Safe, durable semantic memory intended for Copilot Memory or another semantic provider | Optional external semantic memory provider |
 | `FORBIDDEN` | Secrets, PII, topology, raw logs, credentials, or other disallowed data | Reject and do not persist |
 
@@ -88,21 +88,21 @@ or transient rather than writing to durable semantic memory.
 
 ### Worktree/local memory remains the default
 
-For `squad init` and Copilot custom agents, local worktree memory remains the default:
+For `crew init` and Copilot custom agents, local worktree memory remains the default:
 
-- `.squad/decisions.md`
-- `.squad/decisions/inbox/`
-- `.squad/agents/{name}/history.md`
+- `.crew/decisions.md`
+- `.crew/decisions/inbox/`
+- `.crew/agents/{name}/history.md`
 - `.copilot/skills/{name}/SKILL.md`
 
-This keeps Squad usable offline, reviewable in Git, and compatible with existing teams.
+This keeps Crew usable offline, reviewable in Git, and compatible with existing teams.
 It also preserves the current prompt-only behavior for Copilot custom agents: when no
-tool bridge is available, agents write `.squad/` files directly.
+tool bridge is available, agents write `.crew/` files directly.
 
-`StorageProvider` participates when Squad is running through SDK or runtime abstractions
+`StorageProvider` participates when Crew is running through SDK or runtime abstractions
 that load state through provider-backed services. It is not automatically exercised by
-`squad init` plus a Copilot CLI custom agent in prompt-only mode; that path relies on the
-agent instructions and local `.squad/` files unless a CLI/MCP bridge is installed.
+`crew init` plus a Copilot CLI custom agent in prompt-only mode; that path relies on the
+agent instructions and local `.crew/` files unless a CLI/MCP bridge is installed.
 
 ### Copilot Memory is optional semantic memory
 
@@ -116,15 +116,15 @@ The governance layer may route selected `COPILOT_MEMORY` entries to Copilot Memo
 - the entry is stable enough to be useful across sessions
 - the write path supports auditability and deletion
 
-The local `.squad/` files remain the source of truth unless a future configuration
+The local `.crew/` files remain the source of truth unless a future configuration
 explicitly selects another governance provider.
 
-Current implementation does not include a real callable Copilot Memory API. Squad does not
+Current implementation does not include a real callable Copilot Memory API. Crew does not
 ship, discover, or emulate a Copilot Memory service client, and `provider=copilot` fails
 with an explicit "real Copilot Memory API unavailable" error unless a concrete provider
 module is added. The only current bridge is named `hostInjectedCopilotAdapter`; hosts that
 have access to a real API can inject a `CopilotMemoryProviderClient` into the governed
-memory layer. When `.squad/memory/config.json` enables
+memory layer. When `.crew/memory/config.json` enables
 `externalProviders.hostInjectedCopilotAdapter` but no client is supplied, writes, searches,
 and deletes fail closed with clear errors and no fake persistence.
 
@@ -137,7 +137,7 @@ The provider path still goes through governance:
   memory content.
 - deletes call the provider delete operation, mark the governed index entry deleted, and
   write a local tombstone for auditability.
-- `squad memory provider` reports that real Copilot Memory is unavailable locally, whether
+- `crew memory provider` reports that real Copilot Memory is unavailable locally, whether
   `hostInjectedCopilotAdapter` is enabled, and whether the current process has a
   host-injected client.
 
@@ -154,7 +154,7 @@ operations such as:
 - `memory.delete`
 - `memory.audit`
 
-Without that bridge, the fallback is prompt-only local writes to `.squad/` files. That
+Without that bridge, the fallback is prompt-only local writes to `.crew/` files. That
 fallback is intentionally limited: it preserves current behavior but cannot guarantee
 provider routing, semantic indexing, policy enforcement, or remote deletion.
 
@@ -162,7 +162,7 @@ provider routing, semantic indexing, policy enforcement, or remote deletion.
 
 ## Agent Responsibilities
 
-Squad should not assume every team has the same named agents. Only the default team
+Crew should not assume every team has the same named agents. Only the default team
 roles should be required by the memory governance path; richer teams can add specialist
 reviewers by capability.
 
@@ -175,13 +175,13 @@ reviewers by capability.
 | Framework/architecture specialist | Optional | Owns provider boundaries, schemas, classification taxonomy, tool bridge contracts, and compatibility with state backends. |
 | Team lead/coordinator | Optional | Coordinates team-level policy and final decisions: approves governance defaults, user-facing behavior, and rollout sequencing. |
 
-For example, Tamir's project Squad maps those optional capabilities to agents such as
+For example, Tamir's project Crew maps those optional capabilities to agents such as
 Seven, Worf, Data, and Picard. That mapping is an implementation of the capability model,
-not a requirement for every Squad installation.
+not a requirement for every Crew installation.
 
 ### Default role decision
 
-The governance model does not require a new always-created memory role at `squad init`
+The governance model does not require a new always-created memory role at `crew init`
 time. Scribe is already the default durable-record role, so memory governance should extend
 Scribe's responsibilities and give it explicit tools, classification rules, and audit
 obligations. A future `Memory Steward` template may be useful for larger teams, but it
@@ -217,15 +217,15 @@ separate mempalace runtime provider worktree.
 
 ## Upgrade Story
 
-`squad upgrade` is the user-facing path that makes the new model usable in existing
+`crew upgrade` is the user-facing path that makes the new model usable in existing
 repositories. The upgrade must be non-destructive, idempotent, and safe to re-run.
 
 The upgrade should:
 
-- detect the existing `.squad/` version, layout, and any memory/governance config
+- detect the existing `.crew/` version, layout, and any memory/governance config
 - preserve existing `decisions.md`, agent histories, skills, routing, `team.md`, and
   ceremony files
-- create or migrate `.squad/memory/config.json` or an equivalent policy file with a
+- create or migrate `.crew/memory/config.json` or an equivalent policy file with a
   local-only default
 - add default memory governance policy without overwriting user-authored edits
 - update Scribe's charter responsibilities for memory stewardship through a managed
@@ -233,14 +233,14 @@ The upgrade should:
 - preserve Ralph's role as a monitor for stale work and repeated rediscovery, not as the
   owner of memory policy
 - add CLI/MCP bridge configuration only when the bridge is installed and available
-- leave prompt-only local `.squad/` fallback in place when no bridge exists
+- leave prompt-only local `.crew/` fallback in place when no bridge exists
 - keep external semantic providers, including Copilot Memory, disabled unless explicitly
   opted in by the user or repository policy
 - produce a migration report that lists created, changed, skipped, and manually required
   actions
 
-Before changing existing files, `squad upgrade` should create a rollback point: either a
-timestamped backup of changed `.squad/` files, a reversible migration journal, or a clear
+Before changing existing files, `crew upgrade` should create a rollback point: either a
+timestamped backup of changed `.crew/` files, a reversible migration journal, or a clear
 Git-friendly migration report when the worktree itself is the rollback mechanism. The
 rollback story must cover policy config, managed charter updates, and bridge config.
 
@@ -249,20 +249,20 @@ rollback story must cover policy config, managed charter updates, and bridge con
 ## E2E Validation Story
 
 This model is not complete when the taxonomy, unit tests, or proposal text pass review.
-It is complete only after a real human-style Squad workflow validates upgrade, fallback,
+It is complete only after a real human-style Crew workflow validates upgrade, fallback,
 tool-backed memory, rejection, promotion, deletion, and audit behavior end to end.
 
 The required scenario is:
 
-1. Start with an existing repository that already has a `.squad/` directory from current
-   or older Squad.
-2. Run `squad upgrade`.
+1. Start with an existing repository that already has a `.crew/` directory from current
+   or older Crew.
+2. Run `crew upgrade`.
 3. Verify the upgrade preserves existing `decisions.md`, agent histories, skills, routing,
    `team.md`, and ceremonies.
 4. Verify the upgrade adds memory governance config and default local-only policy without
    overwriting user edits.
-5. Select the Squad custom agent in Copilot CLI.
-6. In prompt-only mode, verify the agent continues to use local `.squad/` memory safely.
+5. Select the Crew custom agent in Copilot CLI.
+6. In prompt-only mode, verify the agent continues to use local `.crew/` memory safely.
 7. With CLI/MCP memory tools installed and enabled, verify the agent uses
    `memory.classify`, `memory.write`, `memory.search`, `memory.promote`,
    `memory.delete`, and `memory.audit` rather than relying only on prompt instructions.
@@ -278,7 +278,7 @@ The required scenario is:
     and that `memory.audit` reports writes, promotions, rejections, and deletes.
 
 The E2E test should be run from the user's perspective: clone/open repo, upgrade, select
-the Squad agent, perform normal work, observe what memory is proposed, and inspect the
+the Crew agent, perform normal work, observe what memory is proposed, and inspect the
 resulting local files and audit output.
 
 ---
@@ -306,7 +306,7 @@ guarantees before it is enabled by default:
 - path traversal and namespace confinement
 - encryption expectations for local and remote storage
 - atomic writes or explicit conflict behavior
-- locking/concurrency behavior for concurrent Squad sessions
+- locking/concurrency behavior for concurrent Crew sessions
 - deletion and rollback behavior
 - audit records for durable writes, promotions, rejections, and deletes
 - migration compatibility between provider versions
@@ -327,8 +327,8 @@ tests, and audit output.
 
 ### Phase 1: Local governance shim
 
-- Add a local-only `MemoryStore` facade over `SquadState`.
-- Classify writes before they land in `.squad/`.
+- Add a local-only `MemoryStore` facade over `CrewState`.
+- Classify writes before they land in `.crew/`.
 - Keep `StorageProvider` unchanged.
 - Preserve prompt-only fallback for Copilot custom agents.
 
@@ -342,7 +342,7 @@ tests, and audit output.
 
 - Add an opt-in provider adapter for Copilot Memory or another semantic memory system.
 - Route only `COPILOT_MEMORY` entries after safety checks.
-- Keep local `.squad/` memory as the default and fallback.
+- Keep local `.crew/` memory as the default and fallback.
 - Implemented only as an explicit `hostInjectedCopilotAdapter` contract; real
   `provider=copilot` remains blocked until a concrete callable API exists locally, and
   missing host clients fail closed rather than pretending to persist semantic memory.
@@ -359,25 +359,25 @@ tests, and audit output.
 
 - `StorageProvider` remains a file/blob persistence interface.
 - A higher-level `MemoryGovernanceProvider` / `MemoryStore` boundary is documented before runtime implementation.
-- `squad init` and Copilot custom agents keep local worktree memory as the default.
+- `crew init` and Copilot custom agents keep local worktree memory as the default.
 - Copilot Memory is documented as optional semantic durable memory, not as storage.
-- Prompt-only custom agents can still write `.squad/` files when no bridge exists.
+- Prompt-only custom agents can still write `.crew/` files when no bridge exists.
 - Tool-backed custom agents have a clear CLI/MCP bridge direction for pluggable providers.
-- `squad upgrade` is non-destructive, idempotent, detects existing `.squad/` state, and
+- `crew upgrade` is non-destructive, idempotent, detects existing `.crew/` state, and
   preserves decisions, histories, skills, routing, `team.md`, and ceremonies.
-- `squad upgrade` creates or migrates local-only memory governance policy without
+- `crew upgrade` creates or migrates local-only memory governance policy without
   overwriting user edits and reports changed, skipped, and manual migration actions.
 - Scribe receives memory stewardship responsibilities through managed updates or
   migration notes, while Ralph remains a monitor rather than policy owner.
 - CLI/MCP bridge config is added only when available; otherwise prompt-only local
-  `.squad/` fallback remains valid.
+  `.crew/` fallback remains valid.
 - External semantic providers, including Copilot Memory, require explicit opt-in and
   approval before durable semantic writes.
 - Memory writes are classified as `TRANSIENT`, `LOCAL`, `DECISION`, `POLICY`, `COPILOT_MEMORY`, or `FORBIDDEN`.
 - Durable memory rejects secrets, PII, topology, raw logs, and transient CI/PR status.
 - Providers document isolation, deletion, audit, concurrency, and migration guarantees.
 - Tests cover redaction, denied persistence, provider conformance, rollback/delete, and concurrent-write behavior.
-- E2E validation covers an existing repo upgraded with `squad upgrade`, Copilot CLI
+- E2E validation covers an existing repo upgraded with `crew upgrade`, Copilot CLI
   custom-agent use, prompt-only fallback, tool-backed memory operations, Scribe/Ralph
   behavior, forbidden-memory rejection, semantic opt-in/approval, deletion, and audit.
 - The relationship to #600 and state-backend/plugin work is explicit.
@@ -386,6 +386,6 @@ tests, and audit output.
 
 ## References
 
-- Issue: bradygaster/squad#600
+- Issue: Blacklite/crew#600
 - Related proposal: [Tiered Agent Memory](tiered-memory.md)
-- Internal format: [Squad Entry Markdown Format](../_internal/specs/memory-format.md)
+- Internal format: [Crew Entry Markdown Format](../_internal/specs/memory-format.md)

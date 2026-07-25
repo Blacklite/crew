@@ -13,18 +13,18 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { createCompleter } from '../packages/squad-cli/src/cli/shell/autocomplete.js';
-import { executeCommand, type CommandContext } from '@bradygaster/squad-cli/shell/commands';
-import { parseInput } from '@bradygaster/squad-cli/shell/router';
-import { SessionRegistry } from '@bradygaster/squad-cli/shell/sessions';
-import { ShellRenderer } from '@bradygaster/squad-cli/shell/render';
+import { createCompleter } from '../packages/crew-cli/src/cli/shell/autocomplete.js';
+import { executeCommand, type CommandContext } from '@blacklite/crew-cli/shell/commands';
+import { parseInput } from '@blacklite/crew-cli/shell/router';
+import { SessionRegistry } from '@blacklite/crew-cli/shell/sessions';
+import { ShellRenderer } from '@blacklite/crew-cli/shell/render';
 import {
   timeoutGuidance,
   unknownCommandGuidance,
   genericGuidance,
   formatGuidance,
-} from '@bradygaster/squad-cli/shell/error-messages';
-import { StreamBridge } from '@bradygaster/squad-cli/shell/stream-bridge';
+} from '@blacklite/crew-cli/shell/error-messages';
+import { StreamBridge } from '@blacklite/crew-cli/shell/stream-bridge';
 
 // ============================================================================
 // 1. Autocomplete — all slash commands present
@@ -218,7 +218,7 @@ describe('New error guidance types', () => {
     expect(g.message).toContain('Fenster');
     expect(g.message).toContain('timed out');
     expect(g.recovery.length).toBeGreaterThanOrEqual(3);
-    expect(g.recovery.some(r => r.includes('SQUAD_REPL_TIMEOUT'))).toBe(true);
+    expect(g.recovery.some(r => r.includes('CREW_REPL_TIMEOUT'))).toBe(true);
   });
 
   it('timeoutGuidance provides generic message when no agent', () => {

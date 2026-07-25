@@ -27,15 +27,15 @@ describe('CLI: init-remote command', () => {
   });
 
   it('module exports writeRemoteConfig function', async () => {
-    const mod = await import('@bradygaster/squad-cli/commands/init-remote');
+    const mod = await import('@blacklite/crew-cli/commands/init-remote');
     expect(typeof mod.writeRemoteConfig).toBe('function');
   });
 
-  it('creates .squad/config.json with correct structure', async () => {
-    const { writeRemoteConfig } = await import('@bradygaster/squad-cli/commands/init-remote');
+  it('creates .crew/config.json with correct structure', async () => {
+    const { writeRemoteConfig } = await import('@blacklite/crew-cli/commands/init-remote');
     writeRemoteConfig(PROJECT_DIR, TEAM_DIR);
 
-    const configPath = join(PROJECT_DIR, '.squad', 'config.json');
+    const configPath = join(PROJECT_DIR, '.crew', 'config.json');
     expect(existsSync(configPath)).toBe(true);
 
     const config = JSON.parse(readFileSync(configPath, 'utf-8'));
@@ -44,49 +44,49 @@ describe('CLI: init-remote command', () => {
     expect(config.projectKey).toBeNull();
   });
 
-  it('creates .squad directory if missing', async () => {
-    const { writeRemoteConfig } = await import('@bradygaster/squad-cli/commands/init-remote');
-    expect(existsSync(join(PROJECT_DIR, '.squad'))).toBe(false);
+  it('creates .crew directory if missing', async () => {
+    const { writeRemoteConfig } = await import('@blacklite/crew-cli/commands/init-remote');
+    expect(existsSync(join(PROJECT_DIR, '.crew'))).toBe(false);
 
     writeRemoteConfig(PROJECT_DIR, TEAM_DIR);
 
-    expect(existsSync(join(PROJECT_DIR, '.squad'))).toBe(true);
+    expect(existsSync(join(PROJECT_DIR, '.crew'))).toBe(true);
   });
 
   it('stores a relative path from project to team repo', async () => {
-    const { writeRemoteConfig } = await import('@bradygaster/squad-cli/commands/init-remote');
+    const { writeRemoteConfig } = await import('@blacklite/crew-cli/commands/init-remote');
     writeRemoteConfig(PROJECT_DIR, TEAM_DIR);
 
     const config = JSON.parse(
-      readFileSync(join(PROJECT_DIR, '.squad', 'config.json'), 'utf-8'),
+      readFileSync(join(PROJECT_DIR, '.crew', 'config.json'), 'utf-8'),
     );
     // Relative path should not be absolute
     expect(config.teamRoot).not.toMatch(/^[A-Z]:\\/i);
     expect(config.teamRoot).not.toMatch(/^\//);
   });
 
-  it('adds .squad/config.json to .gitignore', async () => {
-    const { writeRemoteConfig } = await import('@bradygaster/squad-cli/commands/init-remote');
+  it('adds .crew/config.json to .gitignore', async () => {
+    const { writeRemoteConfig } = await import('@blacklite/crew-cli/commands/init-remote');
     writeRemoteConfig(PROJECT_DIR, TEAM_DIR);
 
     const gitignorePath = join(PROJECT_DIR, '.gitignore');
     expect(existsSync(gitignorePath)).toBe(true);
     const content = readFileSync(gitignorePath, 'utf-8');
-    expect(content).toContain('.squad/config.json');
+    expect(content).toContain('.crew/config.json');
   });
 
   it('does not duplicate gitignore entry', async () => {
-    const { writeRemoteConfig } = await import('@bradygaster/squad-cli/commands/init-remote');
+    const { writeRemoteConfig } = await import('@blacklite/crew-cli/commands/init-remote');
     writeRemoteConfig(PROJECT_DIR, TEAM_DIR);
     writeRemoteConfig(PROJECT_DIR, TEAM_DIR);
 
     const content = readFileSync(join(PROJECT_DIR, '.gitignore'), 'utf-8');
-    const matches = content.match(/\.squad\/config\.json/g);
+    const matches = content.match(/\.crew\/config\.json/g);
     expect(matches?.length).toBe(1);
   });
 
   it('overwrites existing config.json on re-run', async () => {
-    const { writeRemoteConfig } = await import('@bradygaster/squad-cli/commands/init-remote');
+    const { writeRemoteConfig } = await import('@blacklite/crew-cli/commands/init-remote');
     writeRemoteConfig(PROJECT_DIR, TEAM_DIR);
 
     const secondTeam = join(TEST_ROOT, 'second-team');
@@ -94,18 +94,18 @@ describe('CLI: init-remote command', () => {
     writeRemoteConfig(PROJECT_DIR, secondTeam);
 
     const config = JSON.parse(
-      readFileSync(join(PROJECT_DIR, '.squad', 'config.json'), 'utf-8'),
+      readFileSync(join(PROJECT_DIR, '.crew', 'config.json'), 'utf-8'),
     );
     expect(config.teamRoot).toContain('second-team');
   });
 
   it('preserves existing .gitignore content', async () => {
-    const { writeRemoteConfig } = await import('@bradygaster/squad-cli/commands/init-remote');
+    const { writeRemoteConfig } = await import('@blacklite/crew-cli/commands/init-remote');
     writeFileSync(join(PROJECT_DIR, '.gitignore'), 'dist/\n');
     writeRemoteConfig(PROJECT_DIR, TEAM_DIR);
 
     const content = readFileSync(join(PROJECT_DIR, '.gitignore'), 'utf-8');
     expect(content).toContain('dist/');
-    expect(content).toContain('.squad/config.json');
+    expect(content).toContain('.crew/config.json');
   });
 });

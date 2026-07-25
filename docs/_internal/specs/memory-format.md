@@ -1,4 +1,4 @@
-# Squad Entry Markdown (SEM) Format Specification
+# Crew Entry Markdown (SEM) Format Specification
 
 **Version:** 1.0  
 **Status:** Draft  
@@ -8,7 +8,7 @@
 
 ## Overview
 
-Squad Entry Markdown (SEM) is a structured markdown format for writing decisions, memories, notes, and directives in Squad team files. It balances human readability with machine parseability, enabling downstream tools to reliably extract and analyze team knowledge.
+Crew Entry Markdown (SEM) is a structured markdown format for writing decisions, memories, notes, and directives in Crew team files. It balances human readability with machine parseability, enabling downstream tools to reliably extract and analyze team knowledge.
 
 ### Design Goals
 
@@ -467,7 +467,7 @@ NOT `git add -f .ai-team/`.
 **scope:** team  
 **tags:** spike, vs-code, agent-spawning, runSubagent  
 
-**summary:** runSubagent works for Squad spawning — no coordinator code changes needed.
+**summary:** runSubagent works for Crew spawning — no coordinator code changes needed.
 
 **details:**
 
@@ -519,10 +519,10 @@ Old entries look like:
 
 ### Automated with Agent Review
 
-The `squad convert-memory` command attempts automatic conversion but flags ambiguous entries for agent review:
+The `crew convert-memory` command attempts automatic conversion but flags ambiguous entries for agent review:
 
 ```bash
-npx github:bradygaster/squad convert-memory --dry-run
+npx github:Blacklite/crew convert-memory --dry-run
 
 Converting .ai-team/decisions.md...
   ✅ Entry 1: Auto-converted (high confidence)
@@ -605,7 +605,7 @@ function isValidISO8601(timestamp: string): boolean {
 
 ### For Agents
 
-1. **Use the skill**: Reference `.ai-team/skills/squad-memory-format/SKILL.md` before writing
+1. **Use the skill**: Reference `.ai-team/skills/crew-memory-format/SKILL.md` before writing
 2. **Be specific in summaries**: 120 characters is enough for a full sentence
 3. **Choose the right type**:
    - Cross-cutting team policy? → `decision`
@@ -619,7 +619,7 @@ function isValidISO8601(timestamp: string): boolean {
 ### For Humans
 
 1. **Commit early**: Don't wait for perfect entries; they evolve
-2. **Review periodically**: Use `squad memory --recent 7d` to see what the team learned
+2. **Review periodically**: Use `crew memory --recent 7d` to see what the team learned
 3. **Edit directly**: SEM entries are just markdown; manual editing is fine
 4. **Archive old entries**: Keep decisions.md under 100KB for fast parsing
 5. **Use scopes intentionally**: Not everything needs to be `team` scope
@@ -649,7 +649,7 @@ function isValidISO8601(timestamp: string): boolean {
 ## References
 
 - **Proposal 037**: Standardized Memory and Decision Format
-- **SquadUI Project**: https://github.com/csharpfritz/SquadUI
+- **CrewUI Project**: https://github.com/csharpfritz/CrewUI
 - **ISO 8601**: https://en.wikipedia.org/wiki/ISO_8601
 - **Markdown Spec**: https://spec.commonmark.org/
 

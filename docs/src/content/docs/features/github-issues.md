@@ -1,6 +1,6 @@
 # GitHub Issues Mode
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to connect to your backlog:**
@@ -18,7 +18,7 @@ Work on issue #42
 There's review feedback on PR #24
 ```
 
-Squad connects to your GitHub repository, fetches issues from the backlog, routes work to the right agents, creates branches, implements changes, and opens PRs — all from natural language requests.
+Crew connects to your GitHub repository, fetches issues from the backlog, routes work to the right agents, creates branches, implements changes, and opens PRs — all from natural language requests.
 
 ---
 
@@ -35,7 +35,7 @@ Squad connects to your GitHub repository, fetches issues from the backlog, route
 > Connect to myorg/myrepo
 ```
 
-Squad stores the issue source in `team.md`. You only need to do this once per project.
+Crew stores the issue source in `team.md`. You only need to do this once per project.
 
 ---
 
@@ -45,7 +45,7 @@ Squad stores the issue source in `team.md`. You only need to do this once per pr
 > Show the backlog
 ```
 
-Squad fetches open issues and displays them in a table:
+Crew fetches open issues and displays them in a table:
 
 ```
 #   Title                        Labels        Assignee
@@ -96,7 +96,7 @@ The agent who opened the PR reads the review comments and addresses them. Commit
 > Merge PR #24
 ```
 
-Squad squash-merges the PR, deletes the branch, and closes the linked issue.
+Crew squash-merges the PR, deletes the branch, and closes the linked issue.
 
 ---
 
@@ -106,7 +106,7 @@ Squad squash-merges the PR, deletes the branch, and closes the linked issue.
 > What's left?
 ```
 
-Squad refreshes the backlog and shows remaining open issues.
+Crew refreshes the backlog and shows remaining open issues.
 
 ---
 
@@ -126,17 +126,17 @@ Squad refreshes the backlog and shows remaining open issues.
 
 ## Tips
 
-- You don't need to assign issues to specific agents — Squad routes based on domain expertise.
-- If `gh` isn't authenticated, Squad will tell you. Run `gh auth login` first.
+- You don't need to assign issues to specific agents — Crew routes based on domain expertise.
+- If `gh` isn't authenticated, Crew will tell you. Run `gh auth login` first.
 - For detailed GitHub workflow, see [GitHub Workflow](../concepts/github-workflow.md).
 
 ## Sample Prompts
 
 ```
-connect to bradygaster/squad
+connect to Blacklite/crew
 ```
 
-Links Squad to a GitHub repository for issue-driven development.
+Links Crew to a GitHub repository for issue-driven development.
 
 ```
 show the backlog

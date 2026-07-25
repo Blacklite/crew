@@ -1,6 +1,6 @@
 # Hook-governance
 
-Beginner sample for the Squad SDK that demonstrates the four governance hooks, which enforce rules as code rather than as prompt instructions. Hooks run deterministically and can't be bypassed, making them ideal for security and policy enforcement.
+Beginner sample for the Crew SDK that demonstrates the four governance hooks, which enforce rules as code rather than as prompt instructions. Hooks run deterministically and can't be bypassed, making them ideal for security and policy enforcement.
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ The sample demonstrates four independent hook demos. The first demo creates a ho
 ## Expected output
 
 ```
-🛡️  hook-governance — Squad SDK governance hooks sample
+🛡️  hook-governance — Crew SDK governance hooks sample
 
 ────────────────────────────────────────────────────────────
   Demo 1 — File-Write Guards

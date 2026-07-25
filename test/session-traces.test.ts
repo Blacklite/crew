@@ -2,19 +2,19 @@
  * Tests for Issue #259 (Session Traces) and #264 (Response Latency Metrics)
  *
  * Covers:
- * - SquadClient.sendMessage() OTel span creation
- * - SquadClient.closeSession() alias
+ * - CrewClient.sendMessage() OTel span creation
+ * - CrewClient.closeSession() alias
  * - StreamingPipeline latency metric wiring (TTFT, duration, tokens/sec)
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SquadClient } from '@bradygaster/squad-sdk/client';
+import { CrewClient } from '@blacklite/crew-sdk/client';
 import { CopilotClient } from '@github/copilot-sdk';
 import {
   StreamingPipeline,
   type StreamDelta,
   type UsageEvent,
-} from '@bradygaster/squad-sdk/runtime/streaming';
+} from '@blacklite/crew-sdk/runtime/streaming';
 
 // Mock CopilotClient
 vi.mock('@github/copilot-sdk', () => {
@@ -56,8 +56,8 @@ vi.mock('@github/copilot-sdk', () => {
 });
 
 // Mock otel-metrics to verify they're called
-vi.mock('@bradygaster/squad-sdk/runtime/otel-metrics', async (importOriginal) => {
-  const orig = await importOriginal<typeof import('@bradygaster/squad-sdk/runtime/otel-metrics')>();
+vi.mock('@blacklite/crew-sdk/runtime/otel-metrics', async (importOriginal) => {
+  const orig = await importOriginal<typeof import('@blacklite/crew-sdk/runtime/otel-metrics')>();
   return {
     ...orig,
     recordTimeToFirstToken: vi.fn(),
@@ -71,19 +71,19 @@ import {
   recordTimeToFirstToken,
   recordResponseDuration,
   recordTokensPerSecond,
-} from '@bradygaster/squad-sdk/runtime/otel-metrics';
+} from '@blacklite/crew-sdk/runtime/otel-metrics';
 
 // ============================================================================
-// #259 — SquadClient.sendMessage()
+// #259 — CrewClient.sendMessage()
 // ============================================================================
 
-describe('SquadClient.sendMessage() — squad.session.message span', () => {
+describe('CrewClient.sendMessage() — crew.session.message span', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should call session.sendMessage with options', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
     const session = await client.createSession();
     const spy = vi.spyOn(session, 'sendMessage');
@@ -94,7 +94,7 @@ describe('SquadClient.sendMessage() — squad.session.message span', () => {
   });
 
   it('should propagate errors from session.sendMessage', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
     const session = await client.createSession();
     vi.spyOn(session, 'sendMessage').mockRejectedValueOnce(new Error('stream failed'));
@@ -105,7 +105,7 @@ describe('SquadClient.sendMessage() — squad.session.message span', () => {
   });
 
   it('should register event listeners on session', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
     const session = await client.createSession();
     const onSpy = vi.spyOn(session, 'on');
@@ -118,7 +118,7 @@ describe('SquadClient.sendMessage() — squad.session.message span', () => {
   });
 
   it('should clean up event listeners after completion', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
     const session = await client.createSession();
     const offSpy = vi.spyOn(session, 'off');
@@ -131,16 +131,16 @@ describe('SquadClient.sendMessage() — squad.session.message span', () => {
 });
 
 // ============================================================================
-// #259 — SquadClient.closeSession()
+// #259 — CrewClient.closeSession()
 // ============================================================================
 
-describe('SquadClient.closeSession() — squad.session.close span', () => {
+describe('CrewClient.closeSession() — crew.session.close span', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should delete the session', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     await client.closeSession('session-42');
@@ -151,7 +151,7 @@ describe('SquadClient.closeSession() — squad.session.close span', () => {
   });
 
   it('should propagate errors from deleteSession', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;

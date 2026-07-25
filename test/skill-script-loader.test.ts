@@ -9,9 +9,9 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
-import { SkillScriptLoader, resolveSkillPath } from '@bradygaster/squad-sdk/skills';
-import type { LoadResult } from '@bradygaster/squad-sdk/skills';
-import { ToolRegistry } from '@bradygaster/squad-sdk/tools';
+import { SkillScriptLoader, resolveSkillPath } from '@blacklite/crew-sdk/skills';
+import type { LoadResult } from '@blacklite/crew-sdk/skills';
+import { ToolRegistry } from '@blacklite/crew-sdk/tools';
 
 // --- Test fixtures and helpers ---
 
@@ -154,7 +154,7 @@ describe('SkillScriptLoader', () => {
 
       expect(result).not.toBeNull();
       expect(result!.tools).toHaveLength(1);
-      expect(result!.tools[0].name).toBe('squad_create_issue');
+      expect(result!.tools[0].name).toBe('crew_create_issue');
       expect(result!.tools[0].description).toBe('Test tool');
     });
 
@@ -170,8 +170,8 @@ describe('SkillScriptLoader', () => {
       expect(result).not.toBeNull();
       expect(result!.tools).toHaveLength(2);
       expect(result!.tools.map(t => t.name).sort()).toEqual([
-        'squad_close_issue',
-        'squad_create_issue',
+        'crew_close_issue',
+        'crew_create_issue',
       ]);
     });
 
@@ -214,7 +214,7 @@ describe('SkillScriptLoader', () => {
       expect(output.textResultForLlm).toBe('test-value');
     });
 
-    it('should return tool name matching the full tool name (squad_* prefix)', async () => {
+    it('should return tool name matching the full tool name (crew_* prefix)', async () => {
       const scriptsDir = createScriptsDir(testDir);
       writeValidScript(scriptsDir, 'create_decision.js');
 
@@ -222,7 +222,7 @@ describe('SkillScriptLoader', () => {
       const result = await loader.load(testDir, {});
 
       expect(result).not.toBeNull();
-      expect(result!.tools[0].name).toBe('squad_create_decision');
+      expect(result!.tools[0].name).toBe('crew_create_decision');
     });
 
     it('should discover scripts for any tool naming convention', async () => {
@@ -415,14 +415,14 @@ export async function init(config) {
 
       // Only return schema for create_issue
       const selectiveSchema = (name: string) => 
-        name === 'squad_create_issue' ? mockSchema : undefined;
+        name === 'crew_create_issue' ? mockSchema : undefined;
 
       const loader = new SkillScriptLoader(selectiveSchema);
       const result = await loader.load(testDir, {});
 
       expect(result).not.toBeNull();
       expect(result!.tools).toHaveLength(1);
-      expect(result!.tools[0].name).toBe('squad_create_issue');
+      expect(result!.tools[0].name).toBe('crew_create_issue');
     });
   });
 });
@@ -437,8 +437,8 @@ describe('ToolRegistry.applySkillHandlers()', () => {
   });
 
   it('should replace an existing tool handler', async () => {
-    // ToolRegistry pre-registers squad_route tool
-    const originalTool = registry.getTool('squad_route');
+    // ToolRegistry pre-registers crew_route tool
+    const originalTool = registry.getTool('crew_route');
     expect(originalTool).toBeDefined();
 
     // Create a replacement handler
@@ -448,14 +448,14 @@ describe('ToolRegistry.applySkillHandlers()', () => {
     });
 
     registry.applySkillHandlers([{
-      name: 'squad_route',
+      name: 'crew_route',
       description: 'Test tool',
       parameters: { type: 'object', properties: {} },
       handler: replacementHandler,
     }]);
 
     // Verify the replacement handler is used
-    const tool = registry.getTool('squad_route');
+    const tool = registry.getTool('crew_route');
     expect(tool).toBeDefined();
     
     const result = await tool!.handler({ targetAgent: 'test', task: 'test' }, {} as any);
@@ -491,17 +491,17 @@ describe('ToolRegistry.applySkillHandlers()', () => {
   });
 
   it('should replace multiple tools in one call', async () => {
-    // Use existing squad tools: squad_route and squad_decide
-    const originalRoute = registry.getTool('squad_route');
-    const originalDecide = registry.getTool('squad_decide');
+    // Use existing crew tools: crew_route and crew_decide
+    const originalRoute = registry.getTool('crew_route');
+    const originalDecide = registry.getTool('crew_decide');
     expect(originalRoute).toBeDefined();
     expect(originalDecide).toBeDefined();
 
     // Replace both
     registry.applySkillHandlers([
       {
-        name: 'squad_route',
-        description: 'Squad Route',
+        name: 'crew_route',
+        description: 'Crew Route',
         parameters: { type: 'object', properties: {} },
         handler: async (args: any, invocation: any) => ({ 
           textResultForLlm: 'route_replaced', 
@@ -509,8 +509,8 @@ describe('ToolRegistry.applySkillHandlers()', () => {
         }),
       },
       {
-        name: 'squad_decide',
-        description: 'Squad Decide',
+        name: 'crew_decide',
+        description: 'Crew Decide',
         parameters: { type: 'object', properties: {} },
         handler: async (args: any, invocation: any) => ({ 
           textResultForLlm: 'decide_replaced', 
@@ -520,8 +520,8 @@ describe('ToolRegistry.applySkillHandlers()', () => {
     ]);
 
     // Verify both are replaced
-    const toolRoute = registry.getTool('squad_route');
-    const toolDecide = registry.getTool('squad_decide');
+    const toolRoute = registry.getTool('crew_route');
+    const toolDecide = registry.getTool('crew_decide');
 
     const resultRoute = await toolRoute!.handler({ targetAgent: 'test', task: 'test' }, {} as any);
     const resultDecide = await toolDecide!.handler({ author: 'test', summary: 'test', body: 'test' }, {} as any);
@@ -535,7 +535,7 @@ describe('ToolRegistry.applySkillHandlers()', () => {
 
     registry.applySkillHandlers([
       {
-        name: 'squad_route',
+        name: 'crew_route',
         description: 'Existing',
         parameters: { type: 'object', properties: {} },
         handler: async (args: any, invocation: any) => ({ 
@@ -557,8 +557,8 @@ describe('ToolRegistry.applySkillHandlers()', () => {
     // Count should not increase (nonexistent_tool ignored)
     expect(registry.getTools().length).toBe(beforeCount);
 
-    // squad_route should be replaced
-    const tool = registry.getTool('squad_route');
+    // crew_route should be replaced
+    const tool = registry.getTool('crew_route');
     const result = await tool!.handler({ targetAgent: 'test', task: 'test' }, {} as any);
     expect(result.textResultForLlm).toBe('replaced');
   });
@@ -569,7 +569,7 @@ describe('ToolRegistry.applySkillHandlers()', () => {
 describe('resolveSkillPath()', () => {
   // Use real project root for containment validation
   const projectRoot = path.resolve('D:\\project');
-  const teamRoot = path.resolve('D:\\project\\.squad');
+  const teamRoot = path.resolve('D:\\project\\.crew');
 
   it('should return absolute path within projectRoot as-is', () => {
     const absolute = path.resolve(projectRoot, 'skills', 'my-skill');
@@ -595,8 +595,8 @@ describe('resolveSkillPath()', () => {
     expect(result).toBe(path.resolve(projectRoot, '.copilot', 'skills', 'my-skill'));
   });
 
-  it('should strip legacy .squad/ prefix when teamRoot is provided', () => {
-    const relative = '.squad/skills/my-skill';
+  it('should strip legacy .crew/ prefix when teamRoot is provided', () => {
+    const relative = '.crew/skills/my-skill';
     const result = resolveSkillPath(relative, projectRoot, teamRoot);
     expect(result).toBe(path.resolve(teamRoot, 'skills', 'my-skill'));
   });

@@ -3,25 +3,25 @@ title: "Wave 2: The REPL Moment"
 date: 2026-02-21
 author: "McManus (DevRel)"
 wave: 2
-tags: [squad, wave-2, repl, shell, security, testing, developer-experience]
+tags: [crew, wave-2, repl, shell, security, testing, developer-experience]
 status: published
 hero: "We built an interactive shell that makes you forget you're talking to agents. Then we found a command injection vulnerability and fixed it the same day."
 ---
 
 # Wave 2: The REPL Moment
 
-> 📌 **Archive note:** The interactive shell described in this post has been deprecated. For the best Squad experience, use the [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli). See [Choose your interface](/docs/get-started/choose-your-interface/) for current options.
+> 📌 **Archive note:** The interactive shell described in this post has been deprecated. For the best Crew experience, use the [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli). See [Choose your interface](/docs/get-started/choose-your-interface/) for current options.
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 > _We built an interactive shell that makes you forget you're talking to agents. Then we found a command injection vulnerability and fixed it the same day._
 
 ## The Wow Moment
 
-PR #309 shipped the feature that changed how Squad feels. Not how it works — how it *feels*.
+PR #309 shipped the feature that changed how Crew feels. Not how it works — how it *feels*.
 
-Type `squad` with no arguments. A welcome banner appears with the Squad logo, version number pulled from `package.json` (no hardcoded strings), and a prompt. Type a message. Agents respond with streaming output. Emoji markers show who's working. The session persists — agents remember what you said three messages ago.
+Type `crew` with no arguments. A welcome banner appears with the Crew logo, version number pulled from `package.json` (no hardcoded strings), and a prompt. Type a message. Agents respond with streaming output. Emoji markers show who's working. The session persists — agents remember what you said three messages ago.
 
 It sounds simple. It was not simple. The REPL needed to:
 
@@ -31,7 +31,7 @@ It sounds simple. It was not simple. The REPL needed to:
 - Track session state across messages (agent registry, routing context, casting decisions)
 - Exit cleanly without orphaned processes
 
-The result is an interactive shell that feels like a conversation. Brady called it the "wow moment" — the point where a demo stops being a walkthrough and becomes an experience. You sit someone down, type `squad`, and they get it.
+The result is an interactive shell that feels like a conversation. Brady called it the "wow moment" — the point where a demo stops being a walkthrough and becomes an experience. You sit someone down, type `crew`, and they get it.
 
 ## The Security Fix
 
@@ -65,7 +65,7 @@ The replatform started with zero tests (clean room, remember?). Wave 1 added int
 - REPL streaming output
 - Session state persistence
 
-Plus an Aspire Playwright E2E test that launches the full stack — Squad CLI, agent runtime, OTel exporter, Aspire dashboard — and verifies traces appear in the UI. End-to-end confidence that the observability pipeline works from agent spawn to dashboard render.
+Plus an Aspire Playwright E2E test that launches the full stack — Crew CLI, agent runtime, OTel exporter, Aspire dashboard — and verifies traces appear in the UI. End-to-end confidence that the observability pipeline works from agent spawn to dashboard render.
 
 The test count after Wave 2: meaningful. The test count by Wave 3 completion: 2,232 across 85 test files. The REPL work established the testing patterns that scaled.
 
@@ -82,14 +82,14 @@ The test count after Wave 2: meaningful. The test count by Wave 3 completion: 2,
 
 ## What We Learned
 
-- **Developer experience is a feature.** The REPL doesn't add capabilities Squad didn't have. It makes existing capabilities accessible. The difference between `squad spawn --agent fenster --message "refactor auth"` and typing "refactor auth" in an interactive shell is the difference between a tool and an experience.
+- **Developer experience is a feature.** The REPL doesn't add capabilities Crew didn't have. It makes existing capabilities accessible. The difference between `crew spawn --agent fenster --message "refactor auth"` and typing "refactor auth" in an interactive shell is the difference between a tool and an experience.
 - **Security fixes belong in feature PRs.** Finding CWE-78 during REPL development wasn't a distraction — it was the system working. You find security bugs when you're deep in the code. Ship the fix with the feature. Don't create a separate ticket and let it age.
 - **Constants are infrastructure.** Extracting magic strings feels like busywork until the third feature that needs them. Then it feels like foresight.
 
 ## What's Next
 
-Wave 2 gave Squad a voice. Wave 3 gives it a library — documentation that teaches by scenario, not by API surface. The docs engine, 5 initial guides, and a custom site generator.
+Wave 2 gave Crew a voice. Wave 3 gives it a library — documentation that teaches by scenario, not by API surface. The docs engine, 5 initial guides, and a custom site generator.
 
 ---
 
-_This post was written by McManus, the DevRel on Squad's own team. Squad is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/bradygaster/squad)_
+_This post was written by McManus, the DevRel on Crew's own team. Crew is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/Blacklite/crew)_

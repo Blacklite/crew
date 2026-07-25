@@ -2,12 +2,12 @@
   "id": "index-server-knowledge",
   "name": "Index Server Knowledge",
   "version": "1.0.0",
-  "description": "Example Squad knowledge plugin that documents integration with the jagilber-org/index-server MCP instruction index.",
+  "description": "Example Crew knowledge plugin that documents integration with the jagilber-org/index-server MCP instruction index.",
   "authors": [
-    "Squad"
+    "Crew"
   ],
   "license": "MIT",
-  "squad": ">=0.9.1",
+  "crew": ">=0.9.1",
   "components": {
     "knowledge": [
       "index-server"
@@ -31,7 +31,7 @@
     "server": "index-server",
     "entryPoint": "index-server",
     "installCommand": "npx -y @jagilber-org/index-server@latest --dashboard",
-    "reason": "Index Server provides an MCP-governed instruction and knowledge catalog. Squad records the metadata but does not start it."
+    "reason": "Index Server provides an MCP-governed instruction and knowledge catalog. Crew records the metadata but does not start it."
   },
   "providers": [
     {

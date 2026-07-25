@@ -2,7 +2,7 @@
 # Hostile QA reproduction script — First 30 seconds user journey
 # Run this to see all friction points filed as issues #417, #424, #427
 
-Write-Host "`n=== SQUAD CLI HOSTILE QA — FIRST 30 SECONDS ===" -ForegroundColor Cyan
+Write-Host "`n=== CREW CLI HOSTILE QA — FIRST 30 SECONDS ===" -ForegroundColor Cyan
 Write-Host "Testing the first-time user journey from help → shell launch`n" -ForegroundColor Cyan
 
 $ErrorActionPreference = "Continue"
@@ -21,7 +21,7 @@ Write-Host "`n[TEST 2] Help output length (Issue #424)" -ForegroundColor Yellow
 Write-Host "Expected: ≤10 lines for quick help" -ForegroundColor Gray
 Write-Host "Actual:" -ForegroundColor Gray
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
-$helpOutput = node packages\squad-cli\dist\cli-entry.js --help 2>&1
+$helpOutput = node packages\crew-cli\dist\cli-entry.js --help 2>&1
 $sw.Stop()
 $lineCount = ($helpOutput | Measure-Object -Line).Lines
 Write-Host "  Line count: $lineCount lines" -ForegroundColor Gray
@@ -39,7 +39,7 @@ Write-Host "Expected: Loading indicator within 500ms" -ForegroundColor Gray
 Write-Host "Actual:" -ForegroundColor Gray
 Write-Host "  Starting shell and measuring time to first output..." -ForegroundColor Gray
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
-$proc = Start-Process -FilePath "node" -ArgumentList "packages\squad-cli\dist\cli-entry.js" -NoNewWindow -PassThru
+$proc = Start-Process -FilePath "node" -ArgumentList "packages\crew-cli\dist\cli-entry.js" -NoNewWindow -PassThru
 Start-Sleep -Milliseconds 2000
 Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue
 $sw.Stop()
@@ -52,7 +52,7 @@ Write-Host "`n[TEST 4] Version format (Issue #429)" -ForegroundColor Yellow
 Write-Host "Expected: Consistent bare version number" -ForegroundColor Gray
 Write-Host "Actual:" -ForegroundColor Gray
 $rootVersion = node cli.js --version 2>&1 | Select-Object -First 1
-$properVersion = node packages\squad-cli\dist\cli-entry.js --version 2>&1
+$properVersion = node packages\crew-cli\dist\cli-entry.js --version 2>&1
 Write-Host "  Root cli.js:      $rootVersion" -ForegroundColor Gray
 Write-Host "  Proper entry:     $properVersion" -ForegroundColor Gray
 if ($rootVersion -ne $properVersion) {
@@ -65,7 +65,7 @@ if ($rootVersion -ne $properVersion) {
 Write-Host "`n[TEST 5] Empty/whitespace args (Issue #431)" -ForegroundColor Yellow
 Write-Host "Expected: Error or help" -ForegroundColor Gray
 Write-Host "Actual:" -ForegroundColor Gray
-$emptyOutput = node packages\squad-cli\dist\cli-entry.js "" 2>&1 | Select-Object -First 3
+$emptyOutput = node packages\crew-cli\dist\cli-entry.js "" 2>&1 | Select-Object -First 3
 Write-Host "  Output: Shows abbreviated help" -ForegroundColor Gray
 Write-Host "  ✅ PASS: Defensive behavior (edge case)" -ForegroundColor Green
 
@@ -73,7 +73,7 @@ Write-Host "  ✅ PASS: Defensive behavior (edge case)" -ForegroundColor Green
 Write-Host "`n[TEST 6] Invalid command handling" -ForegroundColor Yellow
 Write-Host "Expected: Friendly error with remediation hint" -ForegroundColor Gray
 Write-Host "Actual:" -ForegroundColor Gray
-$invalidOutput = node packages\squad-cli\dist\cli-entry.js invalidcmd 2>&1 | Select-String "Unknown command"
+$invalidOutput = node packages\crew-cli\dist\cli-entry.js invalidcmd 2>&1 | Select-String "Unknown command"
 if ($invalidOutput) {
     Write-Host "  ✅ PASS: Shows friendly error with hint" -ForegroundColor Green
 } else {

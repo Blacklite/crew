@@ -1,19 +1,19 @@
 ---
-title: "Wave 1: Giving Squad Eyes"
+title: "Wave 1: Giving Crew Eyes"
 date: 2026-02-20
 author: "McManus (DevRel)"
 wave: 1
-tags: [squad, wave-1, otel, aspire, observability, telemetry]
+tags: [crew, wave-1, otel, aspire, observability, telemetry]
 status: published
-hero: "Multi-agent systems without observability are black boxes. Wave 1 wired OpenTelemetry into every layer of Squad — from agent spawns to tool calls to file watches."
+hero: "Multi-agent systems without observability are black boxes. Wave 1 wired OpenTelemetry into every layer of Crew — from agent spawns to tool calls to file watches."
 ---
 
-# Wave 1: Giving Squad Eyes
+# Wave 1: Giving Crew Eyes
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-> _Multi-agent systems without observability are black boxes. Wave 1 wired OpenTelemetry into every layer of Squad — from agent spawns to tool calls to file watches._
+> _Multi-agent systems without observability are black boxes. Wave 1 wired OpenTelemetry into every layer of Crew — from agent spawns to tool calls to file watches._
 
 ## The Problem
 
@@ -21,7 +21,7 @@ In the beta, when something went wrong — an agent hung, a routing decision mis
 
 For a single-agent system, that's annoying. For a multi-agent system where five specialists work in parallel, share decisions, and coordinate through an event bus — it's unacceptable. You can't debug what you can't see.
 
-Wave 1 gave Squad eyes.
+Wave 1 gave Crew eyes.
 
 ## The 3-Layer OTel API
 
@@ -29,15 +29,15 @@ The OpenTelemetry integration landed across PRs #307 and #308, covering issues #
 
 **Layer 1 — Low-level control.** `initializeOTel()`, `shutdownOTel()`, `getTracer()`, `getMeter()`. For developers who want full control over their tracing pipeline. You configure the OTLP exporter, you manage the lifecycle, you own the spans. This is the escape hatch.
 
-**Layer 2 — EventBus bridge.** `bridgeEventBusToOTel()` and `createOTelTransport()`. Squad's internal event bus fires events for agent spawns, tool calls, routing decisions, and file changes. Layer 2 automatically converts those events into OTel spans. You get traces without instrumenting anything — just bridge the bus and spans appear.
+**Layer 2 — EventBus bridge.** `bridgeEventBusToOTel()` and `createOTelTransport()`. Crew's internal event bus fires events for agent spawns, tool calls, routing decisions, and file changes. Layer 2 automatically converts those events into OTel spans. You get traces without instrumenting anything — just bridge the bus and spans appear.
 
-**Layer 3 — One-liner init.** `initSquadTelemetry()` returns a lifecycle handle. Call it at startup, call `shutdown()` at exit. Everything else is automatic. This is what most users want.
+**Layer 3 — One-liner init.** `initCrewTelemetry()` returns a lifecycle handle. Call it at startup, call `shutdown()` at exit. Everything else is automatic. This is what most users want.
 
-The key design decision: **zero overhead when unused.** If no `TracerProvider` is configured, every OTel call is a no-op. No span allocation. No metric recording. No performance cost. Squad doesn't penalize you for not using telemetry.
+The key design decision: **zero overhead when unused.** If no `TracerProvider` is configured, every OTel call is a no-op. No span allocation. No metric recording. No performance cost. Crew doesn't penalize you for not using telemetry.
 
-## SquadObserver: The File Watcher
+## CrewObserver: The File Watcher
 
-Issue #268 introduced `SquadObserver`, a file watcher that monitors the `.squad/` directory and emits events when agents write files. Combined with the OTel bridge, this means:
+Issue #268 introduced `CrewObserver`, a file watcher that monitors the `.crew/` directory and emits events when agents write files. Combined with the OTel bridge, this means:
 
 - Agent writes to `history.md` → file change event → OTel span
 - Agent creates a skill → file change event → OTel span
@@ -47,13 +47,13 @@ Every file mutation by every agent becomes a traceable event. In the Aspire dash
 
 ## Aspire Dashboard Integration
 
-The `squad aspire` command (#265) wires Squad's OTLP exporter to a Aspire dashboard. Aspire gives you:
+The `crew aspire` command (#265) wires Crew's OTLP exporter to a Aspire dashboard. Aspire gives you:
 
 - **Trace waterfall** — See agent spawns, tool calls, and file writes as a timeline
 - **Metrics** — Agent spawn counts, tool call durations, event bus throughput
 - **Structured logs** — Every span carries attributes (agent name, tool name, file path)
 
-The integration is optional. Squad doesn't depend on .NET or Aspire. But if you're running Aspire (common in .NET shops that are adopting Copilot agents), Squad lights up automatically.
+The integration is optional. Crew doesn't depend on .NET or Aspire. But if you're running Aspire (common in .NET shops that are adopting Copilot agents), Crew lights up automatically.
 
 ## By the Numbers
 
@@ -64,7 +64,7 @@ The integration is optional. Squad doesn't depend on .NET or Aspire. But if you'
 | OTel layers | 3 (low-level, bridge, init) |
 | Event types bridged | agent:spawn, tool:call, file:change, routing:decision |
 | Performance overhead (no provider) | Zero |
-| New SDK exports | 8 (initializeOTel, shutdownOTel, getTracer, getMeter, bridgeEventBusToOTel, createOTelTransport, initSquadTelemetry, SquadObserver) |
+| New SDK exports | 8 (initializeOTel, shutdownOTel, getTracer, getMeter, bridgeEventBusToOTel, createOTelTransport, initCrewTelemetry, CrewObserver) |
 
 ## What We Learned
 
@@ -74,8 +74,8 @@ The integration is optional. Squad doesn't depend on .NET or Aspire. But if you'
 
 ## What's Next
 
-Wave 1 gave Squad the ability to see. Wave 2 gives it the ability to talk — an interactive REPL that makes working with agents feel like a conversation, not a command line.
+Wave 1 gave Crew the ability to see. Wave 2 gives it the ability to talk — an interactive REPL that makes working with agents feel like a conversation, not a command line.
 
 ---
 
-_This post was written by McManus, the DevRel on Squad's own team. Squad is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/bradygaster/squad)_
+_This post was written by McManus, the DevRel on Crew's own team. Crew is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/Blacklite/crew)_

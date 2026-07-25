@@ -1,8 +1,8 @@
 /**
- * Tests for squad consult CLI command.
+ * Tests for crew consult CLI command.
  *
- * The consult command requires a personal squad to exist. These tests focus on:
- * 1. SDK isConsultMode() function (no personal squad needed)
+ * The consult command requires a personal crew to exist. These tests focus on:
+ * 1. SDK isConsultMode() function (no personal crew needed)
  * 2. Direct import of runConsult() when possible
  * 3. Error handling tests for the CLI
  *
@@ -21,7 +21,7 @@ import { join } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { execSync } from 'node:child_process';
-import { isConsultMode, type SquadDirConfig } from '@bradygaster/squad-sdk';
+import { isConsultMode, type CrewDirConfig } from '@blacklite/crew-sdk';
 
 const TEST_ROOT = join(
   tmpdir(),
@@ -38,14 +38,14 @@ function initGitRepo(dir: string): void {
 }
 
 /**
- * Run squad CLI command in the test directory.
+ * Run crew CLI command in the test directory.
  */
-function runSquad(
+function runCrew(
   args: string,
   cwd: string,
   env?: Record<string, string>,
 ): { stdout: string; stderr: string; exitCode: number } {
-  const cliPath = join(process.cwd(), 'packages/squad-cli/dist/cli-entry.js');
+  const cliPath = join(process.cwd(), 'packages/crew-cli/dist/cli-entry.js');
   try {
     const stdout = execSync(`node ${cliPath} ${args}`, {
       cwd,
@@ -64,13 +64,13 @@ function runSquad(
   }
 }
 
-function expectedGlobalSquadPath(globalConfig: string): string {
-  if (process.platform === 'win32') return join(globalConfig, 'squad');
-  if (process.platform === 'darwin') return join(globalConfig, 'Library', 'Application Support', 'squad');
-  return join(globalConfig, 'squad');
+function expectedGlobalCrewPath(globalConfig: string): string {
+  if (process.platform === 'win32') return join(globalConfig, 'crew');
+  if (process.platform === 'darwin') return join(globalConfig, 'Library', 'Application Support', 'crew');
+  return join(globalConfig, 'crew');
 }
 
-describe('CLI: squad consult', { timeout: 30_000 }, () => {
+describe('CLI: crew consult', { timeout: 30_000 }, () => {
   beforeEach(() => {
     mkdirSync(TEST_ROOT, { recursive: true });
     initGitRepo(TEST_ROOT);
@@ -82,27 +82,27 @@ describe('CLI: squad consult', { timeout: 30_000 }, () => {
 
   describe('isConsultMode SDK function', () => {
     it('returns true when consult flag is true', () => {
-      const config: SquadDirConfig = {
+      const config: CrewDirConfig = {
         version: 1,
-        teamRoot: '/tmp/squad',
+        teamRoot: '/tmp/crew',
         consult: true,
       };
       expect(isConsultMode(config)).toBe(true);
     });
 
     it('returns false when consult flag is false', () => {
-      const config: SquadDirConfig = {
+      const config: CrewDirConfig = {
         version: 1,
-        teamRoot: '/tmp/squad',
+        teamRoot: '/tmp/crew',
         consult: false,
       };
       expect(isConsultMode(config)).toBe(false);
     });
 
     it('returns false when consult flag is missing', () => {
-      const config: SquadDirConfig = {
+      const config: CrewDirConfig = {
         version: 1,
-        teamRoot: '/tmp/squad',
+        teamRoot: '/tmp/crew',
       };
       expect(isConsultMode(config)).toBe(false);
     });
@@ -111,24 +111,24 @@ describe('CLI: squad consult', { timeout: 30_000 }, () => {
   describe('consult mode config format', () => {
     it('creates valid consult mode config structure', () => {
       // Simulate what the consult command creates
-      mkdirSync(join(TEST_ROOT, '.squad'), { recursive: true });
-      const config: SquadDirConfig = {
+      mkdirSync(join(TEST_ROOT, '.crew'), { recursive: true });
+      const config: CrewDirConfig = {
         version: 1,
-        teamRoot: '/home/user/.squad',
+        teamRoot: '/home/user/.crew',
         projectKey: 'consult',
         consult: true,
       };
       writeFileSync(
-        join(TEST_ROOT, '.squad', 'config.json'),
+        join(TEST_ROOT, '.crew', 'config.json'),
         JSON.stringify(config, null, 2),
       );
 
       // Verify the config can be read and detected
       const readConfig = JSON.parse(
-        readFileSync(join(TEST_ROOT, '.squad', 'config.json'), 'utf-8'),
+        readFileSync(join(TEST_ROOT, '.crew', 'config.json'), 'utf-8'),
       );
       expect(isConsultMode(readConfig)).toBe(true);
-      expect(readConfig.teamRoot).toBe('/home/user/.squad');
+      expect(readConfig.teamRoot).toBe('/home/user/.crew');
       expect(readConfig.projectKey).toBe('consult');
     });
   });
@@ -138,10 +138,10 @@ describe('CLI: squad consult', { timeout: 30_000 }, () => {
       // Verify the git exclude mechanism works
       const excludePath = join(TEST_ROOT, '.git', 'info', 'exclude');
       mkdirSync(join(TEST_ROOT, '.git', 'info'), { recursive: true });
-      writeFileSync(excludePath, '# Test exclude\n.squad/\n');
+      writeFileSync(excludePath, '# Test exclude\n.crew/\n');
 
       const content = readFileSync(excludePath, 'utf-8');
-      expect(content).toContain('.squad/');
+      expect(content).toContain('.crew/');
     });
 
     it('git ignores files in .git/info/exclude', () => {
@@ -149,17 +149,17 @@ describe('CLI: squad consult', { timeout: 30_000 }, () => {
       mkdirSync(join(TEST_ROOT, '.git', 'info'), { recursive: true });
       writeFileSync(
         join(TEST_ROOT, '.git', 'info', 'exclude'),
-        '.squad/\n',
+        '.crew/\n',
       );
-      mkdirSync(join(TEST_ROOT, '.squad'), { recursive: true });
-      writeFileSync(join(TEST_ROOT, '.squad', 'config.json'), '{}');
+      mkdirSync(join(TEST_ROOT, '.crew'), { recursive: true });
+      writeFileSync(join(TEST_ROOT, '.crew', 'config.json'), '{}');
 
-      // Git status should not show .squad/
+      // Git status should not show .crew/
       const status = execSync('git status --porcelain', {
         cwd: TEST_ROOT,
         encoding: 'utf-8',
       });
-      expect(status).not.toContain('.squad');
+      expect(status).not.toContain('.crew');
     });
   });
 
@@ -169,24 +169,24 @@ describe('CLI: squad consult', { timeout: 30_000 }, () => {
       const nonGitDir = join(TEST_ROOT, 'non-git');
       mkdirSync(nonGitDir, { recursive: true });
 
-      const result = runSquad('consult', nonGitDir);
+      const result = runCrew('consult', nonGitDir);
       expect(result.exitCode).not.toBe(0);
-      // CLI will fail due to no personal squad first, or no git repo
+      // CLI will fail due to no personal crew first, or no git repo
       expect(result.stderr).toBeTruthy();
     });
 
-    it('requires personal squad to exist', () => {
+    it('requires personal crew to exist', () => {
       // Override XDG_CONFIG_HOME + APPDATA to point to a non-existent path
-      // This ensures the SDK won't find a personal squad
+      // This ensures the SDK won't find a personal crew
       const nonexistent = join(TEST_ROOT, 'nonexistent-config');
-      const result = runSquad('consult', TEST_ROOT, {
+      const result = runCrew('consult', TEST_ROOT, {
         HOME: nonexistent,
         XDG_CONFIG_HOME: nonexistent,
         APPDATA: nonexistent,
         LOCALAPPDATA: nonexistent,
       });
       expect(result.exitCode).not.toBe(0);
-      expect(result.stderr).toMatch(/no personal squad/i);
+      expect(result.stderr).toMatch(/no personal crew/i);
     });
   });
 
@@ -196,92 +196,92 @@ describe('CLI: squad consult', { timeout: 30_000 }, () => {
     const envWithGlobal = {
       HOME: globalConfig,
       XDG_CONFIG_HOME: globalConfig,
-      // On Windows, resolveGlobalSquadPath() reads APPDATA, not XDG_CONFIG_HOME
+      // On Windows, resolveGlobalCrewPath() reads APPDATA, not XDG_CONFIG_HOME
       APPDATA: globalConfig,
       LOCALAPPDATA: globalConfig,
     };
 
     beforeEach(() => {
-      // 1. Create a personal (global) squad via `squad init --global`
+      // 1. Create a personal (global) crew via `crew init --global`
       mkdirSync(globalConfig, { recursive: true });
-      const initResult = runSquad('init --global', TEST_ROOT, envWithGlobal);
+      const initResult = runCrew('init --global', TEST_ROOT, envWithGlobal);
       expect(initResult.exitCode).toBe(0);
 
-      // Verify the personal squad was created
-      const personalSquadDir = join(expectedGlobalSquadPath(globalConfig), 'personal-squad');
-      expect(existsSync(personalSquadDir)).toBe(true);
+      // Verify the personal crew was created
+      const personalCrewDir = join(expectedGlobalCrewPath(globalConfig), 'personal-crew');
+      expect(existsSync(personalCrewDir)).toBe(true);
 
-      // 2. Create a fresh project with its own git repo (no .squad/)
+      // 2. Create a fresh project with its own git repo (no .crew/)
       mkdirSync(projectDir, { recursive: true });
       initGitRepo(projectDir);
     });
 
-    it('squad consult sets up consult mode in the project', () => {
-      const result = runSquad('consult', projectDir, envWithGlobal);
+    it('crew consult sets up consult mode in the project', () => {
+      const result = runCrew('consult', projectDir, envWithGlobal);
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('Consult mode activated');
 
-      // .squad/ should exist in the project
-      expect(existsSync(join(projectDir, '.squad'))).toBe(true);
-      expect(existsSync(join(projectDir, '.squad', 'config.json'))).toBe(true);
+      // .crew/ should exist in the project
+      expect(existsSync(join(projectDir, '.crew'))).toBe(true);
+      expect(existsSync(join(projectDir, '.crew', 'config.json'))).toBe(true);
 
       // config.json should have consult: true
       const config = JSON.parse(
-        readFileSync(join(projectDir, '.squad', 'config.json'), 'utf-8'),
+        readFileSync(join(projectDir, '.crew', 'config.json'), 'utf-8'),
       );
       expect(config.consult).toBe(true);
-      expect(config.sourceSquad).toBeTruthy();
+      expect(config.sourceCrew).toBeTruthy();
 
       // extract/ staging directory should exist
-      expect(existsSync(join(projectDir, '.squad', 'extract'))).toBe(true);
+      expect(existsSync(join(projectDir, '.crew', 'extract'))).toBe(true);
 
-      // .git/info/exclude should contain .squad/
+      // .git/info/exclude should contain .crew/
       const excludePath = join(projectDir, '.git', 'info', 'exclude');
       expect(existsSync(excludePath)).toBe(true);
       const excludeContent = readFileSync(excludePath, 'utf-8');
-      expect(excludeContent).toContain('.squad/');
+      expect(excludeContent).toContain('.crew/');
 
       // git status should show nothing (invisible to project)
       const gitStatus = execSync('git status --porcelain', {
         cwd: projectDir,
         encoding: 'utf-8',
       });
-      expect(gitStatus).not.toContain('.squad');
+      expect(gitStatus).not.toContain('.crew');
     });
 
-    it('squad consult --status reports active consult mode', () => {
+    it('crew consult --status reports active consult mode', () => {
       // First enter consult mode
-      runSquad('consult', projectDir, envWithGlobal);
+      runCrew('consult', projectDir, envWithGlobal);
 
       // Then check status
-      const result = runSquad('consult --status', projectDir, envWithGlobal);
+      const result = runCrew('consult --status', projectDir, envWithGlobal);
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('Consult mode active');
     });
 
-    it('squad consult --check shows dry-run without creating files', () => {
-      const result = runSquad('consult --check', projectDir, envWithGlobal);
+    it('crew consult --check shows dry-run without creating files', () => {
+      const result = runCrew('consult --check', projectDir, envWithGlobal);
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('Dry-run');
       expect(result.stdout).toContain('consult: true');
 
-      // .squad/ should NOT exist (dry run)
-      expect(existsSync(join(projectDir, '.squad'))).toBe(false);
+      // .crew/ should NOT exist (dry run)
+      expect(existsSync(join(projectDir, '.crew'))).toBe(false);
     });
 
-    it('squad extract --dry-run shows staged learnings without modifying', () => {
+    it('crew extract --dry-run shows staged learnings without modifying', () => {
       // Enter consult mode
-      runSquad('consult', projectDir, envWithGlobal);
+      runCrew('consult', projectDir, envWithGlobal);
 
       // Stage a learning manually (simulating what Scribe does during a session)
-      const extractDir = join(projectDir, '.squad', 'extract');
+      const extractDir = join(projectDir, '.crew', 'extract');
       writeFileSync(
         join(extractDir, 'use-async-await.md'),
         '### Always use async/await\n\nPrefer async/await over raw promises.',
       );
 
       // Dry-run extract
-      const result = runSquad('extract --dry-run', projectDir, envWithGlobal);
+      const result = runCrew('extract --dry-run', projectDir, envWithGlobal);
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('Dry-run');
       expect(result.stdout).toContain('use-async-await.md');
@@ -290,21 +290,21 @@ describe('CLI: squad consult', { timeout: 30_000 }, () => {
       expect(existsSync(join(extractDir, 'use-async-await.md'))).toBe(true);
     });
 
-    it('squad extract with no staged learnings reports empty', () => {
+    it('crew extract with no staged learnings reports empty', () => {
       // Enter consult mode (no learnings staged)
-      runSquad('consult', projectDir, envWithGlobal);
+      runCrew('consult', projectDir, envWithGlobal);
 
-      const result = runSquad('extract', projectDir, envWithGlobal);
+      const result = runCrew('extract', projectDir, envWithGlobal);
       expect(result.exitCode).toBe(0);
       expect(result.stdout).toContain('No learnings staged');
     });
 
-    it('squad consult fails if project already has .squad/', () => {
+    it('crew consult fails if project already has .crew/', () => {
       // Enter consult mode first time
-      runSquad('consult', projectDir, envWithGlobal);
+      runCrew('consult', projectDir, envWithGlobal);
 
-      // Try again — should fail because .squad/ already exists
-      const result = runSquad('consult', projectDir, envWithGlobal);
+      // Try again — should fail because .crew/ already exists
+      const result = runCrew('consult', projectDir, envWithGlobal);
       expect(result.exitCode).not.toBe(0);
       expect(result.stderr).toMatch(/already has/i);
     });

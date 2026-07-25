@@ -1,10 +1,10 @@
 # Extensibility guide
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Where does your change idea belong? Squad core, marketplace plugin, or team config?
+Where does your change idea belong? Crew core, marketplace plugin, or team config?
 
-**Key principle:** Squad core stays small. Most ideas are skills, ceremonies, or directives.
+**Key principle:** Crew core stays small. Most ideas are skills, ceremonies, or directives.
 
 ---
 
@@ -12,9 +12,9 @@ Where does your change idea belong? Squad core, marketplace plugin, or team conf
 
 | Layer | What lives here | Who changes it | Distribution |
 |-------|----------------|----------------|--------------|
-| **Squad Core** | Coordinator behavior, routing logic, reviewer protocol | Squad maintainers only | npm releases |
-| **Squad Extension** | Reusable capabilities (skills, ceremonies, workflows, memory guidance, provider contracts, generated artifacts) | Plugin authors | Marketplace plugins |
-| **Team Configuration** | Decisions unique to THIS team | The team itself | `.squad/` files |
+| **Crew Core** | Coordinator behavior, routing logic, reviewer protocol | Crew maintainers only | npm releases |
+| **Crew Extension** | Reusable capabilities (skills, ceremonies, workflows, memory guidance, provider contracts, generated artifacts) | Plugin authors | Marketplace plugins |
+| **Team Configuration** | Decisions unique to THIS team | The team itself | `.crew/` files |
 
 ---
 
@@ -23,7 +23,7 @@ Where does your change idea belong? Squad core, marketplace plugin, or team conf
 ```
 ┌─ Does it change HOW the coordinator routes, spawns, or enforces?
 │
-├─ YES → Squad Core
+├─ YES → Crew Core
 │  └─ Examples: New coordinator modes, reviewer protocol changes
 │     Action: Open an RFC issue
 │
@@ -31,16 +31,16 @@ Where does your change idea belong? Squad core, marketplace plugin, or team conf
    │
    ┌─ Could OTHER teams benefit?
    │
-    ├─ YES → Squad Extension (plugin)
+    ├─ YES → Crew Extension (plugin)
     │  └─ Examples: Client-delivery workflow, Azure skills, TDD ceremonies, Graphify knowledge lens
    │     Action: Build a plugin
    │
    └─ NO → Team Configuration
       └─ Examples: YOUR git workflow, YOUR build process, YOUR routing rules
-         Action: Update `.squad/` files
+         Action: Update `.crew/` files
 ```
 
-**Heuristic:** "Squad should..." → check if it's really "My team should..." or "Teams using X should...".
+**Heuristic:** "Crew should..." → check if it's really "My team should..." or "Teams using X should...".
 
 
 
@@ -48,11 +48,11 @@ Where does your change idea belong? Squad core, marketplace plugin, or team conf
 
 ## Worked example: Client-delivery RFC
 
-[RFC #328](https://github.com/bradygaster/squad/issues/328) proposed a sophisticated client-delivery workflow: discovery interviews, research sprints, multi-round review with `SHIP`/`NEEDS_WORK`/`BLOCKED` verdicts, evidence bundles.
+[RFC #328](https://github.com/Blacklite/crew/issues/328) proposed a sophisticated client-delivery workflow: discovery interviews, research sprints, multi-round review with `SHIP`/`NEEDS_WORK`/`BLOCKED` verdicts, evidence bundles.
 
-**The realization:** It maps entirely to existing Squad primitives. No core changes needed.
+**The realization:** It maps entirely to existing Crew primitives. No core changes needed.
 
-**Where it belongs:** Layer 2 (Squad Extension)
+**Where it belongs:** Layer 2 (Crew Extension)
 
 This workflow is a reusable pattern any team could adopt — perfect as a marketplace plugin.
 
@@ -72,7 +72,7 @@ client-delivery-workflow/
 
 **Usage:**
 ```bash
-squad plugin install github/awesome-copilot/client-delivery-workflow
+crew plugin install github/awesome-copilot/client-delivery-workflow
 ```
 
 **Lesson:** Most sophisticated workflows are compositions of primitives, not core features.
@@ -93,9 +93,9 @@ You DON'T need core if:
 
 - **Workflow pattern** → Build a plugin (skills + ceremonies)
 - **Domain expertise** → Write a skill
-- **Team process** → Add a ceremony to `.squad/ceremonies.md`
+- **Team process** → Add a ceremony to `.crew/ceremonies.md`
 - **Reusable templates** → Build a plugin
-- **Configuring existing behavior** → Update `.squad/routing.md`
+- **Configuring existing behavior** → Update `.crew/routing.md`
 
 ---
 
@@ -106,11 +106,11 @@ Ready to build? See [Building extensions](./building-extensions.md) for a five-m
 The plugin MVP uses a declarative `plugin.manifest.json` and a simple lifecycle:
 
 ```bash
-squad plugin validate ./my-extension
-squad plugin dry-run ./my-extension
-squad plugin install ./my-extension
-squad plugin enable my-extension
-squad plugin refresh my-extension
+crew plugin validate ./my-extension
+crew plugin dry-run ./my-extension
+crew plugin install ./my-extension
+crew plugin enable my-extension
+crew plugin refresh my-extension
 ```
 
 Install records lock data and leaves the plugin disabled. Enable activates the roles declared in the manifest. Refresh updates approved generated artifacts for built-in providers such as Graphify. See [Plugin security model](../reference/plugin-security.md) for the guardrails under the pluggability model.
@@ -120,7 +120,7 @@ Install records lock data and leaves the plugin disabled. Enable activates the r
 ## Summary
 
 1. **Start with the decision tree** — Most ideas are Layer 2 or 3
-2. **Default to team config** — Unique to your team? → `.squad/`
+2. **Default to team config** — Unique to your team? → `.crew/`
 3. **Build a plugin if reusable** — Other teams benefit? → Package and share
 4. **Escalate to core rarely** — Need coordinator/routing changes? → Open an RFC
 
@@ -135,8 +135,8 @@ Install records lock data and leaves the plugin disabled. Enable activates the r
 - [Ceremonies](../features/ceremonies.md) — How to define team meetings and gates
 - [Routing](../features/routing.md) — How to configure work assignment rules
 - [Building extensions](./building-extensions.md) — Step-by-step guide to building and sharing extensions
-- [Contributing](https://github.com/bradygaster/squad/blob/main/CONTRIBUTING.md) — How to propose changes to Squad core
+- [Contributing](https://github.com/Blacklite/crew/blob/main/CONTRIBUTING.md) — How to propose changes to Crew core
 
 ---
 
-**Questions?** [Open an issue](https://github.com/bradygaster/squad/issues/new) or join the discussion in the Squad community.
+**Questions?** [Open an issue](https://github.com/Blacklite/crew/issues/new) or join the discussion in the Crew community.

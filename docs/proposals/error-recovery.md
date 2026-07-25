@@ -1,6 +1,6 @@
 # Proposal: Error Recovery Skill
 
-**Issue:** bradygaster/squad#623
+**Issue:** Blacklite/crew#623
 **Author:** tamirdresher
 **Date:** 2026-03-26
 **Status:** Proposal
@@ -9,10 +9,10 @@
 
 ## Problem Statement
 
-When a Squad agent fails (model timeout, tool error, invalid output, context overflow), there is
+When a Crew agent fails (model timeout, tool error, invalid output, context overflow), there is
 no standardized recovery pattern. Individual coordinators implement ad-hoc retry logic or simply
 fail the task. This causes inconsistent user experience and missed opportunities for graceful
-degradation across the squad.
+degradation across the crew.
 
 ---
 
@@ -44,8 +44,8 @@ plus prompt templates for each pattern that agents can use in their reasoning.
 
 ## What Changes
 
-- New skill: packages/squad-cli/templates/skills/error-recovery/SKILL.md
-- New skill: packages/squad-sdk/templates/skills/error-recovery/SKILL.md
+- New skill: packages/crew-cli/templates/skills/error-recovery/SKILL.md
+- New skill: packages/crew-sdk/templates/skills/error-recovery/SKILL.md
 - New changeset: .changeset/error-recovery-skill.md
 
 ## What Stays the Same
@@ -66,4 +66,4 @@ plus prompt templates for each pattern that agents can use in their reasoning.
 
 ## References
 
-- Issue: bradygaster/squad#623
+- Issue: Blacklite/crew#623

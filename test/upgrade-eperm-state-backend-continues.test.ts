@@ -1,5 +1,5 @@
 /**
- * Tests that EPERM during `squad upgrade --self --state-backend two-layer`
+ * Tests that EPERM during `crew upgrade --self --state-backend two-layer`
  * does NOT short-circuit the state-backend migration. Self-upgrade and
  * backend migration are independent operations; failing one must not block
  * the other.
@@ -18,19 +18,19 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(here, '..');
-const cliEntry = path.join(repoRoot, 'packages', 'squad-cli', 'dist', 'cli-entry.js');
+const cliEntry = path.join(repoRoot, 'packages', 'crew-cli', 'dist', 'cli-entry.js');
 
 describe('upgrade --self --state-backend with self-upgrade EPERM', () => {
   let workdir: string;
 
   beforeEach(() => {
-    workdir = path.join(tmpdir(), `squad-eperm-statebackend-${randomBytes(4).toString('hex')}`);
+    workdir = path.join(tmpdir(), `crew-eperm-statebackend-${randomBytes(4).toString('hex')}`);
     mkdirSync(workdir, { recursive: true });
-    // Seed a minimal squad project so runUpgrade and migrateStateBackend
+    // Seed a minimal crew project so runUpgrade and migrateStateBackend
     // have something to operate on.
-    mkdirSync(path.join(workdir, '.squad'), { recursive: true });
-    writeFileSync(path.join(workdir, '.squad', 'team.md'), '# Test team\n');
-    writeFileSync(path.join(workdir, '.squad', 'config.json'), JSON.stringify({
+    mkdirSync(path.join(workdir, '.crew'), { recursive: true });
+    writeFileSync(path.join(workdir, '.crew', 'team.md'), '# Test team\n');
+    writeFileSync(path.join(workdir, '.crew', 'config.json'), JSON.stringify({
       version: 1,
       stateBackend: 'worktree',
     }, null, 2));
@@ -45,7 +45,7 @@ describe('upgrade --self --state-backend with self-upgrade EPERM', () => {
     // `process.exit(1)` unconditionally, BEFORE the --state-backend block.
     // Iter-4 refactors so EPERM defers when --state-backend is requested.
     const entrySrc = readFileSync(
-      path.join(repoRoot, 'packages', 'squad-cli', 'src', 'cli-entry.ts'),
+      path.join(repoRoot, 'packages', 'crew-cli', 'src', 'cli-entry.ts'),
       'utf-8',
     );
     // The selfUpgradeFailed deferred path is the marker that the iter-4

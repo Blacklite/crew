@@ -1,15 +1,15 @@
 # Notification Level
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 **Try this to silence empty rounds:**
 ```
-squad watch --notify-level important
+crew watch --notify-level important
 ```
 
 **Try this to see everything (debugging):**
 ```
-squad watch --notify-level all
+crew watch --notify-level all
 ```
 
 **Try this in config for persistent setting:**
@@ -17,7 +17,7 @@ squad watch --notify-level all
 { "watch": { "notifyLevel": "important" } }
 ```
 
-When `squad watch` runs continuously, it prints a board report after every round. In production setups where output is forwarded to Teams, Slack, or email, this creates noise — hundreds of "Round N" messages with no useful content when the board is clear.
+When `crew watch` runs continuously, it prints a board report after every round. In production setups where output is forwarded to Teams, Slack, or email, this creates noise — hundreds of "Round N" messages with no useful content when the board is clear.
 
 ---
 
@@ -47,14 +47,14 @@ This tells you **where** the message came from — which machine and which repo 
 ### CLI flag (per-run)
 
 ```bash
-squad watch --notify-level important    # default
-squad watch --notify-level all          # old behavior
-squad watch --notify-level none         # silent
+crew watch --notify-level important    # default
+crew watch --notify-level all          # old behavior
+crew watch --notify-level none         # silent
 ```
 
 ### Config file (persistent)
 
-In `.squad/config.json`:
+In `.crew/config.json`:
 
 ```json
 {
@@ -86,4 +86,4 @@ If all counters are zero, the round is silent in `important` mode.
 ## See Also
 
 - [Ralph — Work Monitor](/docs/features/ralph) — full Ralph documentation
-- [Watch capabilities](/docs/features/ralph#watch-mode) — how squad watch works
+- [Watch capabilities](/docs/features/ralph#watch-mode) — how crew watch works

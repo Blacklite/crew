@@ -1,8 +1,8 @@
-# Starting a New Project with Squad
+# Starting a New Project with Crew
 
 **Try this to bootstrap a modern web app:**
 ```
-Set up Squad for a new React + Node.js app
+Set up Crew for a new React + Node.js app
 ```
 
 **Try this to initialize with deployment target:**
@@ -10,7 +10,7 @@ Set up Squad for a new React + Node.js app
 Initialize a team for a task management app that can run in Azure Web App PaaS
 ```
 
-Start from zero: new directory, new repo, full team in under a minute. Squad analyzes your description and assembles the right specialists.
+Start from zero: new directory, new repo, full team in under a minute. Crew analyzes your description and assembles the right specialists.
 
 ---
 
@@ -23,27 +23,27 @@ git init
 
 ---
 
-## 2. Install Squad
+## 2. Install Crew
 
 ```bash
-npm install -g @bradygaster/squad-cli
+npm install -g @blacklite/crew-cli
 cd ~/projects/new-project
-squad init
+crew init
 ```
 
 ```
-✅ .github/agents/squad.agent.md (v0.2.0)
+✅ .github/agents/crew.agent.md (v0.2.0)
 ✅ .github/workflows/ (10 workflows)
 ✅ .ai-team-templates/
 ✅ .ai-team/skills/ (starter skills)
 ✅ .ai-team/ceremonies.md
 ✅ .gitattributes (merge=union rules)
 
-Squad is ready.
+Crew is ready.
 
 Next steps:
   1. Open Copilot:  copilot
-  2. Select Squad from the /agent list (CLI) or /agents (VS Code)
+  2. Select Crew from the /agent list (CLI) or /agents (VS Code)
   3. Tell it what you're building
 ```
 
@@ -55,7 +55,7 @@ Next steps:
 copilot
 ```
 
-Select **Squad** from the `/agent` list (CLI) or `/agents` (VS Code). Squad greets you:
+Select **Crew** from the `/agent` list (CLI) or `/agents` (VS Code). Crew greets you:
 
 ```
 Hey Jordan, what are you building?
@@ -72,7 +72,7 @@ Describe the project — language, stack, what it does:
 
 ## 4. Confirm the Team
 
-Squad proposes a team. Names come from a fictional universe:
+Crew proposes a team. Names come from a fictional universe:
 
 ```
 Here's your team:
@@ -93,7 +93,7 @@ You can adjust the team or skip straight to work (which is implicit confirmation
 > Yes. Rusty, set up the Go module and project structure.
 ```
 
-Squad creates `.ai-team/` (roster, charters, histories, routing rules, casting state) and spawns Rusty:
+Crew creates `.ai-team/` (roster, charters, histories, routing rules, casting state) and spawns Rusty:
 
 ```
 🔧 Rusty — setting up Go module and project structure
@@ -113,7 +113,7 @@ Use the word "team" to trigger parallel work:
 > alerts when thresholds are exceeded.
 ```
 
-Squad decomposes the work and launches agents simultaneously:
+Crew decomposes the work and launches agents simultaneously:
 
 ```
 🏗️ Danny   — reviewing requirements, defining interfaces
@@ -155,7 +155,7 @@ Every agent reads these decisions before their next task. As the list grows, the
 
 ```bash
 git add .ai-team/ .ai-team-templates/ .github/ .gitattributes
-git commit -m "Add Squad team"
+git commit -m "Add Crew team"
 ```
 
 Commit `.ai-team/` — it's your team's brain. Anyone who clones the repo gets the full team with all their accumulated knowledge.

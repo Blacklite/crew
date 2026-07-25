@@ -6,7 +6,7 @@ order: 35
 
 # Capability Routing
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 **Try this to declare machine capabilities:**
 ```
@@ -18,13 +18,13 @@ This machine has a GPU — tag it for GPU-required work
 Label issue #42 with needs:gpu so it goes to the right runner
 ```
 
-Squad discovers what each machine can do and routes issues only to machines that meet the requirements. No manual assignment needed for hardware- or OS-specific work.
+Crew discovers what each machine can do and routes issues only to machines that meet the requirements. No manual assignment needed for hardware- or OS-specific work.
 
 ---
 
 ## What Are Capabilities?
 
-A capability is a label that describes what a machine can do — hardware, OS, or environment attributes that not every runner has. You declare capabilities in `machine-capabilities.json` at the project root or home directory; Squad reads them when routing issues.
+A capability is a label that describes what a machine can do — hardware, OS, or environment attributes that not every runner has. You declare capabilities in `machine-capabilities.json` at the project root or home directory; Crew reads them when routing issues.
 
 Examples: `gpu`, `windows`, `macos`, `arm64`, `high-memory`, `docker`.
 
@@ -36,7 +36,7 @@ Add a `capabilities` array to `machine-capabilities.json` at the project root or
 ["gpu", "cuda", "high-memory"]
 ```
 
-Squad reads this file at startup. The declared capabilities are available to the routing system immediately.
+Crew reads this file at startup. The declared capabilities are available to the routing system immediately.
 
 ## The `needs:*` Label Pattern
 

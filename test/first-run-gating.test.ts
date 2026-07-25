@@ -17,7 +17,7 @@ import React from 'react';
 import { render } from 'ink-testing-library';
 import { Text } from 'ink';
 
-import type { ShellMessage } from '@bradygaster/squad-cli/shell/types';
+import type { ShellMessage } from '@blacklite/crew-cli/shell/types';
 
 const h = React.createElement;
 
@@ -26,7 +26,7 @@ const h = React.createElement;
 // ============================================================================
 
 function makeTmpRoot(): string {
-  return mkdtempSync(join(tmpdir(), 'squad-first-run-'));
+  return mkdtempSync(join(tmpdir(), 'crew-first-run-'));
 }
 
 function makeMessage(overrides: Partial<ShellMessage> & { content: string; role: ShellMessage['role'] }): ShellMessage {
@@ -37,10 +37,10 @@ function writeTeamMd(root: string, agents: Array<{ name: string; role: string }>
   { name: 'Fenster', role: 'Core Dev' },
   { name: 'Hockney', role: 'Tester' },
 ]): void {
-  const squadDir = join(root, '.squad');
-  mkdirSync(squadDir, { recursive: true });
-  const rows = agents.map(a => `| ${a.name} | ${a.role} | \`.squad/agents/${a.name.toLowerCase()}/charter.md\` | ✅ Active |`).join('\n');
-  writeFileSync(join(squadDir, 'team.md'), `# Squad Team — Test
+  const crewDir = join(root, '.crew');
+  mkdirSync(crewDir, { recursive: true });
+  const rows = agents.map(a => `| ${a.name} | ${a.role} | \`.crew/agents/${a.name.toLowerCase()}/charter.md\` | ✅ Active |`).join('\n');
+  writeFileSync(join(crewDir, 'team.md'), `# Crew Team — Test
 
 > A test team
 
@@ -52,9 +52,9 @@ ${rows}
 }
 
 function writeFirstRunMarker(root: string): void {
-  const squadDir = join(root, '.squad');
-  mkdirSync(squadDir, { recursive: true });
-  writeFileSync(join(squadDir, '.first-run'), new Date().toISOString() + '\n');
+  const crewDir = join(root, '.crew');
+  mkdirSync(crewDir, { recursive: true });
+  writeFileSync(join(crewDir, '.first-run'), new Date().toISOString() + '\n');
 }
 
 // ============================================================================
@@ -62,17 +62,17 @@ function writeFirstRunMarker(root: string): void {
 // ============================================================================
 
 describe('#607.1 — Banner renders exactly once', () => {
-  it('"◆ SQUAD" title appears exactly once in a rendered frame', () => {
+  it('"◆ CREW" title appears exactly once in a rendered frame', () => {
     const { lastFrame } = render(
       h('ink-box', { flexDirection: 'column' },
         h('ink-box', { gap: 1 },
-          h(Text, { bold: true, color: 'cyan' }, '◆ SQUAD'),
+          h(Text, { bold: true, color: 'cyan' }, '◆ CREW'),
           h(Text, { dimColor: true }, 'v0.9.0'),
         ),
       ) as any,
     );
     const frame = lastFrame() ?? '';
-    const matches = frame.match(/◆ SQUAD/g);
+    const matches = frame.match(/◆ CREW/g);
     expect(matches).toHaveLength(1);
   });
 
@@ -81,7 +81,7 @@ describe('#607.1 — Banner renders exactly once', () => {
     const { lastFrame } = render(
       h('ink-box', { flexDirection: 'column' },
         h('ink-box', { gap: 1 },
-          h(Text, { bold: true, color: 'cyan' }, '◆ SQUAD'),
+          h(Text, { bold: true, color: 'cyan' }, '◆ CREW'),
           h(Text, { dimColor: true }, `v${testVersion}`),
         ),
       ) as any,
@@ -119,7 +119,7 @@ describe('#607.2 — First-run hint appears on initial session only', () => {
   it('loadWelcomeData sets isFirstRun=true when .first-run marker exists', async () => {
     writeTeamMd(tmpRoot);
     writeFirstRunMarker(tmpRoot);
-    const { loadWelcomeData } = await import('../packages/squad-cli/src/cli/shell/lifecycle.js');
+    const { loadWelcomeData } = await import('../packages/crew-cli/src/cli/shell/lifecycle.js');
     const result = loadWelcomeData(tmpRoot);
     expect(result).not.toBeNull();
     expect(result!.isFirstRun).toBe(true);
@@ -128,12 +128,12 @@ describe('#607.2 — First-run hint appears on initial session only', () => {
   it('loadWelcomeData consumes .first-run marker (second call returns false)', async () => {
     writeTeamMd(tmpRoot);
     writeFirstRunMarker(tmpRoot);
-    const { loadWelcomeData } = await import('../packages/squad-cli/src/cli/shell/lifecycle.js');
+    const { loadWelcomeData } = await import('../packages/crew-cli/src/cli/shell/lifecycle.js');
 
     const first = loadWelcomeData(tmpRoot);
     expect(first!.isFirstRun).toBe(true);
     // Marker consumed — file should be gone
-    expect(existsSync(join(tmpRoot, '.squad', '.first-run'))).toBe(false);
+    expect(existsSync(join(tmpRoot, '.crew', '.first-run'))).toBe(false);
 
     const second = loadWelcomeData(tmpRoot);
     expect(second!.isFirstRun).toBe(false);
@@ -161,8 +161,8 @@ describe('#607.2 — First-run hint appears on initial session only', () => {
     writeTeamMd(tmpRoot);
     writeFirstRunMarker(tmpRoot);
 
-    const hasTeam = existsSync(join(tmpRoot, '.squad', 'team.md'));
-    const isFirstRun = existsSync(join(tmpRoot, '.squad', '.first-run'));
+    const hasTeam = existsSync(join(tmpRoot, '.crew', 'team.md'));
+    const isFirstRun = existsSync(join(tmpRoot, '.crew', '.first-run'));
     const recentSession = (hasTeam && !isFirstRun) ? 'would-load' : null;
 
     expect(hasTeam).toBe(true);
@@ -270,10 +270,10 @@ describe('#607.3 — Console output contains no raw Node warnings', () => {
 });
 
 // ============================================================================
-// #607.4 — "Your squad is assembled" requires non-empty roster
+// #607.4 — "Your crew is assembled" requires non-empty roster
 // ============================================================================
 
-describe('#607.4 — "Your squad is assembled" requires non-empty roster', () => {
+describe('#607.4 — "Your crew is assembled" requires non-empty roster', () => {
   it('empty roster → firstRunElement shows init guidance, not assembled message', () => {
     // App.tsx lines 308-325: when rosterAgents.length === 0, shows init text
     const rosterAgents: Array<{ name: string; role: string; emoji: string }> = [];
@@ -334,8 +334,8 @@ describe('#607.4 — "Your squad is assembled" requires non-empty roster', () =>
     const showInitGuidance = bannerReady && rosterAgents.length === 0;
     expect(showInitGuidance).toBe(true);
 
-    const guidanceText = "  Exit and run 'squad init', or type /init to set up your team";
-    expect(guidanceText).toContain('squad init');
+    const guidanceText = "  Exit and run 'crew init', or type /init to set up your team";
+    expect(guidanceText).toContain('crew init');
     expect(guidanceText).toContain('/init');
   });
 });
@@ -383,7 +383,7 @@ describe('#607.5 — Session-scoped Static keys prevent cross-session collisions
   });
 
   it('MemoryManager archival preserves key stability — combined list only grows', async () => {
-    const { MemoryManager } = await import('../packages/squad-cli/src/cli/shell/memory.js');
+    const { MemoryManager } = await import('../packages/crew-cli/src/cli/shell/memory.js');
     const mm = new MemoryManager({ maxMessages: 5 });
 
     // Simulate messages arriving over time
@@ -416,7 +416,7 @@ describe('#607.6 — Terminal clear runs before Ink render', () => {
     // appears before render(React.createElement(...)). This is a structural test.
     const fs = await import('node:fs');
     const source = fs.readFileSync(
-      join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'shell', 'index.ts'),
+      join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'shell', 'index.ts'),
       'utf-8',
     );
 
@@ -436,9 +436,9 @@ describe('#607.6 — Terminal clear runs before Ink render', () => {
   });
 
   it('/clear command sends ANSI clear sequence', async () => {
-    const { executeCommand } = await import('../packages/squad-cli/src/cli/shell/commands.js');
-    const { SessionRegistry } = await import('../packages/squad-cli/src/cli/shell/sessions.js');
-    const { ShellRenderer } = await import('../packages/squad-cli/src/cli/shell/render.js');
+    const { executeCommand } = await import('../packages/crew-cli/src/cli/shell/commands.js');
+    const { SessionRegistry } = await import('../packages/crew-cli/src/cli/shell/sessions.js');
+    const { ShellRenderer } = await import('../packages/crew-cli/src/cli/shell/render.js');
 
     const writes: string[] = [];
     const origWrite = process.stdout.write;
@@ -468,7 +468,7 @@ describe('#607.6 — Terminal clear runs before Ink render', () => {
     // In index.ts onRestoreSession: clearMessages() then process.stdout.write('\\x1b[2J\\x1b[H')
     const fs = await import('node:fs');
     const source = fs.readFileSync(
-      join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'shell', 'index.ts'),
+      join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'shell', 'index.ts'),
       'utf-8',
     );
 
@@ -495,7 +495,7 @@ describe('#624 — SQLite warning suppression via NODE_NO_WARNINGS', () => {
     // Structural test: verify the env var assignment appears before any imports
     const fs = await import('node:fs');
     const source = fs.readFileSync(
-      join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli-entry.ts'),
+      join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli-entry.ts'),
       'utf-8',
     );
 
@@ -577,18 +577,18 @@ describe('#625 — Redundant init messaging eliminated', () => {
     expect(firstRunContent).toBe('assembled');
   });
 
-  it('banner text does not reference squad cast', async () => {
+  it('banner text does not reference crew cast', async () => {
     // App.tsx banner was simplified — no longer has roster length branches
     const fs = await import('node:fs');
     const source = fs.readFileSync(
-      join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'shell', 'components', 'App.tsx'),
+      join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'shell', 'components', 'App.tsx'),
       'utf-8',
     );
 
-    // Banner should NOT reference 'squad cast' (doesn't exist as a command)
+    // Banner should NOT reference 'crew cast' (doesn't exist as a command)
     const headerBlock = source.match(/const headerElement[\s\S]*?useMemo/);
     expect(headerBlock).not.toBeNull();
-    expect(headerBlock![0]).not.toContain('squad cast');
+    expect(headerBlock![0]).not.toContain('crew cast');
   });
 });
 
@@ -597,22 +597,22 @@ describe('#625 — Redundant init messaging eliminated', () => {
 // ============================================================================
 
 describe('Banner simplification (#626, #627)', () => {
-  const appPath = join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'shell', 'components', 'App.tsx');
+  const appPath = join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'shell', 'components', 'App.tsx');
 
   async function readAppSource(): Promise<string> {
     const fs = await import('node:fs');
     return fs.readFileSync(appPath, 'utf-8');
   }
 
-  it('Banner init message uses simple CTA — no squad cast reference', async () => {
+  it('Banner init message uses simple CTA — no crew cast reference', async () => {
     const source = await readAppSource();
 
-    // Banner was simplified — verify no squad cast reference anywhere in header/first-run sections
+    // Banner was simplified — verify no crew cast reference anywhere in header/first-run sections
     const headerAndFirstRun = source.match(/const headerElement[\s\S]*?const firstRunElement[\s\S]*?useMemo/);
     expect(headerAndFirstRun).not.toBeNull();
 
-    // Should NOT reference non-existent 'squad cast' command
-    expect(headerAndFirstRun![0]).not.toContain('squad cast');
+    // Should NOT reference non-existent 'crew cast' command
+    expect(headerAndFirstRun![0]).not.toContain('crew cast');
   });
 
   it('Usage line uses middle-dot separators (U+00B7)', async () => {

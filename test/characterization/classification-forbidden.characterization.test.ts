@@ -18,8 +18,8 @@ import { describe, expect, it } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
-import { FSStorageProvider } from '../../packages/squad-sdk/src/storage/fs-storage-provider.js';
-import { LocalMemoryStore } from '../../packages/squad-sdk/src/memory/index.js';
+import { FSStorageProvider } from '../../packages/crew-sdk/src/storage/fs-storage-provider.js';
+import { LocalMemoryStore } from '../../packages/crew-sdk/src/memory/index.js';
 
 import { makeWriteGuardedStorage, withHermeticRoot } from './_helpers/hermetic-root.js';
 
@@ -145,7 +145,7 @@ describe('classification and forbidden-content characterization (C1)', () => {
         expect(result.classification.allowed).toBe(false);
         expect(result.classification.reason).toBe(REJECTION_REASON_PREFIX + row.reasonSuffix);
 
-        const auditPath = path.join(root, '.squad', 'memory', 'audit.jsonl');
+        const auditPath = path.join(root, '.crew', 'memory', 'audit.jsonl');
         const auditRecords = await readJsonl(auditPath);
         const rejectRecords = auditRecords.filter((r) => r.action === 'reject');
         expect(rejectRecords).toHaveLength(1);

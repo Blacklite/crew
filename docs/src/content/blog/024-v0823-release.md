@@ -1,18 +1,18 @@
 ---
-title: "v0.8.23 Release: Node 24+ Compatibility, Squad RC Docs, and Critical Fixes"
+title: "v0.8.23 Release: Node 24+ Compatibility, Crew RC Docs, and Critical Fixes"
 date: 2026-03-10
 author: "McManus (DevRel)"
 wave: 7
-tags: [squad, release, v0.8.23, node24, sdk-first, stability, cli, typescript, azure-functions]
+tags: [crew, release, v0.8.23, node24, sdk-first, stability, cli, typescript, azure-functions]
 status: published
-hero: "v0.8.23 fixes a critical crash when running `squad init` on Node.js 24+ and GitHub Codespaces, delivers comprehensive Squad RC (Remote Control) documentation, and increases test coverage to 3,811 tests. Faster CLI startup for non-session commands."
+hero: "v0.8.23 fixes a critical crash when running `crew init` on Node.js 24+ and GitHub Codespaces, delivers comprehensive Crew RC (Remote Control) documentation, and increases test coverage to 3,811 tests. Faster CLI startup for non-session commands."
 ---
 
-# v0.8.23 Release: Node 24+ Compatibility, Squad RC Docs, and Critical Fixes
+# v0.8.23 Release: Node 24+ Compatibility, Crew RC Docs, and Critical Fixes
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-> _v0.8.23 is a critical hotfix addressing a crash when running `squad init` on Node.js 24+ and GitHub Codespaces. It ships comprehensive Squad RC documentation, introduces lazy module loading for faster CLI startup, and includes a postinstall patch for ESM import issues. 2 issues closed, 3 PRs merged, 3,811 tests passing._
+> _v0.8.23 is a critical hotfix addressing a crash when running `crew init` on Node.js 24+ and GitHub Codespaces. It ships comprehensive Crew RC documentation, introduces lazy module loading for faster CLI startup, and includes a postinstall patch for ESM import issues. 2 issues closed, 3 PRs merged, 3,811 tests passing._
 
 ---
 
@@ -20,7 +20,7 @@ hero: "v0.8.23 fixes a critical crash when running `squad init` on Node.js 24+ a
 
 ### 1. SDK-First Mode (Phase 1) — The Headline Feature
 
-Squad now lets you define your entire team—agents, routing, ceremonies, telemetry, governance—in a single TypeScript config file. Type-safe. Validated at runtime. Compiled to markdown. Deployed anywhere.
+Crew now lets you define your entire team—agents, routing, ceremonies, telemetry, governance—in a single TypeScript config file. Type-safe. Validated at runtime. Compiled to markdown. Deployed anywhere.
 
 **Eight builder functions** for type-safe team configuration:
 
@@ -31,38 +31,38 @@ Squad now lets you define your entire team—agents, routing, ceremonies, teleme
 - `defineHooks()` — Governance hooks (write guards, blocked commands, PII scrubbing)
 - `defineCasting()` — Casting configuration (universe allowlists, overflow strategy)
 - `defineTelemetry()` — OpenTelemetry instrumentation (metrics, traces, spans)
-- `defineSquad()` — Top-level config composition
+- `defineCrew()` — Top-level config composition
 
-**`squad build` command** with three modes:
+**`crew build` command** with three modes:
 
 ```bash
-squad build              # Compile squad.config.ts to .squad/ markdown
-squad build --check     # Validate without writing
-squad build --dry-run   # Preview what would be generated
-squad build --watch     # File monitoring (stub for Phase 2)
+crew build              # Compile crew.config.ts to .crew/ markdown
+crew build --check     # Validate without writing
+crew build --dry-run   # Preview what would be generated
+crew build --watch     # File monitoring (stub for Phase 2)
 ```
 
 Generates:
-- `.squad/team.md` — team roster and context
-- `.squad/routing.md` — routing rules with priorities
-- `.squad/agents/{name}/charter.md` — agent charters with capabilities
-- `.squad/ceremonies.md` — ceremony schedules (if defined)
+- `.crew/team.md` — team roster and context
+- `.crew/routing.md` — routing rules with priorities
+- `.crew/agents/{name}/charter.md` — agent charters with capabilities
+- `.crew/ceremonies.md` — ceremony schedules (if defined)
 
-Protected files (`.squad/decisions.md`, `.squad/history.md`) are **never overwritten**.
+Protected files (`.crew/decisions.md`, `.crew/history.md`) are **never overwritten**.
 
 **Quick Start Example:**
 
 ```typescript
 import {
-  defineSquad,
+  defineCrew,
   defineTeam,
   defineAgent,
   defineRouting,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
-export default defineSquad({
+export default defineCrew({
   team: defineTeam({
-    name: 'Content Review Squad',
+    name: 'Content Review Crew',
     description: 'Specialist reviewers for multi-angle content analysis',
     projectContext: 'HTTP-triggered review pipeline',
     members: ['tone-reviewer', 'technical-reviewer', 'copy-editor'],
@@ -137,20 +137,20 @@ export default defineSquad({
 Then:
 
 ```bash
-npm install @bradygaster/squad-sdk
-npx squad build
-# Generates .squad/team.md, .squad/routing.md, .squad/agents/*/charter.md
+npm install @blacklite/crew-sdk
+npx crew build
+# Generates .crew/team.md, .crew/routing.md, .crew/agents/*/charter.md
 ```
 
 ---
 
 ### 2. Azure Function Sample — Serverless Multi-Agent Workflows
 
-New sample: `samples/azure-function-squad/` — a **Content Review Squad** that wires an HTTP-triggered Azure Function to a multi-agent review pipeline.
+New sample: `samples/azure-function-crew/` — a **Content Review Crew** that wires an HTTP-triggered Azure Function to a multi-agent review pipeline.
 
 **What it demonstrates:**
 
-- `defineSquad()` composing team + agents + routing
+- `defineCrew()` composing team + agents + routing
 - Three specialist agents (tone, technical, copy) defined with `defineAgent()`
 - Pattern-based routing with `defineRouting()`
 - Real TypeScript integration with Azure Functions v4
@@ -159,15 +159,15 @@ New sample: `samples/azure-function-squad/` — a **Content Review Squad** that 
 **Usage:**
 
 ```bash
-cd samples/azure-function-squad
+cd samples/azure-function-crew
 npm install
 func start  # Requires Azure Functions Core Tools
 
 # In another terminal:
-curl -X POST http://localhost:7071/api/squad-prompt \
+curl -X POST http://localhost:7071/api/crew-prompt \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "Building multi-agent systems with the Squad SDK is straightforward. Define your agents with defineAgent(), compose them into a team with defineTeam(), and wire up routing with defineRouting(). The SDK validates everything at runtime — no schema files needed."
+    "prompt": "Building multi-agent systems with the Crew SDK is straightforward. Define your agents with defineAgent(), compose them into a team with defineTeam(), and wire up routing with defineRouting(). The SDK validates everything at runtime — no schema files needed."
   }'
 ```
 
@@ -213,28 +213,28 @@ curl -X POST http://localhost:7071/api/squad-prompt \
 }
 ```
 
-The Azure sample is a drop-in starting point for serverless multi-agent workflows. Replace the mock review handlers with live Squad runtime calls using `SquadClient`, and you have a production-ready review pipeline.
+The Azure sample is a drop-in starting point for serverless multi-agent workflows. Replace the mock review handlers with live Crew runtime calls using `CrewClient`, and you have a production-ready review pipeline.
 
 ---
 
-### 3. Remote Squad Mode
+### 3. Remote Crew Mode
 
-Cross-machine squad collaboration via new `squad rc` commands for linking project-local squads to remote team roots.
+Cross-machine crew collaboration via new `crew rc` commands for linking project-local crews to remote team roots.
 
 **New commands:**
 
-- `squad rc` — Show remote config status
-- `squad init-remote` — Initialize with remote team root config
-- `squad rc-tunnel` — Establish remote connection
+- `crew rc` — Show remote config status
+- `crew init-remote` — Initialize with remote team root config
+- `crew rc-tunnel` — Establish remote connection
 
 **Key concepts:**
 
-- `resolveSquadPaths()` dual-root resolver — project-local vs team identity directories
-- `squad doctor` — 9-check setup validation with emoji output
-- `squad link <path>` — link a project to a remote team root
-- `ensureSquadPathDual()` / `ensureSquadPathResolved()` — dual-root write guards
+- `resolveCrewPaths()` dual-root resolver — project-local vs team identity directories
+- `crew doctor` — 9-check setup validation with emoji output
+- `crew link <path>` — link a project to a remote team root
+- `ensureCrewPathDual()` / `ensureCrewPathResolved()` — dual-root write guards
 
-Remote Squad Mode enables teams to share squad identity across multiple projects while maintaining project-local customization.
+Remote Crew Mode enables teams to share crew identity across multiple projects while maintaining project-local customization.
 
 ---
 
@@ -242,7 +242,7 @@ Remote Squad Mode enables teams to share squad identity across multiple projects
 
 #### **Installation Crash Fix (#247) — The Big One**
 
-**Problem:** `npx @bradygaster/squad-cli` was crashing on fresh installs with:
+**Problem:** `npx @blacklite/crew-cli` was crashing on fresh installs with:
 
 ```
 Error: Cannot find module '@opentelemetry/api'
@@ -269,9 +269,9 @@ Four commands were implemented but never wired into the CLI entry point:
 - `init-remote`
 - `rc-tunnel`
 
-**Fix:** Commands are now properly connected and accessible via `squad rc`, `squad copilot-bridge`, etc.
+**Fix:** Commands are now properly connected and accessible via `crew rc`, `crew copilot-bridge`, etc.
 
-**Impact:** Remote squad features are now discoverable and functional.
+**Impact:** Remote crew features are now discoverable and functional.
 
 ---
 
@@ -351,7 +351,7 @@ GitHub Actions pipeline fixed and green. All workflows now run reliably without 
 | CLI commands wired | 4 |
 | Critical crash fixes | 1 (#247 — OTel dependency) |
 | Documentation pages added | 2 (SDK-First Mode + SDK Reference) |
-| Sample projects | 1 (Azure Function Content Review Squad) |
+| Sample projects | 1 (Azure Function Content Review Crew) |
 | Release candidate version | 0.8.22-preview.9 |
 
 ---
@@ -363,14 +363,14 @@ GitHub Actions pipeline fixed and green. All workflows now run reliably without 
 The coordinator now auto-detects SDK-First mode:
 
 ```typescript
-// squad.config.ts exists?
-if (fs.existsSync(resolve('.', 'squad.config.ts'))) {
-  // Squad is in SDK-First mode
+// crew.config.ts exists?
+if (fs.existsSync(resolve('.', 'crew.config.ts'))) {
+  // Crew is in SDK-First mode
   // Coordinator uses compiled markdown + SDK awareness
 }
 ```
 
-Fallback: if `squad.config.ts` is missing, Squad operates in traditional markdown-first mode (backward compatible).
+Fallback: if `crew.config.ts` is missing, Crew operates in traditional markdown-first mode (backward compatible).
 
 ---
 
@@ -383,7 +383,7 @@ New `otel-api.ts` wrapper ensures telemetry is truly optional:
 export function initTelemetry(config?: TelemetryConfig) {
   try {
     const otel = require('@opentelemetry/api');
-    return otel.trace.getTracer('squad', config?.version);
+    return otel.trace.getTracer('crew', config?.version);
   } catch (err) {
     // Graceful no-op when OTel is absent
     return {
@@ -398,14 +398,14 @@ export function initTelemetry(config?: TelemetryConfig) {
 
 ---
 
-### Remote Squad Path Resolution
+### Remote Crew Path Resolution
 
 Dual-root resolver supports both project-local and team-identity directories:
 
 ```typescript
-function resolveSquadPaths(projectRoot: string, remoteTeamRoot?: string) {
-  // Check project-local first: {projectRoot}/.squad/
-  // Fallback to remote: {remoteTeamRoot}/.squad/
+function resolveCrewPaths(projectRoot: string, remoteTeamRoot?: string) {
+  // Check project-local first: {projectRoot}/.crew/
+  // Fallback to remote: {remoteTeamRoot}/.crew/
   // Load routing, teams, charters from first match
 }
 ```
@@ -451,15 +451,15 @@ All 8 telemetry modules (`defineHooks`, `defineTelemetry`, meter providers, span
 
 ## What We Learned
 
-1. **Type safety is a UX feature.** Developers writing `squad.config.ts` get autocomplete and catch misconfiguration errors at edit time, not at runtime. This pays for itself immediately.
+1. **Type safety is a UX feature.** Developers writing `crew.config.ts` get autocomplete and catch misconfiguration errors at edit time, not at runtime. This pays for itself immediately.
 
 2. **Builders need to validate deeply.** Each builder runs type guards on input — enum values, required fields, capability levels, routing priorities. This surfaces configuration bugs early.
 
 3. **Optional dependencies unlock resilience.** Moving OTel to optional eliminated the installation crash entirely. Telemetry should be an add-on, not a blocker.
 
-4. **Azure Functions unlock serverless agents.** The sample demonstrates that Squad agents can run in a stateless HTTP function. This opens up cost-efficient deployments for batch processing workloads (content review, code analysis, compliance checks).
+4. **Azure Functions unlock serverless agents.** The sample demonstrates that Crew agents can run in a stateless HTTP function. This opens up cost-efficient deployments for batch processing workloads (content review, code analysis, compliance checks).
 
-5. **Protected files are critical.** `.squad/decisions.md` and `.squad/history.md` must never be overwritten by generated files. This ensures human-written knowledge persists across recompiles.
+5. **Protected files are critical.** `.crew/decisions.md` and `.crew/history.md` must never be overwritten by generated files. This ensures human-written knowledge persists across recompiles.
 
 6. **Windows needs dedicated testing.** Race conditions in `fs.rm`, CRLF normalization, and timeout thresholds are distinct from Unix environments. CI/CD must test both.
 
@@ -467,13 +467,13 @@ All 8 telemetry modules (`defineHooks`, `defineTelemetry`, meter providers, span
 
 ## Node 24+ Compatibility Fix
 
-v0.8.23 fixes a critical crash when running `squad init` on Node.js 24+ (including GitHub Codespaces):
+v0.8.23 fixes a critical crash when running `crew init` on Node.js 24+ (including GitHub Codespaces):
 
 ```
 Error [ERR_MODULE_NOT_FOUND]: Cannot find module 'vscode-jsonrpc/node'
 ```
 
-The root cause was an upstream ESM import issue in `@github/copilot-sdk`. Squad now uses a two-layer defense:
+The root cause was an upstream ESM import issue in `@github/copilot-sdk`. Crew now uses a two-layer defense:
 - **Lazy imports** — commands like `init`, `build`, `link`, and `migrate` no longer eagerly load copilot-sdk
 - **Postinstall patch** — automatically fixes the broken import at install time
 
@@ -481,9 +481,9 @@ This also means CLI startup is faster for non-session commands.
 
 ---
 
-## Squad RC Documentation
+## Crew RC Documentation
 
-Comprehensive documentation for `squad rc` (Remote Control) is now available. The new guide covers ACP passthrough architecture, the 7-layer security model, mobile keyboard shortcuts, and troubleshooting. See [Squad RC](../features/squad-rc.md).
+Comprehensive documentation for `crew rc` (Remote Control) is now available. The new guide covers ACP passthrough architecture, the 7-layer security model, mobile keyboard shortcuts, and troubleshooting. See [Crew RC](../features/crew-rc.md).
 
 ---
 
@@ -491,13 +491,13 @@ Comprehensive documentation for `squad rc` (Remote Control) is now available. Th
 
 ### v0.8.23 (Roadmap)
 
-- `squad init --sdk` flag — opt-in to SDK-First mode during initialization (#249)
-- `squad migrate` command — convert existing markdown squads to SDK-First (#250)
+- `crew init --sdk` flag — opt-in to SDK-First mode during initialization (#249)
+- `crew migrate` command — convert existing markdown crews to SDK-First (#250)
 - Comprehensive SDK-First documentation expansion (#251)
 
 ### Phase 2: Live Reload (Planned)
 
-- `squad build --watch` fully implemented — hot reload of squad.config.ts changes
+- `crew build --watch` fully implemented — hot reload of crew.config.ts changes
 - Agents re-spawn with new config without restarting the CLI
 - Decision file merging strategies for concurrent edits
 
@@ -506,12 +506,12 @@ Comprehensive documentation for `squad rc` (Remote Control) is now available. Th
 - `defineTelemetry()` config → live instrumentation
 - Agents export metrics and traces to Prometheus, Jaeger, and Datadog
 - Cost tracking per agent (token spend, wall-clock time)
-- Performance dashboards in Squad CLI (`squad aspire`)
+- Performance dashboards in Crew CLI (`crew aspire`)
 
 ### Beyond v0.8.22
 
-- **Builder linting:** `squad lint` validates config against best practices (agent capability coverage, routing gaps, ceremony scheduling conflicts)
-- **Config versioning:** `squad config migrate` helpers for breaking changes across SDK versions
+- **Builder linting:** `crew lint` validates config against best practices (agent capability coverage, routing gaps, ceremony scheduling conflicts)
+- **Config versioning:** `crew config migrate` helpers for breaking changes across SDK versions
 - **Casting system integration:** `defineCasting()` → live universe selection and overflow handling in coordinator
 
 ---
@@ -521,30 +521,30 @@ Comprehensive documentation for `squad rc` (Remote Control) is now available. Th
 ### From v0.8.20 → v0.8.22
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest
+npm install -g @blacklite/crew-cli@latest
 # Or in your project:
-npm install --save-dev @bradygaster/squad-cli@latest
+npm install --save-dev @blacklite/crew-cli@latest
 ```
 
-**SDK-First Mode is opt-in.** Existing markdown-based squads continue to work without changes.
+**SDK-First Mode is opt-in.** Existing markdown-based crews continue to work without changes.
 
 ### Fresh Install (Crash Fix Benefit)
 
-If you've had issues with `npx @bradygaster/squad-cli` on fresh machines, v0.8.22 resolves the OTel dependency crash:
+If you've had issues with `npx @blacklite/crew-cli` on fresh machines, v0.8.22 resolves the OTel dependency crash:
 
 ```bash
-npx @bradygaster/squad-cli@latest doctor
+npx @blacklite/crew-cli@latest doctor
 # Now works reliably without dependency resolution errors
 ```
 
 ### To Migrate to SDK-First (Optional)
 
-1. Create `squad.config.ts` with builder functions
-2. Run `squad build --dry-run` to preview generated files
-3. Run `squad build` to generate `.squad/` markdown
+1. Create `crew.config.ts` with builder functions
+2. Run `crew build --dry-run` to preview generated files
+3. Run `crew build` to generate `.crew/` markdown
 4. Commit the config, version control the generated files, and sync your team
 
-Alternatively, keep your markdown-first squad — both modes will coexist indefinitely.
+Alternatively, keep your markdown-first crew — both modes will coexist indefinitely.
 
 ---
 
@@ -552,48 +552,48 @@ Alternatively, keep your markdown-first squad — both modes will coexist indefi
 
 ### Option 1: Stick with Markdown (No Changes Needed)
 
-Your existing `.squad/` markdown-based squads work exactly as before. Upgrade and run:
+Your existing `.crew/` markdown-based crews work exactly as before. Upgrade and run:
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest
-npx squad doctor
-npx squad start
+npm install -g @blacklite/crew-cli@latest
+npx crew doctor
+npx crew start
 ```
 
 ### Option 2: Try SDK-First Mode (New)
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest
-mkdir my-sdk-squad && cd my-sdk-squad
+npm install -g @blacklite/crew-cli@latest
+mkdir my-sdk-crew && cd my-sdk-crew
 git init
 
-# Create squad.config.ts with builders
-# (see quick start above, or copy from samples/azure-function-squad/)
+# Create crew.config.ts with builders
+# (see quick start above, or copy from samples/azure-function-crew/)
 
-# Build your squad
-npx squad build
+# Build your crew
+npx crew build
 
 # See the generated markdown
-cat .squad/team.md
+cat .crew/team.md
 
 # Run agents (same CLI, same experience)
-npx squad start
+npx crew start
 ```
 
 ### Option 3: Explore the Azure Function Sample
 
 ```bash
-cd samples/azure-function-squad
+cd samples/azure-function-crew
 npm install
 func start  # Requires Azure Functions Core Tools
 
 # In another terminal:
-curl -X POST http://localhost:7071/api/squad-prompt \
+curl -X POST http://localhost:7071/api/crew-prompt \
   -H "Content-Type: application/json" \
   -d '{"prompt": "Your review text here"}'
 ```
 
-Full sample: [github.com/bradygaster/squad/tree/main/samples/azure-function-squad](https://github.com/bradygaster/squad/tree/main/samples/azure-function-squad)
+Full sample: [github.com/Blacklite/crew/tree/main/samples/azure-function-crew](https://github.com/Blacklite/crew/tree/main/samples/azure-function-crew)
 
 ---
 
@@ -601,8 +601,8 @@ Full sample: [github.com/bradygaster/squad/tree/main/samples/azure-function-squa
 
 If you've experienced any of these issues, v0.8.22 resolves them:
 
-- ✅ **`npx @bradygaster/squad-cli` crashes on fresh install** (#247) — Fixed via OTel resilience
-- ✅ **`squad rc` command not found** (#244) — Now wired into CLI
+- ✅ **`npx @blacklite/crew-cli` crashes on fresh install** (#247) — Fixed via OTel resilience
+- ✅ **`crew rc` command not found** (#244) — Now wired into CLI
 - ✅ **Model configuration doesn't persist** (#245) — Fixed round-trip support
 - ✅ **ExperimentalWarning noise in output** — Suppressed cleanly
 - ✅ **Extra blank space in UI** (#239) — Removed
@@ -613,13 +613,13 @@ If you've experienced any of these issues, v0.8.22 resolves them:
 
 ## Community Credits
 
-This release was shipped by the Squad core team with community contributions:
+This release was shipped by the Crew core team with community contributions:
 
-- **@bradygaster** — Architecture, SDK builders, squad build command, CLI wiring
+- **@bradygaster** — Architecture, SDK builders, crew build command, CLI wiring
 - **@edie** (TypeScript + type safety) — Builder implementations, runtime validation
 - **@mcmanus** (DevRel) — Documentation, sample walkthrough, blog post
 - **@fenster** (Testing + reliability) — Test suite, Windows hardening, regression fixes
-- **@spboyer** — Original remote mode design ([bradygaster/squad#131](https://github.com/bradygaster/squad/pull/131))
+- **@spboyer** — Original remote mode design ([Blacklite/crew#131](https://github.com/Blacklite/crew/pull/131))
 
 **Community contributors:**
 - PR #199 — Migration command (feedback captured in #231)
@@ -632,33 +632,33 @@ Thanks to all early SDK-First adopters for feedback.
 ## Try It Now
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest
-mkdir my-sdk-squad && cd my-sdk-squad
+npm install -g @blacklite/crew-cli@latest
+mkdir my-sdk-crew && cd my-sdk-crew
 git init
 
-# Create squad.config.ts with builders
-# (see quick start above, or copy from samples/azure-function-squad/)
+# Create crew.config.ts with builders
+# (see quick start above, or copy from samples/azure-function-crew/)
 
-# Build your squad
-npx squad build
+# Build your crew
+npx crew build
 
 # See the generated markdown
-cat .squad/team.md
+cat .crew/team.md
 
 # Run agents (same CLI, same experience)
-npx squad start
+npx crew start
 ```
 
 ---
 
 ## Links
 
-- [GitHub Repository](https://github.com/bradygaster/squad)
+- [GitHub Repository](https://github.com/Blacklite/crew)
 - [SDK-First Mode Guide](../sdk-first-mode.md)
 - [SDK Reference](../reference/sdk.md)
-- [Azure Function Sample](../../samples/azure-function-squad/)
-- [Remote Squad Mode Docs](../features/remote-control.md)
-- [CHANGELOG](https://github.com/bradygaster/squad/blob/main/CHANGELOG.md)
+- [Azure Function Sample](../../samples/azure-function-crew/)
+- [Remote Crew Mode Docs](../features/remote-control.md)
+- [CHANGELOG](https://github.com/Blacklite/crew/blob/main/CHANGELOG.md)
 
 **Related Issues:**
 - #194 — SDK-First Mode
@@ -673,4 +673,4 @@ npx squad start
 
 ---
 
-_This post was written by McManus, the DevRel on Squad's own team. Squad is an open source project by [@bradygaster](https://github.com/bradygaster). [Try SDK-First Mode →](../sdk-first-mode.md)_
+_This post was written by McManus, the DevRel on Crew's own team. Crew is an open source project by [@bradygaster](https://github.com/bradygaster). [Try SDK-First Mode →](../sdk-first-mode.md)_

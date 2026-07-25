@@ -1,7 +1,7 @@
 /**
  * Regression test for UPGRADE-EPERM-FALSE-SUCCESS.
  *
- * Before the fix: when `npm install -g @bradygaster/squad-cli` failed (EPERM /
+ * Before the fix: when `npm install -g @blacklite/crew-cli` failed (EPERM /
  * EACCES / EBUSY), `selfUpgradeCli` swallowed the error and returned normally,
  * causing the caller in cli-entry.ts to unconditionally print
  * `✅ Upgraded. Please restart your terminal...` and exit 0 — contradicting
@@ -10,7 +10,7 @@
  * Expected after fix: `selfUpgradeCli` throws on package-manager failure so the
  * caller can exit non-zero and only the failure message is shown.
  *
- * Evidence: .squad/files/validation/TWOLAYER-BASELINE-INSIDER3-CONSOLIDATED.md
+ * Evidence: .crew/files/validation/TWOLAYER-BASELINE-INSIDER3-CONSOLIDATED.md
  */
 
 import { describe, it, expect, vi, afterEach } from 'vitest';
@@ -28,14 +28,14 @@ describe('UPGRADE-EPERM-FALSE-SUCCESS: selfUpgradeCli surfaces install failures'
       return {
         ...actual,
         execSync: vi.fn(() => {
-          const e = new Error('EPERM: operation not permitted, copyfile ... squad.cmd');
+          const e = new Error('EPERM: operation not permitted, copyfile ... crew.cmd');
           (e as NodeJS.ErrnoException).code = 'EPERM';
           throw e;
         }),
       };
     });
 
-    const { selfUpgradeCli } = await import('../packages/squad-cli/src/cli/core/upgrade.js');
+    const { selfUpgradeCli } = await import('../packages/crew-cli/src/cli/core/upgrade.js');
     await expect(selfUpgradeCli({ insider: false })).rejects.toThrow(/Self-upgrade failed/);
   });
 
@@ -52,7 +52,7 @@ describe('UPGRADE-EPERM-FALSE-SUCCESS: selfUpgradeCli surfaces install failures'
       };
     });
 
-    const { selfUpgradeCli } = await import('../packages/squad-cli/src/cli/core/upgrade.js');
+    const { selfUpgradeCli } = await import('../packages/crew-cli/src/cli/core/upgrade.js');
     await expect(selfUpgradeCli({ insider: false })).rejects.toThrow(/Self-upgrade failed/);
   });
 
@@ -64,7 +64,7 @@ describe('UPGRADE-EPERM-FALSE-SUCCESS: selfUpgradeCli surfaces install failures'
     const fs = await import('node:fs');
     const path = await import('node:path');
     const src = fs.readFileSync(
-      path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli-entry.ts'),
+      path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli-entry.ts'),
       'utf-8',
     );
     // Match the self-upgrade block heuristically.

@@ -1,6 +1,6 @@
 # Migration Guide: Teams Adapter — Async Factory + Token Security
 
-> **Applies to:** Squad SDK ≥ v0.10.0 (PR #768)
+> **Applies to:** Crew SDK ≥ v0.10.0 (PR #768)
 
 ## Breaking Change: `createCommunicationAdapter` is now async
 
@@ -13,7 +13,7 @@ The Teams adapter (`teams-graph` channel) requires interactive OAuth authenticat
 ### Before (v0.9.x — synchronous)
 
 ```typescript
-import { createCommunicationAdapter } from '@bradygaster/squad-sdk';
+import { createCommunicationAdapter } from '@blacklite/crew-sdk';
 
 const adapter = createCommunicationAdapter(repoRoot);
 await adapter.postUpdate({ title: 'Hello', body: 'World' });
@@ -22,7 +22,7 @@ await adapter.postUpdate({ title: 'Hello', body: 'World' });
 ### After (v0.10.x — async)
 
 ```typescript
-import { createCommunicationAdapter } from '@bradygaster/squad-sdk';
+import { createCommunicationAdapter } from '@blacklite/crew-sdk';
 
 const adapter = await createCommunicationAdapter(repoRoot);
 await adapter.postUpdate({ title: 'Hello', body: 'World' });
@@ -68,11 +68,11 @@ These changes ship alongside the async migration and require no code changes —
 
 ### 1. Identity-scoped token cache
 
-**Before:** All tenants shared a single token file (`~/.squad/teams-tokens.json`). In multi-tenant environments, one tenant's token could be served to another.
+**Before:** All tenants shared a single token file (`~/.crew/teams-tokens.json`). In multi-tenant environments, one tenant's token could be served to another.
 
-**After:** Tokens are stored per-identity at `~/.squad/teams-tokens-{hash}.json`. The hash is derived from both the configured `tenantId` and `clientId`, preventing cross-tenant and cross-app token reuse. The actual authenticated identity (`tid` and `oid` from the JWT) is stored as metadata for audit. Legacy token files are automatically migrated on first use and then deleted.
+**After:** Tokens are stored per-identity at `~/.crew/teams-tokens-{hash}.json`. The hash is derived from both the configured `tenantId` and `clientId`, preventing cross-tenant and cross-app token reuse. The actual authenticated identity (`tid` and `oid` from the JWT) is stored as metadata for audit. Legacy token files are automatically migrated on first use and then deleted.
 
-**Configuration:** Set `tenantId` in your `.squad/config.json` to explicitly scope tokens:
+**Configuration:** Set `tenantId` in your `.crew/config.json` to explicitly scope tokens:
 
 ```json
 {

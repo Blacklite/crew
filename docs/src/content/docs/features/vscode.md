@@ -1,9 +1,9 @@
-# Squad in VS Code
+# Crew in VS Code
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Squad is fully supported in VS Code (v0.4.0+). Your team runs identically to the CLI, with the same `.squad/` state, same agents, same decisions — but with VS Code-specific tooling and constraints.
+Crew is fully supported in VS Code (v0.4.0+). Your team runs identically to the CLI, with the same `.crew/` state, same agents, same decisions — but with VS Code-specific tooling and constraints.
 
 This guide covers what's different, what's the same, and when to use CLI vs VS Code.
 
@@ -16,28 +16,28 @@ This guide covers what's different, what's the same, and when to use CLI vs VS C
 - **VS Code** — Latest version
 - **GitHub Copilot extension** — `GitHub.copilot` (installed, authenticated)
 - **Workspace trust** — Your workspace must be trusted (VS Code security)
-- **Node.js 20+ (LTS)** — If running CLI to initialize Squad
-- **Squad installed** — Either in the repo already (from CLI), or initialized fresh via agent selection
+- **Node.js 20+ (LTS)** — If running CLI to initialize Crew
+- **Crew installed** — Either in the repo already (from CLI), or initialized fresh via agent selection
 
 ### Initial Setup
 
 **Option A: Initialize with CLI (recommended)**
 
 ```bash
-npm install -g @bradygaster/squad-cli
+npm install -g @blacklite/crew-cli
 ```
 
-Creates `.github/agents/squad.agent.md` and `.squad/templates/`. Then open VS Code and select **Squad** from the agent picker.
+Creates `.github/agents/crew.agent.md` and `.crew/templates/`. Then open VS Code and select **Crew** from the agent picker.
 
 **Option B: Fresh in VS Code**
 
-Open Copilot in VS Code, select **Squad** from `/agents`. Squad detects it's running in VS Code and bootstraps normally. The `.squad/` directory is created on first run.
+Open Copilot in VS Code, select **Crew** from `/agents`. Crew detects it's running in VS Code and bootstraps normally. The `.crew/` directory is created on first run.
 
 ---
 
 ## How It Works
 
-Squad detects VS Code automatically and adapts its spawning mechanism:
+Crew detects VS Code automatically and adapts its spawning mechanism:
 
 - **In CLI:** Uses `task` tool with full control (model selection, agent type, background mode)
 - **In VS Code:** Uses `runSubagent` for **parallel synchronous execution**
@@ -58,7 +58,7 @@ Agents launch in the same turn and run in parallel, but block as a group. Result
 
 ### SQL Tool Not Available
 
-SQL unavailable in VS Code agents. Workflows needing SQL should live in CLI, or use file-based state (JSON in `.squad/state/`).
+SQL unavailable in VS Code agents. Workflows needing SQL should live in CLI, or use file-based state (JSON in `.crew/state/`).
 
 ### File Writes May Prompt for Approval
 
@@ -68,7 +68,7 @@ VS Code security feature: approve file modifications once with "Always allow in 
 
 ## What's the Same
 
-### Same `.squad/` State
+### Same `.crew/` State
 
 Initialize in CLI, use in VS Code, or vice versa. Team roster, decisions, histories are identical across both.
 
@@ -82,7 +82,7 @@ Multiple agents in one turn → all run in parallel. Equivalent throughput to CL
 
 ### Full File Access (Workspace-Scoped)
 
-Read/write your entire workspace and `.squad/` directory. Cannot reach outside workspace.
+Read/write your entire workspace and `.crew/` directory. Cannot reach outside workspace.
 
 ### MCP Tools Inherited
 
@@ -105,7 +105,7 @@ Check the model picker at top of chat if agents seem slow or expensive — switc
 ## Known Limitations
 
 - **JetBrains IDEs** — Untested. Agent spawning mechanism undocumented.
-- **GitHub.com (web)** — Untested. Copilot Chat on GitHub.com doesn't support Squad.
+- **GitHub.com (web)** — Untested. Copilot Chat on GitHub.com doesn't support Crew.
 - **Custom agent model selection** — Phase 2 future feature.
 
 See [Getting Started](../get-started/first-session.md) for your first VS Code session.
@@ -114,15 +114,15 @@ See [Getting Started](../get-started/first-session.md) for your first VS Code se
 
 ## Extension Developer Guide
 
-If you're building a VS Code extension that integrates with Squad, follow these patterns.
+If you're building a VS Code extension that integrates with Crew, follow these patterns.
 
 ### Detect Client Mode
 
 ```typescript
-const isVSCodeMode = process.env.SQUAD_CLIENT === 'vscode';
+const isVSCodeMode = process.env.CREW_CLIENT === 'vscode';
 
 if (!isVSCodeMode) {
-  console.warn('SquadUI should only run in VS Code');
+  console.warn('CrewUI should only run in VS Code');
   return;
 }
 ```
@@ -132,8 +132,8 @@ if (!isVSCodeMode) {
 **DO:** Import specific types and functions
 
 ```typescript
-import type { CastMember, AgentCharter } from '@bradygaster/squad-sdk';
-import { loadConfig, resolveSquad } from '@bradygaster/squad-sdk';
+import type { CastMember, AgentCharter } from '@blacklite/crew-sdk';
+import { loadConfig, resolveCrew } from '@blacklite/crew-sdk';
 ```
 
 **DON'T:** Import the CLI entry point — this will call `process.exit()` and crash your extension.
@@ -141,14 +141,14 @@ import { loadConfig, resolveSquad } from '@bradygaster/squad-sdk';
 ### Load Configuration
 
 ```typescript
-import { loadConfig, resolveSquad } from '@bradygaster/squad-sdk';
+import { loadConfig, resolveCrew } from '@blacklite/crew-sdk';
 
 try {
-  const squadPath = resolveSquad(workspaceRoot);
-  const config = await loadConfig(squadPath);
-  console.log('Squad loaded:', config.team.name);
+  const crewPath = resolveCrew(workspaceRoot);
+  const config = await loadConfig(crewPath);
+  console.log('Crew loaded:', config.team.name);
 } catch (err) {
-  console.warn('Squad not found:', err.message);
+  console.warn('Crew not found:', err.message);
   return;
 }
 ```
@@ -156,9 +156,9 @@ try {
 ### Spawn Agents
 
 ```typescript
-import { SquadCoordinator } from '@bradygaster/squad-sdk';
+import { CrewCoordinator } from '@blacklite/crew-sdk';
 
-const coordinator = new SquadCoordinator({ teamRoot: squadPath });
+const coordinator = new CrewCoordinator({ teamRoot: crewPath });
 await coordinator.initialize();
 
 const decision = await coordinator.route('refactor this function');
@@ -168,7 +168,7 @@ await coordinator.execute(decision, 'refactor this function');
 ### Stream Responses
 
 ```typescript
-import { startStreaming } from '@bradygaster/squad-sdk';
+import { startStreaming } from '@blacklite/crew-sdk';
 
 const stream = await startStreaming(agentResponse);
 for await (const chunk of stream) {
@@ -182,7 +182,7 @@ for await (const chunk of stream) {
 try {
   const result = await coordinator.route(userTask);
 } catch (err) {
-  vscode.window.showErrorMessage(`Squad error: ${err.message}`);
+  vscode.window.showErrorMessage(`Crew error: ${err.message}`);
 }
 ```
 
@@ -206,7 +206,7 @@ const decision = await coordinator.route(userTask, {
 ## See Also
 
 - [Getting Started](../get-started/installation.md) — Installation and setup guide
-- [Parallel Execution](parallel-execution.md) — How Squadron fan-outs agents
+- [Parallel Execution](parallel-execution.md) — How Crewron fan-outs agents
 - [Model Selection](model-selection.md) — Cost-first routing strategy
 - [Interactive Shell](../guide/shell.md) — Shell commands and features
 - [SDK API Reference](../reference/api-reference.md) — Full SDK type and function reference

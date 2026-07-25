@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-cli": patch
+"@blacklite/crew-cli": patch
 ---
 
 Fix YAML escaping in skill command apm.yml generation

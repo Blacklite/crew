@@ -13,7 +13,7 @@ import {
   PolicyConfig,
   PreToolUseContext,
   PostToolUseContext,
-} from '@bradygaster/squad-sdk/hooks';
+} from '@blacklite/crew-sdk/hooks';
 
 describe('Secret Leak Mitigation (Issue #267)', () => {
   describe('A. .env File Read Blocking (PreToolUseHook)', () => {
@@ -184,13 +184,13 @@ describe('Secret Leak Mitigation (Issue #267)', () => {
       const ctx: PostToolUseContext = {
         toolName: 'view',
         arguments: {},
-        result: 'Visit https://github.com/bradygaster/squad for docs',
+        result: 'Visit https://github.com/Blacklite/crew for docs',
         agentName: 'test-agent',
         sessionId: 'session-1',
       };
 
       const result = await pipeline.runPostToolHooks(ctx);
-      expect(result.result).toBe('Visit https://github.com/bradygaster/squad for docs');
+      expect(result.result).toBe('Visit https://github.com/Blacklite/crew for docs');
     });
 
     it.todo('should redact secrets in nested objects');
@@ -228,12 +228,12 @@ describe('Secret Leak Mitigation (Issue #267)', () => {
     it.todo('should detect API keys in .md files');
     it.todo('should return clean for files with no secrets');
     it.todo('should handle empty files gracefully');
-    it.todo('should scan recursively through .squad/ directory structure');
+    it.todo('should scan recursively through .crew/ directory structure');
 
     // Placeholder test to document expected API
     it('should export scanFileForSecrets utility', () => {
       // TODO: Uncomment when implemented
-      // const { scanFileForSecrets } = await import('@bradygaster/squad-sdk/hooks');
+      // const { scanFileForSecrets } = await import('@blacklite/crew-sdk/hooks');
       // expect(typeof scanFileForSecrets).toBe('function');
       expect(true).toBe(true); // Placeholder
     });

@@ -1,19 +1,19 @@
 # Streaming Chat — SDK Sample PRD
 
 ## Overview
-Build an interactive multi-agent chat. User types messages. SDK routes them to the right agents. Responses stream token-by-token in real-time. This shows the event-driven core of Squad: sessions are persistent, routing is deterministic, and you see live progress as agents think.
+Build an interactive multi-agent chat. User types messages. SDK routes them to the right agents. Responses stream token-by-token in real-time. This shows the event-driven core of Crew: sessions are persistent, routing is deterministic, and you see live progress as agents think.
 
 ## Target Audience
-Developers building interactive squad applications (Discord bots, chat CLIs, web dashboards). Anyone needing real-time agent feedback and event-driven coordination.
+Developers building interactive crew applications (Discord bots, chat CLIs, web dashboards). Anyone needing real-time agent feedback and event-driven coordination.
 
 ## SDK APIs Demonstrated
 
 | API | Module | What It Shows |
 |-----|--------|--------------|
-| `SquadClient` / `SquadClientWithPool` | `client` | Create and manage persistent agent sessions |
+| `CrewClient` / `CrewClientWithPool` | `client` | Create and manage persistent agent sessions |
 | `createSession()` | `client` | Spawn a new agent session with a task |
 | `StreamingPipeline` | `runtime/streaming` | Register handlers for message deltas, reasoning deltas, usage events |
-| `EventBus` | `runtime/event-bus` | Pub/sub for squad-wide events (agent:task-complete, agent:error, etc.) |
+| `EventBus` | `runtime/event-bus` | Pub/sub for crew-wide events (agent:task-complete, agent:error, etc.) |
 | `Router` | `coordinator` | Match incoming messages to the right agent |
 | `StreamDelta`, `ReasoningDelta`, `UsageEvent` | `runtime/streaming` | Typed event payloads for real-time monitoring |
 
@@ -21,9 +21,9 @@ Developers building interactive squad applications (Discord bots, chat CLIs, web
 
 **Initialize client and event pipeline:**
 ```typescript
-import { SquadClient, StreamingPipeline, EventBus } from '@bradygaster/squad-sdk';
+import { CrewClient, StreamingPipeline, EventBus } from '@blacklite/crew-sdk';
 
-const client = new SquadClient({ squadPath: '.squad' });
+const client = new CrewClient({ crewPath: '.crew' });
 const eventBus = new EventBus();
 const streaming = new StreamingPipeline();
 
@@ -60,7 +60,7 @@ const route = router.matchRoute(message);
 const session = await client.createSession({
   agentName: route.agent,
   task: message,
-  persistPath: `.squad/sessions/${route.agent}-${Date.now()}.json`,
+  persistPath: `.crew/sessions/${route.agent}-${Date.now()}.json`,
 });
 
 // Attach session to streaming pipeline
@@ -154,7 +154,7 @@ npm start
 # [Backend]: (second response streams)
 #
 # You: exit
-# (session persists; verify .squad/sessions/ has new files)
+# (session persists; verify .crew/sessions/ has new files)
 
 # Run test suite
 npm test

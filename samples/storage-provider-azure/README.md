@@ -123,7 +123,7 @@ npm run azure:delete
 
 ── Setup ──────────────────────────────────────
   ✓ Connected via connection string
-  ✓ Created container: squad-storage-demo
+  ✓ Created container: crew-storage-demo
   ✓ AzureBlobStorageProvider ready
 
 ── 1. Write Files ─────────────────────────────
@@ -171,7 +171,7 @@ npm run azure:delete
   ✓ readSync() correctly threw: "Sync operations are not supported ..."
 
 ── Cleanup ────────────────────────────────────
-  ✓ Deleted container: squad-storage-demo
+  ✓ Deleted container: crew-storage-demo
 
 Done! ✨
 ```
@@ -182,7 +182,7 @@ Done! ✨
 | --- | --- |
 | `azure-blob-storage-provider.ts` | Full `StorageProvider` implementation backed by Azure Blob Storage |
 | `index.ts` | Demo script that exercises every method and prints results |
-| `package.json` | Dependencies: `@azure/storage-blob`, `@azure/identity`, `@bradygaster/squad-sdk` |
+| `package.json` | Dependencies: `@azure/storage-blob`, `@azure/identity`, `@blacklite/crew-sdk` |
 | `scripts/create-storage.sh` | Creates an Azure resource group + storage account with full-access connection string |
 | `scripts/delete-storage.sh` | Deletes the resource group and all resources inside it |
 
@@ -206,7 +206,7 @@ Done! ✨
 | `npm run demo` | Run against Azure (needs `AZURE_STORAGE_ACCOUNT` or `AZURE_STORAGE_CONNECTION_STRING`) |
 | `npm run demo:emulator` | Run against Azurite (local emulator) |
 | `npm run demo:emulator:keep` | Run against Azurite and keep the container after exit |
-| `npm run clean` | Delete the `squad-storage-demo` container |
+| `npm run clean` | Delete the `crew-storage-demo` container |
 | `npm run azure:create` | Create an Azure resource group + storage account |
 | `npm run azure:delete` | Delete the Azure resource group and all resources |
 
@@ -228,6 +228,6 @@ Done! ✨
 
 ## Next steps
 
-- Try the [hello-squad](../hello-squad/) sample to see the SDK basics
-- Read the [StorageProvider interface](../../packages/squad-sdk/src/storage/storage-provider.ts) for the full contract
+- Try the [hello-crew](../hello-crew/) sample to see the SDK basics
+- Read the [StorageProvider interface](../../packages/crew-sdk/src/storage/storage-provider.ts) for the full contract
 - Explore [Azure Blob Storage docs](https://learn.microsoft.com/azure/storage/blobs/) for advanced features

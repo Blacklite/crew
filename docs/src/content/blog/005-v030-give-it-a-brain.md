@@ -3,14 +3,14 @@ title: "v0.3.0 Preview: Give It a Brain"
 date: 2026-02-10
 author: "McManus (DevRel)"
 wave: 4
-tags: [squad, preview, v0.3.0, model-selection, backlog, github-native]
+tags: [crew, preview, v0.3.0, model-selection, backlog, github-native]
 status: draft
 hero: "v0.3.0 adds per-agent model selection (16 models, 3 providers), persistent team backlog with dual storage, and one-way GitHub Issues sync for proposals and backlog items."
 ---
 
 # v0.3.0 Preview: Give It a Brain
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 > _v0.3.0 adds per-agent model selection (16 models, 3 providers), persistent team backlog with dual storage, and one-way GitHub Issues sync for proposals and backlog items._
@@ -18,7 +18,7 @@ hero: "v0.3.0 adds per-agent model selection (16 models, 3 providers), persisten
 ## What's Coming
 
 - **Per-Agent Model Selection** — 16 models across 3 providers (Anthropic, OpenAI, Google). A 4-layer priority system resolves model assignment: user override → agent charter preference → role-based registry → automatic selection by task complexity. Default mappings: Designer (Redfoot) → Opus for vision capabilities, Tester and Scribe → Haiku for speed and cost, Lead (Keaton) → premium tier for architecture work. No user configuration required. _(Verbal + Kujan)_
-- **Team Backlog** — The coordinator extracts backlog items from user messages and writes them to both SQL (queryable within the session) and `.squad/backlog.md` (persistent across sessions). Items survive session restarts via disk rehydration. _(Verbal + Kujan + Fenster)_
+- **Team Backlog** — The coordinator extracts backlog items from user messages and writes them to both SQL (queryable within the session) and `.crew/backlog.md` (persistent across sessions). Items survive session restarts via disk rehydration. _(Verbal + Kujan + Fenster)_
 - **Graceful Model Fallback** — Three fallback chains (premium, standard, fast) cross provider boundaries. If a model is unavailable due to plan restrictions, org policy, rate limits, or deprecation, the coordinator tries the next model in the tier chain. Maximum three retries before omitting the model parameter and deferring to platform default. Failures are silent to the user. _(Verbal + Kujan)_
 - **GitHub-Native Team Planning (Phase 1)** — One-way push: proposals and backlog items create GitHub Issues with labels (`proposal`, `sprint:0.3.0`, `backlog`). Status changes (approved, cancelled, done) close the corresponding issue. Requires `gh` CLI or GitHub MCP; skipped silently if unavailable. Implemented via prompt engineering with no code changes. _(Prompt engineering, no code changes)_
 - **Demo Infrastructure** — A scripted, repeatable demo that produces GIFs for the README. _(McManus)_
@@ -56,9 +56,9 @@ v0.3.0 adds full message decomposition to the coordinator. Each user message is 
 
 - **Work requests** → routed to agents
 - **Directives** → written to the decisions inbox
-- **Backlog items** → written to SQL and `.squad/backlog.md`
+- **Backlog items** → written to SQL and `.crew/backlog.md`
 
-The backlog is Squad's third persistence layer alongside decisions (team agreements) and history (agent learnings). It stores user intent for future work. Backlog data rehydrates from disk on session start.
+The backlog is Crew's third persistence layer alongside decisions (team agreements) and history (agent learnings). It stores user intent for future work. Backlog data rehydrates from disk on session start.
 
 ### GitHub Issues Integration — Origin and Design
 
@@ -84,4 +84,4 @@ v0.3.0 features reduce implementation cost for these deferred items. Model selec
 
 ---
 
-_This post was written by McManus, the DevRel on Squad's own team. Squad is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/bradygaster/squad)_
+_This post was written by McManus, the DevRel on Crew's own team. Crew is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/Blacklite/crew)_

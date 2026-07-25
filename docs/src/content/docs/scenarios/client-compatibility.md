@@ -2,7 +2,7 @@
 
 > **Quick answer:** Not sure which interface to use? See [Choose your interface](../get-started/choose-your-interface.md) for a concise decision tree and comparison.
 
-Squad runs on multiple Copilot surfaces — each with its own agent spawning mechanism, tool set, and constraints. This document maps Squad's core capabilities across CLI, VS Code, JetBrains, and GitHub.com to help you understand what works where.
+Crew runs on multiple Copilot surfaces — each with its own agent spawning mechanism, tool set, and constraints. This document maps Crew's core capabilities across CLI, VS Code, JetBrains, and GitHub.com to help you understand what works where.
 
 ## Quick Reference
 
@@ -29,7 +29,7 @@ Squad runs on multiple Copilot surfaces — each with its own agent spawning mec
 
 ## CLI (Copilot CLI)
 
-Squad's **primary platform**. All features are fully supported.
+Crew's **primary platform**. All features are fully supported.
 
 ### Agent Spawning
 
@@ -38,8 +38,8 @@ Squad's **primary platform**. All features are fully supported.
 - **Agent types:**
   - `general-purpose` — Full tool access (file ops, CLI, SQL, web, GitHub MCP)
   - `explore` — Read-only tools (grep, glob, view) — optimized for speed and cost
-  - `task` — CLI tools + Haiku model (rarely used by Squad)
-  - `code-review` — Investigation tools (available but Squad uses its own reviewer pattern)
+  - `task` — CLI tools + Haiku model (rarely used by Crew)
+  - `code-review` — Investigation tools (available but Crew uses its own reviewer pattern)
 
 ### Model Selection
 
@@ -60,7 +60,7 @@ Squad's **primary platform**. All features are fully supported.
 - **Mechanism:** `mode: "background"`
 - **Behavior:** Non-blocking spawns, fire-and-forget
 - **Result collection:** `read_agent` with `wait: true/false` for polling
-- **Squad's typical flow:**
+- **Crew's typical flow:**
   1. Spawn 3-5 agents as background tasks in one response
   2. Show launch table acknowledgment to user
   3. Poll each agent's results via `read_agent` with `wait: true, timeout: 300`
@@ -68,14 +68,14 @@ Squad's **primary platform**. All features are fully supported.
 
 ### File Discovery & Access
 
-- **Auto-discovery:** `.github/agents/squad.agent.md` is discovered automatically
+- **Auto-discovery:** `.github/agents/crew.agent.md` is discovered automatically
 - **`.ai-team/` access:** Unrestricted (full filesystem)
 - **Parallel reads:** Multiple file operations in one turn supported
 - **Parallel writes:** Multiple file creates/edits in one turn supported
 
 ### Special Tools
 
-- **SQL:** ✅ Available — Squad uses `sql` for tracking todos and batch processing
+- **SQL:** ✅ Available — Crew uses `sql` for tracking todos and batch processing
 - **Web fetch:** ✅ Available — `web_fetch` for live data
 - **GitHub MCP:** ✅ Available — Full GitHub CLI + API access
 - **PowerShell:** ✅ Available — Terminal commands for git operations, builds, tests
@@ -84,7 +84,7 @@ Squad's **primary platform**. All features are fully supported.
 
 ## VS Code (Copilot in VS Code)
 
-Squad runs on VS Code with **conditional support**. Key differences from CLI:
+Crew runs on VS Code with **conditional support**. Key differences from CLI:
 
 ### Agent Spawning
 
@@ -121,7 +121,7 @@ Squad runs on VS Code with **conditional support**. Key differences from CLI:
 
 ### File Discovery & Access
 
-- **Auto-discovery:** `.github/agents/squad.agent.md` auto-discovered from workspace on load (file watchers enabled — no restart needed on changes)
+- **Auto-discovery:** `.github/agents/crew.agent.md` auto-discovered from workspace on load (file watchers enabled — no restart needed on changes)
 - **Scope:** Workspace-scoped (cannot access outside workspace directory)
 - **`.ai-team/` read:** ✅ Full access via `readFile` tool
 - **`.ai-team/` write:** ✅ Full access via `createFile` / `editFiles` tools
@@ -141,7 +141,7 @@ Squad runs on VS Code with **conditional support**. Key differences from CLI:
 
 ### Constraints & Caveats
 
-- **Workspace trust:** Squad requires a trusted workspace (VS Code security setting)
+- **Workspace trust:** Crew requires a trusted workspace (VS Code security setting)
 - **Single-root workspaces:** Recommended; multi-root has path resolution bugs (vscode#264837, vscode#293428)
 - **Silent success bug:** VS Code may report file edits as successful when no changes occurred (vscode#253561) — same bug as CLI's P0 issue (Proposal 015)
 
@@ -186,11 +186,11 @@ Squad runs on VS Code with **conditional support**. Key differences from CLI:
 
 ## Platform Adaptation Guide
 
-### For Developers Using Squad
+### For Developers Using Crew
 
 **Use CLI if:**
 - You need sub-agent spawning with full control (model selection, agent type, background mode)
-- You use SQL in your Squad workflows
+- You use SQL in your Crew workflows
 - You need fire-and-forget execution (Scribe)
 - You want cost optimization via Haiku/Sonnet/Opus tiering
 
@@ -201,14 +201,14 @@ Squad runs on VS Code with **conditional support**. Key differences from CLI:
 - You prefer not to see intermediate launch tables
 
 **Using Both:**
-- CLI is recommended for initial Squad setup and learning
-- VS Code works for day-to-day development once Squad is established
+- CLI is recommended for initial Crew setup and learning
+- VS Code works for day-to-day development once Crew is established
 - They share the same `.ai-team/` state — both can read/write the same team files
 - Team state is portable — init in CLI, use in VS Code, export/import across repos
 
-### For Squad Developers
+### For Crew Developers
 
-**Coordinator Instructions:** Add platform detection logic to `squad.agent.md`:
+**Coordinator Instructions:** Add platform detection logic to `crew.agent.md`:
 
 ```markdown
 ## Platform Detection
@@ -251,21 +251,21 @@ Before spawning agents, detect which platform you're running on:
 This document is based on active research spikes (#32, #33, #34) conducted in February 2026. Key findings:
 
 - **Proposal 032a** (Strausz): `runSubagent` API research — agent spawning mechanics on VS Code
-- **Proposal 032b** (Kujan): CLI spawn parity analysis — all 5 Squad spawn patterns mapped
+- **Proposal 032b** (Kujan): CLI spawn parity analysis — all 5 Crew spawn patterns mapped
 - **Proposal 033a** (Strausz): VS Code file discovery — `.ai-team/` access and workspace scoping
 - **Proposal 034a** (Kujan): Model selection & background mode — per-agent model routing and async execution
 
 **Next steps:**
 - [ ] JetBrains investigation spike (#12)
 - [ ] GitHub.com investigation spike (#13)
-- [ ] VS Code custom agent generation during `squad init` (Phase 2, v0.5.0)
+- [ ] VS Code custom agent generation during `crew init` (Phase 2, v0.5.0)
 - [ ] Empirical testing of Response Order bug workaround on VS Code
 
 ---
 
 ## See Also
 
-- [Squad in VS Code](../features/vscode.md) — Getting started with VS Code, what's different from CLI
+- [Crew in VS Code](../features/vscode.md) — Getting started with VS Code, what's different from CLI
 - [Model Selection](../features/model-selection.md) — Cost-first routing across agents
 - [Parallel Execution](../features/parallel-execution.md) — Background and sync patterns
 - [Worktrees](../features/worktrees.md) — Multi-branch isolation

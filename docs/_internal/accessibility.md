@@ -1,13 +1,13 @@
 # Accessibility Guidelines
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Squad CLI is designed to be usable by everyone, including users of screen readers, high-contrast terminals, and monochrome displays.
+Crew CLI is designed to be usable by everyone, including users of screen readers, high-contrast terminals, and monochrome displays.
 
 ## Keyboard Shortcuts
 
-All actions in the Squad shell are keyboard-reachable. No mouse is required.
+All actions in the Crew shell are keyboard-reachable. No mouse is required.
 
 | Shortcut | Action |
 |---|---|
@@ -24,7 +24,7 @@ All actions in the Squad shell are keyboard-reachable. No mouse is required.
 
 ## NO_COLOR Behavior
 
-Squad respects the [NO_COLOR standard](https://no-color.org/). When `NO_COLOR` is set (any non-empty value) or `TERM=dumb`, the shell degrades gracefully:
+Crew respects the [NO_COLOR standard](https://no-color.org/). When `NO_COLOR` is set (any non-empty value) or `TERM=dumb`, the shell degrades gracefully:
 
 | Feature | Color Mode | NO_COLOR Mode |
 |---|---|---|
@@ -51,10 +51,10 @@ All components import `isNoColor()` and conditionally omit `color` props from In
 
 ```bash
 # Run with no color
-NO_COLOR=1 npx squad
+NO_COLOR=1 npx crew
 
 # Simulate dumb terminal
-TERM=dumb npx squad
+TERM=dumb npx crew
 ```
 
 ## Color Contrast Guidelines for Contributors
@@ -99,8 +99,8 @@ Hmm, /foo? Type /help for commands.
 |---|---|
 | Unknown command | `Hmm, /{cmd}? Type /help for commands.` |
 | SDK not connected | `SDK not connected. Check your setup.` |
-| Missing team.md | Include path and `squad init` remediation hint |
-| Charter not found | Include expected path and `squad init` remediation hint |
+| Missing team.md | Include path and `crew init` remediation hint |
+| Charter not found | Include expected path and `crew init` remediation hint |
 
 ## Focus Indicators
 

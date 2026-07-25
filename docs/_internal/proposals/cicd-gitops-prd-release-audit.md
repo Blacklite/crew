@@ -34,21 +34,21 @@ dev                 ✅ Active, 5 commits ahead of main
 main                ✅ Active, 5 commits ahead of dev (post-v0.8.22 docs)
 insiders            ✅ Active, last commit 3 days ago (v0.8.20 era)
 insider             ⚠️ Stale, 5 days old, incompatible with workflows
-feature/squad-streams  ⚠️ Feature branch, status unknown
-Multiple squad/* branches (local and remote) ⚠️ Stale issue branches
+feature/crew-streams  ⚠️ Feature branch, status unknown
+Multiple crew/* branches (local and remote) ⚠️ Stale issue branches
 ```
 
 **Branch protection:**
-- `main`: ✅ Protected (requires 1 approval, "Squad Main Guard" status check, conversation resolution)
+- `main`: ✅ Protected (requires 1 approval, "Crew Main Guard" status check, conversation resolution)
 - `dev`: ❌ **NOT PROTECTED** (404 from GitHub API)
 
 ### Pain Points
 
 1. **dev branch unprotected** — Anyone can force-push or commit directly to dev, bypassing PR review and CI checks
 2. **Branch naming inconsistency** — Both `insider` and `insiders` exist; workflows reference `insider`, but active development uses `insiders`
-3. **Stale branches accumulating** — Multiple merged squad/* branches not cleaned up (squad/195, squad/223, squad/228, etc.)
+3. **Stale branches accumulating** — Multiple merged crew/* branches not cleaned up (crew/195, crew/223, crew/228, etc.)
 4. **Divergent histories** — main has 5 commits not in dev (post-release documentation), dev has 5 commits not in main (unreleased work)
-5. **No preview branch** — `squad-promote.yml` and `squad-preview.yml` reference a `preview` branch that doesn't exist; unclear if this is planned or abandoned architecture
+5. **No preview branch** — `crew-promote.yml` and `crew-preview.yml` reference a `preview` branch that doesn't exist; unclear if this is planned or abandoned architecture
 
 ### Proposed Improvements
 
@@ -63,13 +63,13 @@ Multiple squad/* branches (local and remote) ⚠️ Stale issue branches
 - Rationale: Naming inconsistency causes confusion and potential workflow failures
 
 **P1 — Preview branch decision:**
-- **Option A:** Implement preview branch as documented in squad-promote.yml (dev → preview → main gate with forbidden path stripping)
+- **Option A:** Implement preview branch as documented in crew-promote.yml (dev → preview → main gate with forbidden path stripping)
 - **Option B:** Remove preview branch references from workflows if not part of the release model
 - Rationale: Workflows reference a branch that doesn't exist; this is either incomplete implementation or dead code
 
 **P2 — Stale branch cleanup:**
 - Automate stale branch deletion after PR merge (GitHub Action or bot)
-- Manual cleanup of current stale branches: `squad/195`, `squad/223`, `squad/228`, `squad/237`, `pr-189`, `feature/squad-streams`
+- Manual cleanup of current stale branches: `crew/195`, `crew/223`, `crew/228`, `crew/237`, `pr-189`, `feature/crew-streams`
 - Rationale: Reduces clutter, prevents accidental rebasing onto wrong branches
 
 **P2 — Divergent history resolution:**
@@ -86,21 +86,21 @@ Multiple squad/* branches (local and remote) ⚠️ Stale issue branches
 **main branch (v0.8.22 — last stable release):**
 ```
 package.json                          → "0.8.22"
-packages/squad-sdk/package.json       → "0.8.22"
-packages/squad-cli/package.json       → "0.8.22"
+packages/crew-sdk/package.json       → "0.8.22"
+packages/crew-cli/package.json       → "0.8.22"
 ```
 
 **dev branch (v0.8.23-preview.1 — next development cycle):**
 ```
 package.json                          → "0.8.23-preview.1"
-packages/squad-sdk/package.json       → "0.8.23-preview.1"
-packages/squad-cli/package.json       → "0.8.23-preview.1"
+packages/crew-sdk/package.json       → "0.8.23-preview.1"
+packages/crew-cli/package.json       → "0.8.23-preview.1"
 ```
 
 **npm registry (live):**
 ```
-@bradygaster/squad-sdk@latest         → 0.8.22  ✅
-@bradygaster/squad-cli@latest         → 0.8.22  ✅
+@blacklite/crew-sdk@latest         → 0.8.22  ✅
+@blacklite/crew-cli@latest         → 0.8.22  ✅
 
 Dist-tags:
   SDK: latest: 0.8.22, preview: 0.8.17-preview, insider: 0.6.0-alpha.0
@@ -129,7 +129,7 @@ Dist-tags:
 
 **P1 — Automate post-release dev bump:**
 - After successful release, bot automatically opens PR to bump dev to next preview version
-- Or: squad-release.yml dispatches a workflow that updates dev branch directly (requires force-push or admin bypass)
+- Or: crew-release.yml dispatches a workflow that updates dev branch directly (requires force-push or admin bypass)
 - Rationale: Reduces manual steps, ensures dev never forgets to bump version
 
 **P1 — Dist-tag hygiene:**
@@ -211,24 +211,24 @@ v0.5.1   ⚠️ Pre-release (Ralph Local Watchdog)
 ```
 
 **Release workflow:**
-- `squad-release.yml` triggers on push to `main`, creates tag + GitHub Release automatically
+- `crew-release.yml` triggers on push to `main`, creates tag + GitHub Release automatically
 - `publish.yml` triggers on `release: published` event, publishes to npm
 - Manual fallback: `gh workflow run publish.yml -f version=X.Y.Z`
 
 ### Assessment
 
 ✅ **No draft releases** — All releases are published (v0.8.22 disaster lesson learned)  
-✅ **Automated release creation** — squad-release.yml handles tag + release creation on main push  
+✅ **Automated release creation** — crew-release.yml handles tag + release creation on main push  
 ✅ **Pre-release tags work** — Insider builds correctly marked as pre-release  
 ⚠️ **Release notes quality** — v0.8.22 uses `--generate-notes` (auto-generated), not manually curated  
 
 ### Pain Points
 
-1. **No release readiness gate** — squad-release.yml creates releases on ANY push to main, even if version wasn't bumped or CHANGELOG wasn't updated
-   - **Wait, there IS a gate:** squad-release.yml line 28 checks that version exists in CHANGELOG.md before releasing — BUT this failed on the last 3 runs (see logs: test failures, not CHANGELOG failures)
-2. **Test failures block releases** — squad-release.yml runs tests before release, but tests are currently failing (8/8 fail due to ESM `require()` misuse)
+1. **No release readiness gate** — crew-release.yml creates releases on ANY push to main, even if version wasn't bumped or CHANGELOG wasn't updated
+   - **Wait, there IS a gate:** crew-release.yml line 28 checks that version exists in CHANGELOG.md before releasing — BUT this failed on the last 3 runs (see logs: test failures, not CHANGELOG failures)
+2. **Test failures block releases** — crew-release.yml runs tests before release, but tests are currently failing (8/8 fail due to ESM `require()` misuse)
 3. **CHANGELOG validation gate broken** — Currently checking for `## [VERSION]` in CHANGELOG.md, but test failures happen first so this gate never runs
-4. **No rollback automation** — If a release is botched, manual rollback procedure required (see `.squad/skills/release-process/SKILL.md`)
+4. **No rollback automation** — If a release is botched, manual rollback procedure required (see `.crew/skills/release-process/SKILL.md`)
 
 ### Proposed Improvements
 
@@ -238,12 +238,12 @@ v0.5.1   ⚠️ Pre-release (Ralph Local Watchdog)
 - Rationale: Broken tests mean no releases can ship, even emergency hotfixes
 
 **P0 — Separate test gate from release gate:**
-- Move tests to a separate required status check ("Squad Tests")
-- squad-release.yml should only validate version/CHANGELOG/tag state, not run tests
+- Move tests to a separate required status check ("Crew Tests")
+- crew-release.yml should only validate version/CHANGELOG/tag state, not run tests
 - Rationale: Test failures shouldn't block release automation if tests are already green on dev (redundant check)
 
 **P1 — Tag existence check:**
-- squad-release.yml line 43-51 checks if tag exists and skips release if it does ✅
+- crew-release.yml line 43-51 checks if tag exists and skips release if it does ✅
 - BUT: This doesn't prevent accidentally pushing main without bumping version (tag won't exist, but version is stale)
 - Add check: fail if package.json version already published to npm (prevents re-releasing same version)
 - Rationale: Prevents accidental re-release of same version (idempotency gate)
@@ -267,7 +267,7 @@ v0.5.1   ⚠️ Pre-release (Ralph Local Watchdog)
 
 ### Kobayashi's Failures (v0.8.22 Disaster)
 
-**Full retrospective:** `.squad/decisions/inbox/keaton-v0822-retrospective.md`
+**Full retrospective:** `.crew/decisions/inbox/keaton-v0822-retrospective.md`
 
 **What went wrong:**
 1. ❌ Invalid semver (0.8.21.4 — 4-part version) committed without validation → npm mangled to 0.8.2-1.4
@@ -277,7 +277,7 @@ v0.5.1   ⚠️ Pre-release (Ralph Local Watchdog)
 5. ❌ No retry logic in verify steps → npm propagation delay caused false 404 failures
 
 **What was fixed:**
-- ✅ Comprehensive release runbook created (`.squad/skills/release-process/SKILL.md`)
+- ✅ Comprehensive release runbook created (`.crew/skills/release-process/SKILL.md`)
 - ✅ Retry logic added to verify steps in publish.yml (5 attempts, 15s interval)
 - ✅ Trejo (Release Manager) and Drucker (CI/CD Engineer) created to replace Kobayashi (separation of concerns)
 - ✅ Draft release mistake documented and prevented via `--draft=false` in runbook
@@ -286,7 +286,7 @@ v0.5.1   ⚠️ Pre-release (Ralph Local Watchdog)
 **What's still missing (automation gaps):**
 - ❌ **No automated semver validation** — Nothing stops 4-part versions from being committed
 - ❌ **No pre-publish checklist enforcement** — NPM_TOKEN type, branch state, tag state all manual checks
-- ❌ **No tag verification before release creation** — squad-release.yml checks tag existence but not tag format validity
+- ❌ **No tag verification before release creation** — crew-release.yml checks tag existence but not tag format validity
 - ❌ **bump-build.mjs still runs** — Even with `CI=true` check, it ran during `npm ci` in this audit (produced 0.8.22.1)
 - ❌ **No rollback procedure automation** — Rollback is 9 manual steps per SKILL.md
 
@@ -295,14 +295,14 @@ v0.5.1   ⚠️ Pre-release (Ralph Local Watchdog)
 **P0 — Automated semver validation:**
 - Pre-commit hook: validate package.json versions with `semver.valid()` before allowing commit
 - CI job on dev/main: fail if any package.json version is invalid semver
-- squad-release.yml: fail if tag doesn't match `vMAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH-prerelease` format
+- crew-release.yml: fail if tag doesn't match `vMAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH-prerelease` format
 - Rationale: Root cause of v0.8.22 disaster; must be prevented at multiple layers
 
 **P0 — Fix bump-build.mjs suppression:**
 - Current check: `process.env.CI === 'true'` OR `process.env.SKIP_BUILD_BUMP === '1'`
 - Problem: `CI=true` is set but bump-build.mjs still ran during this audit (saw "Build 1: 0.8.22 → 0.8.22.1" in npm ci output)
 - **Root cause investigation needed:** Why did CI check fail? Is `process.env.CI` not set during npm prepare script?
-- Fix: Test actual CI environment variables in squad-ci.yml and squad-release.yml, adjust check accordingly
+- Fix: Test actual CI environment variables in crew-ci.yml and crew-release.yml, adjust check accordingly
 - Rationale: bump-build.mjs creating 4-part versions was a failure mode in v0.8.22
 
 **P1 — Pre-publish checklist CI job:**
@@ -341,10 +341,10 @@ v0.5.1   ⚠️ Pre-release (Ralph Local Watchdog)
 ```
 npm ci
 npm warn deprecated glob@10.5.0
-> @bradygaster/squad@0.8.22 prepare
+> @blacklite/crew@0.8.22 prepare
 > npm run build
 
-> @bradygaster/squad@0.8.22 prebuild
+> @blacklite/crew@0.8.22 prebuild
 > node scripts/bump-build.mjs
 
 Build 1: 0.8.22 → 0.8.22.1  ⚠️ VERSION MUTATED
@@ -352,8 +352,8 @@ Build 1: 0.8.22 → 0.8.22.1  ⚠️ VERSION MUTATED
 
 **Files modified after npm ci:**
 - package.json (version 0.8.22 → 0.8.22.1)
-- packages/squad-sdk/package.json (version 0.8.22 → 0.8.22.1)
-- packages/squad-cli/package.json (version 0.8.22 → 0.8.22.1)
+- packages/crew-sdk/package.json (version 0.8.22 → 0.8.22.1)
+- packages/crew-cli/package.json (version 0.8.22 → 0.8.22.1)
 
 ### Assessment
 
@@ -382,7 +382,7 @@ Build 1: 0.8.22 → 0.8.22.1  ⚠️ VERSION MUTATED
 - Create two npm scripts:
   - `npm run build:dev` — runs bump-build.mjs, then esbuild (for local development)
   - `npm run build:release` — skips bump-build.mjs, runs esbuild only (for CI/CD and releases)
-- Update squad-ci.yml and publish.yml to use `build:release`
+- Update crew-ci.yml and publish.yml to use `build:release`
 - Rationale: Explicit separation eliminates ambiguity about when versions should increment
 
 **P2 — Document prebuild behavior:**
@@ -399,44 +399,44 @@ Build 1: 0.8.22 → 0.8.22.1  ⚠️ VERSION MUTATED
 **14 active workflows found:**
 ```
 publish.yml                       ✅ Publishes to npm on GitHub Release
-squad-release.yml                 ⚠️ Creates releases on main push (currently blocked by test failures)
-squad-insider-release.yml         ✅ Creates insider releases on insider branch push
-squad-insider-publish.yml         ⚠️ Publishes insider builds (unclear if this runs)
-squad-publish.yml                 ⚠️ Duplicate of publish.yml? (same ID 241445655)
-squad-promote.yml                 ⚠️ References preview branch (doesn't exist)
-squad-preview.yml                 ⚠️ Validates preview branch (doesn't exist)
-squad-ci.yml                      ✅ Runs tests on PRs and dev/insider pushes
-squad-docs.yml                    ✅ Builds/deploys docs
-squad-heartbeat.yml               ✅ Ralph monitoring
-squad-issue-assign.yml            ✅ Auto-assigns issues
-squad-label-enforce.yml           ✅ Enforces label conventions
-squad-triage.yml                  ✅ PR/issue triage automation
-sync-squad-labels.yml             ✅ Syncs labels across repos
+crew-release.yml                 ⚠️ Creates releases on main push (currently blocked by test failures)
+crew-insider-release.yml         ✅ Creates insider releases on insider branch push
+crew-insider-publish.yml         ⚠️ Publishes insider builds (unclear if this runs)
+crew-publish.yml                 ⚠️ Duplicate of publish.yml? (same ID 241445655)
+crew-promote.yml                 ⚠️ References preview branch (doesn't exist)
+crew-preview.yml                 ⚠️ Validates preview branch (doesn't exist)
+crew-ci.yml                      ✅ Runs tests on PRs and dev/insider pushes
+crew-docs.yml                    ✅ Builds/deploys docs
+crew-heartbeat.yml               ✅ Ralph monitoring
+crew-issue-assign.yml            ✅ Auto-assigns issues
+crew-label-enforce.yml           ✅ Enforces label conventions
+crew-triage.yml                  ✅ PR/issue triage automation
+sync-crew-labels.yml             ✅ Syncs labels across repos
 ```
 
 **Overlapping workflows:**
 - `publish.yml` (ID 241445653) — Active, triggers on `release: published`
-- `squad-publish.yml` (ID 241445655) — Active, same workflow? Possible duplicate or renamed file
-- `.github/workflows/squad-publish.yml.deprecated` — Deprecated file exists, suggests rename happened
+- `crew-publish.yml` (ID 241445655) — Active, same workflow? Possible duplicate or renamed file
+- `.github/workflows/crew-publish.yml.deprecated` — Deprecated file exists, suggests rename happened
 
 ### Pain Points
 
-1. **Duplicate/renamed workflows** — publish.yml and squad-publish.yml may be duplicates (same workflow ID suggests rename)
-2. **Dead workflows** — squad-promote.yml and squad-preview.yml reference a `preview` branch that doesn't exist
-3. **Unclear insider publish flow** — squad-insider-release.yml creates GitHub Releases, but does squad-insider-publish.yml publish to npm? If so, to which dist-tag?
+1. **Duplicate/renamed workflows** — publish.yml and crew-publish.yml may be duplicates (same workflow ID suggests rename)
+2. **Dead workflows** — crew-promote.yml and crew-preview.yml reference a `preview` branch that doesn't exist
+3. **Unclear insider publish flow** — crew-insider-release.yml creates GitHub Releases, but does crew-insider-publish.yml publish to npm? If so, to which dist-tag?
 4. **No workflow documentation** — No README or diagram showing which workflows run when and their dependencies
 
 ### Proposed Improvements
 
 **P1 — Audit and deduplicate workflows:**
-- Confirm whether `publish.yml` and `squad-publish.yml` are duplicates
+- Confirm whether `publish.yml` and `crew-publish.yml` are duplicates
 - If duplicate, delete one and update references
 - Check `.deprecated` file history to understand what changed
 - Rationale: Duplicate workflows waste CI resources and cause confusion
 
 **P1 — Preview branch decision (revisited):**
 - **If preview branch is planned:** Create the branch, document the dev → preview → main flow
-- **If preview branch is abandoned:** Delete squad-promote.yml and squad-preview.yml
+- **If preview branch is abandoned:** Delete crew-promote.yml and crew-preview.yml
 - Rationale: Workflows referencing non-existent branches are dead code
 
 **P1 — Document workflow architecture:**
@@ -447,9 +447,9 @@ sync-squad-labels.yml             ✅ Syncs labels across repos
 - Rationale: Onboarding and troubleshooting require understanding the automation flow
 
 **P2 — Insider publish flow clarification:**
-- Document: Does squad-insider-publish.yml run? If so, when and to which npm dist-tag?
+- Document: Does crew-insider-publish.yml run? If so, when and to which npm dist-tag?
 - If insider builds should publish to npm `@insider` tag, ensure workflow is wired correctly
-- If insider builds are GitHub Release-only (no npm), delete squad-insider-publish.yml
+- If insider builds are GitHub Release-only (no npm), delete crew-insider-publish.yml
 - Rationale: Unclear publish flow leads to stale dist-tags (insider tag still points to 0.6.0-alpha.0)
 
 ---
@@ -463,7 +463,7 @@ sync-squad-labels.yml             ✅ Syncs labels across repos
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": ["Squad Main Guard"]
+    "contexts": ["Crew Main Guard"]
   },
   "required_pull_request_reviews": {
     "dismiss_stale_reviews": true,
@@ -499,7 +499,7 @@ sync-squad-labels.yml             ✅ Syncs labels across repos
 **P0 — Protect dev branch:**
 - Apply same protection rules as main:
   - Require 1 approval for PRs
-  - Require "Squad CI" status check (tests must pass)
+  - Require "Crew CI" status check (tests must pass)
   - Require conversation resolution
   - Disable force pushes and deletions
 - Rationale: dev is the integration branch; unprotected dev = unreviewed code in main
@@ -509,8 +509,8 @@ sync-squad-labels.yml             ✅ Syncs labels across repos
 - Rationale: Even admins should follow the process (emergency bypass via GitHub UI if needed)
 
 **P2 — Add additional status checks:**
-- main: Require "Squad Tests" + "Squad Main Guard" (currently only Main Guard)
-- dev: Require "Squad CI" (tests)
+- main: Require "Crew Tests" + "Crew Main Guard" (currently only Main Guard)
+- dev: Require "Crew CI" (tests)
 - Rationale: Redundant test runs catch flaky tests and ensure green before merge
 
 **P2 — Require commit signing:**
@@ -519,7 +519,7 @@ sync-squad-labels.yml             ✅ Syncs labels across repos
 
 **P2 — Add CODEOWNERS:**
 - Create `.github/CODEOWNERS` with:
-  - `.squad/` → @bradygaster (team structure is product owner domain)
+  - `.crew/` → @bradygaster (team structure is product owner domain)
   - `.github/workflows/` → Drucker (CI/CD engineer, but this is fictional — map to Brady)
   - `packages/*/package.json` → Trejo (release manager — version changes require review)
 - Rationale: Auto-assign reviewers for critical paths
@@ -540,7 +540,7 @@ sync-squad-labels.yml             ✅ Syncs labels across repos
 3. **Pre-publish checklist CI job** — Automate manual checklist from SKILL.md
 4. **Dist-tag hygiene** — Stale preview/insider tags mislead users
 5. **Branch protection on dev** — Same rules as main
-6. **Workflow deduplication** — Audit publish.yml vs squad-publish.yml overlap
+6. **Workflow deduplication** — Audit publish.yml vs crew-publish.yml overlap
 
 ### P2 (Technical Debt — Address Later)
 1. **Stale branch cleanup** — Automate or manual cleanup of merged branches
@@ -563,7 +563,7 @@ sync-squad-labels.yml             ✅ Syncs labels across repos
 - Fix failing tests (ESM require → import)
 - Implement pre-publish checklist CI job
 - Fix bump-build.mjs CI detection
-- Add semver validation to squad-ci.yml and squad-release.yml
+- Add semver validation to crew-ci.yml and crew-release.yml
 
 **For Trejo (Release Manager):**
 - Execute stale tag cleanup (delete v0.8.6.15-preview-insider+5664fd0, clarify v0.8.2)

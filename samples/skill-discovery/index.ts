@@ -1,7 +1,7 @@
 /**
  * Skill Discovery Sample
  *
- * Demonstrates the Squad SDK skills system:
+ * Demonstrates the Crew SDK skills system:
  * - Loading skills from a directory of SKILL.md files
  * - Registering skills in a SkillRegistry
  * - Matching skills to task descriptions via triggers + role affinity
@@ -17,7 +17,7 @@ import {
   loadSkillsFromDirectory,
   parseSkillFile,
   parseFrontmatter,
-} from '@bradygaster/squad-sdk/skills';
+} from '@blacklite/crew-sdk/skills';
 
 // ── Helpers ──────────────────────────────────────────────
 
@@ -89,11 +89,11 @@ Target 80% coverage minimum, 100% on critical paths.
 // ── Main Demo ────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  heading('🔍 Squad SDK — Skill Discovery Demo');
+  heading('🔍 Crew SDK — Skill Discovery Demo');
 
   // Create a temporary skills directory
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'squad-skills-demo-'));
-  const skillsDir = path.join(tmpDir, '.squad', 'skills');
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-skills-demo-'));
+  const skillsDir = path.join(tmpDir, '.crew', 'skills');
 
   console.log('  Creating temporary skill files...');
   for (const [id, content] of Object.entries(SKILL_FILES)) {

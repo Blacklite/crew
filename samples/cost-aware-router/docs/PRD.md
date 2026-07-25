@@ -4,7 +4,7 @@
 Route work to the right model tier based on task complexity and budget. Expensive tasks go to Full (o1, Claude 3.5 Sonnet). Simple tasks go to Lightweight (GPT-4o mini). Track every decision, aggregate cost, and report savings. This is the cost-first principle in action — prove that routing optimizes dollars.
 
 ## Target Audience
-Team leads managing AI spend. Engineering managers who need cost visibility. Anyone building Squad deployments with budget constraints.
+Team leads managing AI spend. Engineering managers who need cost visibility. Anyone building Crew deployments with budget constraints.
 
 ## SDK APIs Demonstrated
 
@@ -13,14 +13,14 @@ Team leads managing AI spend. Engineering managers who need cost visibility. Any
 | `selectResponseTier()` | `coordinator/response-tiers` | Choose tier based on task content and available budget |
 | `getTier()` | `coordinator/response-tiers` | Look up tier definition by name (Direct, Lightweight, Standard, Full) |
 | `MODELS` | `runtime/constants` | Available models per tier with per-token pricing |
-| `CostTracker` | `runtime/cost-tracker` | Accumulate cost/token data across squad run |
+| `CostTracker` | `runtime/cost-tracker` | Accumulate cost/token data across crew run |
 | `TierContext`, `ResponseTier` | `coordinator/response-tiers` | Typed config for tier selection logic |
 
 ## Code Highlights
 
 **Initialize cost tracker and tier system:**
 ```typescript
-import { selectResponseTier, getTier, MODELS, CostTracker } from '@bradygaster/squad-sdk';
+import { selectResponseTier, getTier, MODELS, CostTracker } from '@blacklite/crew-sdk';
 
 const costTracker = new CostTracker();
 const budget = 100.00; // USD

@@ -4,7 +4,7 @@ import {
   parseSemVer,
   compareSemVer,
   type Migration,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
   parseTeamMarkdown,
   parseRoutingRulesMarkdown,
@@ -12,7 +12,7 @@ import {
   migrateMarkdownToConfig,
   generateConfigFromParsed,
   type MarkdownParseResult,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // ============================================================================
 // Migration Registry

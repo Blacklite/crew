@@ -1,6 +1,6 @@
 # Marketplace Guide
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Issue:** #39 (M5-16)
@@ -9,24 +9,24 @@
 
 ## Overview
 
-The Squad marketplace lets teams export, import, browse, and install agent configurations. This guide covers the full lifecycle: packaging, publishing, discovery, installation, versioning, caching, and security.
+The Crew marketplace lets teams export, import, browse, and install agent configurations. This guide covers the full lifecycle: packaging, publishing, discovery, installation, versioning, caching, and security.
 
 ## Export / Import
 
-Export your Squad configuration as a portable bundle:
+Export your Crew configuration as a portable bundle:
 
 ```typescript
-import { exportSquadConfig, importSquadConfig } from '@squad/sdk';
+import { exportCrewConfig, importCrewConfig } from '@crew/sdk';
 
 // Export
-const bundle = await exportSquadConfig(config, {
+const bundle = await exportCrewConfig(config, {
   includeHistory: false,
   anonymize: true,
   format: 'json',
 });
 
 // Import into another project
-const result = await importSquadConfig(bundle, targetDir, {
+const result = await importCrewConfig(bundle, targetDir, {
   merge: true,
   dryRun: false,
 });
@@ -40,7 +40,7 @@ console.log(`Applied ${result.changes.length} changes`);
 Pin agents to specific versions for reproducible teams:
 
 ```typescript
-import { pinAgentVersion, getAgentVersion, configureAgentRepo } from '@squad/sdk';
+import { pinAgentVersion, getAgentVersion, configureAgentRepo } from '@crew/sdk';
 
 await pinAgentVersion({ agentId: 'backend', sha: 'abc123', source: 'github' });
 const pin = await getAgentVersion('backend');
@@ -64,7 +64,7 @@ const pin = await getAgentVersion('backend');
 7 security rules (`SECURITY_RULES`) validate remote agents before installation:
 
 ```typescript
-import { validateRemoteAgent, generateSecurityReport } from '@squad/sdk';
+import { validateRemoteAgent, generateSecurityReport } from '@crew/sdk';
 
 const report = await validateRemoteAgent(agentDefinition);
 if (report.blocked.length > 0) {
@@ -80,7 +80,7 @@ if (report.blocked.length > 0) {
 `MarketplaceBrowser` provides CLI-based discovery:
 
 ```typescript
-import { MarketplaceBrowser } from '@squad/sdk';
+import { MarketplaceBrowser } from '@crew/sdk';
 
 const browser = new MarketplaceBrowser(fetcher);
 const results = await browser.search({
@@ -97,4 +97,4 @@ const installResult = await browser.install(results.entries[0], targetDir);
 
 ## Extensions
 
-`ExtensionAdapter` bridges Squad to the Copilot Extensions API. `toExtensionConfig()` converts Squad config to extension format. `registerExtension()` handles marketplace registration.
+`ExtensionAdapter` bridges Crew to the Copilot Extensions API. `toExtensionConfig()` converts Crew config to extension format. `registerExtension()` handles marketplace registration.

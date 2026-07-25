@@ -37,7 +37,7 @@ function info(msg: string): void {
 
 // ── Main ────────────────────────────────────────────────────────────────
 
-const CONTAINER_NAME = 'squad-storage-demo';
+const CONTAINER_NAME = 'crew-storage-demo';
 
 async function main(): Promise<void> {
   header('Azure Blob StorageProvider Demo');

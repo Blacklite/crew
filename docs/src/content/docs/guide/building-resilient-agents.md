@@ -5,7 +5,7 @@ description: "Use the circuit breaker pattern to handle transient failures grace
 
 Long-running agents face inevitable transient failures: rate limits, network timeouts, upstream service degradation. The circuit breaker pattern protects your agents from cascading failures by stopping requests before they fail, and automatically recovering when the system stabilizes.
 
-> **The circuit breaker works out of the box.** Squad includes sensible defaults for your agents. You only need to configure it if you want to customize thresholds or backoff timing. See [Configuration](#configuration) for details.
+> **The circuit breaker works out of the box.** Crew includes sensible defaults for your agents. You only need to configure it if you want to customize thresholds or backoff timing. See [Configuration](#configuration) for details.
 
 ---
 
@@ -38,7 +38,7 @@ Each failed probe attempt resets the backoff. This gives flaky services time to 
 
 ## Configuration
 
-Squad includes sensible defaults — most agents won't need to change these. Configure the circuit breaker in your agent's `squad.json` or initialization code only if you want to customize:
+Crew includes sensible defaults — most agents won't need to change these. Configure the circuit breaker in your agent's `crew.json` or initialization code only if you want to customize:
 
 ```json
 {
@@ -75,7 +75,7 @@ The circuit breaker persists its state to disk. If an agent restarts while the c
 When building a custom agent, wrap your external calls with circuit breaker protection:
 
 ```typescript
-import { CircuitBreaker } from '@squad/resilience';
+import { CircuitBreaker } from '@crew/resilience';
 
 const breaker = new CircuitBreaker({
   failureThreshold: 5,
@@ -121,5 +121,5 @@ Log state transitions and include the circuit state in agent status or dashboard
 
 ## See also
 
-- [PR #552](https://github.com/bradygaster/squad/pull/552) — Circuit breaker implementation
+- [PR #552](https://github.com/Blacklite/crew/pull/552) — Circuit breaker implementation
 - [Failure handling](../reference/tools-and-hooks) — Error boundaries and fallbacks

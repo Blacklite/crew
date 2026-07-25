@@ -3,26 +3,26 @@
  *
  * Prior to iter-5, TEMPLATE_MANIFEST entries for ~20 generic template docs
  * (charter.md, history.md, roster.md, scribe-charter.md, ...) had
- * `destination: '<basename>.md'` — flat to `.squad/`. On every `squad upgrade`,
- * the upgrade loop would dump that pile of reference docs into the `.squad/`
+ * `destination: '<basename>.md'` — flat to `.crew/`. On every `crew upgrade`,
+ * the upgrade loop would dump that pile of reference docs into the `.crew/`
  * root, cluttering it and confusing users (visible in
- * `.squad/files/validation/REVAL-ITER4-multiplayer-sudoku.md`).
+ * `.crew/files/validation/REVAL-ITER4-multiplayer-sudoku.md`).
  *
  * This test pins the routing: every `.md` template (except those that target
  * `.github/` or `.copilot/` via the `..` parent prefix) must land under either
  * `templates/`, `agents/`, `identity/`, or another nested subdirectory — never
- * directly at `.squad/` root.
+ * directly at `.crew/` root.
  */
 
 import { describe, it, expect } from 'vitest';
-import { TEMPLATE_MANIFEST } from '../packages/squad-cli/src/cli/core/templates.js';
+import { TEMPLATE_MANIFEST } from '../packages/crew-cli/src/cli/core/templates.js';
 
-describe('TEMPLATE_MANIFEST routing (iter-5: no doc dumping into .squad/ root)', () => {
-  it('no plain .md template lands at the .squad/ root', () => {
+describe('TEMPLATE_MANIFEST routing (iter-5: no doc dumping into .crew/ root)', () => {
+  it('no plain .md template lands at the .crew/ root', () => {
     const offenders: { source: string; destination: string }[] = [];
 
     for (const entry of TEMPLATE_MANIFEST) {
-      // skip files routed outside .squad/ (../.github, ../.copilot)
+      // skip files routed outside .crew/ (../.github, ../.copilot)
       if (entry.destination.startsWith('..')) continue;
       // only check markdown templates here
       if (!entry.destination.endsWith('.md')) continue;
@@ -37,12 +37,12 @@ describe('TEMPLATE_MANIFEST routing (iter-5: no doc dumping into .squad/ root)',
 
     expect(
       offenders,
-      `${offenders.length} template .md(s) are still flat-routed to .squad/ root: ` +
+      `${offenders.length} template .md(s) are still flat-routed to .crew/ root: ` +
         JSON.stringify(offenders, null, 2),
     ).toEqual([]);
   });
 
-  it('generic doc templates are routed to .squad/templates/', () => {
+  it('generic doc templates are routed to .crew/templates/', () => {
     const expected: Record<string, string> = {
       'charter.md': 'templates/charter.md',
       'history.md': 'templates/history.md',
@@ -70,7 +70,7 @@ describe('TEMPLATE_MANIFEST routing (iter-5: no doc dumping into .squad/ root)',
     }
   });
 
-  it('casting JSON files remain flat at .squad/ root (runtime contract)', () => {
+  it('casting JSON files remain flat at .crew/ root (runtime contract)', () => {
     // The SDK and many agent skills read these via the flat path; moving them
     // would silently break runtime. This pin documents the intentional carve-out.
     const flatJsonExpected = [

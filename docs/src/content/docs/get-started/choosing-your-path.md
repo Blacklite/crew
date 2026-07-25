@@ -1,6 +1,6 @@
 # Choose your path
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 CLI, Copilot agent, or SDK? Pick the right mode for your workflow.
 
@@ -10,13 +10,13 @@ CLI, Copilot agent, or SDK? Pick the right mode for your workflow.
 
 ### CLI mode
 
-Install Squad globally or per-project, then use terminal commands to initialize, route work, and manage your team.
+Install Crew globally or per-project, then use terminal commands to initialize, route work, and manage your team.
 
 ```bash
-npm install -g @bradygaster/squad-cli
-squad init
-squad status
-squad watch
+npm install -g @blacklite/crew-cli
+crew init
+crew status
+crew watch
 ```
 
 **Use for:** Terminal workflows, automation scripts, CI/CD integration.
@@ -25,13 +25,13 @@ squad watch
 
 ### Copilot agent mode
 
-Talk to Squad in GitHub Copilot CLI or VS Code. Squad is built-in as an agent. Your `.squad/` directory works identically to CLI mode.
+Talk to Crew in GitHub Copilot CLI or VS Code. Crew is built-in as an agent. Your `.crew/` directory works identically to CLI mode.
 
 ```bash
 copilot
-> /agent Squad
+> /agent Crew
 
-Squad: Hey Brady, what are you building?
+Crew: Hey Brady, what are you building?
 ```
 
 **Use for:** Conversational workflows, exploratory work, VS Code users.
@@ -40,20 +40,20 @@ Squad: Hey Brady, what are you building?
 
 ### SDK mode
 
-Write TypeScript code that spawns agents, routes work, and coordinates teams programmatically. Full access to Squad's internals.
+Write TypeScript code that spawns agents, routes work, and coordinates teams programmatically. Full access to Crew's internals.
 
 ```bash
-npm install @bradygaster/squad-sdk
+npm install @blacklite/crew-sdk
 ```
 
 ```typescript
-import { Coordinator } from '@bradygaster/squad-sdk';
+import { Coordinator } from '@blacklite/crew-sdk';
 
 const coordinator = new Coordinator();
 const result = await coordinator.route('Build a login page');
 ```
 
-**Use for:** Building tools on Squad, custom integrations, advanced automation.
+**Use for:** Building tools on Crew, custom integrations, advanced automation.
 
 ---
 
@@ -61,7 +61,7 @@ const result = await coordinator.route('Build a login page');
 
 | **Your goal** | **Use** |
 |---------------|---------|
-| Try Squad quickly | **Copilot agent** — no install |
+| Try Crew quickly | **Copilot agent** — no install |
 | Work in the terminal | **CLI** |
 | Work in VS Code | **Copilot agent** |
 | Automate repetitive tasks | **CLI** or **SDK** |
@@ -72,11 +72,11 @@ const result = await coordinator.route('Build a login page');
 
 ## Can I use multiple modes?
 
-Yes. Your `.squad/` directory is the source of truth. CLI, Copilot agent, and SDK all read and write the same files. You can switch between modes anytime.
+Yes. Your `.crew/` directory is the source of truth. CLI, Copilot agent, and SDK all read and write the same files. You can switch between modes anytime.
 
 Example workflow:
 1. Use **Copilot agent** to form your team and do exploratory work
-2. Use **CLI** (`squad watch`) to monitor issues in the background
+2. Use **CLI** (`crew watch`) to monitor issues in the background
 3. Use **SDK** to build a custom deployment script that spawns agents
 
 All three modes share the same memory and decisions.

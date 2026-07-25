@@ -9,8 +9,8 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
-import { runInit } from '@bradygaster/squad-cli/core/init';
-import { getPackageVersion } from '@bradygaster/squad-cli/core/version';
+import { runInit } from '@blacklite/crew-cli/core/init';
+import { getPackageVersion } from '@blacklite/crew-cli/core/version';
 
 const TEST_ROOT = join(tmpdir(), `.test-cli-init-${randomBytes(4).toString('hex')}`);
 const TEST_HOME = join(tmpdir(), `.test-cli-init-home-${randomBytes(4).toString('hex')}`);
@@ -27,11 +27,11 @@ describe('CLI: init command', () => {
     await mkdir(TEST_HOME, { recursive: true });
     // iter-7: redirect ~/.copilot/mcp-config.json writes to a temp dir so
     // tests don't pollute the developer's real HOME.
-    process.env.SQUAD_HOME_DIR_OVERRIDE = TEST_HOME;
+    process.env.CREW_HOME_DIR_OVERRIDE = TEST_HOME;
   });
 
   afterEach(async () => {
-    delete process.env.SQUAD_HOME_DIR_OVERRIDE;
+    delete process.env.CREW_HOME_DIR_OVERRIDE;
     if (existsSync(TEST_ROOT)) {
       await rm(TEST_ROOT, { recursive: true, force: true });
     }
@@ -40,21 +40,21 @@ describe('CLI: init command', () => {
     }
   });
 
-  it('should create squad.agent.md in .github/agents/', async () => {
+  it('should create crew.agent.md in .github/agents/', async () => {
     await runInit(TEST_ROOT);
     
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     expect(existsSync(agentPath)).toBe(true);
     
     const content = await readFile(agentPath, 'utf-8');
-    expect(content).toContain('Squad');
+    expect(content).toContain('Crew');
     expect(content).toContain('version:');
   });
 
-  it('should stamp CLI version in squad.agent.md during init (#321)', async () => {
+  it('should stamp CLI version in crew.agent.md during init (#321)', async () => {
     await runInit(TEST_ROOT);
     
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     const content = await readFile(agentPath, 'utf-8');
     const currentVersion = getPackageVersion();
     
@@ -63,27 +63,27 @@ describe('CLI: init command', () => {
     // Identity section must contain the current CLI version
     expect(content).toContain(`- **Version:** ${currentVersion}`);
     // {version} placeholder must be replaced
-    expect(content).not.toContain('`Squad v{version}`');
-    expect(content).toContain(`Squad v${currentVersion}`);
+    expect(content).not.toContain('`Crew v{version}`');
+    expect(content).toContain(`Crew v${currentVersion}`);
   });
 
-  it('should create .squad/ directory structure', async () => {
+  it('should create .crew/ directory structure', async () => {
     await runInit(TEST_ROOT);
     
-    expect(existsSync(join(TEST_ROOT, '.squad'))).toBe(true);
-    expect(existsSync(join(TEST_ROOT, '.squad', 'decisions', 'inbox'))).toBe(true);
-    expect(existsSync(join(TEST_ROOT, '.squad', 'orchestration-log'))).toBe(true);
-    expect(existsSync(join(TEST_ROOT, '.squad', 'casting'))).toBe(true);
+    expect(existsSync(join(TEST_ROOT, '.crew'))).toBe(true);
+    expect(existsSync(join(TEST_ROOT, '.crew', 'decisions', 'inbox'))).toBe(true);
+    expect(existsSync(join(TEST_ROOT, '.crew', 'orchestration-log'))).toBe(true);
+    expect(existsSync(join(TEST_ROOT, '.crew', 'casting'))).toBe(true);
     expect(existsSync(join(TEST_ROOT, '.github', 'skills'))).toBe(true);
-    expect(existsSync(join(TEST_ROOT, '.squad', 'plugins'))).toBe(true);
-    expect(existsSync(join(TEST_ROOT, '.squad', 'identity'))).toBe(true);
+    expect(existsSync(join(TEST_ROOT, '.crew', 'plugins'))).toBe(true);
+    expect(existsSync(join(TEST_ROOT, '.crew', 'identity'))).toBe(true);
   });
 
   it('should create identity files (now.md, wisdom.md)', async () => {
     await runInit(TEST_ROOT);
     
-    const nowPath = join(TEST_ROOT, '.squad', 'identity', 'now.md');
-    const wisdomPath = join(TEST_ROOT, '.squad', 'identity', 'wisdom.md');
+    const nowPath = join(TEST_ROOT, '.crew', 'identity', 'now.md');
+    const wisdomPath = join(TEST_ROOT, '.crew', 'identity', 'wisdom.md');
     
     expect(existsSync(nowPath)).toBe(true);
     expect(existsSync(wisdomPath)).toBe(true);
@@ -96,11 +96,11 @@ describe('CLI: init command', () => {
     expect(wisdomContent).toContain('Team Wisdom');
   });
 
-  it('should NOT write any squad_state entries to ~/.copilot/mcp-config.json (regression: #1296)', async () => {
-    // iter-8 design: init writes squad_state to repo-root .mcp.json ONLY.
-    // Pre-fix, the unconditional `ensureSquadStateMcpInUserConfig` call
-    // inside both `initSquad` (SDK) and the `upgrade` command used to
-    // write squad_state_<hash> to HOME on every init, accumulating one
+  it('should NOT write any crew_state entries to ~/.copilot/mcp-config.json (regression: #1296)', async () => {
+    // iter-8 design: init writes crew_state to repo-root .mcp.json ONLY.
+    // Pre-fix, the unconditional `ensureCrewStateMcpInUserConfig` call
+    // inside both `initCrew` (SDK) and the `upgrade` command used to
+    // write crew_state_<hash> to HOME on every init, accumulating one
     // entry per project with no GC and contradicting the iter-8
     // docstring's stated "No HOME modifications" intent. (Referencing the
     // function name rather than line numbers keeps this comment durable
@@ -108,7 +108,7 @@ describe('CLI: init command', () => {
     //
     // This test isolates the developer's real HOME by setting USERPROFILE
     // (Windows) and HOME (POSIX) to a temp dir before init, then asserting
-    // no squad_state* entries appear under that temp HOME.
+    // no crew_state* entries appear under that temp HOME.
     const fakeHome = join(tmpdir(), `.test-fake-home-${randomBytes(4).toString('hex')}`);
     await mkdir(fakeHome, { recursive: true });
     const originalUserprofile = process.env.USERPROFILE;
@@ -123,8 +123,8 @@ describe('CLI: init command', () => {
         const content = await readFile(fakeHomeMcp, 'utf-8');
         const config = JSON.parse(content);
         const servers = (config.mcpServers as Record<string, unknown> | undefined) ?? {};
-        const offending = Object.keys(servers).filter(k => k.startsWith('squad_state'));
-        expect(offending, `init must not write squad_state entries to HOME; found: ${offending.join(', ')}`).toEqual([]);
+        const offending = Object.keys(servers).filter(k => k.startsWith('crew_state'));
+        expect(offending, `init must not write crew_state entries to HOME; found: ${offending.join(', ')}`).toEqual([]);
       }
       // (If the file doesn't exist at all, that's also a pass — init touched
       // nothing under HOME, which is the iter-8 ideal.)
@@ -137,7 +137,7 @@ describe('CLI: init command', () => {
     }
   });
 
-  it('should create .copilot/mcp-config.json without squad_state (iter-7: lives in ~/.copilot)', async () => {
+  it('should create .copilot/mcp-config.json without crew_state (iter-7: lives in ~/.copilot)', async () => {
     await runInit(TEST_ROOT);
 
     const mcpPath = join(TEST_ROOT, '.copilot', 'mcp-config.json');
@@ -146,10 +146,10 @@ describe('CLI: init command', () => {
     const content = await readFile(mcpPath, 'utf-8');
     const config = JSON.parse(content);
     expect(config).toHaveProperty('mcpServers');
-    // iter-7: squad_state is now written to ~/.copilot/mcp-config.json and
+    // iter-7: crew_state is now written to ~/.copilot/mcp-config.json and
     // tombstoned out of the project file so github/copilot auto-loads it.
-    expect(config.mcpServers).not.toHaveProperty('squad_state');
-    expect(content).not.toContain('SQUAD_TEAM_ROOT');
+    expect(config.mcpServers).not.toHaveProperty('crew_state');
+    expect(content).not.toContain('CREW_TEAM_ROOT');
     expect(content).not.toContain(TEST_ROOT);
   });
 
@@ -159,31 +159,31 @@ describe('CLI: init command', () => {
     const mcpPath = join(TEST_ROOT, '.copilot', 'mcp-config.json');
     expect(existsSync(mcpPath)).toBe(false);
 
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     const content = await readFile(agentPath, 'utf-8');
     expect(content).toContain('mcp-servers:');
-    expect(content).toContain('  squad_state:');
+    expect(content).toContain('  crew_state:');
     expect(content).toContain('    type: local');
-    // args may be pinned (`@bradygaster/squad-cli@<version>`) or unpinned
+    // args may be pinned (`@blacklite/crew-cli@<version>`) or unpinned
     // depending on whether getPackageVersion() resolved a real version at
     // test time. Either shape is acceptable here.
-    expect(content).toMatch(/args:\s*\['-y',\s*'@bradygaster\/squad-cli(@[^']+)?',\s*'state-mcp'\]/);
+    expect(content).toMatch(/args:\s*\['-y',\s*'@blacklite\/crew-cli(@[^']+)?',\s*'state-mcp'\]/);
     expect(content).toContain('    tools: ["*"]');
     const frontmatterEnd = content.indexOf('\n---', 4);
     expect(frontmatterEnd).toBeGreaterThan(0);
     const frontmatter = content.slice(0, frontmatterEnd);
-    expect(frontmatter).not.toContain('SQUAD_TEAM_ROOT');
+    expect(frontmatter).not.toContain('CREW_TEAM_ROOT');
     expect(frontmatter).not.toContain(TEST_ROOT);
 
-    const squadConfigPath = join(TEST_ROOT, '.squad', 'config.json');
-    const squadConfig = JSON.parse(await readFile(squadConfigPath, 'utf-8'));
-    expect(squadConfig.mcpConfigMode).toBe('agent-frontmatter');
+    const crewConfigPath = join(TEST_ROOT, '.crew', 'config.json');
+    const crewConfig = JSON.parse(await readFile(crewConfigPath, 'utf-8'));
+    expect(crewConfig.mcpConfigMode).toBe('agent-frontmatter');
   });
 
   it('should not patch existing agent frontmatter on re-init', async () => {
     await runInit(TEST_ROOT);
 
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     const firstContent = await readFile(agentPath, 'utf-8');
 
     await runInit(TEST_ROOT, { mcpFrontmatter: true });
@@ -196,7 +196,7 @@ describe('CLI: init command', () => {
   it('should create ceremonies.md', async () => {
     await runInit(TEST_ROOT);
     
-    const ceremoniesPath = join(TEST_ROOT, '.squad', 'ceremonies.md');
+    const ceremoniesPath = join(TEST_ROOT, '.crew', 'ceremonies.md');
     expect(existsSync(ceremoniesPath)).toBe(true);
   });
 
@@ -207,8 +207,8 @@ describe('CLI: init command', () => {
     expect(existsSync(gitattributesPath)).toBe(true);
     
     const content = await readFile(gitattributesPath, 'utf-8');
-    expect(content).toContain('.squad/decisions.md merge=union');
-    expect(content).toContain('.squad/orchestration-log/** merge=union');
+    expect(content).toContain('.crew/decisions.md merge=union');
+    expect(content).toContain('.crew/orchestration-log/** merge=union');
   });
 
   it('should append to .gitignore with runtime state exclusions', async () => {
@@ -218,20 +218,20 @@ describe('CLI: init command', () => {
     expect(existsSync(gitignorePath)).toBe(true);
     
     const content = await readFile(gitignorePath, 'utf-8');
-    expect(content).toContain('.squad/orchestration-log/');
-    expect(content).toContain('.squad/log/');
-    expect(content).toContain('.squad/decisions/inbox/');
-    expect(content).toContain('.squad/sessions/');
+    expect(content).toContain('.crew/orchestration-log/');
+    expect(content).toContain('.crew/log/');
+    expect(content).toContain('.crew/decisions/inbox/');
+    expect(content).toContain('.crew/sessions/');
   });
 
-  it('should copy templates to .squad/templates/', async () => {
+  it('should copy templates to .crew/templates/', async () => {
     await runInit(TEST_ROOT);
     
-    const templatesPath = join(TEST_ROOT, '.squad', 'templates');
+    const templatesPath = join(TEST_ROOT, '.crew', 'templates');
     expect(existsSync(templatesPath)).toBe(true);
     
-    // Should contain squad.agent.md.template (renamed to prevent CLI discovery)
-    expect(existsSync(join(templatesPath, 'squad.agent.md.template'))).toBe(true);
+    // Should contain crew.agent.md.template (renamed to prevent CLI discovery)
+    expect(existsSync(join(templatesPath, 'crew.agent.md.template'))).toBe(true);
   });
 
   it('should copy starter skills if none exist', async () => {
@@ -251,10 +251,10 @@ describe('CLI: init command', () => {
     expect(existsSync(workflowsPath)).toBe(true);
     
     const frameworkWorkflows = [
-      'squad-heartbeat.yml',
-      'squad-triage.yml',
-      'squad-issue-assign.yml',
-      'sync-squad-labels.yml'
+      'crew-heartbeat.yml',
+      'crew-triage.yml',
+      'crew-issue-assign.yml',
+      'sync-crew-labels.yml'
     ];
     
     for (const workflow of frameworkWorkflows) {
@@ -268,13 +268,13 @@ describe('CLI: init command', () => {
     const workflowsPath = join(TEST_ROOT, '.github', 'workflows');
     
     const cicdWorkflows = [
-      'squad-ci.yml',
-      'squad-release.yml',
-      'squad-docs.yml',
-      'squad-insider-release.yml',
-      'squad-preview.yml',
-      'squad-promote.yml',
-      'squad-label-enforce.yml'
+      'crew-ci.yml',
+      'crew-release.yml',
+      'crew-docs.yml',
+      'crew-insider-release.yml',
+      'crew-preview.yml',
+      'crew-promote.yml',
+      'crew-label-enforce.yml'
     ];
     
     for (const workflow of cicdWorkflows) {
@@ -285,7 +285,7 @@ describe('CLI: init command', () => {
   it('should not overwrite existing files on re-init', async () => {
     await runInit(TEST_ROOT);
     
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     const firstContent = await readFile(agentPath, 'utf-8');
     
     // Modify the file

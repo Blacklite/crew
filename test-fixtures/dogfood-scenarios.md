@@ -1,7 +1,7 @@
-# Dogfood Scenarios — Squad REPL Testing
+# Dogfood Scenarios — Crew REPL Testing
 
 ## Overview
-This document describes 8 realistic dogfood scenarios for testing the Squad REPL against real-world project structures. Each scenario represents a common architecture pattern or edge case that users will encounter.
+This document describes 8 realistic dogfood scenarios for testing the Crew REPL against real-world project structures. Each scenario represents a common architecture pattern or edge case that users will encounter.
 
 ---
 
@@ -21,7 +21,7 @@ Tests that the REPL correctly identifies Python packages, handles `requirements.
 **Expected REPL behavior:**
 - Discovers `src/app.py` and `tests/test_app.py` immediately
 - Parses `requirements.txt` to understand dependencies (Flask, pytest, etc.)
-- Loads `.squad/team.md` with 1–3 agents (e.g., Backend, Tester)
+- Loads `.crew/team.md` with 1–3 agents (e.g., Backend, Tester)
 - Responds to `@backend --help` with context about Flask codebase
 - Completion/suggestions work for common commands (list, status, ask)
 
@@ -220,7 +220,7 @@ Tests that the REPL's directory traversal doesn't hit performance cliffs, memory
 ## Scenario 6: Minimal/Empty Repository (Just .git, No Code)
 
 **Description:**
-A freshly created repository with `.git/`, `.gitignore`, `README.md`, and nothing else—no code, no .squad/ directory.
+A freshly created repository with `.git/`, `.gitignore`, `README.md`, and nothing else—no code, no .crew/ directory.
 
 **Real-world pattern:**
 - Repository template just created
@@ -229,26 +229,26 @@ A freshly created repository with `.git/`, `.gitignore`, `README.md`, and nothin
 - New hire's first PR (empty repo for training)
 
 **Why it matters:**
-Tests graceful degradation when there's no actual code to analyze. REPL should show helpful hints ("no agents found, run `squad init`") rather than crash or hang.
+Tests graceful degradation when there's no actual code to analyze. REPL should show helpful hints ("no agents found, run `crew init`") rather than crash or hang.
 
 **Expected REPL behavior:**
 - REPL launches without error
-- `list agents` returns empty with helpful hint: "No agents found. Run `squad init` to get started."
-- `doctor` or health check shows "No .squad/ directory; this is a fresh repository."
-- `squad init` (if supported) offers to create a starter team.md
+- `list agents` returns empty with helpful hint: "No agents found. Run `crew init` to get started."
+- `doctor` or health check shows "No .crew/ directory; this is a fresh repository."
+- `crew init` (if supported) offers to create a starter team.md
 - User can manually ask `"what files exist?"` without error
 
 **Edge cases to watch:**
 - No `.git/` at all (not a repo)
-- `.squad/` directory exists but is empty or unreadable
-- `.squad/team.md` exists but is completely empty or malformed
+- `.crew/` directory exists but is empty or unreadable
+- `.crew/team.md` exists but is completely empty or malformed
 - README.md references agents that don't exist
 - Hidden files like `.gitignore` only (no visible code)
 
 **Pass criteria:**
 - REPL launches and shows prompt
 - `list agents` returns empty gracefully (no crash)
-- Help messages guide user to `squad init`
+- Help messages guide user to `crew init`
 - `status` shows "no agents"
 - No stack traces or warnings in stderr
 
@@ -256,20 +256,20 @@ Tests graceful degradation when there's no actual code to analyze. REPL should s
 - REPL hangs waiting for code
 - `list agents` crashes or times out
 - Confusing error: "Cannot read property of undefined"
-- No hint about running `squad init`
+- No hint about running `crew init`
 
 ---
 
 ## Scenario 7: Repository with Many Agents (20+ in Team Roster)
 
 **Description:**
-A large team with 20–30 agents defined in `.squad/team.md`, each with full charter and metadata. Tests UI/UX at scale.
+A large team with 20–30 agents defined in `.crew/team.md`, each with full charter and metadata. Tests UI/UX at scale.
 
 **Real-world pattern:**
 - Large tech organization (50+ engineering team)
 - Multi-functional team (backend, frontend, QA, DevOps, data, etc.)
 - Specialized roles and on-call rotations
-- Typical team size: 50–100+ people (but 20+ agents in squad)
+- Typical team size: 50–100+ people (but 20+ agents in crew)
 
 **Why it matters:**
 Tests that the REPL's list/search/filter operations remain snappy even with large rosters. Also tests that agent selection and context don't degrade (e.g., scrolling through 20 agents shouldn't be painful).
@@ -287,7 +287,7 @@ Tests that the REPL's list/search/filter operations remain snappy even with larg
 - Very long agent descriptions (100+ chars) overflow display
 - Agents with special characters in names (emoji, unicode)
 - Duplicate agent IDs in roster (malformed team.md)
-- Agents with no charter file (.squad/agents/{name}/charter.md missing)
+- Agents with no charter file (.crew/agents/{name}/charter.md missing)
 
 **Pass criteria:**
 - `list agents` shows all 20+ agents, sortable/filterable
@@ -305,41 +305,41 @@ Tests that the REPL's list/search/filter operations remain snappy even with larg
 
 ---
 
-## Scenario 8: Corrupt/Partial .squad/ State (Edge Case)
+## Scenario 8: Corrupt/Partial .crew/ State (Edge Case)
 
 **Description:**
-Repository with a broken or partially initialized `.squad/` directory:
+Repository with a broken or partially initialized `.crew/` directory:
 - Missing `## Members` header in team.md
 - Agent charter files missing for some agents
-- Invalid JSON in `.squad/casting-registry.json`
-- Symlinks or permission issues on .squad/ files
+- Invalid JSON in `.crew/casting-registry.json`
+- Symlinks or permission issues on .crew/ files
 
 **Real-world pattern:**
 - Accidental delete/merge conflict in team.md
 - Incomplete initialization (init script interrupted)
 - File permissions changed by CI/deployment tool
-- Stale branch merged with outdated .squad/ state
+- Stale branch merged with outdated .crew/ state
 - Developer manually edited team.md and introduced syntax error
 
 **Why it matters:**
 Tests that the REPL fails gracefully and provides actionable remediation hints (not just "Cannot read property '0' of undefined").
 
 **Expected REPL behavior:**
-- REPL launches but shows warning: "⚠️ Parsing .squad/team.md failed at line 42: missing ## Members header"
+- REPL launches but shows warning: "⚠️ Parsing .crew/team.md failed at line 42: missing ## Members header"
 - `list agents` returns partial roster (only successfully parsed agents)
 - Missing charter files don't crash agent load: "⚠️ Charter for @alice not found, using defaults"
 - `status` shows warnings/errors, not silent failure
 - User can still interact with REPL (ask questions, etc.) despite broken state
 - `doctor` command shows all problems in one place
-- Help text includes: "Run `squad fix` or `squad init --repair` to fix .squad/"
+- Help text includes: "Run `crew fix` or `crew init --repair` to fix .crew/"
 
 **Edge cases to watch:**
 - team.md is completely empty
 - team.md exists but is not readable (permission denied)
-- team.md is valid YAML but parsing contradicts Squad schema
+- team.md is valid YAML but parsing contradicts Crew schema
 - Casting registry is not valid JSON
 - Agent name in charter path doesn't match roster
-- Circular symlinks in .squad/agents/
+- Circular symlinks in .crew/agents/
 
 **Pass criteria:**
 - REPL does not crash on startup
@@ -381,7 +381,7 @@ Tests that the REPL fails gracefully and provides actionable remediation hints (
 ### Example: Testing Scenario 2 (Node Monorepo)
 ```bash
 cd test-fixtures/dogfood/node-monorepo
-node ../../packages/squad-cli/dist/cli-entry.js
+node ../../packages/crew-cli/dist/cli-entry.js
 
 # In REPL:
 list agents

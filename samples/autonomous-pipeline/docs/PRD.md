@@ -4,21 +4,21 @@
 The "wow" demo. A live terminal dashboard shows agents working autonomously: routing tasks, making decisions, recording telemetry, managing cost. No human prompting. Work flows through the pipeline—task queue → router → agent selection → execution → decision log → cost report. Full SDK stack in action.
 
 ## Target Audience
-Executives, investors, and engineering leaders who need to see Squad in action. "Here's how autonomous agent teams actually work." Proof that coordination and governance work at scale.
+Executives, investors, and engineering leaders who need to see Crew in action. "Here's how autonomous agent teams actually work." Proof that coordination and governance work at scale.
 
 ## SDK APIs Demonstrated
 
 | API | Module | What It Shows |
 |-----|--------|--------------|
 | `CastingEngine.castTeam()` | `casting` | Assign agent personas from universe |
-| `SquadClient` / `SessionPool` | `client` | Manage persistent, recoverable agent sessions |
+| `CrewClient` / `SessionPool` | `client` | Manage persistent, recoverable agent sessions |
 | `Router.matchRoute()` | `coordinator` | Deterministic task routing |
 | `HookPipeline` | `hooks` | Governance enforcement at execution time |
 | `StreamingPipeline` | `runtime/streaming` | Real-time event handlers for deltas/usage |
 | `CostTracker` | `runtime/cost-tracker` | Accumulate cost/token data per agent |
 | `TelemetryCollector` | `runtime/telemetry` | Record metrics: task count, decision count, error count |
 | `EventBus` | `runtime/event-bus` | Pub/sub for agent:task-start, agent:task-complete, agent:error, decision:created events |
-| `squad_route`, `squad_decide`, `squad_memory` | `tools` | Inter-agent coordination tools |
+| `crew_route`, `crew_decide`, `crew_memory` | `tools` | Inter-agent coordination tools |
 | `ToolRegistry` | `tools` | Register custom and built-in tools |
 
 ## Code Highlights
@@ -26,10 +26,10 @@ Executives, investors, and engineering leaders who need to see Squad in action. 
 **Bootstrap the full pipeline:**
 ```typescript
 import {
-  resolveSquad,
+  resolveCrew,
   loadConfig,
   CastingEngine,
-  SquadClient,
+  CrewClient,
   SessionPool,
   HookPipeline,
   StreamingPipeline,
@@ -38,10 +38,10 @@ import {
   EventBus,
   ToolRegistry,
   Router,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
-const squadPath = resolveSquad();
-const config = loadConfig(squadPath);
+const crewPath = resolveCrew();
+const config = loadConfig(crewPath);
 
 // Cast the team
 const casting = new CastingEngine({ universe: 'usual-suspects', agentCount: 5 });
@@ -50,10 +50,10 @@ const cast = casting.castTeam({
 });
 
 // Create execution pipeline
-const client = new SquadClient({ squadPath });
+const client = new CrewClient({ crewPath });
 const pool = new SessionPool({ capacity: 10 });
 const pipeline = new HookPipeline({
-  allowedWritePaths: ['src/**', '.squad/**', 'docs/**'],
+  allowedWritePaths: ['src/**', '.crew/**', 'docs/**'],
   maxAskUserPerSession: 3,
   scrubPii: true,
 });
@@ -174,7 +174,7 @@ const decisions = [
 ];
 
 for (const decision of decisions) {
-  await tools.getTool('squad_decide').handler({
+  await tools.getTool('crew_decide').handler({
     author: decision.author,
     summary: decision.summary,
     body: decision.body,
@@ -197,7 +197,7 @@ for (const decision of decisions) {
 function renderDashboard() {
   console.clear();
   console.log('┌─────────────────────────────────────────┐');
-  console.log('│  SQUAD AUTONOMOUS PIPELINE DASHBOARD    │');
+  console.log('│  CREW AUTONOMOUS PIPELINE DASHBOARD    │');
   console.log('└─────────────────────────────────────────┘\n');
 
   const summary = costTracker.getSummary();
@@ -247,7 +247,7 @@ setInterval(renderDashboard, 2000);
 3. Dashboard renders in terminal:
    ```
    ┌─────────────────────────────────────────┐
-   │  SQUAD AUTONOMOUS PIPELINE DASHBOARD    │
+   │  CREW AUTONOMOUS PIPELINE DASHBOARD    │
    └─────────────────────────────────────────┘
 
    👥 Team:

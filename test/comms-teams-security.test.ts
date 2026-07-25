@@ -20,7 +20,7 @@ import {
   DEVICE_CODE_MAX_POLL_MS,
   LEGACY_TOKEN_PATH,
   PERMANENT_AUTH_ERRORS,
-} from '../packages/squad-sdk/src/platform/comms-teams.js';
+} from '../packages/crew-sdk/src/platform/comms-teams.js';
 
 // Default client ID from the source (Microsoft Graph PowerShell)
 const DEFAULT_CLIENT_ID = '14d82eec-204b-4c2f-b7e8-296a70dab67e';
@@ -88,13 +88,13 @@ describe('getTokenPath — identity-scoped file paths', () => {
     expect(getTokenPath('t', 'c')).toBe(getTokenPath('t', 'c'));
   });
 
-  it('stays under the ~/.squad directory', () => {
+  it('stays under the ~/.crew directory', () => {
     const p = getTokenPath('organizations', DEFAULT_CLIENT_ID);
-    expect(p).toContain('.squad');
+    expect(p).toContain('.crew');
     expect(p).toContain('teams-tokens-');
   });
 
-  it('traversal chars cannot escape ~/.squad', () => {
+  it('traversal chars cannot escape ~/.crew', () => {
     const p = getTokenPath('../../etc/passwd', '../../../root/.ssh/id_rsa');
     expect(p).not.toContain('..');
     expect(p).not.toContain('etc');

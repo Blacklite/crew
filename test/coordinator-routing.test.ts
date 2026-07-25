@@ -16,8 +16,8 @@ import {
   Coordinator,
   type CoordinatorConfig,
   type RoutingDecision,
-} from '@bradygaster/squad-sdk/coordinator';
-import { EventBus } from '@bradygaster/squad-sdk/runtime/event-bus';
+} from '@blacklite/crew-sdk/coordinator';
+import { EventBus } from '@blacklite/crew-sdk/runtime/event-bus';
 
 // --- Helpers ---
 

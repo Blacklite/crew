@@ -14,7 +14,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { runMemoryValueBenchmark } from '../../packages/squad-sdk/src/runtime/memory-value-benchmark.js';
+import { runMemoryValueBenchmark } from '../../packages/crew-sdk/src/runtime/memory-value-benchmark.js';
 
 import { withHermeticRoot } from './_helpers/hermetic-root.js';
 

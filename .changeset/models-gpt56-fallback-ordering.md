@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-sdk": patch
+"@blacklite/crew-sdk": patch
 ---
 
 Prefer newest model per series in fallback chains, add GPT-5.6 IDs, fix Ralph free-model wording.

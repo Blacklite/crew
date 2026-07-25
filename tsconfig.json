@@ -14,7 +14,7 @@
   },
   "files": [],
   "references": [
-    { "path": "packages/squad-sdk" },
-    { "path": "packages/squad-cli" }
+    { "path": "packages/crew-sdk" },
+    { "path": "packages/crew-cli" }
   ]
 }

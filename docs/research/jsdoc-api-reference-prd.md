@@ -1,22 +1,22 @@
 # JSDoc API Reference Documentation PRD
 
-> Auto-generate discoverable, searchable API reference docs for Squad SDK and CLI using TypeDoc + Markdown.
+> Auto-generate discoverable, searchable API reference docs for Crew SDK and CLI using TypeDoc + Markdown.
 
 ## Problem Statement
 
-The Squad SDK has a mature, well-typed TypeScript codebase, but **developers lack a canonical source for API documentation**. Today:
+The Crew SDK has a mature, well-typed TypeScript codebase, but **developers lack a canonical source for API documentation**. Today:
 
-1. **No dedicated API reference** — Developers must dig through TypeScript source files or JSDoc comments in the IDE to understand the public API surface (SquadCoordinator, StorageProvider, SquadState, config types).
+1. **No dedicated API reference** — Developers must dig through TypeScript source files or JSDoc comments in the IDE to understand the public API surface (CrewCoordinator, StorageProvider, CrewState, config types).
 
 2. **Documentation debt** — JSDoc coverage is uneven (8%–81% across modules). Config schema, state I/O functions, and some core utilities lack @param/@return documentation, making the API harder to learn.
 
-3. **Discoverability** — There's no searchable, linkable page for "what methods does StorageProvider expose?" or "how do I implement a custom AgentHandle?". External developers evaluating Squad can't quickly assess the SDK's public API surface.
+3. **Discoverability** — There's no searchable, linkable page for "what methods does StorageProvider expose?" or "how do I implement a custom AgentHandle?". External developers evaluating Crew can't quickly assess the SDK's public API surface.
 
 4. **Integration docs lag** — StorageProvider (Phase 2 state layer, PR #481) has no user-facing documentation of the interface contract or implementation patterns.
 
-5. **Search misses** — Pagefind indexes guide docs but not API symbols. Searching "SquadState" on the docs site returns zero results despite the type being central to Squad's architecture.
+5. **Search misses** — Pagefind indexes guide docs but not API symbols. Searching "CrewState" on the docs site returns zero results despite the type being central to Crew's architecture.
 
-**Impact**: New SDK users experience friction during onboarding. Contributors struggle to understand which modules to extend. Evaluating Squad's API surface requires reading source code.
+**Impact**: New SDK users experience friction during onboarding. Contributors struggle to understand which modules to extend. Evaluating Crew's API surface requires reading source code.
 
 ---
 
@@ -24,20 +24,20 @@ The Squad SDK has a mature, well-typed TypeScript codebase, but **developers lac
 
 ### Primary Goals
 
-1. **Generate production-ready API reference docs** for Squad SDK (packages/squad-sdk/src/) covering all exported symbols (classes, interfaces, functions, type aliases).
+1. **Generate production-ready API reference docs** for Crew SDK (packages/crew-sdk/src/) covering all exported symbols (classes, interfaces, functions, type aliases).
 
-2. **Achieve searchable API surface** — Every exported symbol indexed by Pagefind and discoverable via `/squad/` search.
+2. **Achieve searchable API surface** — Every exported symbol indexed by Pagefind and discoverable via `/crew/` search.
 
-3. **Improve JSDoc coverage** to 100% for all exported public APIs (StorageProvider, SquadState, SquadCoordinator, config types, state I/O functions).
+3. **Improve JSDoc coverage** to 100% for all exported public APIs (StorageProvider, CrewState, CrewCoordinator, config types, state I/O functions).
 
 4. **Enable self-service developer discovery** — External developers can answer "what's the API?" without filing issues or reading source.
 
 ### Success Metrics
 
-- ✅ **100% JSDoc coverage** for all exported symbols across packages/squad-sdk/src/
+- ✅ **100% JSDoc coverage** for all exported symbols across packages/crew-sdk/src/
 - ✅ **API landing page** at /reference/api-reference/ with overview + navigation
 - ✅ **Auto-generated API pages** for 50+ public types/classes/functions
-- ✅ **Pagefind indexing** — search "StorageProvider" or "SquadCoordinator" and get instant results
+- ✅ **Pagefind indexing** — search "StorageProvider" or "CrewCoordinator" and get instant results
 - ✅ **Build integration** — `npm run build` auto-generates API docs (no extra step)
 - ✅ **Zero broken internal links** in generated docs (validated by CI)
 - ✅ **Mobile-friendly** API pages rendering correctly on docs site
@@ -47,17 +47,17 @@ The Squad SDK has a mature, well-typed TypeScript codebase, but **developers lac
 
 ## Key User Scenarios
 
-### Scenario 1: New SDK Consumer — "How do I use SquadState?"
+### Scenario 1: New SDK Consumer — "How do I use CrewState?"
 
-> A developer building a custom agent using the SDK imports `SquadState` but doesn't know what methods are available or what properties the domain types expose.
+> A developer building a custom agent using the SDK imports `CrewState` but doesn't know what methods are available or what properties the domain types expose.
 
 **Today**: Opens TypeScript IDE, searches in node_modules, reads source comments.
 
-**Future**: Visits /reference/api/classes/squad-state/, sees complete method signatures, usage examples, and links to guides like "Building Custom Agents".
+**Future**: Visits /reference/api/classes/crew-state/, sees complete method signatures, usage examples, and links to guides like "Building Custom Agents".
 
 ### Scenario 2: Contributor — "What does StorageProvider require?"
 
-> A contributor wants to implement a custom StorageProvider but needs to understand the interface contract—what methods are mandatory, what are the error semantics, what does SquadState expect?
+> A contributor wants to implement a custom StorageProvider but needs to understand the interface contract—what methods are mandatory, what are the error semantics, what does CrewState expect?
 
 **Today**: Reads PR #481, searches interface definition in state/domain-types.ts, cross-references implementation tests.
 
@@ -65,15 +65,15 @@ The Squad SDK has a mature, well-typed TypeScript codebase, but **developers lac
 
 ### Scenario 3: Agent Author — "What are AgentHandle methods?"
 
-> An agent in .squad/agents/ needs to understand what operations it can perform on squad state (get an agent's decisions, read team config, etc.).
+> An agent in .crew/agents/ needs to understand what operations it can perform on crew state (get an agent's decisions, read team config, etc.).
 
 **Today**: Grep for AgentHandle, read method names from type definition, reverse-engineer from example agents.
 
 **Future**: Visits /reference/api/interfaces/agent-handle/, sees method signatures with descriptions, returns types, and examples.
 
-### Scenario 4: Evaluator — "What's Squad's API surface?"
+### Scenario 4: Evaluator — "What's Crew's API surface?"
 
-> A technical leader deciding whether to adopt Squad wants to see the public API surface and assess stability/maturity.
+> A technical leader deciding whether to adopt Crew wants to see the public API surface and assess stability/maturity.
 
 **Today**: Reads README, glances at a few source files, asks on Discussions.
 
@@ -100,7 +100,7 @@ The Squad SDK has a mature, well-typed TypeScript codebase, but **developers lac
 
 ### Out of Scope ❌
 
-- **CLI reference generation** — may be future Phase 2 (separate TypeDoc config for packages/squad-cli/src/)
+- **CLI reference generation** — may be future Phase 2 (separate TypeDoc config for packages/crew-cli/src/)
 - **Code examples/tutorials** — those belong in guide/ and concept/ pages, not API reference
 - **Starlight migration** — keeping plain Astro 5 setup
 - **Custom CSS styling** for API pages — use existing Astro design system
@@ -149,7 +149,7 @@ Create `typedoc.json` at repository root:
 
 ```json
 {
-  "entryPoints": ["./packages/squad-sdk/src/index.ts"],
+  "entryPoints": ["./packages/crew-sdk/src/index.ts"],
   "out": "./docs/src/content/docs/reference/api",
   "plugin": ["typedoc-plugin-markdown"],
   "pluginPages": {
@@ -162,7 +162,7 @@ Create `typedoc.json` at repository root:
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeExternals": true,
-  "tsconfig": "./packages/squad-sdk/tsconfig.json",
+  "tsconfig": "./packages/crew-sdk/tsconfig.json",
   "gitRevision": "main",
   "readme": "none",
   "hideGenerator": false,
@@ -171,7 +171,7 @@ Create `typedoc.json` at repository root:
 ```
 
 **Key settings:**
-- `entryPoints` — packages/squad-sdk/src/index.ts (barrel exports all public API)
+- `entryPoints` — packages/crew-sdk/src/index.ts (barrel exports all public API)
 - `out` — generates into docs/src/content/docs/reference/api/
 - `pluginPages` — uses typedoc-plugin-markdown for markdown output
 - `excludePrivate`, `excludeInternal` — hide implementation details
@@ -186,15 +186,15 @@ docs/src/content/docs/reference/
 └── api/                      (TypeDoc-generated output)
     ├── index.md              (modules overview)
     ├── classes/
-    │   ├── squad-coordinator.md
-    │   ├── squad-state.md
+    │   ├── crew-coordinator.md
+    │   ├── crew-state.md
     │   └── storage-provider-base.md
     ├── interfaces/
     │   ├── agent.md
     │   ├── agent-handle.md
-    │   ├── squad-config.md
+    │   ├── crew-config.md
     │   ├── storage-provider.md
-    │   ├── squad-state.md
+    │   ├── crew-state.md
     │   └── ... (50+ more types)
     ├── functions/
     │   ├── parse-charter.md
@@ -211,8 +211,8 @@ docs/src/content/docs/reference/
 ```
 /reference/api-reference/               (overview landing page)
 /reference/api/                         (index of all modules)
-/reference/api/classes/squad-coordinator/
-/reference/api/classes/squad-state/
+/reference/api/classes/crew-coordinator/
+/reference/api/classes/crew-state/
 /reference/api/interfaces/agent/
 /reference/api/interfaces/storage-provider/
 /reference/api/functions/parse-charter/
@@ -311,7 +311,7 @@ Estimated effort: **8–12 hours** across 1–2 sprints.
 - [ ] Add Astro integration hook to docs/astro.config.mjs
 - [ ] Test full Astro build: `npm run build` from docs/
 - [ ] Verify API pages render on docs site
-- [ ] Spot-check 3–5 generated pages (SquadCoordinator, StorageProvider, AgentHandle)
+- [ ] Spot-check 3–5 generated pages (CrewCoordinator, StorageProvider, AgentHandle)
 
 **Definition of Done:**
 - TypeDoc generates without errors
@@ -344,19 +344,19 @@ Estimated effort: **8–12 hours** across 1–2 sprints.
 **Tasks:**
 - [ ] Create docs/src/content/docs/reference/api-reference.md — hand-written landing page with:
   - Problem statement: "Why you need API docs"
-  - Quick nav to key symbols (SquadCoordinator, StorageProvider, SquadConfig)
+  - Quick nav to key symbols (CrewCoordinator, StorageProvider, CrewConfig)
   - Links to related guides (Building Custom Agents, Implementing StorageProvider)
 - [ ] Add "API Reference" entry to docs/src/navigation.ts pointing to /reference/api-reference/
 - [ ] Add breadcrumb links from guides → API reference (where relevant)
 - [ ] Test build: `npm run build` from docs/
-- [ ] Verify Pagefind indexes API pages: grep "classes/squad-coordinator" dist/.pagefind/pagefind.json
+- [ ] Verify Pagefind indexes API pages: grep "classes/crew-coordinator" dist/.pagefind/pagefind.json
 - [ ] Manual spot-check: search "StorageProvider" on docs site, verify results
 
 **Success Criteria:**
 - [ ] /reference/api-reference/ page exists and renders
 - [ ] Navigation includes "API Reference" entry
 - [ ] Pagefind indexes 50+ API symbols
-- [ ] Search returns instant results for "SquadCoordinator", "StorageProvider", etc.
+- [ ] Search returns instant results for "CrewCoordinator", "StorageProvider", etc.
 
 ### Phase 3: CI/CD & Maintenance Automation (Phase 2, Optional, 2–4 hours)
 
@@ -395,21 +395,21 @@ Estimated effort: **8–12 hours** across 1–2 sprints.
 
 Please review and approve:
 
-1. **TypeScript Export Strategy** — Are all public symbols correctly exported via packages/squad-sdk/src/index.ts (barrel file)?
+1. **TypeScript Export Strategy** — Are all public symbols correctly exported via packages/crew-sdk/src/index.ts (barrel file)?
    - Should StorageProvider implementations be exported separately or only documented as examples?
    - Should internal utilities be marked `/** @internal */` in JSDoc?
 
-2. **TypeDoc Configuration** — Is the config appropriate for Squad's SDK surface?
+2. **TypeDoc Configuration** — Is the config appropriate for Crew's SDK surface?
    - Are excludePrivate/excludeInternal settings correct?
    - Should we document types vs interfaces differently?
 
 3. **JSDoc Standards** — Should we establish guidelines for contributors?
    - Suggested template: `/** Description. @param name Type description. @returns Type description. */`
-   - Should we enforce @example blocks for complex APIs (StorageProvider, SquadState)?
+   - Should we enforce @example blocks for complex APIs (StorageProvider, CrewState)?
 
 4. **Stability Commitment** — Are all exported symbols stable, or should some be marked `@beta`/`@alpha`?
    - StorageProvider (Phase 2) — ready for stable?
-   - SquadState collection map navigation — stable?
+   - CrewState collection map navigation — stable?
    - Config schema validation — stable?
 
 ---
@@ -417,7 +417,7 @@ Please review and approve:
 ## Success Criteria Checklist
 
 - [ ] TypeDoc setup complete, auto-runs on `npm run build`
-- [ ] 100% JSDoc coverage for packages/squad-sdk/src/ exports
+- [ ] 100% JSDoc coverage for packages/crew-sdk/src/ exports
 - [ ] 50+ public symbols auto-documented in generated markdown
 - [ ] API landing page created at /reference/api-reference/
 - [ ] Navigation updated with "API Reference" entry

@@ -42,7 +42,7 @@ Use this skill when a PR includes any of:
 
 **Personal data (especially email addresses) must never be written to committed files.**
 
-**Squad-specific rule:** `git config user.email` is explicitly banned from being written to any file that gets committed. This prevents PII leakage into the repository.
+**Crew-specific rule:** `git config user.email` is explicitly banned from being written to any file that gets committed. This prevents PII leakage into the repository.
 
 **Review checklist:**
 - ❌ No email addresses written to committed files (even in config generation)
@@ -113,7 +113,7 @@ Use this skill when a PR includes any of:
 **Push safety:**
 - ❌ No `git push --force` or `--force-with-lease` to shared branches (`dev`, `main`)
 - ❌ No direct push to `dev` or `main` — must use a PR
-- ✅ Feature branches only: `squad/{issue-number}-{slug}`
+- ✅ Feature branches only: `crew/{issue-number}-{slug}`
 
 **If a PR adds git operations (e.g., in a script, workflow, or agent action), verify every `git add`, `git commit`, and `git push` command follows these rules.**
 
@@ -136,7 +136,7 @@ Typos in export names cause silent runtime failures — the export resolves to `
 - Does the package pull in a large transitive dependency tree?
 - Is the package from a trusted publisher?
 
-**Squad-specific:** Protected bootstrap files must use ONLY `node:*` built-in modules. New dependencies in these files are a **critical** finding.
+**Crew-specific:** Protected bootstrap files must use ONLY `node:*` built-in modules. New dependencies in these files are a **critical** finding.
 
 ### 10. Multi-Account Auth Isolation
 
@@ -177,10 +177,10 @@ Fix: Use 'pull_request' trigger instead, or do not checkout PR code.
 ```
 PR adds to init.ts:
   const email = execSync('git config user.email').toString().trim();
-  fs.writeFileSync('.squad/config.json', JSON.stringify({ author: email }));
+  fs.writeFileSync('.crew/config.json', JSON.stringify({ author: email }));
 
 Finding: [high] Personal data (email) written to committed file.
-This violates the PII-in-source rule. Squad config files are committed
+This violates the PII-in-source rule. Crew config files are committed
 to the repo and shared across contributors.
 Fix: Read email at runtime only, never persist to committed files.
 ```
@@ -210,11 +210,11 @@ Fix: Use node:fs built-in instead of adding a new dependency.
 
 **Example 6: Low — Missing environment variable validation**
 ```
-PR uses process.env.SQUAD_API_KEY without checking if it's defined:
-  const apiKey = process.env.SQUAD_API_KEY;
+PR uses process.env.CREW_API_KEY without checking if it's defined:
+  const apiKey = process.env.CREW_API_KEY;
   fetch(url, { headers: { Authorization: `Bearer ${apiKey}` } });
 
-Finding: [low] No validation that SQUAD_API_KEY is defined.
+Finding: [low] No validation that CREW_API_KEY is defined.
 If undefined, the Bearer token will be "Bearer undefined" which
 may produce confusing auth errors.
 Fix: Check for undefined and throw a descriptive error early.

@@ -13,13 +13,13 @@ import React from 'react';
 import { render } from 'ink-testing-library';
 import {
   withGhostRetry,
-} from '../packages/squad-cli/src/cli/shell/index.js';
+} from '../packages/crew-cli/src/cli/shell/index.js';
 import {
   ThinkingIndicator,
   THINKING_PHRASES,
-} from '../packages/squad-cli/src/cli/shell/components/ThinkingIndicator.js';
-import { AgentPanel } from '../packages/squad-cli/src/cli/shell/components/AgentPanel.js';
-import { MessageStream } from '../packages/squad-cli/src/cli/shell/components/MessageStream.js';
+} from '../packages/crew-cli/src/cli/shell/components/ThinkingIndicator.js';
+import { AgentPanel } from '../packages/crew-cli/src/cli/shell/components/AgentPanel.js';
+import { MessageStream } from '../packages/crew-cli/src/cli/shell/components/MessageStream.js';
 
 const h = React.createElement;
 

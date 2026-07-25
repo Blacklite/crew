@@ -1,10 +1,10 @@
 # Hook Governance — SDK Sample PRD
 
 ## Overview
-Demonstrate Squad's governance engine. Rules don't live in prompts — they live in code. This sample shows file-write guards, PII scrubbing, reviewer lockout, and ask-user rate limiting in action. Each hook fires deterministically, blocking unauthorized actions before tools execute.
+Demonstrate Crew's governance engine. Rules don't live in prompts — they live in code. This sample shows file-write guards, PII scrubbing, reviewer lockout, and ask-user rate limiting in action. Each hook fires deterministically, blocking unauthorized actions before tools execute.
 
 ## Target Audience
-Architects and leads who need governance proof-of-concept. DevOps teams implementing squad automation with security guardrails. This answers: "How do I prevent agents from writing files they shouldn't?"
+Architects and leads who need governance proof-of-concept. DevOps teams implementing crew automation with security guardrails. This answers: "How do I prevent agents from writing files they shouldn't?"
 
 ## SDK APIs Demonstrated
 
@@ -22,10 +22,10 @@ Architects and leads who need governance proof-of-concept. DevOps teams implemen
 
 **Initialize HookPipeline with policy:**
 ```typescript
-import { HookPipeline, ReviewerLockoutHook } from '@bradygaster/squad-sdk';
+import { HookPipeline, ReviewerLockoutHook } from '@blacklite/crew-sdk';
 
 const pipeline = new HookPipeline({
-  allowedWritePaths: ['src/**/*.ts', 'docs/**', '.squad/**'],
+  allowedWritePaths: ['src/**/*.ts', 'docs/**', '.crew/**'],
   blockedCommands: ['rm -rf', 'git push --force', 'git reset --hard'],
   maxAskUserPerSession: 3,
   scrubPii: true,
@@ -46,7 +46,7 @@ const result = await pipeline.runPreToolHooks({
 // Result: 
 // {
 //   action: 'block',
-//   reason: "File write blocked: '/etc/passwd' does not match allowed paths. Allowed patterns: src/**/*.ts, docs/**, .squad/**"
+//   reason: "File write blocked: '/etc/passwd' does not match allowed paths. Allowed patterns: src/**/*.ts, docs/**, .crew/**"
 // }
 ```
 
@@ -111,7 +111,7 @@ const result = await pipeline.runPreToolHooks(context);
 
 ## User Experience
 
-1. User configures policies in `squad.yaml`
+1. User configures policies in `crew.yaml`
 2. SDK initializes HookPipeline with those policies
 3. User triggers agent work (editing files, running commands, logging data)
 4. Each tool call hits pre-tool hooks first → blocked if violates policy

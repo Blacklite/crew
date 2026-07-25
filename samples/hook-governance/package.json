@@ -1,15 +1,15 @@
 {
-  "name": "@squad-samples/hook-governance",
+  "name": "@crew-samples/hook-governance",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Hook Governance — beginner sample for @bradygaster/squad-sdk hook pipeline",
+  "description": "Hook Governance — beginner sample for @blacklite/crew-sdk hook pipeline",
   "scripts": {
     "start": "npx tsx index.ts",
     "test": "vitest run"
   },
   "dependencies": {
-    "@bradygaster/squad-sdk": "file:../../packages/squad-sdk"
+    "@blacklite/crew-sdk": "file:../../packages/crew-sdk"
   },
   "devDependencies": {
     "tsx": "^4.0.0",

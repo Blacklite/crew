@@ -18,7 +18,7 @@ import { describe, it, expect } from 'vitest';
 import {
   mapWithLimit,
   mapWithLimitSettled,
-} from '../packages/squad-sdk/src/utils/map-with-limit.js';
+} from '../packages/crew-sdk/src/utils/map-with-limit.js';
 
 // ---------------------------------------------------------------------------
 // Helpers

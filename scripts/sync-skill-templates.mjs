@@ -9,10 +9,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = join(__dirname, '..');
 
-const skillsSourceDir = join(rootDir, '.squad', 'skills');
+const skillsSourceDir = join(rootDir, '.crew', 'skills');
 const targets = [
-  join(rootDir, 'packages', 'squad-cli', 'templates', 'skills'),
-  join(rootDir, 'packages', 'squad-sdk', 'templates', 'skills')
+  join(rootDir, 'packages', 'crew-cli', 'templates', 'skills'),
+  join(rootDir, 'packages', 'crew-sdk', 'templates', 'skills')
 ];
 
 console.log('🔄 Syncing skill templates from canonical source...\n');

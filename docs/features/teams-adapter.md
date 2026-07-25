@@ -2,26 +2,26 @@
 
 **Try this to enable Teams messaging:**
 ```
-squad config set communications.channel teams-graph
+crew config set communications.channel teams-graph
 ```
 
 **Try this to send a test message:**
 ```
-squad test-notification --agent Keaton --reason blocked
+crew test-notification --agent Keaton --reason blocked
 ```
 
 **Try this to configure the recipient:**
 ```
-squad config set communications.adapterConfig.teams-graph.recipientUpn "user@company.com"
+crew config set communications.adapterConfig.teams-graph.recipientUpn "user@company.com"
 ```
 
-Bidirectional Microsoft Teams messaging via the Graph API. Squad agents post updates, poll for human replies, and maintain a live conversation thread — all without webhooks or MCP servers.
+Bidirectional Microsoft Teams messaging via the Graph API. Crew agents post updates, poll for human replies, and maintain a live conversation thread — all without webhooks or MCP servers.
 
 ---
 
 ## What the Teams Adapter Does
 
-The Teams adapter is a built-in `CommunicationAdapter` that connects your squad directly to Microsoft Teams using the Microsoft Graph API:
+The Teams adapter is a built-in `CommunicationAdapter` that connects your crew directly to Microsoft Teams using the Microsoft Graph API:
 
 1. **Post updates** — Agents send HTML-formatted messages to a 1:1 chat or Teams channel
 2. **Poll for replies** — Agents read human responses from the chat thread
@@ -33,9 +33,9 @@ Unlike the webhook-based approach in [Notifications](../src/content/docs/feature
 
 ## Quick Start
 
-### 1. Configure your squad
+### 1. Configure your crew
 
-Add Teams as the communication channel in `.squad/config.json`:
+Add Teams as the communication channel in `.crew/config.json`:
 
 ```json
 {
@@ -50,13 +50,13 @@ Add Teams as the communication channel in `.squad/config.json`:
 }
 ```
 
-### 2. Run your squad
+### 2. Run your crew
 
 ```bash
-copilot --agent squad --yolo
+copilot --agent crew --yolo
 ```
 
-On first run, the adapter opens your browser for a one-time OAuth sign-in (PKCE flow). After that, tokens are cached at `~/.squad/teams-tokens.json` and refreshed automatically.
+On first run, the adapter opens your browser for a one-time OAuth sign-in (PKCE flow). After that, tokens are cached at `~/.crew/teams-tokens.json` and refreshed automatically.
 
 ### 3. Agents start chatting
 
@@ -66,7 +66,7 @@ When agents need to post updates or ask for input, they send messages to the con
 
 ## Configuration Reference
 
-All configuration lives in `.squad/config.json` under `communications.adapterConfig["teams-graph"]`:
+All configuration lives in `.crew/config.json` under `communications.adapterConfig["teams-graph"]`:
 
 ```json
 {
@@ -107,7 +107,7 @@ All configuration lives in `.squad/config.json` under `communications.adapterCon
 The adapter authenticates via OAuth 2.0 with a 4-tier fallback strategy:
 
 ### 1. Cached token
-If a valid (non-expired) access token exists in `~/.squad/teams-tokens.json`, it is reused immediately.
+If a valid (non-expired) access token exists in `~/.crew/teams-tokens.json`, it is reused immediately.
 
 ### 2. Token refresh
 If the cached token is expired but a refresh token exists, the adapter silently refreshes without user interaction.
@@ -118,7 +118,7 @@ If no cached tokens exist, the adapter:
 - Uses PKCE (Proof Key for Code Exchange) — no client secret needed
 - Spins up a temporary localhost server to receive the redirect
 - Exchanges the auth code for tokens
-- Stores tokens securely at `~/.squad/teams-tokens.json`
+- Stores tokens securely at `~/.crew/teams-tokens.json`
 
 ### 4. Device code flow (headless fallback)
 If the browser cannot be opened (SSH, CI, headless server):
@@ -128,7 +128,7 @@ If the browser cannot be opened (SSH, CI, headless server):
 
 ### Token storage security
 
-Tokens are stored at `~/.squad/teams-tokens.json` with restricted permissions:
+Tokens are stored at `~/.crew/teams-tokens.json` with restricted permissions:
 - **Linux/macOS:** `0600` (owner read/write only)
 - **Windows:** ICACLS restricted to the current user
 
@@ -193,7 +193,7 @@ All Graph API calls use 3 retries with exponential backoff for transient errors 
 ### "Token expired" or repeated sign-in prompts
 Delete the cached tokens and re-authenticate:
 ```bash
-rm ~/.squad/teams-tokens.json
+rm ~/.crew/teams-tokens.json
 ```
 
 ### "Chat creation failed"
@@ -215,5 +215,5 @@ The adapter falls back to device code automatically. If neither works:
 ## See Also
 
 - [Notifications](../src/content/docs/features/notifications.md) — Webhook-based one-way notifications (Teams, Discord, Slack)
-- [Cross-Squad Orchestration](./cross-squad-orchestration.md) — Delegate work across squads
+- [Cross-Crew Orchestration](./cross-crew-orchestration.md) — Delegate work across crews
 - [Persistent Ralph](./persistent-ralph.md) — Monitor work with continuous polling

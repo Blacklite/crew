@@ -1,6 +1,6 @@
 # Proposal: Iterative Retrieval Skill
 
-**Issue:** bradygaster/squad#622
+**Issue:** Blacklite/crew#622
 **Author:** tamirdresher
 **Date:** 2026-03-26
 **Status:** Proposal
@@ -44,8 +44,8 @@ The skill provides:
 
 ## What Changes
 
-- New skill: packages/squad-cli/templates/skills/iterative-retrieval/SKILL.md
-- New skill: packages/squad-sdk/templates/skills/iterative-retrieval/SKILL.md
+- New skill: packages/crew-cli/templates/skills/iterative-retrieval/SKILL.md
+- New skill: packages/crew-sdk/templates/skills/iterative-retrieval/SKILL.md
 - New changeset: .changeset/iterative-retrieval-skill.md
 
 ## What Stays the Same
@@ -66,4 +66,4 @@ The skill provides:
 
 ## References
 
-- Issue: bradygaster/squad#622
+- Issue: Blacklite/crew#622

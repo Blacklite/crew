@@ -1,4 +1,4 @@
-# PRD: Squad CLI UI Polish
+# PRD: Crew CLI UI Polish
 **Status:** Draft  
 **Author:** Keaton (Lead)  
 **Date:** 2026-03-01  
@@ -8,7 +8,7 @@
 
 ## Overview
 
-This PRD addresses critical UX/UI issues discovered during the team's visual review of 15 REPL screenshots from human testing (Session log: `.squad/log/2026-03-01T02-04-00Z-screenshot-review-2.md` and subsequent image analysis). Five team members (Redfoot, Marquez, Cheritto, Kovash, Brady) identified 20+ specific issues ranging from **P0 alpha blockers** (blank screens, no loading feedback) to **P3 future polish** (fixed bottom input, advanced layout).
+This PRD addresses critical UX/UI issues discovered during the team's visual review of 15 REPL screenshots from human testing (Session log: `.crew/log/2026-03-01T02-04-00Z-screenshot-review-2.md` and subsequent image analysis). Five team members (Redfoot, Marquez, Cheritto, Kovash, Brady) identified 20+ specific issues ranging from **P0 alpha blockers** (blank screens, no loading feedback) to **P3 future polish** (fixed bottom input, advanced layout).
 
 This document defines what we're shipping for **alpha release** versus what we're deferring to post-alpha. The goal is pragmatic: ship a functional, usable CLI that doesn't embarrass us, not a grand redesign.
 
@@ -18,11 +18,11 @@ This document defines what we're shipping for **alpha release** versus what we'r
 
 ## Goals
 
-**Primary Goal:** Ship Squad CLI in a state where users understand it's alpha software and can successfully use core functionality without encountering broken states.
+**Primary Goal:** Ship Crew CLI in a state where users understand it's alpha software and can successfully use core functionality without encountering broken states.
 
 **Success looks like:**
 1. Users never see a blank screen for >500ms without feedback
-2. Users understand when Squad is thinking/working vs. crashed
+2. Users understand when Crew is thinking/working vs. crashed
 3. Users know they're running alpha software with expected rough edges
 4. Secondary text is readable (contrast ≥4.5:1)
 5. Tables and separators are visually clear
@@ -43,7 +43,7 @@ This document defines what we're shipping for **alpha release** versus what we'r
 
 **1. Blank/Loading States Are Broken (images 002, 003)**
 - **Finding:** User sees blank screen with no feedback during long operations
-- **Impact:** Users think Squad crashed. Trust evaporates instantly.
+- **Impact:** Users think Crew crashed. Trust evaporates instantly.
 - **Source:** Redfoot (CRITICAL), Marquez (CRITICAL), Cheritto (MAJOR), Kovash (TODAY)
 - **Image refs:** 002 (long wait, no spinner), 003 (completely blank screen)
 
@@ -55,7 +55,7 @@ This document defines what we're shipping for **alpha release** versus what we'r
 
 **3. Static Spinner Text (no rotation)**
 - **Finding:** `ThinkingIndicator.tsx` has dynamic rotation logic with `THINKING_PHRASES` + 3s timer, but `App.tsx` overrides it with static `activityHint`/`mentionHint` props
-- **Impact:** No visual confirmation Squad is alive during long waits
+- **Impact:** No visual confirmation Crew is alive during long waits
 - **Source:** Cheritto (MEDIUM, ~5 line fix), Kovash (TODAY)
 - **Technical note:** App.tsx lines ~200-220 override component's built-in rotation
 
@@ -83,7 +83,7 @@ This document defines what we're shipping for **alpha release** versus what we'r
 - **Source:** Marquez (HIGH)
 
 **8. CLI Timeout Too Low**
-- **Finding:** Brady tried Squad CLI in this repo and hit timeout
+- **Finding:** Brady tried Crew CLI in this repo and hit timeout
 - **Impact:** Users fail on real-world repos
 - **Source:** Brady (direct feedback)
 - **Note:** Likely already fixed per 2026-02-24 history (configurable via env var, default 10 min)
@@ -154,9 +154,9 @@ This document defines what we're shipping for **alpha release** versus what we'r
 | ID | Requirement | Acceptance Criteria |
 |----|-------------|---------------------|
 | **P0-1** | **Dynamic rotating spinner** | ThinkingIndicator rotates phrases every 3s. App.tsx STOPS overriding with static hints. Never show static text >3s. |
-| **P0-2** | **Alpha banner at startup** | First thing user sees: "⚠️ Squad CLI v{version} — Alpha Software — Expect rough edges" |
+| **P0-2** | **Alpha banner at startup** | First thing user sees: "⚠️ Crew CLI v{version} — Alpha Software — Expect rough edges" |
 | **P0-3** | **Blank screen prevention** | NEVER blank for >500ms. Show spinner immediately on any operation >500ms. |
-| **P0-4** | **Timeout verification** | Confirm `SQUAD_SESSION_TIMEOUT_MS` env var works, default ≥10 minutes (likely done per Feb 24 history). Test in large repos. |
+| **P0-4** | **Timeout verification** | Confirm `CREW_SESSION_TIMEOUT_MS` env var works, default ≥10 minutes (likely done per Feb 24 history). Test in large repos. |
 
 ### P1: High Priority (Ship within first week)
 
@@ -213,11 +213,11 @@ This document defines what we're shipping for **alpha release** versus what we'r
 
 ### File Paths
 
-- `packages/squad-cli/src/ui/components/ThinkingIndicator.tsx` — has rotation logic, being overridden
-- `packages/squad-cli/src/ui/App.tsx` — orchestrates layout, overrides hints
-- `packages/squad-cli/src/ui/components/MessageStream.tsx` — scroll/layout issues
-- `packages/squad-cli/src/ui/components/InputPrompt.tsx` — positioning
-- `packages/squad-cli/src/ui/theme.ts` (likely) — color definitions
+- `packages/crew-cli/src/ui/components/ThinkingIndicator.tsx` — has rotation logic, being overridden
+- `packages/crew-cli/src/ui/App.tsx` — orchestrates layout, overrides hints
+- `packages/crew-cli/src/ui/components/MessageStream.tsx` — scroll/layout issues
+- `packages/crew-cli/src/ui/components/InputPrompt.tsx` — positioning
+- `packages/crew-cli/src/ui/theme.ts` (likely) — color definitions
 
 ---
 
@@ -237,7 +237,7 @@ This document defines what we're shipping for **alpha release** versus what we'r
 ## Success Metrics
 
 **Qualitative:**
-- Brady dogfoods Squad CLI in this repo without hitting broken states
+- Brady dogfoods Crew CLI in this repo without hitting broken states
 - Test user can complete init flow without confusion
 - No "is it crashed?" moments during normal use
 - Secondary text is readable without squinting
@@ -257,9 +257,9 @@ This document defines what we're shipping for **alpha release** versus what we'r
 | # | Issue Title | Priority | Assignee | Description |
 |---|-------------|----------|----------|-------------|
 | 1 | Fix ThinkingIndicator rotation in App.tsx | P0 | Cheritto | Remove `activityHint`/`mentionHint` props from App.tsx, let ThinkingIndicator rotate natively. ~5 lines changed. |
-| 2 | Add alpha software banner at startup | P0 | Kovash | Show "⚠️ Squad CLI v{version} — Alpha Software" as first output in shell. |
+| 2 | Add alpha software banner at startup | P0 | Kovash | Show "⚠️ Crew CLI v{version} — Alpha Software" as first output in shell. |
 | 3 | Prevent blank screens >500ms | P0 | Cheritto | Add immediate spinner on any operation that might take >500ms. Audit all loading states. |
-| 4 | Verify timeout env var in large repos | P0 | Fenster | Test `SQUAD_SESSION_TIMEOUT_MS` with default ≥10 min. Dogfood in squad repo. |
+| 4 | Verify timeout env var in large repos | P0 | Fenster | Test `CREW_SESSION_TIMEOUT_MS` with default ≥10 min. Dogfood in crew repo. |
 | 5 | Bump contrast on secondary text | P1 | Redfoot | Adjust chalk colors for hints/times/examples to ≥4.5:1 contrast. Update theme.ts. |
 | 6 | Define semantic color system | P1 | Redfoot | Document + implement: cyan=info, green=success, yellow=warning, red=error. |
 | 7 | Tighten verbose copy | P1 | Marquez | Remove "Routing your message..." jargon, shorten version, eliminate roster re-display. Review only. |
@@ -289,7 +289,7 @@ This document defines what we're shipping for **alpha release** versus what we'r
 
 ## Next Steps
 
-1. **Keaton:** File 20 GitHub issues from breakdown table (labels: `squad:cheritto` / `squad:kovash` / `squad:redfoot` / `squad:fenster`, priority: `P0` / `P1` / `P2` / `P3`, milestone: `Alpha Release`)
+1. **Keaton:** File 20 GitHub issues from breakdown table (labels: `crew:cheritto` / `crew:kovash` / `crew:redfoot` / `crew:fenster`, priority: `P0` / `P1` / `P2` / `P3`, milestone: `Alpha Release`)
 2. **Brady:** Review PRD, approve or request changes
 3. **Cheritto + Kovash:** Pair on P0 issues 1-3 (critical path, ~1 day)
 4. **Redfoot:** P1 contrast + color system (~1 day)

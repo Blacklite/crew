@@ -1,7 +1,7 @@
 /**
  * OTel Bridge Tests — TelemetryCollector → OpenTelemetry span conversion
  *
- * Tests the OTel bridge module (packages/squad-sdk/src/runtime/otel-bridge.ts).
+ * Tests the OTel bridge module (packages/crew-sdk/src/runtime/otel-bridge.ts).
  * The bridge converts TelemetryEvents into OTel spans via createOTelTransport().
  *
  * Uses InMemorySpanExporter + SimpleSpanProcessor from @opentelemetry/sdk-trace-base
@@ -15,8 +15,8 @@ import {
   BasicTracerProvider,
 } from '@opentelemetry/sdk-trace-base';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
-import { createOTelTransport } from '@bradygaster/squad-sdk/runtime/otel-bridge';
-import type { TelemetryEvent } from '@bradygaster/squad-sdk/runtime/telemetry';
+import { createOTelTransport } from '@blacklite/crew-sdk/runtime/otel-bridge';
+import type { TelemetryEvent } from '@blacklite/crew-sdk/runtime/telemetry';
 
 // ---------------------------------------------------------------------------
 // Test OTel infrastructure
@@ -53,7 +53,7 @@ describe('OTel Bridge — createOTelTransport()', () => {
 
   it('transport accepts TelemetryEvent[] and endpoint without throwing', async () => {
     const transport = createOTelTransport();
-    const events: TelemetryEvent[] = [{ name: 'squad.init', timestamp: Date.now() }];
+    const events: TelemetryEvent[] = [{ name: 'crew.init', timestamp: Date.now() }];
     await expect(transport(events, '')).resolves.not.toThrow();
   });
 
@@ -72,71 +72,71 @@ describe('OTel Bridge — event type mapping', () => {
   beforeEach(() => setupTestProvider());
   afterEach(() => teardownTestProvider());
 
-  it('converts squad.init event to a span', async () => {
+  it('converts crew.init event to a span', async () => {
     const transport = createOTelTransport();
     await transport(
-      [{ name: 'squad.init', properties: { version: '0.8.0' }, timestamp: Date.now() }],
+      [{ name: 'crew.init', properties: { version: '0.8.0' }, timestamp: Date.now() }],
       '',
     );
     const spans = exporter.getFinishedSpans();
     expect(spans.length).toBeGreaterThanOrEqual(1);
-    const initSpan = spans.find((s) => s.name === 'squad.init');
+    const initSpan = spans.find((s) => s.name === 'crew.init');
     expect(initSpan).toBeDefined();
   });
 
-  it('converts squad.agent.spawn event to a span', async () => {
+  it('converts crew.agent.spawn event to a span', async () => {
     const transport = createOTelTransport();
     await transport(
-      [{ name: 'squad.agent.spawn', properties: { agent: 'fenster', mode: 'standard' }, timestamp: Date.now() }],
+      [{ name: 'crew.agent.spawn', properties: { agent: 'fenster', mode: 'standard' }, timestamp: Date.now() }],
       '',
     );
     const spans = exporter.getFinishedSpans();
-    const spawnSpan = spans.find((s) => s.name === 'squad.agent.spawn');
+    const spawnSpan = spans.find((s) => s.name === 'crew.agent.spawn');
     expect(spawnSpan).toBeDefined();
   });
 
-  it('converts squad.error event to a span with ERROR status', async () => {
+  it('converts crew.error event to a span with ERROR status', async () => {
     const transport = createOTelTransport();
     await transport(
-      [{ name: 'squad.error', properties: { message: 'test error', code: 'ERR_TEST' }, timestamp: Date.now() }],
+      [{ name: 'crew.error', properties: { message: 'test error', code: 'ERR_TEST' }, timestamp: Date.now() }],
       '',
     );
     const spans = exporter.getFinishedSpans();
-    const errorSpan = spans.find((s) => s.name === 'squad.error');
+    const errorSpan = spans.find((s) => s.name === 'crew.error');
     expect(errorSpan).toBeDefined();
     expect(errorSpan!.status.code).toBe(SpanStatusCode.ERROR);
   });
 
-  it('converts squad.run event to a span', async () => {
+  it('converts crew.run event to a span', async () => {
     const transport = createOTelTransport();
     await transport(
-      [{ name: 'squad.run', properties: { command: 'test' }, timestamp: Date.now() }],
+      [{ name: 'crew.run', properties: { command: 'test' }, timestamp: Date.now() }],
       '',
     );
     const spans = exporter.getFinishedSpans();
-    const runSpan = spans.find((s) => s.name === 'squad.run');
+    const runSpan = spans.find((s) => s.name === 'crew.run');
     expect(runSpan).toBeDefined();
   });
 
-  it('converts squad.upgrade event to a span', async () => {
+  it('converts crew.upgrade event to a span', async () => {
     const transport = createOTelTransport();
     await transport(
-      [{ name: 'squad.upgrade', properties: { from: '0.7.0', to: '0.8.0' }, timestamp: Date.now() }],
+      [{ name: 'crew.upgrade', properties: { from: '0.7.0', to: '0.8.0' }, timestamp: Date.now() }],
       '',
     );
     const spans = exporter.getFinishedSpans();
-    const upgradeSpan = spans.find((s) => s.name === 'squad.upgrade');
+    const upgradeSpan = spans.find((s) => s.name === 'crew.upgrade');
     expect(upgradeSpan).toBeDefined();
   });
 
   it('maps event properties to span attributes', async () => {
     const transport = createOTelTransport();
     await transport(
-      [{ name: 'squad.agent.spawn', properties: { agent: 'fenster', mode: 'standard' }, timestamp: Date.now() }],
+      [{ name: 'crew.agent.spawn', properties: { agent: 'fenster', mode: 'standard' }, timestamp: Date.now() }],
       '',
     );
     const spans = exporter.getFinishedSpans();
-    const spawnSpan = spans.find((s) => s.name === 'squad.agent.spawn');
+    const spawnSpan = spans.find((s) => s.name === 'crew.agent.spawn');
     expect(spawnSpan).toBeDefined();
     const attrs = spawnSpan!.attributes;
     expect(attrs['agent']).toBe('fenster');
@@ -147,23 +147,23 @@ describe('OTel Bridge — event type mapping', () => {
     const ts = Date.now();
     const transport = createOTelTransport();
     await transport(
-      [{ name: 'squad.init', timestamp: ts }],
+      [{ name: 'crew.init', timestamp: ts }],
       '',
     );
     const spans = exporter.getFinishedSpans();
-    const initSpan = spans.find((s) => s.name === 'squad.init');
+    const initSpan = spans.find((s) => s.name === 'crew.init');
     expect(initSpan).toBeDefined();
     expect(initSpan!.attributes['event.timestamp']).toBe(ts);
   });
 
-  it('squad.error span includes exception event', async () => {
+  it('crew.error span includes exception event', async () => {
     const transport = createOTelTransport();
     await transport(
-      [{ name: 'squad.error', properties: { message: 'something broke' }, timestamp: Date.now() }],
+      [{ name: 'crew.error', properties: { message: 'something broke' }, timestamp: Date.now() }],
       '',
     );
     const spans = exporter.getFinishedSpans();
-    const errorSpan = spans.find((s) => s.name === 'squad.error');
+    const errorSpan = spans.find((s) => s.name === 'crew.error');
     expect(errorSpan).toBeDefined();
     const events = errorSpan!.events;
     const exceptionEvent = events.find((e) => e.name === 'exception');
@@ -174,16 +174,16 @@ describe('OTel Bridge — event type mapping', () => {
     const transport = createOTelTransport();
     await transport(
       [
-        { name: 'squad.init', timestamp: Date.now() },
-        { name: 'squad.run', timestamp: Date.now() },
-        { name: 'squad.agent.spawn', properties: { agent: 'edie' }, timestamp: Date.now() },
+        { name: 'crew.init', timestamp: Date.now() },
+        { name: 'crew.run', timestamp: Date.now() },
+        { name: 'crew.agent.spawn', properties: { agent: 'edie' }, timestamp: Date.now() },
       ],
       '',
     );
     const spans = exporter.getFinishedSpans();
     expect(spans.length).toBe(3);
     expect(spans.map((s) => s.name).sort()).toEqual(
-      ['squad.agent.spawn', 'squad.init', 'squad.run'],
+      ['crew.agent.spawn', 'crew.init', 'crew.run'],
     );
   });
 });

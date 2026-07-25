@@ -1,6 +1,6 @@
-# Squad in Monorepos
+# Crew in Monorepos
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this:**
@@ -8,7 +8,7 @@
 I'm building a microservices platform in a monorepo with 8 services — set up specialists for each domain
 ```
 
-One squad per monorepo, not per service. Squad adds specialists per domain and routes work to the right agent based on which service is being modified.
+One crew per monorepo, not per service. Crew adds specialists per domain and routes work to the right agent based on which service is being modified.
 
 ---
 
@@ -34,13 +34,13 @@ monorepo/
 └── infra/
 ```
 
-Do you need 8 squads (one per service)? **No. One squad with specialists.**
+Do you need 8 crews (one per service)? **No. One crew with specialists.**
 
 ---
 
-## 2. One Squad, Multiple Specialists
+## 2. One Crew, Multiple Specialists
 
-Tell Squad about your monorepo structure:
+Tell Crew about your monorepo structure:
 
 ```
 > I'm building a microservices platform in a monorepo. We have 8 services:
@@ -78,7 +78,7 @@ That's a **10-agent team** (9 active + Scribe). You can trim it if you want:
 
 ## 3. Routing Rules Direct Work to the Right Specialist
 
-Edit `.squad/routing.md`:
+Edit `.crew/routing.md`:
 
 ```markdown
 # Routing Rules
@@ -124,7 +124,7 @@ You can work on multiple services at once:
 > and products (display points earned per product).
 ```
 
-Squad decomposes and routes:
+Crew decomposes and routes:
 
 ```
 🏗️ Michael  — coordinating cross-service feature
@@ -251,22 +251,22 @@ Kay knows changes to `/shared` affect multiple services.
 
 ---
 
-## 8. One Squad, Not Eight
+## 8. One Crew, Not Eight
 
-**Why one squad instead of one per service?**
+**Why one crew instead of one per service?**
 
 - **Shared knowledge.** Patterns that span services (logging, auth, error handling) are encoded once in skills.
 - **Cross-service coordination.** Michael (the Lead) sees the whole monorepo, not just one service.
-- **Fewer exports/imports.** You don't have to export/import squads between services.
+- **Fewer exports/imports.** You don't have to export/import crews between services.
 - **Consistent conventions.** All services follow the same patterns because the same agents work on them.
 
-If you had 8 separate squads, they'd diverge. One squad keeps the monorepo aligned.
+If you had 8 separate crews, they'd diverge. One crew keeps the monorepo aligned.
 
 ---
 
 ## Tips
 
-- **One squad per monorepo.** Add specialists per service, keep them in one team.
+- **One crew per monorepo.** Add specialists per service, keep them in one team.
 - **Routing rules are critical.** Route work to the right specialist so agents don't wander.
 - **Skills that span services are gold.** Logging, error handling, API conventions — document once, use everywhere.
 - **Shared code needs careful handling.** Changes to `/shared` affect multiple services — route to the Lead.

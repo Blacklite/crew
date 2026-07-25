@@ -1,7 +1,7 @@
-# PRD: Squad CLI Visual Polish
+# PRD: Crew CLI Visual Polish
 
 **Status:** Draft  
-**Author:** Squad Team (coordinated review)  
+**Author:** Crew Team (coordinated review)  
 **Date:** 2026-03-01  
 **Version:** Post-v0.8.6.14-preview  
 
@@ -9,7 +9,7 @@
 
 ## 1. Overview
 
-The Squad CLI is approaching its first public beta. A full-team review of 9 screenshots (see `/images/001.png` through `009.png`) identified **10 improvement areas** ranging from bugs to UX enhancements. This PRD documents each finding and proposes solutions, prioritized for iterative delivery.
+The Crew CLI is approaching its first public beta. A full-team review of 9 screenshots (see `/images/001.png` through `009.png`) identified **10 improvement areas** ranging from bugs to UX enhancements. This PRD documents each finding and proposes solutions, prioritized for iterative delivery.
 
 ## 2. Goals
 
@@ -50,7 +50,7 @@ The Squad CLI is approaching its first public beta. A full-team review of 9 scre
   - **Useful info:** Dependency status, vulnerability hints
 - Phase 1 (ship today): Rotating gerund phrases
 - Phase 2: Integrate codebase-aware factoids via lightweight repo analysis
-- Phase 3: Domain-aware trivia using project context from `.squad/`
+- Phase 3: Domain-aware trivia using project context from `.crew/`
 
 ### 4.3 — Input Text Duplication (P0 — Bug)
 **Images:** 006  
@@ -84,7 +84,7 @@ The Squad CLI is approaching its first public beta. A full-team review of 9 scre
 **Owner:** McManus 📣 / Marquez 🎨  
 **Problem:** Nothing in the CLI communicates that this is an early release. Users need to know "here there be dragons."  
 **Proposed Solution:**  
-- Add a line in the header box: `⚠️  Experimental preview — file issues at github.com/bradygaster/squad`
+- Add a line in the header box: `⚠️  Experimental preview — file issues at github.com/Blacklite/crew`
 - Use dim/yellow styling to be visible but not distracting.
 - Remove or update this once the CLI reaches stable.
 
@@ -155,4 +155,4 @@ The Squad CLI is approaching its first public beta. A full-team review of 9 scre
 
 - **Designer collaboration:** Brady expressed interest in working with designers. The input box redesign (4.7), separator styling (4.8), and overall layout should be designer-led.
 - **Codebase-aware wait messages:** Phase 2 of rotating messages should analyze the user's repo and surface relevant facts during wait time.
-- **Domain trivia:** Phase 3 could use the project's `.squad/` context to generate fun facts about the user's domain (e.g., Tetris history for a Tetris game).
+- **Domain trivia:** Phase 3 could use the project's `.crew/` context to generate fun facts about the user's domain (e.g., Tetris history for a Tetris game).

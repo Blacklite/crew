@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-sdk": patch
+"@blacklite/crew-sdk": patch
 ---
 
-Sync lockfile for the vscode-jsonrpc 8→9 bump in packages/squad-sdk. v9 adds the missing `exports` field that v8 lacked, making `vscode-jsonrpc/node` resolvable under strict ESM without `patch-esm-imports.mjs` runtime workarounds.
+Sync lockfile for the vscode-jsonrpc 8→9 bump in packages/crew-sdk. v9 adds the missing `exports` field that v8 lacked, making `vscode-jsonrpc/node` resolvable under strict ESM without `patch-esm-imports.mjs` runtime workarounds.

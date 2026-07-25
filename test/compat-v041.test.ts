@@ -14,10 +14,10 @@ import {
   parseRoutingMarkdown,
   matchIssueLabels,
   type CompiledRouter,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // --- Casting ---
-import { CastingEngine, type CastMember } from '@bradygaster/squad-sdk/casting';
+import { CastingEngine, type CastMember } from '@blacklite/crew-sdk/casting';
 
 // --- Config ---
 import {
@@ -25,11 +25,11 @@ import {
   validateConfig,
   validateConfigDetailed,
   loadConfigSync,
-  type SquadConfig,
-} from '@bradygaster/squad-sdk/runtime';
+  type CrewConfig,
+} from '@blacklite/crew-sdk/runtime';
 
 // --- Tools ---
-import { ToolRegistry } from '@bradygaster/squad-sdk/tools';
+import { ToolRegistry } from '@blacklite/crew-sdk/tools';
 
 // --- Hooks ---
 import {
@@ -37,10 +37,10 @@ import {
   ReviewerLockoutHook,
   DEFAULT_BLOCKED_COMMANDS,
   type PreToolUseContext,
-} from '@bradygaster/squad-sdk/hooks';
+} from '@blacklite/crew-sdk/hooks';
 
 // --- Event Bus ---
-import { EventBus, type SquadEvent, type SquadEventType } from '@bradygaster/squad-sdk/runtime/event-bus';
+import { EventBus, type CrewEvent, type CrewEventType } from '@blacklite/crew-sdk/runtime/event-bus';
 
 // --- Models ---
 import {
@@ -50,19 +50,19 @@ import {
   getModelInfo,
   getFallbackChain,
   isModelAvailable,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // --- Skills ---
-import { SkillRegistry, parseFrontmatter, parseSkillFile } from '@bradygaster/squad-sdk/skills';
+import { SkillRegistry, parseFrontmatter, parseSkillFile } from '@blacklite/crew-sdk/skills';
 
 // --- Streaming ---
-import { StreamingPipeline, type UsageEvent } from '@bradygaster/squad-sdk/runtime/streaming';
+import { StreamingPipeline, type UsageEvent } from '@blacklite/crew-sdk/runtime/streaming';
 
 // --- Agent doc ---
-import { parseAgentDoc } from '@bradygaster/squad-sdk/config';
+import { parseAgentDoc } from '@blacklite/crew-sdk/config';
 
 // --- Migration ---
-import { MigrationRegistry, compareSemVer, parseSemVer } from '@bradygaster/squad-sdk/config';
+import { MigrationRegistry, compareSemVer, parseSemVer } from '@blacklite/crew-sdk/config';
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -73,7 +73,7 @@ import * as os from 'node:os';
 // ============================================================================
 
 function tmpDir(): string {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'squad-compat-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'crew-compat-'));
 }
 
 // ============================================================================
@@ -206,7 +206,7 @@ function formatRole(role: string): string {
 }
 
 // ============================================================================
-// 3. Config loaded from .ai-team/ matches config loaded from .squad/
+// 3. Config loaded from .ai-team/ matches config loaded from .crew/
 // ============================================================================
 
 describe('Compat v0.4.1: Config Path Equivalence', () => {
@@ -218,17 +218,17 @@ describe('Compat v0.4.1: Config Path Equivalence', () => {
     fs.rmSync(dir, { recursive: true });
   });
 
-  it('loadConfigSync loads .squad/config.json', () => {
+  it('loadConfigSync loads .crew/config.json', () => {
     const dir = tmpDir();
-    const squadDir = path.join(dir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
+    const crewDir = path.join(dir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
     fs.writeFileSync(
-      path.join(squadDir, 'config.json'),
+      path.join(crewDir, 'config.json'),
       JSON.stringify(DEFAULT_CONFIG),
     );
     const result = loadConfigSync(dir);
-    // The file exists but squad.config.json is checked before .squad/config.json
-    // In loadConfigSync only squad.config.json is checked
+    // The file exists but crew.config.json is checked before .crew/config.json
+    // In loadConfigSync only crew.config.json is checked
     expect(result.config.version).toBe(DEFAULT_CONFIG.version);
     fs.rmSync(dir, { recursive: true });
   });
@@ -260,32 +260,32 @@ describe('Compat v0.4.1: Tool Registration', () => {
     const names = tools.map((t) => t.name);
     expect(names).toEqual(
       expect.arrayContaining([
-        'squad_route',
-        'squad_decide',
-        'squad_memory',
-        'squad_state_read',
-        'squad_state_write',
-        'squad_state_append',
-        'squad_state_delete',
-        'squad_state_list',
-        'squad_state_health',
+        'crew_route',
+        'crew_decide',
+        'crew_memory',
+        'crew_state_read',
+        'crew_state_write',
+        'crew_state_append',
+        'crew_state_delete',
+        'crew_state_list',
+        'crew_state_health',
         'memory.classify',
         'memory.write',
         'memory.search',
         'memory.promote',
         'memory.delete',
         'memory.audit',
-        'squad_status',
-        'squad_skill',
+        'crew_status',
+        'crew_skill',
       ]),
     );
   });
 
   it('getTool returns correct tool by name', () => {
     const registry = new ToolRegistry();
-    const tool = registry.getTool('squad_route');
+    const tool = registry.getTool('crew_route');
     expect(tool).toBeDefined();
-    expect(tool!.name).toBe('squad_route');
+    expect(tool!.name).toBe('crew_route');
     expect(tool!.description).toContain('Route');
   });
 
@@ -296,9 +296,9 @@ describe('Compat v0.4.1: Tool Registration', () => {
 
   it('getToolsForAgent filters correctly', () => {
     const registry = new ToolRegistry();
-    const filtered = registry.getToolsForAgent(['squad_route']);
+    const filtered = registry.getToolsForAgent(['crew_route']);
     expect(filtered.length).toBe(1);
-    expect(filtered[0].name).toBe('squad_route');
+    expect(filtered[0].name).toBe('crew_route');
   });
 
   it('getToolsForAgent returns all when no filter', () => {
@@ -378,7 +378,7 @@ describe('Compat v0.4.1: Event Bus Shape', () => {
   });
 
   it('session:created event has standard shape', async () => {
-    const events: SquadEvent[] = [];
+    const events: CrewEvent[] = [];
     bus.subscribe('session:created', (e) => events.push(e));
     await bus.emit({
       type: 'session:created',
@@ -395,7 +395,7 @@ describe('Compat v0.4.1: Event Bus Shape', () => {
   });
 
   it('session:error event preserves error payload', async () => {
-    const events: SquadEvent[] = [];
+    const events: CrewEvent[] = [];
     bus.subscribe('session:error', (e) => events.push(e));
     await bus.emit({
       type: 'session:error',
@@ -409,7 +409,7 @@ describe('Compat v0.4.1: Event Bus Shape', () => {
   });
 
   it('coordinator:routing event has expected fields', async () => {
-    const events: SquadEvent[] = [];
+    const events: CrewEvent[] = [];
     bus.subscribe('coordinator:routing', (e) => events.push(e));
     await bus.emit({
       type: 'coordinator:routing',
@@ -432,7 +432,7 @@ describe('Compat v0.4.1: Event Bus Shape', () => {
   });
 
   it('supported event types include all lifecycle events', () => {
-    const lifecycleTypes: SquadEventType[] = [
+    const lifecycleTypes: CrewEventType[] = [
       'session:created',
       'session:idle',
       'session:error',
@@ -446,7 +446,7 @@ describe('Compat v0.4.1: Event Bus Shape', () => {
   });
 
   it('supported event types include operational events', () => {
-    const opTypes: SquadEventType[] = [
+    const opTypes: CrewEventType[] = [
       'session:message',
       'session:tool_call',
       'agent:milestone',
@@ -589,14 +589,14 @@ describe('Compat v0.4.1: Streaming Pipeline', () => {
 
 describe('Compat v0.4.1: Agent Doc Parser', () => {
   it('extracts name from H1 heading', () => {
-    const result = parseAgentDoc('# Squad Coordinator\n\nSome content');
-    expect(result.name).toBe('Squad Coordinator');
+    const result = parseAgentDoc('# Crew Coordinator\n\nSome content');
+    expect(result.name).toBe('Crew Coordinator');
   });
 
   it('extracts tools from ## Tools section', () => {
-    const result = parseAgentDoc('# Agent\n\n## Tools\n- squad_route\n- squad_decide\n');
-    expect(result.tools).toContain('squad_route');
-    expect(result.tools).toContain('squad_decide');
+    const result = parseAgentDoc('# Agent\n\n## Tools\n- crew_route\n- crew_decide\n');
+    expect(result.tools).toContain('crew_route');
+    expect(result.tools).toContain('crew_decide');
   });
 
   it('extracts capabilities from ## Capabilities section', () => {

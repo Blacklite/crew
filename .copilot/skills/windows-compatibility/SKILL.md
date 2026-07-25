@@ -8,7 +8,7 @@ source: "earned (multiple Windows-specific bugs: colons in filenames, git -C fai
 
 ## Context
 
-Squad runs on Windows, macOS, and Linux. Several bugs have been traced to platform-specific assumptions: ISO timestamps with colons (illegal on Windows), `git -C` with Windows paths (unreliable), forward-slash paths in Node.js on Windows.
+Crew runs on Windows, macOS, and Linux. Several bugs have been traced to platform-specific assumptions: ISO timestamps with colons (illegal on Windows), `git -C` with Windows paths (unreliable), forward-slash paths in Node.js on Windows.
 
 ## Patterns
 
@@ -39,15 +39,15 @@ const safeTimestamp = () => new Date().toISOString().replace(/:/g, '-').split('.
 
 // Git workflow (PowerShell)
 cd $teamRoot
-# ⚠️ NEVER use `git add .squad/` or broad globs — only stage files you intentionally changed
+# ⚠️ NEVER use `git add .crew/` or broad globs — only stage files you intentionally changed
 # Stage only files you actually modified — use git status to build explicit list
 $filesToStage = git status --porcelain | Where-Object { $_.Length -gt 3 } | ForEach-Object { $_.Substring(3) -replace '^.* -> ','' } | Where-Object {
-  $_ -eq '.squad/decisions.md' -or
-  $_ -eq '.squad/decisions-archive.md' -or
-  $_ -like '.squad/agents/*/history.md' -or
-  $_ -like '.squad/agents/*/history-archive.md' -or
-  $_ -like '.squad/log/*' -or
-  $_ -like '.squad/orchestration-log/*'
+  $_ -eq '.crew/decisions.md' -or
+  $_ -eq '.crew/decisions-archive.md' -or
+  $_ -like '.crew/agents/*/history.md' -or
+  $_ -like '.crew/agents/*/history-archive.md' -or
+  $_ -like '.crew/log/*' -or
+  $_ -like '.crew/orchestration-log/*'
 }
 if ($filesToStage) { $filesToStage | Where-Object { $_ } | ForEach-Object { git add -- $_ } }
 git diff --cached --quiet
@@ -68,10 +68,10 @@ Changes:
 ✗ **Incorrect:**
 ```javascript
 // Colon in filename
-const logPath = `.squad/log/${new Date().toISOString()}.md`; // ILLEGAL on Windows
+const logPath = `.crew/log/${new Date().toISOString()}.md`; // ILLEGAL on Windows
 
 // git -C with Windows path
-exec('git -C C:\\src\\squad add .squad/'); // UNRELIABLE
+exec('git -C C:\\src\\crew add .crew/'); // UNRELIABLE
 
 // Inline newlines in commit message
 exec('git commit -m "First line\nSecond line"'); // FAILS silently in PowerShell

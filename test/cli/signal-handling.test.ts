@@ -1,11 +1,11 @@
 /**
- * Signal Handling Tests — SIGINT / SIGTERM handlers in squad-cli
+ * Signal Handling Tests — SIGINT / SIGTERM handlers in crew-cli
  *
  * Tests the top-level signal handler in cli-entry.ts and the shell-specific
  * signal handler in cli/shell/index.ts. Verifies correct exit codes, double-signal
  * force-exit behavior, and cleanup timeout.
  *
- * Issue: squad/cli-docs-sigint branch — clean exit on Ctrl+C / SIGTERM.
+ * Issue: crew/cli-docs-sigint branch — clean exit on Ctrl+C / SIGTERM.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
@@ -18,14 +18,14 @@ import { join } from 'node:path';
 const CLI_ENTRY_PATH = join(
   process.cwd(),
   'packages',
-  'squad-cli',
+  'crew-cli',
   'src',
   'cli-entry.ts',
 );
 const SHELL_INDEX_PATH = join(
   process.cwd(),
   'packages',
-  'squad-cli',
+  'crew-cli',
   'src',
   'cli',
   'shell',

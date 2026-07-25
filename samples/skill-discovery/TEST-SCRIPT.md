@@ -36,7 +36,7 @@ After the demo runs:
 
 **Expected:**
 - [ ] Temp directory is removed after demo completes
-- [ ] No leftover `.squad/skills/` directories in temp
+- [ ] No leftover `.crew/skills/` directories in temp
 
 ## Test 3: Automated Tests Pass
 
@@ -63,7 +63,7 @@ During demo output, verify:
 In a Node.js REPL or script:
 
 ```typescript
-import { loadSkillsFromDirectory } from '@bradygaster/squad-sdk/skills';
+import { loadSkillsFromDirectory } from '@blacklite/crew-sdk/skills';
 const skills = loadSkillsFromDirectory('/nonexistent/path');
 console.log(skills); // Should be []
 ```

@@ -3,14 +3,14 @@ title: "Wave 3: Docs That Teach"
 date: 2026-02-21
 author: "McManus (DevRel)"
 wave: 3
-tags: [squad, wave-3, docs, site-generator, markdown-it, guides]
+tags: [crew, wave-3, docs, site-generator, markdown-it, guides]
 status: published
 hero: "We built a docs engine from scratch because the docs should teach you how to solve problems, not how to call functions."
 ---
 
 # Wave 3: Docs That Teach
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 > _We built a docs engine from scratch because the docs should teach you how to solve problems, not how to call functions._
@@ -21,7 +21,7 @@ Most developer docs are organized by API surface. Here's the `loadConfig` functi
 
 That's reference material, not documentation. Reference material answers "what does this do?" Documentation answers "how do I solve this problem?"
 
-Wave 3 (PR #310) built Squad's docs engine around a simple principle: **teach by scenario**. Don't start with the API. Start with the problem. "I want to set up a squad for my React project." "I want agents to share knowledge across repositories." "I want to see what my agents are doing in real time." Then show the path from problem to solution, with the API calls appearing naturally along the way.
+Wave 3 (PR #310) built Crew's docs engine around a simple principle: **teach by scenario**. Don't start with the API. Start with the problem. "I want to set up a crew for my React project." "I want agents to share knowledge across repositories." "I want to see what my agents are doing in real time." Then show the path from problem to solution, with the API calls appearing naturally along the way.
 
 ## The Engine
 
@@ -45,9 +45,9 @@ Wave 3 shipped 5 guides covering the core paths:
 2. **Migration** — Beta to v1 migration with 10-step checklist and troubleshooting
 3. **CLI Installation** — Three install methods, resolution order, version management
 4. **VS Code Integration** — Extension developer guide, safe import patterns, compatibility modes
-5. **SDK API Reference** — Every public export from `@bradygaster/squad-sdk`, grouped by domain
+5. **SDK API Reference** — Every public export from `@blacklite/crew-sdk`, grouped by domain
 
-Each guide follows the scenario-first pattern. The architecture guide doesn't start with "here are the modules." It starts with "here's what happens when you type `squad`." The migration guide doesn't start with "here are the breaking changes." It starts with "you have a beta squad and you want to move to v1."
+Each guide follows the scenario-first pattern. The architecture guide doesn't start with "here are the modules." It starts with "here's what happens when you type `crew`." The migration guide doesn't start with "here are the breaking changes." It starts with "you have a beta crew and you want to move to v1."
 
 ## Issues Closed
 
@@ -72,8 +72,8 @@ Wave 3 touched a broad set of documentation issues: #185, #188, #191, #192, #195
 
 ## What's Next
 
-The docs engine is built. The initial guides are live. But Squad has a much bigger story to tell — scenarios, features, the full beta knowledge base. The great docs restructure is coming, and it will bring 77 pages across 6 sections. But first, we need to align versions and ship to npm.
+The docs engine is built. The initial guides are live. But Crew has a much bigger story to tell — scenarios, features, the full beta knowledge base. The great docs restructure is coming, and it will bring 77 pages across 6 sections. But first, we need to align versions and ship to npm.
 
 ---
 
-_This post was written by McManus, the DevRel on Squad's own team. Squad is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/bradygaster/squad)_
+_This post was written by McManus, the DevRel on Crew's own team. Crew is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/Blacklite/crew)_

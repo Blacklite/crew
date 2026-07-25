@@ -8,26 +8,26 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // --- Coordinator pipeline ---
 import {
-  SquadCoordinator,
+  CrewCoordinator,
   type CoordinatorResult,
-} from '@bradygaster/squad-sdk/coordinator';
+} from '@blacklite/crew-sdk/coordinator';
 import {
   DirectResponseHandler,
   type CoordinatorContext,
-} from '@bradygaster/squad-sdk/coordinator';
+} from '@blacklite/crew-sdk/coordinator';
 import {
   selectResponseTier,
   getTier,
   type TierName,
-} from '@bradygaster/squad-sdk/coordinator';
+} from '@blacklite/crew-sdk/coordinator';
 import {
   compileRoutingRules,
   matchRoute,
   parseRoutingMarkdown,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // --- Casting ---
-import { CastingEngine, type CastingConfig, type AgentRole } from '@bradygaster/squad-sdk/casting';
+import { CastingEngine, type CastingConfig, type AgentRole } from '@blacklite/crew-sdk/casting';
 
 // --- Skills ---
 import {
@@ -35,31 +35,31 @@ import {
   parseSkillFile,
   parseFrontmatter,
   type SkillDefinition,
-} from '@bradygaster/squad-sdk/skills';
+} from '@blacklite/crew-sdk/skills';
 
 // --- Streaming ---
 import {
   StreamingPipeline,
   type StreamDelta,
   type UsageEvent,
-} from '@bradygaster/squad-sdk/runtime/streaming';
+} from '@blacklite/crew-sdk/runtime/streaming';
 
 // --- Config ---
 import {
   DEFAULT_CONFIG,
   validateConfig,
   validateConfigDetailed,
-  type SquadConfig,
-} from '@bradygaster/squad-sdk/runtime';
+  type CrewConfig,
+} from '@blacklite/crew-sdk/runtime';
 import {
   defineConfig,
   validateConfig as validateSchemaConfig,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
   MigrationRegistry,
   parseSemVer,
   compareSemVer,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // --- Legacy fallback ---
 import {
@@ -67,7 +67,7 @@ import {
   loadLegacyAgentMd,
   mergeLegacyWithConfig,
   type LegacyConfig,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // --- Models ---
 import {
@@ -76,24 +76,24 @@ import {
   inferTierFromModel,
   isTierFallbackAllowed,
   type ResolvedModel,
-} from '@bradygaster/squad-sdk/agents';
+} from '@blacklite/crew-sdk/agents';
 import {
   ModelRegistry,
   MODEL_CATALOG,
   DEFAULT_FALLBACK_CHAINS,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // --- Event bus ---
-import { EventBus } from '@bradygaster/squad-sdk/runtime/event-bus';
+import { EventBus } from '@blacklite/crew-sdk/runtime/event-bus';
 
 // --- Hooks ---
-import { HookPipeline, type PolicyConfig } from '@bradygaster/squad-sdk/hooks';
+import { HookPipeline, type PolicyConfig } from '@blacklite/crew-sdk/hooks';
 
 // --- Tools ---
-import { ToolRegistry } from '@bradygaster/squad-sdk/tools';
+import { ToolRegistry } from '@blacklite/crew-sdk/tools';
 
 // --- Agents ---
-import { parseAgentDoc } from '@bradygaster/squad-sdk/config';
+import { parseAgentDoc } from '@blacklite/crew-sdk/config';
 
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -103,7 +103,7 @@ import * as os from 'node:os';
 // Helpers
 // ============================================================================
 
-function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
+function makeConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
   return {
     ...DEFAULT_CONFIG,
     ...overrides,
@@ -120,7 +120,7 @@ function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
       ...DEFAULT_CONFIG.models,
       ...overrides.models,
     },
-  } as SquadConfig;
+  } as CrewConfig;
 }
 
 function makeContext(overrides: Partial<CoordinatorContext> = {}): CoordinatorContext {
@@ -133,7 +133,7 @@ function makeContext(overrides: Partial<CoordinatorContext> = {}): CoordinatorCo
 }
 
 function tmpDir(): string {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'squad-parity-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'crew-parity-'));
 }
 
 // ============================================================================
@@ -153,7 +153,7 @@ describe('Feature Parity: Coordinator Pipeline', () => {
         { workType: 'feature-dev', agents: ['fenster'], examples: ['new feature', 'implement'], confidence: 'high' },
       ],
     });
-    const coord = new SquadCoordinator({
+    const coord = new CrewCoordinator({
       config: makeConfig(),
       compiledRouter: router,
       eventBus,
@@ -164,7 +164,7 @@ describe('Feature Parity: Coordinator Pipeline', () => {
   });
 
   it('direct-responds to help without spawning', async () => {
-    const coord = new SquadCoordinator({ config: makeConfig(), eventBus });
+    const coord = new CrewCoordinator({ config: makeConfig(), eventBus });
     const result = await coord.handleMessage('help', makeContext());
     expect(result.strategy).toBe('direct');
     expect(result.directResponse!.category).toBe('help');
@@ -172,14 +172,14 @@ describe('Feature Parity: Coordinator Pipeline', () => {
   });
 
   it('direct-responds to status queries', async () => {
-    const coord = new SquadCoordinator({ config: makeConfig(), eventBus });
+    const coord = new CrewCoordinator({ config: makeConfig(), eventBus });
     const result = await coord.handleMessage('status', makeContext());
     expect(result.strategy).toBe('direct');
     expect(result.directResponse!.response).toContain('fenster');
   });
 
   it('direct-responds to greetings', async () => {
-    const coord = new SquadCoordinator({ config: makeConfig(), eventBus });
+    const coord = new CrewCoordinator({ config: makeConfig(), eventBus });
     const result = await coord.handleMessage('hello', makeContext());
     expect(result.strategy).toBe('direct');
     expect(result.directResponse!.category).toBe('greeting');
@@ -191,7 +191,7 @@ describe('Feature Parity: Coordinator Pipeline', () => {
         { workType: 'documentation', agents: ['verbal', 'scribe'], examples: ['docs', 'readme'], confidence: 'medium' },
       ],
     });
-    const coord = new SquadCoordinator({ config: makeConfig(), compiledRouter: router, eventBus });
+    const coord = new CrewCoordinator({ config: makeConfig(), compiledRouter: router, eventBus });
     const result = await coord.handleMessage('update the readme docs', makeContext());
     expect(result.strategy).toBe('multi');
     expect(result.routing!.agents.length).toBeGreaterThanOrEqual(2);
@@ -200,13 +200,13 @@ describe('Feature Parity: Coordinator Pipeline', () => {
   it('emits routing events through the event bus', async () => {
     const events: any[] = [];
     eventBus.subscribe('coordinator:routing', (e) => events.push(e));
-    const coord = new SquadCoordinator({ config: makeConfig(), eventBus });
+    const coord = new CrewCoordinator({ config: makeConfig(), eventBus });
     await coord.handleMessage('implement new feature', makeContext());
     expect(events.length).toBeGreaterThanOrEqual(1);
   });
 
   it('includes timing in coordinator result', async () => {
-    const coord = new SquadCoordinator({ config: makeConfig(), eventBus });
+    const coord = new CrewCoordinator({ config: makeConfig(), eventBus });
     const result = await coord.handleMessage('help', makeContext());
     expect(typeof result.durationMs).toBe('number');
     expect(result.durationMs).toBeGreaterThanOrEqual(0);
@@ -214,7 +214,7 @@ describe('Feature Parity: Coordinator Pipeline', () => {
 
   it('falls back gracefully with empty routing rules', async () => {
     const router = compileRoutingRules({ rules: [] });
-    const coord = new SquadCoordinator({ config: makeConfig(), compiledRouter: router, eventBus });
+    const coord = new CrewCoordinator({ config: makeConfig(), compiledRouter: router, eventBus });
     const result = await coord.handleMessage('do something random', makeContext());
     expect(result.routing).toBeDefined();
     expect(result.routing!.confidence).toBe('low');
@@ -576,11 +576,11 @@ describe('Feature Parity: Backwards Compatibility', () => {
     fs.rmSync(dir, { recursive: true });
   });
 
-  it('detectLegacySetup returns true when .github/agents/squad.agent.md exists', () => {
+  it('detectLegacySetup returns true when .github/agents/crew.agent.md exists', () => {
     const dir = tmpDir();
     const agentDir = path.join(dir, '.github', 'agents');
     fs.mkdirSync(agentDir, { recursive: true });
-    fs.writeFileSync(path.join(agentDir, 'squad.agent.md'), '# Squad Agent\n## Identity\nName: TestBot');
+    fs.writeFileSync(path.join(agentDir, 'crew.agent.md'), '# Crew Agent\n## Identity\nName: TestBot');
     expect(detectLegacySetup(dir)).toBe(true);
     fs.rmSync(dir, { recursive: true });
   });
@@ -594,18 +594,18 @@ describe('Feature Parity: Backwards Compatibility', () => {
     fs.rmSync(dir, { recursive: true });
   });
 
-  it('loadLegacyAgentMd parses squad.agent.md from .github/agents/', () => {
+  it('loadLegacyAgentMd parses crew.agent.md from .github/agents/', () => {
     const dir = tmpDir();
     const agentDir = path.join(dir, '.github', 'agents');
     fs.mkdirSync(agentDir, { recursive: true });
     fs.writeFileSync(
-      path.join(agentDir, 'squad.agent.md'),
-      '# Squad Coordinator\n\n## Identity\nName: TestBot\nDescription: A test bot\n\n## Tools\n- squad_route\n- squad_decide\n',
+      path.join(agentDir, 'crew.agent.md'),
+      '# Crew Coordinator\n\n## Identity\nName: TestBot\nDescription: A test bot\n\n## Tools\n- crew_route\n- crew_decide\n',
     );
     const legacy = loadLegacyAgentMd(dir);
     expect(legacy).toBeDefined();
-    expect(legacy!.tools).toContain('squad_route');
-    expect(legacy!.sourcePath).toContain('squad.agent.md');
+    expect(legacy!.tools).toContain('crew_route');
+    expect(legacy!.sourcePath).toContain('crew.agent.md');
     fs.rmSync(dir, { recursive: true });
   });
 
@@ -618,7 +618,7 @@ describe('Feature Parity: Backwards Compatibility', () => {
   it('mergeLegacyWithConfig: config takes precedence over legacy', () => {
     const legacy: LegacyConfig = {
       systemPrompt: 'legacy prompt',
-      tools: ['squad_route'],
+      tools: ['crew_route'],
       agents: [{ name: 'legacy-agent', role: 'dev' }],
       routingHints: [],
       routingRules: [
@@ -900,20 +900,20 @@ describe('Feature Parity: Hooks Pipeline', () => {
 });
 
 describe('Feature Parity: Tool Registry', () => {
-  it('registers all built-in squad tools', () => {
+  it('registers all built-in crew tools', () => {
     const registry = new ToolRegistry();
     const tools = registry.getTools();
     const names = tools.map((t) => t.name);
-    expect(names).toContain('squad_route');
-    expect(names).toContain('squad_decide');
-    expect(names).toContain('squad_memory');
-    expect(names).toContain('squad_status');
-    expect(names).toContain('squad_skill');
+    expect(names).toContain('crew_route');
+    expect(names).toContain('crew_decide');
+    expect(names).toContain('crew_memory');
+    expect(names).toContain('crew_status');
+    expect(names).toContain('crew_skill');
   });
 
   it('filters tools for agent by allowed list', () => {
     const registry = new ToolRegistry();
-    const filtered = registry.getToolsForAgent(['squad_route', 'squad_status']);
+    const filtered = registry.getToolsForAgent(['crew_route', 'crew_status']);
     expect(filtered.length).toBe(2);
   });
 

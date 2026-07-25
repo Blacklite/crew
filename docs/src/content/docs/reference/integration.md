@@ -1,19 +1,19 @@
 # SDK Integration Guide
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-This guide covers connecting to the Copilot SDK via Squad's adapter layer, managing sessions, handling events, and recovering from errors.
+This guide covers connecting to the Copilot SDK via Crew's adapter layer, managing sessions, handling events, and recovering from errors.
 
 ---
 
-## SquadClient Setup
+## CrewClient Setup
 
-`SquadClient` wraps `@github/copilot-sdk` with lifecycle management and auto-reconnection:
+`CrewClient` wraps `@github/copilot-sdk` with lifecycle management and auto-reconnection:
 
 ```typescript
-import { SquadClient } from '@bradygaster/squad-sdk';
+import { CrewClient } from '@blacklite/crew-sdk';
 
-const client = new SquadClient({
+const client = new CrewClient({
   port: 3000,
   auth: { token: process.env.COPILOT_TOKEN },
   reconnection: { maxRetries: 5, backoffMs: 1000 },
@@ -22,23 +22,23 @@ const client = new SquadClient({
 await client.connect();
 ```
 
-The client tracks connection state via `SquadConnectionState`: `disconnected → connecting → connected → reconnecting → error`. Auto-reconnection uses exponential backoff with jitter.
+The client tracks connection state via `CrewConnectionState`: `disconnected → connecting → connected → reconnecting → error`. Auto-reconnection uses exponential backoff with jitter.
 
 ---
 
 ## Session Management
 
-Use `SquadClientWithPool` for production workloads — it composes `SquadClient`, `SessionPool`, and `EventBus`:
+Use `CrewClientWithPool` for production workloads — it composes `CrewClient`, `SessionPool`, and `EventBus`:
 
 ```typescript
-import { SquadClientWithPool } from '@bradygaster/squad-sdk';
+import { CrewClientWithPool } from '@blacklite/crew-sdk';
 
-const squad = new SquadClientWithPool({
+const crew = new CrewClientWithPool({
   client: clientOptions,
   pool: { maxConcurrent: 10, idleTimeout: 60_000 },
 });
 
-const session = await squad.createSession({ agent: 'backend' });
+const session = await crew.createSession({ agent: 'backend' });
 const response = await session.sendMessage('Implement the /users endpoint');
 await session.destroy();
 ```
@@ -52,11 +52,11 @@ await session.destroy();
 `EventBus` provides typed pub/sub for session lifecycle events:
 
 ```typescript
-squad.events.on('session.created', (event) => {
+crew.events.on('session.created', (event) => {
   console.log(`Session ${event.sessionId} started`);
 });
 
-squad.events.on('session.status_changed', (event) => {
+crew.events.on('session.status_changed', (event) => {
   if (event.payload.status === 'error') {
     // handle degraded session
   }
@@ -69,7 +69,7 @@ Events include `session.created`, `session.destroyed`, `session.status_changed`,
 
 ## Error Handling
 
-All SDK errors are wrapped in `SquadError` subtypes with severity, category, and recoverability:
+All SDK errors are wrapped in `CrewError` subtypes with severity, category, and recoverability:
 
 ```typescript
 try {
@@ -97,7 +97,7 @@ Error classes:
 | `RuntimeError` | General runtime errors |
 | `ValidationError` | Input validation failures |
 
-Use `ErrorFactory` to wrap raw SDK errors with Squad context.
+Use `ErrorFactory` to wrap raw SDK errors with Crew context.
 
 ---
 

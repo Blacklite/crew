@@ -9,10 +9,10 @@ import {
   auditAccessibility,
   type MessageCatalog,
   type AccessibilityReport,
-} from '@bradygaster/squad-sdk/runtime/i18n';
-import type { SquadConfig } from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/runtime/i18n';
+import type { CrewConfig } from '@blacklite/crew-sdk/config';
 
-function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
+function makeConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
   return {
     version: '1.0.0',
     team: { name: 'Test Team' },
@@ -44,12 +44,12 @@ describe('I18nManager', () => {
 
   it('should interpolate params into a message', () => {
     const result = i18n.formatMessage('cli.version', { version: '0.6.0' });
-    expect(result).toBe('squad 0.6.0');
+    expect(result).toBe('crew 0.6.0');
   });
 
   it('should leave unknown placeholders intact', () => {
     const result = i18n.formatMessage('cli.version', {});
-    expect(result).toBe('squad {version}');
+    expect(result).toBe('crew {version}');
   });
 
   it('should return the raw key when message is not found', () => {
@@ -68,7 +68,7 @@ describe('I18nManager', () => {
     const frCatalog: MessageCatalog = { 'config.valid': 'Valide.' };
     i18n.registerCatalog('fr', frCatalog);
     i18n.setLocale('fr');
-    expect(i18n.formatMessage('cli.version', { version: '1.0' })).toBe('squad 1.0');
+    expect(i18n.formatMessage('cli.version', { version: '1.0' })).toBe('crew 1.0');
   });
 
   it('should throw when setting an unregistered locale', () => {

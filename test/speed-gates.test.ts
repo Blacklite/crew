@@ -11,10 +11,10 @@ import { describe, it, expect, afterEach } from 'vitest';
 import { resolve } from 'node:path';
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { TerminalHarness } from './acceptance/harness.js';
-import { parseInput } from '@bradygaster/squad-cli/shell/router';
-import { isInitNoColor } from '@bradygaster/squad-cli/core/init';
-import { loadWelcomeData } from '@bradygaster/squad-cli/shell/lifecycle';
-import { withGhostRetry } from '../packages/squad-cli/src/cli/shell/index.js';
+import { parseInput } from '@blacklite/crew-cli/shell/router';
+import { isInitNoColor } from '@blacklite/crew-cli/core/init';
+import { loadWelcomeData } from '@blacklite/crew-cli/shell/lifecycle';
+import { withGhostRetry } from '../packages/crew-cli/src/cli/shell/index.js';
 
 // ============================================================================
 // 1. HELP — Must be scannable, not a wall of text (#395)
@@ -51,7 +51,7 @@ describe('Speed: --help is scannable', { timeout: 30_000 }, () => {
     await harness.waitForExit(15000);
     const output = harness.captureFrame();
     const first5 = output.split('\n').slice(0, 5).join('\n');
-    expect(first5).toMatch(/squad/i);
+    expect(first5).toMatch(/crew/i);
     expect(first5).toMatch(/type|route|agent/i);
   });
 
@@ -68,7 +68,7 @@ describe('Speed: --help is scannable', { timeout: 30_000 }, () => {
 // 2. INIT — Ceremony must complete quickly (#387)
 // ============================================================================
 
-describe('Speed: squad init ceremony', () => {
+describe('Speed: crew init ceremony', () => {
   it('isInitNoColor returns true in CI/non-TTY environments', () => {
     const result = isInitNoColor();
     expect(result).toBe(true);
@@ -99,9 +99,9 @@ describe('Speed: squad init ceremony', () => {
 // ============================================================================
 
 describe('Speed: welcome data loads fast', () => {
-  it('loadWelcomeData completes in under 50ms for a valid .squad/ dir', () => {
+  it('loadWelcomeData completes in under 50ms for a valid .crew/ dir', () => {
     const fixtureDir = resolve(process.cwd(), 'test-fixtures', 'full-team');
-    if (!existsSync(resolve(fixtureDir, '.squad', 'team.md'))) {
+    if (!existsSync(resolve(fixtureDir, '.crew', 'team.md'))) {
       return; // Skip if fixture doesn't exist
     }
     const start = performance.now();
@@ -110,7 +110,7 @@ describe('Speed: welcome data loads fast', () => {
     expect(elapsed).toBeLessThan(50);
   });
 
-  it('loadWelcomeData completes in under 50ms when no .squad/ exists', () => {
+  it('loadWelcomeData completes in under 50ms when no .crew/ exists', () => {
     const start = performance.now();
     const result = loadWelcomeData('/nonexistent/path');
     const elapsed = performance.now() - start;
@@ -211,7 +211,7 @@ describe('Speed: error states are actionable', { timeout: 30_000 }, () => {
     await harness.waitForExit(15000);
     const output = harness.captureFrame();
     expect(output).toMatch(/unknown command/i);
-    expect(output).toMatch(/squad help|squad doctor/i);
+    expect(output).toMatch(/crew help|crew doctor/i);
   });
 
   it('error output completes in under 10 seconds', async () => {

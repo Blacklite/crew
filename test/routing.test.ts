@@ -8,8 +8,8 @@ import {
   compileRoutingRules,
   matchRoute,
   matchIssueLabels
-} from '@bradygaster/squad-sdk/config';
-import type { RoutingConfig, IssueRoutingRule } from '@bradygaster/squad-sdk/runtime';
+} from '@blacklite/crew-sdk/config';
+import type { RoutingConfig, IssueRoutingRule } from '@blacklite/crew-sdk/runtime';
 
 describe('parseRoutingMarkdown', () => {
   it('parses basic routing table', () => {
@@ -159,7 +159,7 @@ describe('compileRoutingRules', () => {
 
   it('compiles issue routing rules', () => {
     const issueRule: IssueRoutingRule = {
-      label: 'squad:lead',
+      label: 'crew:lead',
       action: 'assign',
       target: 'Lead'
     };
@@ -293,12 +293,12 @@ describe('matchIssueLabels', () => {
     rules: [],
     issueRouting: [
       {
-        label: 'squad:lead',
+        label: 'crew:lead',
         action: 'assign',
         target: 'Lead'
       },
       {
-        label: 'squad:developer',
+        label: 'crew:developer',
         action: 'assign',
         target: 'Developer',
         requiredLabels: ['bug'],
@@ -308,7 +308,7 @@ describe('matchIssueLabels', () => {
   }).issueRules!;
 
   it('matches simple label', () => {
-    const match = matchIssueLabels(['squad:lead', 'enhancement'], issueRules);
+    const match = matchIssueLabels(['crew:lead', 'enhancement'], issueRules);
     
     expect(match).toBeDefined();
     expect(match?.action).toBe('assign');
@@ -317,7 +317,7 @@ describe('matchIssueLabels', () => {
 
   it('respects required labels', () => {
     const matchWithRequired = matchIssueLabels(
-      ['squad:developer', 'bug'],
+      ['crew:developer', 'bug'],
       issueRules
     );
     
@@ -325,7 +325,7 @@ describe('matchIssueLabels', () => {
     expect(matchWithRequired?.target).toBe('Developer');
     
     const matchWithoutRequired = matchIssueLabels(
-      ['squad:developer', 'enhancement'],
+      ['crew:developer', 'enhancement'],
       issueRules
     );
     
@@ -334,7 +334,7 @@ describe('matchIssueLabels', () => {
 
   it('respects excluded labels', () => {
     const match = matchIssueLabels(
-      ['squad:developer', 'bug', 'wontfix'],
+      ['crew:developer', 'bug', 'wontfix'],
       issueRules
     );
     

@@ -13,12 +13,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-import { hasRosterEntries } from '../packages/squad-cli/src/cli/shell/coordinator.js';
-import { executeCommand } from '../packages/squad-cli/src/cli/shell/commands.js';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import type { CommandContext } from '../packages/squad-cli/src/cli/shell/commands.js';
-import type { ShellMessage } from '../packages/squad-cli/src/cli/shell/types.js';
+import { hasRosterEntries } from '../packages/crew-cli/src/cli/shell/coordinator.js';
+import { executeCommand } from '../packages/crew-cli/src/cli/shell/commands.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import type { CommandContext } from '../packages/crew-cli/src/cli/shell/commands.js';
+import type { ShellMessage } from '../packages/crew-cli/src/cli/shell/types.js';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -35,7 +35,7 @@ function cleanDir(dir: string): void {
 /** Build a team.md with a populated ## Members table. */
 function makePopulatedTeamMd(agents: Array<{ name: string; role: string }>): string {
   const rows = agents
-    .map(a => `| ${a.name} | ${a.role} | \`.squad/agents/${a.name.toLowerCase()}/charter.md\` | ✅ Active |`)
+    .map(a => `| ${a.name} | ${a.role} | \`.crew/agents/${a.name.toLowerCase()}/charter.md\` | ✅ Active |`)
     .join('\n');
   return `# Team Manifest
 
@@ -117,12 +117,12 @@ describe('hasRosterEntries — auto-cast gating predicate', () => {
 
 describe('auto-cast trigger conditions', () => {
   let tmpDir: string;
-  let squadDir: string;
+  let crewDir: string;
 
   beforeEach(() => {
     tmpDir = makeTempDir('autocast-');
-    squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
+    crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
   });
 
   afterEach(() => {
@@ -131,12 +131,12 @@ describe('auto-cast trigger conditions', () => {
 
   it('auto-cast SHOULD fire: .init-prompt exists + roster is empty', () => {
     // Setup: empty roster team.md + .init-prompt
-    fs.writeFileSync(path.join(squadDir, 'team.md'), makeEmptyRosterTeamMd());
-    fs.writeFileSync(path.join(squadDir, '.init-prompt'), 'Build a snake game');
+    fs.writeFileSync(path.join(crewDir, 'team.md'), makeEmptyRosterTeamMd());
+    fs.writeFileSync(path.join(crewDir, '.init-prompt'), 'Build a snake game');
 
     // Verify conditions match auto-cast trigger
-    const teamContent = fs.readFileSync(path.join(squadDir, 'team.md'), 'utf-8');
-    const initPromptExists = fs.existsSync(path.join(squadDir, '.init-prompt'));
+    const teamContent = fs.readFileSync(path.join(crewDir, 'team.md'), 'utf-8');
+    const initPromptExists = fs.existsSync(path.join(crewDir, '.init-prompt'));
     const rosterEmpty = !hasRosterEntries(teamContent);
 
     expect(initPromptExists).toBe(true);
@@ -147,13 +147,13 @@ describe('auto-cast trigger conditions', () => {
   it('auto-cast should NOT fire: roster has entries (even if .init-prompt exists)', () => {
     // Setup: populated roster + stale .init-prompt
     fs.writeFileSync(
-      path.join(squadDir, 'team.md'),
+      path.join(crewDir, 'team.md'),
       makePopulatedTeamMd([{ name: 'Fenster', role: 'Developer' }]),
     );
-    fs.writeFileSync(path.join(squadDir, '.init-prompt'), 'Build a snake game');
+    fs.writeFileSync(path.join(crewDir, '.init-prompt'), 'Build a snake game');
 
-    const teamContent = fs.readFileSync(path.join(squadDir, 'team.md'), 'utf-8');
-    const initPromptExists = fs.existsSync(path.join(squadDir, '.init-prompt'));
+    const teamContent = fs.readFileSync(path.join(crewDir, 'team.md'), 'utf-8');
+    const initPromptExists = fs.existsSync(path.join(crewDir, '.init-prompt'));
     const rosterEmpty = !hasRosterEntries(teamContent);
 
     expect(initPromptExists).toBe(true);
@@ -163,10 +163,10 @@ describe('auto-cast trigger conditions', () => {
 
   it('auto-cast should NOT fire: .init-prompt does not exist', () => {
     // Setup: empty roster team.md but NO .init-prompt
-    fs.writeFileSync(path.join(squadDir, 'team.md'), makeEmptyRosterTeamMd());
+    fs.writeFileSync(path.join(crewDir, 'team.md'), makeEmptyRosterTeamMd());
 
-    const teamContent = fs.readFileSync(path.join(squadDir, 'team.md'), 'utf-8');
-    const initPromptExists = fs.existsSync(path.join(squadDir, '.init-prompt'));
+    const teamContent = fs.readFileSync(path.join(crewDir, 'team.md'), 'utf-8');
+    const initPromptExists = fs.existsSync(path.join(crewDir, '.init-prompt'));
     const rosterEmpty = !hasRosterEntries(teamContent);
 
     expect(initPromptExists).toBe(false);
@@ -176,10 +176,10 @@ describe('auto-cast trigger conditions', () => {
 
   it('auto-cast should NOT fire: team.md does not exist at all', () => {
     // Setup: no team.md, just .init-prompt
-    fs.writeFileSync(path.join(squadDir, '.init-prompt'), 'Build something');
+    fs.writeFileSync(path.join(crewDir, '.init-prompt'), 'Build something');
 
-    const teamFileExists = fs.existsSync(path.join(squadDir, 'team.md'));
-    const initPromptExists = fs.existsSync(path.join(squadDir, '.init-prompt'));
+    const teamFileExists = fs.existsSync(path.join(crewDir, 'team.md'));
+    const initPromptExists = fs.existsSync(path.join(crewDir, '.init-prompt'));
 
     expect(teamFileExists).toBe(false);
     expect(initPromptExists).toBe(true);
@@ -187,16 +187,16 @@ describe('auto-cast trigger conditions', () => {
   });
 
   it('stored .init-prompt content is trimmed before use', () => {
-    fs.writeFileSync(path.join(squadDir, '.init-prompt'), '  Build a snake game  \n');
+    fs.writeFileSync(path.join(crewDir, '.init-prompt'), '  Build a snake game  \n');
 
-    const storedPrompt = fs.readFileSync(path.join(squadDir, '.init-prompt'), 'utf-8').trim();
+    const storedPrompt = fs.readFileSync(path.join(crewDir, '.init-prompt'), 'utf-8').trim();
     expect(storedPrompt).toBe('Build a snake game');
   });
 
   it('empty .init-prompt (whitespace only) should NOT trigger auto-cast', () => {
-    fs.writeFileSync(path.join(squadDir, '.init-prompt'), '   \n  ');
+    fs.writeFileSync(path.join(crewDir, '.init-prompt'), '   \n  ');
 
-    const storedPrompt = fs.readFileSync(path.join(squadDir, '.init-prompt'), 'utf-8').trim();
+    const storedPrompt = fs.readFileSync(path.join(crewDir, '.init-prompt'), 'utf-8').trim();
     expect(storedPrompt).toBe('');
     // Empty after trim → the `if (storedPrompt)` guard in index.ts prevents firing
   });
@@ -208,12 +208,12 @@ describe('auto-cast trigger conditions', () => {
 
 describe('orphan .init-prompt cleanup', () => {
   let tmpDir: string;
-  let squadDir: string;
+  let crewDir: string;
 
   beforeEach(() => {
     tmpDir = makeTempDir('orphan-cleanup-');
-    squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
+    crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
   });
 
   afterEach(() => {
@@ -222,8 +222,8 @@ describe('orphan .init-prompt cleanup', () => {
 
   it('orphan .init-prompt is deleted when roster already has entries', () => {
     // This replicates the Bug fix #3 logic from index.ts:894-902
-    const teamFilePath = path.join(squadDir, 'team.md');
-    const initPromptPath = path.join(squadDir, '.init-prompt');
+    const teamFilePath = path.join(crewDir, 'team.md');
+    const initPromptPath = path.join(crewDir, '.init-prompt');
 
     fs.writeFileSync(teamFilePath, makePopulatedTeamMd([{ name: 'Fenster', role: 'Dev' }]));
     fs.writeFileSync(initPromptPath, 'stale prompt from earlier');
@@ -240,8 +240,8 @@ describe('orphan .init-prompt cleanup', () => {
   });
 
   it('.init-prompt is NOT deleted when roster is empty', () => {
-    const teamFilePath = path.join(squadDir, 'team.md');
-    const initPromptPath = path.join(squadDir, '.init-prompt');
+    const teamFilePath = path.join(crewDir, 'team.md');
+    const initPromptPath = path.join(crewDir, '.init-prompt');
 
     fs.writeFileSync(teamFilePath, makeEmptyRosterTeamMd());
     fs.writeFileSync(initPromptPath, 'Build a snake game');
@@ -259,8 +259,8 @@ describe('orphan .init-prompt cleanup', () => {
   });
 
   it('.init-prompt is NOT deleted when team.md does not exist', () => {
-    const teamFilePath = path.join(squadDir, 'team.md');
-    const initPromptPath = path.join(squadDir, '.init-prompt');
+    const teamFilePath = path.join(crewDir, 'team.md');
+    const initPromptPath = path.join(crewDir, '.init-prompt');
 
     fs.writeFileSync(initPromptPath, 'Build a snake game');
 
@@ -282,12 +282,12 @@ describe('orphan .init-prompt cleanup', () => {
 
 describe('finalizeCast: empty-roster guard prevents dispatch loop', () => {
   let tmpDir: string;
-  let squadDir: string;
+  let crewDir: string;
 
   beforeEach(() => {
     tmpDir = makeTempDir('finalize-guard-');
-    squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
+    crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
   });
 
   afterEach(() => {
@@ -296,14 +296,14 @@ describe('finalizeCast: empty-roster guard prevents dispatch loop', () => {
 
   it('empty roster after createTeam cleans up .init-prompt and aborts', () => {
     // Simulate: createTeam wrote a team.md with empty roster + .init-prompt exists
-    fs.writeFileSync(path.join(squadDir, 'team.md'), makeEmptyRosterTeamMd());
-    fs.writeFileSync(path.join(squadDir, '.init-prompt'), 'Build a snake game');
+    fs.writeFileSync(path.join(crewDir, 'team.md'), makeEmptyRosterTeamMd());
+    fs.writeFileSync(path.join(crewDir, '.init-prompt'), 'Build a snake game');
 
-    const teamContent = fs.readFileSync(path.join(squadDir, 'team.md'), 'utf-8');
+    const teamContent = fs.readFileSync(path.join(crewDir, 'team.md'), 'utf-8');
 
     // Replicate the finalizeCast empty-roster guard from shell/index.ts
     if (!hasRosterEntries(teamContent)) {
-      const initPromptPath = path.join(squadDir, '.init-prompt');
+      const initPromptPath = path.join(crewDir, '.init-prompt');
       if (fs.existsSync(initPromptPath)) {
         try { fs.unlinkSync(initPromptPath); } catch { /* ignore */ }
       }
@@ -311,19 +311,19 @@ describe('finalizeCast: empty-roster guard prevents dispatch loop', () => {
     }
 
     // .init-prompt must be cleaned up to prevent auto-retry loop
-    expect(fs.existsSync(path.join(squadDir, '.init-prompt'))).toBe(false);
+    expect(fs.existsSync(path.join(crewDir, '.init-prompt'))).toBe(false);
     // Roster is still empty — dispatch should NOT have happened
     expect(hasRosterEntries(teamContent)).toBe(false);
   });
 
   it('populated roster after createTeam does NOT trigger guard', () => {
     fs.writeFileSync(
-      path.join(squadDir, 'team.md'),
+      path.join(crewDir, 'team.md'),
       makePopulatedTeamMd([{ name: 'Fenster', role: 'Developer' }]),
     );
-    fs.writeFileSync(path.join(squadDir, '.init-prompt'), 'Build a snake game');
+    fs.writeFileSync(path.join(crewDir, '.init-prompt'), 'Build a snake game');
 
-    const teamContent = fs.readFileSync(path.join(squadDir, 'team.md'), 'utf-8');
+    const teamContent = fs.readFileSync(path.join(crewDir, 'team.md'), 'utf-8');
     let guardFired = false;
 
     if (!hasRosterEntries(teamContent)) {
@@ -333,7 +333,7 @@ describe('finalizeCast: empty-roster guard prevents dispatch loop', () => {
     // Guard should NOT fire — roster has entries, dispatch proceeds
     expect(guardFired).toBe(false);
     // .init-prompt should still exist (normal cleanup happens later in the flow)
-    expect(fs.existsSync(path.join(squadDir, '.init-prompt'))).toBe(true);
+    expect(fs.existsSync(path.join(crewDir, '.init-prompt'))).toBe(true);
   });
 
   it('empty roster guard fires when team.md is missing entirely', () => {
@@ -400,7 +400,7 @@ describe('/init command — triggerInitCast signal', () => {
 
   it('help text includes team file path from context', () => {
     const result = executeCommand('init', [], context);
-    expect(result.output).toContain('/test/.squad/team.md');
+    expect(result.output).toContain('/test/.crew/team.md');
   });
 
   it('help text includes example prompt', () => {
@@ -490,7 +490,7 @@ describe('awaitInitPrompt signal — no-args /init follow-up flow', () => {
 
   it('awaitInitPrompt output includes team.md path', () => {
     const result = executeCommand('init', [], context);
-    expect(result.output).toContain('/test/.squad/team.md');
+    expect(result.output).toContain('/test/.crew/team.md');
   });
 });
 
@@ -515,7 +515,7 @@ describe('handleDispatch guard — skipCastConfirmation bypasses missing team.md
 
   it('plain coordinator ParsedInput has skipCastConfirmation=undefined — guard is applied', () => {
     // Regular messages have no skipCastConfirmation, so the guard runs normally
-    // and shows the "No Squad team found" error when team.md is absent.
+    // and shows the "No Crew team found" error when team.md is absent.
     const regularParsed = {
       type: 'coordinator' as const,
       raw: 'Do something',
@@ -644,12 +644,12 @@ describe('activeInitSession lifecycle — Ctrl+C abort coverage', () => {
 
 describe('handleInitCast — .init-prompt consumption logic', () => {
   let tmpDir: string;
-  let squadDir: string;
+  let crewDir: string;
 
   beforeEach(() => {
     tmpDir = makeTempDir('initcast-consume-');
-    squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
+    crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
   });
 
   afterEach(() => {
@@ -658,7 +658,7 @@ describe('handleInitCast — .init-prompt consumption logic', () => {
 
   it('stored prompt overrides parsed raw when .init-prompt exists', () => {
     // Replicates index.ts:620-628 logic
-    const initPromptFile = path.join(squadDir, '.init-prompt');
+    const initPromptFile = path.join(crewDir, '.init-prompt');
     fs.writeFileSync(initPromptFile, 'Build a chess engine');
 
     let castPrompt = 'original user message';
@@ -673,7 +673,7 @@ describe('handleInitCast — .init-prompt consumption logic', () => {
   });
 
   it('parsed raw is used when .init-prompt does not exist', () => {
-    const initPromptFile = path.join(squadDir, '.init-prompt');
+    const initPromptFile = path.join(crewDir, '.init-prompt');
 
     let castPrompt = 'original user message';
     if (fs.existsSync(initPromptFile)) {
@@ -688,7 +688,7 @@ describe('handleInitCast — .init-prompt consumption logic', () => {
 
   it('.init-prompt is deleted after consumption (post-cast cleanup)', () => {
     // Replicates index.ts:710-713
-    const initPromptFile = path.join(squadDir, '.init-prompt');
+    const initPromptFile = path.join(crewDir, '.init-prompt');
     fs.writeFileSync(initPromptFile, 'Build something');
 
     // Simulate post-cast cleanup
@@ -700,7 +700,7 @@ describe('handleInitCast — .init-prompt consumption logic', () => {
   });
 
   it('cleanup is safe when .init-prompt was already deleted', () => {
-    const initPromptFile = path.join(squadDir, '.init-prompt');
+    const initPromptFile = path.join(crewDir, '.init-prompt');
 
     // No .init-prompt exists
     expect(() => {

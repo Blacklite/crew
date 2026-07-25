@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   RalphMonitor,
   type MonitorConfig,
-} from '../packages/squad-sdk/src/ralph/index.js';
+} from '../packages/crew-sdk/src/ralph/index.js';
 
 // --- Mock EventBus ---
 
@@ -155,7 +155,7 @@ describe('RalphMonitor healthCheck timer', () => {
 describe('watch interval validation', () => {
   it('reportBoard accepts round numbers consistently', async () => {
     const { reportBoard } = await import(
-      '../packages/squad-cli/src/cli/commands/watch/index.js'
+      '../packages/crew-cli/src/cli/commands/watch/index.js'
     );
 
     const state = {
@@ -176,7 +176,7 @@ describe('watch interval validation', () => {
 
   it('BoardState interface has all required fields', async () => {
     const { reportBoard } = await import(
-      '../packages/squad-cli/src/cli/commands/watch/index.js'
+      '../packages/crew-cli/src/cli/commands/watch/index.js'
     );
 
     const fullState = {

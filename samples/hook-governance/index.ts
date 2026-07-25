@@ -1,5 +1,5 @@
 /**
- * hook-governance — Beginner sample for @bradygaster/squad-sdk Hook Pipeline
+ * hook-governance — Beginner sample for @blacklite/crew-sdk Hook Pipeline
  *
  * Demonstrates the four governance hooks:
  *  1. File-Write Guards    — block writes outside safe zones
@@ -11,11 +11,11 @@
 import {
   HookPipeline,
   ReviewerLockoutHook,
-} from '@bradygaster/squad-sdk/hooks';
+} from '@blacklite/crew-sdk/hooks';
 import type {
   PreToolUseContext,
   PostToolUseContext,
-} from '@bradygaster/squad-sdk/hooks';
+} from '@blacklite/crew-sdk/hooks';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -32,14 +32,14 @@ function showResult(label: string, value: string): void {
 // ── Main ─────────────────────────────────────────────────────────────
 
 async function main(): Promise<void> {
-  console.log('🛡️  hook-governance — Squad SDK governance hooks sample\n');
+  console.log('🛡️  hook-governance — Crew SDK governance hooks sample\n');
 
   // ── Demo 1: File-Write Guards ────────────────────────────────────
   hr('Demo 1 — File-Write Guards');
-  console.log('  Only writes to src/**/*.ts and .squad/** are allowed.\n');
+  console.log('  Only writes to src/**/*.ts and .crew/** are allowed.\n');
 
   const guardPipeline = new HookPipeline({
-    allowedWritePaths: ['src/**/*.ts', '.squad/**'],
+    allowedWritePaths: ['src/**/*.ts', '.crew/**'],
   });
 
   // Allowed write

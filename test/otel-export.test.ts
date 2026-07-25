@@ -16,8 +16,8 @@ import {
   BasicTracerProvider,
 } from '@opentelemetry/sdk-trace-base';
 import { trace, SpanStatusCode } from '@opentelemetry/api';
-import { getTracer, shutdownOTel } from '@bradygaster/squad-sdk/runtime/otel';
-import { initAgentModeTelemetry } from '@bradygaster/squad-sdk';
+import { getTracer, shutdownOTel } from '@blacklite/crew-sdk/runtime/otel';
+import { initAgentModeTelemetry } from '@blacklite/crew-sdk';
 
 // ---------------------------------------------------------------------------
 // Test infrastructure — in-memory exporter
@@ -134,34 +134,34 @@ describe('Dual-mode OTel telemetry', () => {
     teardownTestProvider();
   });
 
-  it('spans carry squad.mode attribute when set via getTracer', () => {
-    const tracer = getTracer('squad-cli');
+  it('spans carry crew.mode attribute when set via getTracer', () => {
+    const tracer = getTracer('crew-cli');
     const span = tracer.startSpan('cli.operation');
-    span.setAttribute('squad.mode', 'cli');
+    span.setAttribute('crew.mode', 'cli');
     span.end();
 
     const spans = memExporter.getFinishedSpans();
     expect(spans.length).toBe(1);
-    expect(spans[0].attributes['squad.mode']).toBe('cli');
+    expect(spans[0].attributes['crew.mode']).toBe('cli');
   });
 
   it('copilot-agent mode spans are distinguishable from cli mode spans', () => {
-    const cliTracer = getTracer('squad-cli');
-    const agentTracer = getTracer('squad-copilot-agent');
+    const cliTracer = getTracer('crew-cli');
+    const agentTracer = getTracer('crew-copilot-agent');
 
     const cliSpan = cliTracer.startSpan('cli.operation');
-    cliSpan.setAttribute('squad.mode', 'cli');
+    cliSpan.setAttribute('crew.mode', 'cli');
     cliSpan.end();
 
     const agentSpan = agentTracer.startSpan('agent.operation');
-    agentSpan.setAttribute('squad.mode', 'copilot-agent');
+    agentSpan.setAttribute('crew.mode', 'copilot-agent');
     agentSpan.end();
 
     const spans = memExporter.getFinishedSpans();
     expect(spans.length).toBe(2);
 
-    const cliResult = spans.find(s => s.attributes['squad.mode'] === 'cli');
-    const agentResult = spans.find(s => s.attributes['squad.mode'] === 'copilot-agent');
+    const cliResult = spans.find(s => s.attributes['crew.mode'] === 'cli');
+    const agentResult = spans.find(s => s.attributes['crew.mode'] === 'copilot-agent');
     expect(cliResult).toBeDefined();
     expect(agentResult).toBeDefined();
     expect(cliResult!.name).toBe('cli.operation');

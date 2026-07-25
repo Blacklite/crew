@@ -11,13 +11,13 @@ import {
   selectResponseTier,
   getTier,
   MODELS,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
-import type { SquadConfig, TierName } from '@bradygaster/squad-sdk';
+import type { CrewConfig, TierName } from '@blacklite/crew-sdk';
 
 // ── Shared config (mirrors index.ts) ──
 
-const config: SquadConfig = {
+const config: CrewConfig = {
   version: '0.8.0',
   team: { name: 'Test Suite' },
   routing: {
@@ -213,7 +213,7 @@ describe('CostTracker', () => {
     });
 
     const output = tracker.formatSummary();
-    expect(output).toContain('Squad Cost Summary');
+    expect(output).toContain('Crew Cost Summary');
     expect(output).toContain('Agent2');
     expect(output).toContain('$0.2500');
   });

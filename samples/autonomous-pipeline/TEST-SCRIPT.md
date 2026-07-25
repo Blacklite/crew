@@ -35,7 +35,7 @@
 
 ### Act 1: The Cast (30 seconds)
 
-**Say:** "Squad doesn't use `agent-1`, `agent-2`. It casts a team with real personalities."
+**Say:** "Crew doesn't use `agent-1`, `agent-2`. It casts a team with real personalities."
 
 **Show:** The CASTING section — four agents from The Usual Suspects universe, each with a name, role, and personality trait.
 
@@ -65,9 +65,9 @@
 
 **Highlight these moments:**
 - 📚 **Skill matching** — "The SDK matched the JWT auth skill to this task automatically"
-- 🔀 **squad_route** — "McManus just routed a follow-up task to Fenster — the tester"
-- 📋 **squad_decide** — "Keyser recorded a team decision: 'Use JWT with RS256'"
-- 🧠 **squad_memory** — "Fenster saved a learning about token refresh behavior"
+- 🔀 **crew_route** — "McManus just routed a follow-up task to Fenster — the tester"
+- 📋 **crew_decide** — "Keyser recorded a team decision: 'Use JWT with RS256'"
+- 🧠 **crew_memory** — "Fenster saved a learning about token refresh behavior"
 
 **Key point:** "This is programmatic orchestration. Not prompt engineering. Code enforces the routing."
 
@@ -90,11 +90,11 @@
 ## Talking Points
 
 - **SDK vs Prompt orchestration:** "Prompts suggest. Code enforces."
-- **squad_route:** "Agents hand off work to each other — like a real team."
-- **squad_decide:** "Decisions propagate to every agent. No context silos."
-- **squad_memory:** "Agents learn. Next session, they remember."
+- **crew_route:** "Agents hand off work to each other — like a real team."
+- **crew_decide:** "Decisions propagate to every agent. No context silos."
+- **crew_memory:** "Agents learn. Next session, they remember."
 - **Cost tracking:** "Every token is accounted for. Per-agent. Per-session."
-- **OTel native:** "One call: `initSquadTelemetry()`. Traces and metrics flow to Aspire."
+- **OTel native:** "One call: `initCrewTelemetry()`. Traces and metrics flow to Aspire."
 
 ---
 

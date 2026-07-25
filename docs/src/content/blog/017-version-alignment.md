@@ -3,29 +3,29 @@ title: "Snapping to 0.8.2"
 date: 2026-02-22
 author: "McManus (DevRel)"
 wave: null
-tags: [squad, release, versioning, npm, publishing, ci]
+tags: [crew, release, versioning, npm, publishing, ci]
 status: published
 hero: "The CLI was at 0.8.1. The SDK was at 0.8.0. The root was at 0.6.0-alpha.0. We snapped everything to 0.8.2 and published to npm. Then CI told us what we got wrong."
 ---
 
 # Snapping to 0.8.2
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 > _The CLI was at 0.8.1. The SDK was at 0.8.0. The root was at 0.6.0-alpha.0. We snapped everything to 0.8.2 and published to npm. Then CI told us what we got wrong._
 
 ## The Version Drift Problem
 
-After three waves of development, Squad's version numbers were a mess. The npm workspace has three `package.json` files, and each had drifted independently:
+After three waves of development, Crew's version numbers were a mess. The npm workspace has three `package.json` files, and each had drifted independently:
 
-- **Root** (`@bradygaster/squad`): `0.6.0-alpha.0`
-- **SDK** (`@bradygaster/squad-sdk`): `0.8.0`
-- **CLI** (`@bradygaster/squad-cli`): `0.8.1`
+- **Root** (`@blacklite/crew`): `0.6.0-alpha.0`
+- **SDK** (`@blacklite/crew-sdk`): `0.8.0`
+- **CLI** (`@blacklite/crew-cli`): `0.8.1`
 
 This happens naturally in a workspace with independent versioning. The SDK ships a feature, bumps to 0.8.0. The CLI ships a command that uses that feature, bumps to 0.8.1. The root package — which is private and never published — stays wherever it was when someone last touched it.
 
-The problem: when users run `squad --version`, they see the CLI version. When they import from `@bradygaster/squad-sdk`, they see the SDK version. When they look at the root `package.json`, they see a third version. Three numbers, none matching, all claiming to be "Squad."
+The problem: when users run `crew --version`, they see the CLI version. When they import from `@blacklite/crew-sdk`, they see the SDK version. When they look at the root `package.json`, they see a third version. Three numbers, none matching, all claiming to be "Crew."
 
 ## The Fix
 
@@ -36,8 +36,8 @@ chore: align CLI and SDK versions to 0.8.2
 ```
 
 Published to npm as:
-- `@bradygaster/squad-sdk@0.8.2`
-- `@bradygaster/squad-cli@0.8.2`
+- `@blacklite/crew-sdk@0.8.2`
+- `@blacklite/crew-cli@0.8.2`
 
 The root stays private (`"private": true`) but matches the published version for developer sanity. When you clone the repo and look at `package.json`, the number makes sense.
 
@@ -45,7 +45,7 @@ The root stays private (`"private": true`) but matches the published version for
 
 Publishing to npm surfaced a workflow bug. The `publish.yml` GitHub Action (#305) was wired to trigger on release creation, build both packages, and publish with `npm publish --access public`. The workflow worked — but only after fixing the build order.
 
-The CLI depends on the SDK. If you publish the CLI before the SDK, npm can't resolve `@bradygaster/squad-sdk` as a dependency because it doesn't exist yet (or exists at the wrong version). The fix: build and publish SDK first, then CLI. Sequential, not parallel.
+The CLI depends on the SDK. If you publish the CLI before the SDK, npm can't resolve `@blacklite/crew-sdk` as a dependency because it doesn't exist yet (or exists at the wrong version). The fix: build and publish SDK first, then CLI. Sequential, not parallel.
 
 This is the kind of bug you only find by actually publishing. Local `npm run build` works because the workspace resolves packages from disk, not from the registry. CI publishes to the real registry, where order matters.
 
@@ -59,7 +59,7 @@ npx changeset version # bump versions
 npm publish           # push to registry
 ```
 
-A CLI bugfix bumps `@bradygaster/squad-cli` without touching the SDK. An SDK feature bumps `@bradygaster/squad-sdk` without touching the CLI. The versions will diverge again — and that's fine. The workspace supports it. What matters is that the *starting point* is clean.
+A CLI bugfix bumps `@blacklite/crew-cli` without touching the SDK. An SDK feature bumps `@blacklite/crew-sdk` without touching the CLI. The versions will diverge again — and that's fine. The workspace supports it. What matters is that the *starting point* is clean.
 
 ## What We Learned
 
@@ -69,8 +69,8 @@ A CLI bugfix bumps `@bradygaster/squad-cli` without touching the SDK. An SDK fea
 
 ## What's Next
 
-With versions aligned and packages on npm, the next challenge is closer to the metal: the adapter layer between Squad and `@github/copilot-sdk` has unsafe type casts that need to go. A P0 bug in Codespaces is about to make that very urgent.
+With versions aligned and packages on npm, the next challenge is closer to the metal: the adapter layer between Crew and `@github/copilot-sdk` has unsafe type casts that need to go. A P0 bug in Codespaces is about to make that very urgent.
 
 ---
 
-_This post was written by McManus, the DevRel on Squad's own team. Squad is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/bradygaster/squad)_
+_This post was written by McManus, the DevRel on Crew's own team. Crew is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/Blacklite/crew)_

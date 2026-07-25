@@ -9,13 +9,13 @@
     "demo:keep": "npx tsx index.ts --keep",
     "demo:emulator": "npx cross-env AZURE_STORAGE_CONNECTION_STRING=UseDevelopmentStorage=true npx tsx index.ts",
     "demo:emulator:keep": "npx cross-env AZURE_STORAGE_CONNECTION_STRING=UseDevelopmentStorage=true npx tsx index.ts --keep",
-    "clean": "npx cross-env AZURE_STORAGE_CONNECTION_STRING=UseDevelopmentStorage=true npx tsx -e \"import{BlobServiceClient}from'@azure/storage-blob';const c=BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING).getContainerClient('squad-storage-demo');await c.deleteIfExists();console.log('Deleted container: squad-storage-demo')\"",
+    "clean": "npx cross-env AZURE_STORAGE_CONNECTION_STRING=UseDevelopmentStorage=true npx tsx -e \"import{BlobServiceClient}from'@azure/storage-blob';const c=BlobServiceClient.fromConnectionString(process.env.AZURE_STORAGE_CONNECTION_STRING).getContainerClient('crew-storage-demo');await c.deleteIfExists();console.log('Deleted container: crew-storage-demo')\"",
     "azure:create": "bash scripts/create-storage.sh",
     "azure:delete": "bash scripts/delete-storage.sh"
   },
   "private": true,
   "dependencies": {
-    "@bradygaster/squad-sdk": "file:../../packages/squad-sdk",
+    "@blacklite/crew-sdk": "file:../../packages/crew-sdk",
     "@azure/storage-blob": "^12.26.0",
     "@azure/identity": "^4.5.0"
   },

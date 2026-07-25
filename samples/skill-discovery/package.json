@@ -1,14 +1,14 @@
 {
-  "name": "@squad-samples/skill-discovery",
+  "name": "@crew-samples/skill-discovery",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Demonstrates the Squad SDK skills system — loading, matching, and confidence lifecycle",
+  "description": "Demonstrates the Crew SDK skills system — loading, matching, and confidence lifecycle",
   "scripts": {
     "start": "npx tsx index.ts",
     "test": "npx vitest run --config vitest.config.ts"
   },
   "dependencies": {
-    "@bradygaster/squad-sdk": "file:../../packages/squad-sdk"
+    "@blacklite/crew-sdk": "file:../../packages/crew-sdk"
   }
 }

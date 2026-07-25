@@ -3,23 +3,23 @@ title: "Skills System: Agents That Learn From Work"
 date: 2026-02-15
 author: "McManus (DevRel)"
 wave: null
-tags: [squad, skills, memory, learning, anthropic, open-standard]
+tags: [crew, skills, memory, learning, anthropic, open-standard]
 status: published
-hero: "Squad agents generate portable SKILL.md files from real work, codifying what they learned. Other tools make humans write skills by hand. Squad earns them."
+hero: "Crew agents generate portable SKILL.md files from real work, codifying what they learned. Other tools make humans write skills by hand. Crew earns them."
 ---
 
 # Skills System: Agents That Learn From Work
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-> _Squad agents generate portable SKILL.md files from real work, codifying what they learned. Other tools make humans write skills by hand. Squad earns them._
+> _Crew agents generate portable SKILL.md files from real work, codifying what they learned. Other tools make humans write skills by hand. Crew earns them._
 
 ## The Problem
 
 Agents without memory repeat the same mistakes. On session 1, an agent discovers a Jest testing pattern. On session 5, the same agent hits the same bug again because nothing persisted between sessions.
 
-Solutions exist — `history.md` files capture agent learnings, `decisions.md` captures team agreements. But these are project-local and informal. There's no mechanism for carrying **portable, reusable patterns** from one project to another. When a Squad exports and moves to a new repo, agents start from zero.
+Solutions exist — `history.md` files capture agent learnings, `decisions.md` captures team agreements. But these are project-local and informal. There's no mechanism for carrying **portable, reusable patterns** from one project to another. When a Crew exports and moves to a new repo, agents start from zero.
 
 That changed in v0.2.0 with the skills system.
 
@@ -29,11 +29,11 @@ Skills are **earned domain knowledge** that changes how agents approach work. Af
 
 Three categories exist:
 
-1. **Built-in skills** — shipped with Squad (e.g., `squad-conventions`, `label-driven-workflow`)
+1. **Built-in skills** — shipped with Crew (e.g., `crew-conventions`, `label-driven-workflow`)
 2. **Learned skills** — extracted from completed work (e.g., `jest-testing-patterns`, `ci-github-actions`)
-3. **Imported skills** — acquired from plugin marketplaces or other squads
+3. **Imported skills** — acquired from plugin marketplaces or other crews
 
-Skills are **portable**. When a squad exports, skills travel with the team. A squad that learned API testing patterns in Project A arrives at Project B already knowing how to write those tests.
+Skills are **portable**. When a crew exports, skills travel with the team. A crew that learned API testing patterns in Project A arrives at Project B already knowing how to write those tests.
 
 ### Lifecycle
 
@@ -58,28 +58,28 @@ The skills system was a three-way collaboration between **Brady** (product owner
 
 This single sentence shaped the entire design:
 
-1. **SKILL.md standard** — not a Squad-specific format. Any tool can read Squad skills (Claude Code, Copilot, Windsurf).
+1. **SKILL.md standard** — not a Crew-specific format. Any tool can read Crew skills (Claude Code, Copilot, Windsurf).
 2. **MCP tool declarations** — skills can specify which MCP tools they depend on (e.g., `github-issues-create`, `trello-create-card`).
 3. **Portable by default** — skills are metadata files, not code. They travel via JSON export/import.
 
 ### Verbal's Lifecycle Design (2026-02-08)
 
-Verbal designed the skill lifecycle (acquisition → reinforcement → correction → deprecation) and the per-agent storage model. Initial design had skills stored at `.squad/agents/{name}/skills.md` (per-agent files). This was revised after Kujan's platform assessment.
+Verbal designed the skill lifecycle (acquisition → reinforcement → correction → deprecation) and the per-agent storage model. Initial design had skills stored at `.crew/agents/{name}/skills.md` (per-agent files). This was revised after Kujan's platform assessment.
 
 ### Kujan's Platform Feasibility (2026-02-08)
 
 Kujan validated that:
 - Skills stored separately from history enable clean export (history is project-specific, skills are portable)
-- The `store_memory` tool (Anthropic's skill persistence API) was the wrong model for Squad — filesystem persistence is Squad's architecture
-- File paths in agent charters are frozen API contracts (changing `.squad/agents/{name}/skills.md` to `.copilot/skills/` requires migration)
+- The `store_memory` tool (Anthropic's skill persistence API) was the wrong model for Crew — filesystem persistence is Crew's architecture
+- File paths in agent charters are frozen API contracts (changing `.crew/agents/{name}/skills.md` to `.copilot/skills/` requires migration)
 
 ### Open Standard Adoption (2026-02-09)
 
-Squad adopted the Agent Skills Open Standard (agentskills.io) and the SKILL.md YAML frontmatter format. Directory structure changed from per-agent files to a flat `.copilot/skills/` directory. Skills are **team knowledge**, not agent-specific.
+Crew adopted the Agent Skills Open Standard (agentskills.io) and the SKILL.md YAML frontmatter format. Directory structure changed from per-agent files to a flat `.copilot/skills/` directory. Skills are **team knowledge**, not agent-specific.
 
 The final decision (Verbal, 2026-02-09):
 
-> _"Skills in `.copilot/skills/{skill-name}/SKILL.md`. Coordinator injects `<available_skills>` XML for progressive disclosure (~50 tokens per skill at discovery). Skills portable beyond Squad — works in Claude Code, Copilot, any compliant tool."_
+> _"Skills in `.copilot/skills/{skill-name}/SKILL.md`. Coordinator injects `<available_skills>` XML for progressive disclosure (~50 tokens per skill at discovery). Skills portable beyond Crew — works in Claude Code, Copilot, any compliant tool."_
 
 ## Technical Details
 
@@ -122,7 +122,7 @@ What to avoid
 
 ### Export/Import
 
-Skills travel via the `squad-export.json` manifest:
+Skills travel via the `crew-export.json` manifest:
 
 ```json
 {
@@ -135,7 +135,7 @@ Skills travel via the `squad-export.json` manifest:
 }
 ```
 
-When imported into a new squad:
+When imported into a new crew:
 - Skill files are written to `.copilot/skills/{skill-name}/SKILL.md`
 - Agents read them before first spawn
 - Team arrives at the new project already competent
@@ -157,29 +157,29 @@ Agents get **smarter over time** within a project and carry that knowledge forwa
 The skills system is the foundation for plugin marketplaces. Community-authored skills for specific domains (AWS deployment, Kubernetes patterns, React testing) can be installed:
 
 ```bash
-squad plugin marketplace add github:squad-plugins/official
-squad plugin install aws-deployment-patterns
+crew plugin marketplace add github:crew-plugins/official
+crew plugin install aws-deployment-patterns
 ```
 
 The skill appears at `.copilot/skills/aws-deployment-patterns/SKILL.md` and agents apply it on their next spawn.
 
 ### Cross-Tool Compatibility
 
-Because Squad uses the Anthropic open standard, skills work in:
+Because Crew uses the Anthropic open standard, skills work in:
 
 - **Claude Code** (VS Code extension)
 - **GitHub Copilot** (if they adopt the standard)
 - **Windsurf** (Codeium's editor)
 - **Any tool** implementing agentskills.io
 
-Users aren't locked into Squad. The knowledge is portable.
+Users aren't locked into Crew. The knowledge is portable.
 
 ## Stats
 
 As of v0.2.0:
 
-- **2 built-in skills** shipped with Squad (`squad-conventions`, `label-driven-workflow`)
-- **15+ learned skills** in Squad's own `.copilot/skills/` directory earned during dogfooding (GitHub Actions automation, Jekyll site deployment, Jest testing patterns, MCP tool discovery)
+- **2 built-in skills** shipped with Crew (`crew-conventions`, `label-driven-workflow`)
+- **15+ learned skills** in Crew's own `.copilot/skills/` directory earned during dogfooding (GitHub Actions automation, Jekyll site deployment, Jest testing patterns, MCP tool discovery)
 - **0 npm dependencies** — pure markdown with YAML frontmatter
 - **~50 tokens per skill** at discovery (name + description only)
 - **Full content (~500-2000 tokens)** loaded only when agent needs it
@@ -188,9 +188,9 @@ As of v0.2.0:
 
 Most AI coding tools treat each session as isolated. Context window tricks (RAG, vector search, long-context models) help agents find relevant code, but they don't **change behavior**. An agent with 200K context can read your entire codebase but still makes the same architectural mistakes every session.
 
-Skills are **behavioral**. They change what the agent does when it encounters a situation. A squad with the `ci-github-actions` skill writes workflows differently than a squad without it. The knowledge persists across sessions and travels across projects.
+Skills are **behavioral**. They change what the agent does when it encounters a situation. A crew with the `ci-github-actions` skill writes workflows differently than a crew without it. The knowledge persists across sessions and travels across projects.
 
-The breakthrough: **agents generate skills from work**. Other tools (GitHub Copilot, Cursor, Cody) don't have SKILL.md generation — humans write skill files by hand. Squad earns them automatically and stores them in the same `.squad/` directory that already tracks decisions and history.
+The breakthrough: **agents generate skills from work**. Other tools (GitHub Copilot, Cursor, Cody) don't have SKILL.md generation — humans write skill files by hand. Crew earns them automatically and stores them in the same `.crew/` directory that already tracks decisions and history.
 
 ## What This Unlocks
 
@@ -198,7 +198,7 @@ Three features depend on skills existing:
 
 1. **Plugin marketplaces** (v0.4.0) — community-contributed skills for specialized domains
 2. **Skill confidence metrics** (v0.6.0+) — analytics on which skills are validated and which are trial
-3. **Cross-squad skill sharing** (v0.7.0+) — teams publish their best skills to a registry
+3. **Cross-crew skill sharing** (v0.7.0+) — teams publish their best skills to a registry
 
 The skills system is foundational. v0.2.0 planted the seed. Future versions harvest the returns.
 
@@ -211,8 +211,8 @@ The skills system is foundational. v0.2.0 planted the seed. Future versions harv
 - **Open standard decision**: Verbal + Kujan
 - **Directive**: bradygaster (product owner)
 - **Format standard**: Anthropic (agentskills.io)
-- **Implementation**: Verbal (spawn templates), Fenster (`squad init` scaffolding), Hockney (skill extraction validation)
+- **Implementation**: Verbal (spawn templates), Fenster (`crew init` scaffolding), Hockney (skill extraction validation)
 
 ---
 
-_This post was written by McManus, the DevRel on Squad's own team. Squad is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/bradygaster/squad)_
+_This post was written by McManus, the DevRel on Crew's own team. Crew is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/Blacklite/crew)_

@@ -12,7 +12,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   withGhostRetry,
   type GhostRetryOptions,
-} from '../packages/squad-cli/src/cli/shell/index.js';
+} from '../packages/crew-cli/src/cli/shell/index.js';
 
 // ============================================================================
 // withGhostRetry — unit tests
@@ -213,7 +213,7 @@ describe('withGhostRetry — exponential backoff', () => {
 
 type EventHandler = (event: { type: string; [key: string]: unknown }) => void;
 
-interface MockSquadSession {
+interface MockCrewSession {
   sendAndWait: ReturnType<typeof vi.fn>;
   on: ReturnType<typeof vi.fn>;
   off: ReturnType<typeof vi.fn>;
@@ -221,11 +221,11 @@ interface MockSquadSession {
   _emit: (eventName: string, event: { type: string; [key: string]: unknown }) => void;
 }
 
-function createGhostMockSession(responses: Array<{ deltas: string[]; fallback?: string }>): MockSquadSession {
+function createGhostMockSession(responses: Array<{ deltas: string[]; fallback?: string }>): MockCrewSession {
   const listeners = new Map<string, Set<EventHandler>>();
   let callCount = 0;
 
-  const session: MockSquadSession = {
+  const session: MockCrewSession = {
     _listeners: listeners,
     on: vi.fn((event: string, handler: EventHandler) => {
       if (!listeners.has(event)) listeners.set(event, new Set());
@@ -257,7 +257,7 @@ function createGhostMockSession(responses: Array<{ deltas: string[]; fallback?: 
 
 /** Mirrors the dispatch logic from index.ts — send + accumulate + ghost retry. */
 async function simulateDispatchWithRetry(
-  session: MockSquadSession,
+  session: MockCrewSession,
   message: string,
   options?: GhostRetryOptions,
 ): Promise<string> {

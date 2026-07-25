@@ -1,14 +1,14 @@
 /**
- * Nap feature tests — context window maintenance for .squad/ directories.
+ * Nap feature tests — context window maintenance for .crew/ directories.
  *
  * Tests the nap engine which compresses history, prunes logs, cleans inboxes,
- * and archives decisions to keep .squad/ lean for LLM context windows.
+ * and archives decisions to keep .crew/ lean for LLM context windows.
  *
  * The nap engine operates on ## headings as compression units.
  * ## Core Context is always preserved; other ## sections are kept/archived
  * based on the keepEntries threshold (5 default, 3 deep).
  *
- * @see packages/squad-cli/src/cli/core/nap.ts
+ * @see packages/crew-cli/src/cli/core/nap.ts
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
@@ -25,8 +25,8 @@ import {
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-import type { NapResult, NapMetrics } from '../packages/squad-cli/src/cli/core/nap.js';
-import { runNap, formatNapReport } from '../packages/squad-cli/src/cli/core/nap.js';
+import type { NapResult, NapMetrics } from '../packages/crew-cli/src/cli/core/nap.js';
+import { runNap, formatNapReport } from '../packages/crew-cli/src/cli/core/nap.js';
 
 // ============================================================================
 // Helpers
@@ -34,16 +34,16 @@ import { runNap, formatNapReport } from '../packages/squad-cli/src/cli/core/nap.
 
 const tmpDirs: string[] = [];
 
-function createTestSquadDir(structure: Record<string, string>): string {
-  const tmpDir = mkdtempSync(join(tmpdir(), 'squad-nap-test-'));
+function createTestCrewDir(structure: Record<string, string>): string {
+  const tmpDir = mkdtempSync(join(tmpdir(), 'crew-nap-test-'));
   tmpDirs.push(tmpDir);
-  const squadDir = join(tmpDir, '.squad');
+  const crewDir = join(tmpDir, '.crew');
   for (const [filePath, content] of Object.entries(structure)) {
-    const fullPath = join(squadDir, filePath);
+    const fullPath = join(crewDir, filePath);
     mkdirSync(join(fullPath, '..'), { recursive: true });
     writeFileSync(fullPath, content);
   }
-  return squadDir;
+  return crewDir;
 }
 
 /**
@@ -83,9 +83,9 @@ afterEach(() => {
 // ============================================================================
 
 describe('Nap — Metrics collection', () => {
-  it('returns zeroed metrics for an empty .squad/ directory', async () => {
-    const squadDir = createTestSquadDir({});
-    const result = await runNap({ squadDir });
+  it('returns zeroed metrics for an empty .crew/ directory', async () => {
+    const crewDir = createTestCrewDir({});
+    const result = await runNap({ crewDir });
 
     expect(result.before.totalFiles).toBe(0);
     expect(result.before.totalBytes).toBe(0);
@@ -95,15 +95,15 @@ describe('Nap — Metrics collection', () => {
     expect(result.before.inboxFiles).toBe(0);
   });
 
-  it('counts files and bytes correctly for a populated .squad/', async () => {
-    const squadDir = createTestSquadDir({
+  it('counts files and bytes correctly for a populated .crew/', async () => {
+    const crewDir = createTestCrewDir({
       'decisions.md': 'Some decisions content here',
       'agents/hockney/history.md': 'Hockney history',
       'agents/fenster/history.md': 'Fenster history content',
       'log/session-1.md': 'Log entry one',
       'decisions/inbox/item1.md': 'Inbox item',
     });
-    const result = await runNap({ squadDir, dryRun: true });
+    const result = await runNap({ crewDir, dryRun: true });
 
     expect(result.before.totalFiles).toBeGreaterThan(0);
     expect(result.before.totalBytes).toBeGreaterThan(0);
@@ -115,11 +115,11 @@ describe('Nap — Metrics collection', () => {
   it('tracks per-agent history.md sizes in historyBytes', async () => {
     const hist1 = 'A'.repeat(5000);
     const hist2 = 'B'.repeat(3000);
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/alpha/history.md': hist1,
       'agents/beta/history.md': hist2,
     });
-    const result = await runNap({ squadDir, dryRun: true });
+    const result = await runNap({ crewDir, dryRun: true });
 
     expect(result.before.historyBytes).toBeGreaterThanOrEqual(8000);
   });
@@ -132,17 +132,17 @@ describe('Nap — Metrics collection', () => {
 describe('Nap — History compression', () => {
   it('leaves history under 15KB untouched', async () => {
     const smallHistory = generateHistory(3, 1000); // ~3KB
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': smallHistory,
     });
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const compressActions = result.actions.filter(
       (a) => a.type === 'compress' && a.target.includes('hockney')
     );
     expect(compressActions).toHaveLength(0);
 
-    const afterContent = readFileSync(join(squadDir, 'agents/hockney/history.md'), 'utf8');
+    const afterContent = readFileSync(join(crewDir, 'agents/hockney/history.md'), 'utf8');
     expect(afterContent).toBe(smallHistory);
   });
 
@@ -151,10 +151,10 @@ describe('Nap — History compression', () => {
     const largeHistory = generateHistory(10, 2000);
     expect(Buffer.byteLength(largeHistory)).toBeGreaterThan(15 * 1024);
 
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': largeHistory,
     });
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     // Should have a compress action
     const compressActions = result.actions.filter(
@@ -164,7 +164,7 @@ describe('Nap — History compression', () => {
     expect(compressActions[0]!.bytesSaved).toBeGreaterThan(0);
 
     // Compressed file should still contain Core Context
-    const afterContent = readFileSync(join(squadDir, 'agents/hockney/history.md'), 'utf8');
+    const afterContent = readFileSync(join(crewDir, 'agents/hockney/history.md'), 'utf8');
     expect(afterContent).toContain('Core Context');
 
     // Should keep 5 most recent entries (entries 6–10)
@@ -181,12 +181,12 @@ describe('Nap — History compression', () => {
 
   it('archives compressed content to history-archive.md', async () => {
     const largeHistory = generateHistory(10, 2000);
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': largeHistory,
     });
-    await runNap({ squadDir });
+    await runNap({ crewDir });
 
-    const archivePath = join(squadDir, 'agents/hockney/history-archive.md');
+    const archivePath = join(crewDir, 'agents/hockney/history-archive.md');
     expect(existsSync(archivePath)).toBe(true);
 
     const archiveContent = readFileSync(archivePath, 'utf8');
@@ -198,13 +198,13 @@ describe('Nap — History compression', () => {
   it('appends to existing history-archive.md (does not overwrite)', async () => {
     const existingArchive = '## Previously archived\n\nOld archive content\n';
     const largeHistory = generateHistory(10, 2000);
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': largeHistory,
       'agents/hockney/history-archive.md': existingArchive,
     });
-    await runNap({ squadDir });
+    await runNap({ crewDir });
 
-    const archiveContent = readFileSync(join(squadDir, 'agents/hockney/history-archive.md'), 'utf8');
+    const archiveContent = readFileSync(join(crewDir, 'agents/hockney/history-archive.md'), 'utf8');
     // Old content preserved
     expect(archiveContent).toContain('Old archive content');
     // New content appended
@@ -214,16 +214,16 @@ describe('Nap — History compression', () => {
   it('preserves Core Context section in compressed file', async () => {
     const history = '## Core Context\n\nI am the tester. I break things.\n\n' +
       generateHistory(10, 2000).replace(/## Core Context[\s\S]*?\n\n/, '');
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': history,
     });
 
     // Ensure it's over threshold
     expect(Buffer.byteLength(history)).toBeGreaterThan(15 * 1024);
 
-    await runNap({ squadDir });
+    await runNap({ crewDir });
 
-    const afterContent = readFileSync(join(squadDir, 'agents/hockney/history.md'), 'utf8');
+    const afterContent = readFileSync(join(crewDir, 'agents/hockney/history.md'), 'utf8');
     expect(afterContent).toContain('Core Context');
     expect(afterContent).toContain('I am the tester');
   });
@@ -235,7 +235,7 @@ describe('Nap — History compression', () => {
 
 describe('Nap — Log pruning', () => {
   it('deletes log files older than 7 days', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'log/old-session.md': 'old log',
       'log/recent-session.md': 'recent log',
       'orchestration-log/old-orch.md': 'old orch log',
@@ -243,19 +243,19 @@ describe('Nap — Log pruning', () => {
     });
 
     // Age the "old" files
-    setFileAge(join(squadDir, 'log/old-session.md'), 10);
-    setFileAge(join(squadDir, 'orchestration-log/old-orch.md'), 10);
+    setFileAge(join(crewDir, 'log/old-session.md'), 10);
+    setFileAge(join(crewDir, 'orchestration-log/old-orch.md'), 10);
     // Keep "recent" files fresh (default mtime is now)
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     // Old files pruned
-    expect(existsSync(join(squadDir, 'log/old-session.md'))).toBe(false);
-    expect(existsSync(join(squadDir, 'orchestration-log/old-orch.md'))).toBe(false);
+    expect(existsSync(join(crewDir, 'log/old-session.md'))).toBe(false);
+    expect(existsSync(join(crewDir, 'orchestration-log/old-orch.md'))).toBe(false);
 
     // Recent files preserved
-    expect(existsSync(join(squadDir, 'log/recent-session.md'))).toBe(true);
-    expect(existsSync(join(squadDir, 'orchestration-log/recent-orch.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'log/recent-session.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'orchestration-log/recent-orch.md'))).toBe(true);
 
     // Should have prune actions
     const pruneActions = result.actions.filter((a) => a.type === 'prune');
@@ -263,36 +263,36 @@ describe('Nap — Log pruning', () => {
   });
 
   it('preserves recent files (< 7 days old)', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'log/yesterday.md': 'yesterday log',
       'log/today.md': 'today log',
     });
 
-    setFileAge(join(squadDir, 'log/yesterday.md'), 1);
+    setFileAge(join(crewDir, 'log/yesterday.md'), 1);
     // today.md has default mtime (now)
 
-    await runNap({ squadDir });
+    await runNap({ crewDir });
 
-    expect(existsSync(join(squadDir, 'log/yesterday.md'))).toBe(true);
-    expect(existsSync(join(squadDir, 'log/today.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'log/yesterday.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'log/today.md'))).toBe(true);
   });
 
   it('keeps directories intact after pruning all files', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'log/ancient.md': 'ancient log',
       'orchestration-log/ancient.md': 'ancient orch',
     });
 
-    setFileAge(join(squadDir, 'log/ancient.md'), 30);
-    setFileAge(join(squadDir, 'orchestration-log/ancient.md'), 30);
+    setFileAge(join(crewDir, 'log/ancient.md'), 30);
+    setFileAge(join(crewDir, 'orchestration-log/ancient.md'), 30);
 
-    await runNap({ squadDir });
+    await runNap({ crewDir });
 
     // Directories should still exist even if empty
-    expect(existsSync(join(squadDir, 'log'))).toBe(true);
-    expect(existsSync(join(squadDir, 'orchestration-log'))).toBe(true);
-    expect(statSync(join(squadDir, 'log')).isDirectory()).toBe(true);
-    expect(statSync(join(squadDir, 'orchestration-log')).isDirectory()).toBe(true);
+    expect(existsSync(join(crewDir, 'log'))).toBe(true);
+    expect(existsSync(join(crewDir, 'orchestration-log'))).toBe(true);
+    expect(statSync(join(crewDir, 'log')).isDirectory()).toBe(true);
+    expect(statSync(join(crewDir, 'orchestration-log')).isDirectory()).toBe(true);
   });
 });
 
@@ -302,15 +302,15 @@ describe('Nap — Log pruning', () => {
 
 describe('Nap — Inbox cleanup', () => {
   it('merges orphaned inbox files into decisions.md', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': '# Decisions\n\nExisting decisions.\n',
       'decisions/inbox/new-rule.md': '### New rule\nDo the thing.\n',
       'decisions/inbox/another.md': '### Another\nDo something else.\n',
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
-    const decisions = readFileSync(join(squadDir, 'decisions.md'), 'utf8');
+    const decisions = readFileSync(join(crewDir, 'decisions.md'), 'utf8');
     expect(decisions).toContain('New rule');
     expect(decisions).toContain('Another');
 
@@ -320,23 +320,23 @@ describe('Nap — Inbox cleanup', () => {
   });
 
   it('deletes inbox files after merging', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': '# Decisions\n',
       'decisions/inbox/item.md': '### Item\nContent.\n',
     });
 
-    await runNap({ squadDir });
+    await runNap({ crewDir });
 
-    expect(existsSync(join(squadDir, 'decisions/inbox/item.md'))).toBe(false);
+    expect(existsSync(join(crewDir, 'decisions/inbox/item.md'))).toBe(false);
   });
 
   it('makes no changes when inbox is empty', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': '# Decisions\n',
       'decisions/inbox/.gitkeep': '',
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
     const mergeActions = result.actions.filter((a) => a.type === 'merge');
     // .gitkeep is not a decision file
     expect(mergeActions).toHaveLength(0);
@@ -350,11 +350,11 @@ describe('Nap — Inbox cleanup', () => {
 describe('Nap — Decision archival', () => {
   it('leaves decisions.md under 20KB untouched', async () => {
     const smallDecisions = '# Decisions\n' + 'x'.repeat(10 * 1024);
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': smallDecisions,
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const archiveActions = result.actions.filter(
       (a) => a.type === 'archive' && a.target.includes('decisions')
@@ -371,11 +371,11 @@ describe('Nap — Decision archival', () => {
     }
     expect(Buffer.byteLength(bigDecisions)).toBeGreaterThan(20 * 1024);
 
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': bigDecisions,
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const archiveActions = result.actions.filter(
       (a) => a.type === 'archive' && a.target.includes('decisions')
@@ -383,11 +383,11 @@ describe('Nap — Decision archival', () => {
     expect(archiveActions.length).toBeGreaterThan(0);
 
     // decisions-archive.md should exist with old entries
-    const archivePath = join(squadDir, 'decisions-archive.md');
+    const archivePath = join(crewDir, 'decisions-archive.md');
     expect(existsSync(archivePath)).toBe(true);
 
     // decisions.md should be smaller now
-    const afterSize = statSync(join(squadDir, 'decisions.md')).size;
+    const afterSize = statSync(join(crewDir, 'decisions.md')).size;
     expect(afterSize).toBeLessThan(Buffer.byteLength(bigDecisions));
   });
 
@@ -401,11 +401,11 @@ describe('Nap — Decision archival', () => {
     }
     expect(Buffer.byteLength(bigRecent)).toBeGreaterThan(20 * 1024);
 
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': bigRecent,
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const archiveActions = result.actions.filter(
       (a) => a.type === 'archive' && a.target.includes('decisions')
@@ -414,10 +414,10 @@ describe('Nap — Decision archival', () => {
     expect(archiveActions[0]!.bytesSaved).toBeGreaterThan(0);
 
     // Archive file should have been created
-    expect(existsSync(join(squadDir, 'decisions-archive.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'decisions-archive.md'))).toBe(true);
 
     // decisions.md should now be ≤20KB
-    const afterSize = statSync(join(squadDir, 'decisions.md')).size;
+    const afterSize = statSync(join(crewDir, 'decisions.md')).size;
     expect(afterSize).toBeLessThanOrEqual(20 * 1024);
   });
 
@@ -431,17 +431,17 @@ describe('Nap — Decision archival', () => {
     }
     expect(Buffer.byteLength(smallRecent)).toBeLessThan(20 * 1024);
 
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': smallRecent,
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const archiveActions = result.actions.filter(
       (a) => a.type === 'archive' && a.target.includes('decisions')
     );
     expect(archiveActions).toHaveLength(0);
-    expect(existsSync(join(squadDir, 'decisions-archive.md'))).toBe(false);
+    expect(existsSync(join(crewDir, 'decisions-archive.md'))).toBe(false);
   });
 
   it('count-based fallback: undated entries are preserved, not archived', async () => {
@@ -460,11 +460,11 @@ describe('Nap — Decision archival', () => {
     }
     expect(Buffer.byteLength(mixedContent)).toBeGreaterThan(20 * 1024);
 
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': mixedContent,
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const archiveActions = result.actions.filter(
       (a) => a.type === 'archive' && a.target.includes('decisions')
@@ -472,13 +472,13 @@ describe('Nap — Decision archival', () => {
     expect(archiveActions).toHaveLength(1);
 
     // All undated entries must remain in decisions.md
-    const remaining = readFileSync(join(squadDir, 'decisions.md'), 'utf8');
+    const remaining = readFileSync(join(crewDir, 'decisions.md'), 'utf8');
     for (let i = 0; i < 10; i++) {
       expect(remaining).toContain(`Directive ${i + 1}: Always do X`);
     }
 
     // Archived content should NOT contain any undated entries
-    const archived = readFileSync(join(squadDir, 'decisions-archive.md'), 'utf8');
+    const archived = readFileSync(join(crewDir, 'decisions-archive.md'), 'utf8');
     for (let i = 0; i < 10; i++) {
       expect(archived).not.toContain(`Directive ${i + 1}: Always do X`);
     }
@@ -498,17 +498,17 @@ describe('Nap — Decision archival', () => {
     // Verify we're at or just at the threshold
     expect(Buffer.byteLength(exactContent)).toBeLessThanOrEqual(20 * 1024 + 10);
 
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': exactContent,
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const archiveActions = result.actions.filter(
       (a) => a.type === 'archive' && a.target.includes('decisions')
     );
     expect(archiveActions).toHaveLength(0);
-    expect(existsSync(join(squadDir, 'decisions-archive.md'))).toBe(false);
+    expect(existsSync(join(crewDir, 'decisions-archive.md'))).toBe(false);
   });
 });
 
@@ -519,13 +519,13 @@ describe('Nap — Decision archival', () => {
 describe('Nap — Deep mode', () => {
   it('uses more aggressive compression (3 entries instead of 5)', async () => {
     const largeHistory = generateHistory(10, 2000);
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': largeHistory,
     });
 
-    await runNap({ squadDir, deep: true });
+    await runNap({ crewDir, deep: true });
 
-    const afterContent = readFileSync(join(squadDir, 'agents/hockney/history.md'), 'utf8');
+    const afterContent = readFileSync(join(crewDir, 'agents/hockney/history.md'), 'utf8');
     // Should keep only 3 most recent in deep mode
     expect(afterContent).toContain('Entry 10');
     expect(afterContent).toContain('Entry 9');
@@ -537,16 +537,16 @@ describe('Nap — Deep mode', () => {
   });
 
   it('still runs all Tier 1 actions in deep mode', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': generateHistory(10, 2000),
       'log/old.md': 'old log',
       'decisions/inbox/item.md': '### Item\nContent.\n',
       'decisions.md': '# Decisions\n',
     });
 
-    setFileAge(join(squadDir, 'log/old.md'), 10);
+    setFileAge(join(crewDir, 'log/old.md'), 10);
 
-    const result = await runNap({ squadDir, deep: true });
+    const result = await runNap({ crewDir, deep: true });
 
     // Verify all Tier 1 action types present
     const actionTypes = new Set(result.actions.map((a) => a.type));
@@ -563,50 +563,50 @@ describe('Nap — Deep mode', () => {
 describe('Nap — Dry-run mode', () => {
   it('does not modify any files', async () => {
     const largeHistory = generateHistory(10, 2000);
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': largeHistory,
       'log/old.md': 'old log',
       'decisions/inbox/item.md': '### Item\nContent.\n',
       'decisions.md': '# Decisions\n',
     });
-    setFileAge(join(squadDir, 'log/old.md'), 10);
+    setFileAge(join(crewDir, 'log/old.md'), 10);
 
-    const beforeHistory = readFileSync(join(squadDir, 'agents/hockney/history.md'), 'utf8');
-    const beforeDecisions = readFileSync(join(squadDir, 'decisions.md'), 'utf8');
+    const beforeHistory = readFileSync(join(crewDir, 'agents/hockney/history.md'), 'utf8');
+    const beforeDecisions = readFileSync(join(crewDir, 'decisions.md'), 'utf8');
 
-    const result = await runNap({ squadDir, dryRun: true });
+    const result = await runNap({ crewDir, dryRun: true });
 
     // Files should be unchanged
-    expect(readFileSync(join(squadDir, 'agents/hockney/history.md'), 'utf8')).toBe(beforeHistory);
-    expect(readFileSync(join(squadDir, 'decisions.md'), 'utf8')).toBe(beforeDecisions);
-    expect(existsSync(join(squadDir, 'log/old.md'))).toBe(true);
-    expect(existsSync(join(squadDir, 'decisions/inbox/item.md'))).toBe(true);
+    expect(readFileSync(join(crewDir, 'agents/hockney/history.md'), 'utf8')).toBe(beforeHistory);
+    expect(readFileSync(join(crewDir, 'decisions.md'), 'utf8')).toBe(beforeDecisions);
+    expect(existsSync(join(crewDir, 'log/old.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'decisions/inbox/item.md'))).toBe(true);
 
     // But actions should still be reported
     expect(result.actions.length).toBeGreaterThan(0);
   });
 
   it('reports projected changes in before/after metrics', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': generateHistory(10, 2000),
       'log/old.md': 'old log content',
     });
-    setFileAge(join(squadDir, 'log/old.md'), 10);
+    setFileAge(join(crewDir, 'log/old.md'), 10);
 
-    const result = await runNap({ squadDir, dryRun: true });
+    const result = await runNap({ crewDir, dryRun: true });
 
     // After metrics should reflect projected savings
     expect(result.after.totalBytes).toBeLessThan(result.before.totalBytes);
   });
 
   it('does not create archive files in dry-run', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': generateHistory(10, 2000),
     });
 
-    await runNap({ squadDir, dryRun: true });
+    await runNap({ crewDir, dryRun: true });
 
-    expect(existsSync(join(squadDir, 'agents/hockney/history-archive.md'))).toBe(false);
+    expect(existsSync(join(crewDir, 'agents/hockney/history-archive.md'))).toBe(false);
   });
 });
 
@@ -616,23 +616,23 @@ describe('Nap — Dry-run mode', () => {
 
 describe('Nap — Journal safety', () => {
   it('creates .nap-journal at start and removes on completion', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': 'small history',
     });
 
     // After successful nap, journal should be cleaned up
-    await runNap({ squadDir });
+    await runNap({ crewDir });
 
-    expect(existsSync(join(squadDir, '.nap-journal'))).toBe(false);
+    expect(existsSync(join(crewDir, '.nap-journal'))).toBe(false);
   });
 
   it('warns when an existing journal is found at start', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       '.nap-journal': 'stale journal from interrupted run',
       'agents/hockney/history.md': 'some history',
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     // Should still complete (not crash)
     expect(result).toBeDefined();
@@ -640,7 +640,7 @@ describe('Nap — Journal safety', () => {
     expect(result.after).toBeDefined();
 
     // Journal should be cleaned up after completion
-    expect(existsSync(join(squadDir, '.nap-journal'))).toBe(false);
+    expect(existsSync(join(crewDir, '.nap-journal'))).toBe(false);
   });
 });
 
@@ -723,12 +723,12 @@ describe('Nap — Report formatting', () => {
 // ============================================================================
 
 describe('Nap — Edge cases', () => {
-  it('returns empty result when .squad/ directory does not exist', async () => {
-    const tmpDir = mkdtempSync(join(tmpdir(), 'squad-nap-test-'));
+  it('returns empty result when .crew/ directory does not exist', async () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), 'crew-nap-test-'));
     tmpDirs.push(tmpDir);
-    const fakeSquadDir = join(tmpDir, '.squad-nonexistent');
+    const fakeCrewDir = join(tmpDir, '.crew-nonexistent');
 
-    const result = await runNap({ squadDir: fakeSquadDir });
+    const result = await runNap({ crewDir: fakeCrewDir });
 
     expect(result.before.totalFiles).toBe(0);
     expect(result.before.totalBytes).toBe(0);
@@ -738,23 +738,23 @@ describe('Nap — Edge cases', () => {
   });
 
   it('skips history compression when no agents directory exists', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'decisions.md': '# Decisions\n',
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const compressActions = result.actions.filter((a) => a.type === 'compress');
     expect(compressActions).toHaveLength(0);
   });
 
   it('skips empty history.md files', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': '',
       'agents/fenster/history.md': '',
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const compressActions = result.actions.filter((a) => a.type === 'compress');
     expect(compressActions).toHaveLength(0);
@@ -764,28 +764,28 @@ describe('Nap — Edge cases', () => {
     const hugeHistory = generateHistory(50, 3000); // ~150KB
     expect(Buffer.byteLength(hugeHistory)).toBeGreaterThan(100 * 1024);
 
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': hugeHistory,
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     expect(result).toBeDefined();
     expect(result.actions.length).toBeGreaterThan(0);
 
     // After should be significantly smaller
-    const afterSize = statSync(join(squadDir, 'agents/hockney/history.md')).size;
+    const afterSize = statSync(join(crewDir, 'agents/hockney/history.md')).size;
     expect(afterSize).toBeLessThan(Buffer.byteLength(hugeHistory));
   });
 
   it('handles multiple agents with mixed history sizes', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': generateHistory(10, 2000),  // ~20KB, over threshold
       'agents/fenster/history.md': generateHistory(2, 500),     // ~1KB, under threshold
       'agents/verbal/history.md': generateHistory(8, 2500),     // ~20KB, over threshold
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     const compressActions = result.actions.filter((a) => a.type === 'compress');
     // hockney and verbal should be compressed, fenster should not
@@ -795,13 +795,13 @@ describe('Nap — Edge cases', () => {
     expect(targets.some((t) => t.includes('fenster'))).toBe(false);
   });
 
-  it('handles .squad/ with only hidden files and no content', async () => {
-    const squadDir = createTestSquadDir({
+  it('handles .crew/ with only hidden files and no content', async () => {
+    const crewDir = createTestCrewDir({
       'agents/.gitkeep': '',
       'log/.gitkeep': '',
     });
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     expect(result).toBeDefined();
     // .gitkeep files have 0 bytes of content
@@ -810,13 +810,13 @@ describe('Nap — Edge cases', () => {
   });
 
   it('NapAction bytesSaved is always non-negative', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': generateHistory(10, 2000),
       'log/old.md': 'old log',
     });
-    setFileAge(join(squadDir, 'log/old.md'), 10);
+    setFileAge(join(crewDir, 'log/old.md'), 10);
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     for (const action of result.actions) {
       expect(action.bytesSaved).toBeGreaterThanOrEqual(0);
@@ -824,13 +824,13 @@ describe('Nap — Edge cases', () => {
   });
 
   it('after metrics reflect actual state after nap', async () => {
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': generateHistory(10, 2000),
       'log/old.md': 'x'.repeat(5000),
     });
-    setFileAge(join(squadDir, 'log/old.md'), 10);
+    setFileAge(join(crewDir, 'log/old.md'), 10);
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     // After should have fewer bytes and possibly fewer files
     expect(result.after.totalBytes).toBeLessThan(result.before.totalBytes);
@@ -849,7 +849,7 @@ describe('Nap — Combined scenarios', () => {
       bigDecisions += 'z'.repeat(1000) + '\n\n';
     }
 
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': generateHistory(10, 2000),
       'agents/fenster/history.md': generateHistory(8, 2500),
       'log/old1.md': 'old log 1',
@@ -860,11 +860,11 @@ describe('Nap — Combined scenarios', () => {
       'decisions/inbox/new-rule.md': '### New rule\nContent.\n',
     });
 
-    setFileAge(join(squadDir, 'log/old1.md'), 14);
-    setFileAge(join(squadDir, 'log/old2.md'), 10);
-    setFileAge(join(squadDir, 'orchestration-log/old-orch.md'), 8);
+    setFileAge(join(crewDir, 'log/old1.md'), 14);
+    setFileAge(join(crewDir, 'log/old2.md'), 10);
+    setFileAge(join(crewDir, 'orchestration-log/old-orch.md'), 8);
 
-    const result = await runNap({ squadDir });
+    const result = await runNap({ crewDir });
 
     // Multiple action types should be present
     const actionTypes = new Set(result.actions.map((a) => a.type));
@@ -874,19 +874,19 @@ describe('Nap — Combined scenarios', () => {
     expect(result.after.totalBytes).toBeLessThan(result.before.totalBytes);
 
     // Recent log preserved
-    expect(existsSync(join(squadDir, 'log/recent.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'log/recent.md'))).toBe(true);
   });
 
   it('deep + dry-run combines both flags correctly', async () => {
     const largeHistory = generateHistory(10, 2000);
-    const squadDir = createTestSquadDir({
+    const crewDir = createTestCrewDir({
       'agents/hockney/history.md': largeHistory,
     });
 
-    const result = await runNap({ squadDir, deep: true, dryRun: true });
+    const result = await runNap({ crewDir, deep: true, dryRun: true });
 
     // File unchanged (dry-run)
-    expect(readFileSync(join(squadDir, 'agents/hockney/history.md'), 'utf8')).toBe(largeHistory);
+    expect(readFileSync(join(crewDir, 'agents/hockney/history.md'), 'utf8')).toBe(largeHistory);
 
     // But actions show deep-mode behavior
     expect(result.actions.length).toBeGreaterThan(0);

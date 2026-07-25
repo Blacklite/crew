@@ -14,8 +14,8 @@ import {
   loadSkillsFromDirectory,
   parseSkillFile,
   parseFrontmatter,
-} from '@bradygaster/squad-sdk/skills';
-import type { SkillDefinition, SkillMatch } from '@bradygaster/squad-sdk/skills';
+} from '@blacklite/crew-sdk/skills';
+import type { SkillDefinition, SkillMatch } from '@blacklite/crew-sdk/skills';
 
 // ── Fixtures ─────────────────────────────────────────────
 
@@ -69,7 +69,7 @@ function createSkillDir(skillsDir: string, id: string, content: string): void {
 
 describe('Skill Discovery', () => {
   beforeEach(() => {
-    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'squad-skill-test-'));
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-skill-test-'));
   });
 
   afterEach(() => {

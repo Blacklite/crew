@@ -1,9 +1,9 @@
 # Your Team
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Squad builds you a team of AI specialists that live in your repo. Tell it what you're working on, and it proposes a roster — backend devs, testers, writers, a lead — each with their own personality, expertise, and memory. Your team grows smarter every session.
+Crew builds you a team of AI specialists that live in your repo. Tell it what you're working on, and it proposes a roster — backend devs, testers, writers, a lead — each with their own personality, expertise, and memory. Your team grows smarter every session.
 
 ---
 
@@ -25,7 +25,7 @@ Add a security specialist to the team
 
 ## How It Works
 
-When you first run Squad in a repository, it walks through a four-step init flow:
+When you first run Crew in a repository, it walks through a four-step init flow:
 
 ```mermaid
 graph LR
@@ -39,15 +39,15 @@ graph LR
     C --> D
 ```
 
-1. **Discovery** — Squad scans your repo: languages, file structure, test frameworks, dependencies, existing workflows.
+1. **Discovery** — Crew scans your repo: languages, file structure, test frameworks, dependencies, existing workflows.
 2. **Proposal** — It suggests a roster with 3–7 members tailored to what it found.
 3. **Confirmation** — You review and customize: accept as-is, add roles, remove roles, rename members.
-4. **Creation** — Squad writes the `.squad/` directory, creates charters, and sets up the coordinator.
+4. **Creation** — Crew writes the `.crew/` directory, creates charters, and sets up the coordinator.
 
 ### What Gets Created
 
 ```
-.squad/
+.crew/
 ├── team.md                         # Team roster
 ├── routing.md                      # Work routing rules
 ├── decisions.md                    # Team memory (directives)
@@ -95,7 +95,7 @@ Sarah appears on the roster with a 👤 Human badge.
 | Spawned as sub-agent | ✅ | ❌ |
 | Can review work | ✅ | ✅ |
 
-When work routes to a human, Squad **pauses** and tells you someone needs to act. You relay the task outside of Squad, then report back what happened. Stale reminders keep things moving.
+When work routes to a human, Crew **pauses** and tells you someone needs to act. You relay the task outside of Crew, then report back what happened. Stale reminders keep things moving.
 
 Not sure whether someone should be a roster member or just a normal GitHub collaborator? See [When to add a human member](../features/human-team-members.md#when-to-add-a-human-member) for a decision framework.
 
@@ -108,7 +108,7 @@ The coordinator routes work automatically using three strategies. First match wi
 | Strategy | How It Works | Example |
 |----------|-------------|---------|
 | **Named** | You say who does it | `"Fenster, fix the login bug"` |
-| **Domain** | Pattern matching in `.squad/routing.md` | `src/api/**` → Backend |
+| **Domain** | Pattern matching in `.crew/routing.md` | `src/api/**` → Backend |
 | **Skill-aware** | Capability check in `.copilot/skills/` | Auth expertise → Backend or Lead |
 
 **Routing priority:** Named > Domain > Skill-aware. If nothing matches, the Lead triages.
@@ -124,7 +124,7 @@ The coordinator routes work automatically using three strategies. First match wi
 | `docs/**` | DevRel | Documentation |
 ```
 
-GitHub issues with `squad:{member}` labels route directly — `squad:fenster` goes to Fenster, no triage needed.
+GitHub issues with `crew:{member}` labels route directly — `crew:fenster` goes to Fenster, no triage needed.
 
 ### Multi-Agent Work
 
@@ -134,7 +134,7 @@ Some tasks need multiple agents:
 Fenster, implement the API. Hockney, write the tests.
 ```
 
-The coordinator spawns both in parallel. They work independently and coordinate through shared `.squad/` state. See [Parallel Work & Models](parallel-work.md) for details.
+The coordinator spawns both in parallel. They work independently and coordinate through shared `.crew/` state. See [Parallel Work & Models](parallel-work.md) for details.
 
 ---
 
@@ -155,7 +155,7 @@ Agent A writes code → Lead rejects → Agent A locked out
 ### Lockout Details
 
 - **Task-specific** — locked out of that PR/issue, not all work
-- **Session-persistent** — survives restarts (stored in `.squad/orchestration-log/`)
+- **Session-persistent** — survives restarts (stored in `.crew/orchestration-log/`)
 - **Clearable** — `"Unlock Fenster for issue #42"`
 
 ### Reviewer Authority
@@ -187,13 +187,13 @@ Run either manually anytime:
 Run a design review before we start the authentication rebuild
 ```
 
-You can also create custom ceremonies, disable auto-triggers, or skip a ceremony for a single task. Config lives in `.squad/ceremonies.md`.
+You can also create custom ceremonies, disable auto-triggers, or skip a ceremony for a single task. Config lives in `.crew/ceremonies.md`.
 
 ---
 
 ## Response Modes
 
-Squad auto-selects the right level of effort for each request:
+Crew auto-selects the right level of effort for each request:
 
 | Mode | Time | What Happens | Triggered By |
 |------|------|-------------|-------------|
@@ -211,35 +211,35 @@ Squad auto-selects the right level of effort for each request:
 | What You Say | What Happens |
 |--------------|-------------|
 | `"Add a database specialist"` | Coordinator casts a new member, creates charter, updates routing |
-| `"Remove McManus from the team"` | Archives agent directory to `.squad/agents/.archived/`, updates team.md |
+| `"Remove McManus from the team"` | Archives agent directory to `.crew/agents/.archived/`, updates team.md |
 | `"Change the tester to focus on integration tests"` | Updates the tester's charter and expertise |
-| `"Route all CSS files to Frontend"` | Adds a rule to `.squad/routing.md` |
+| `"Route all CSS files to Frontend"` | Adds a rule to `.crew/routing.md` |
 | `"From now on, McManus reviews all docs before merge"` | Creates routing rule + [directive](../features/memory.md) |
 
-Running `init` on an existing Squad repo automatically offers upgrade mode.
+Running `init` on an existing Crew repo automatically offers upgrade mode.
 
 ---
 
 ## Planning your team
 
-Before running `squad init`, think through these decisions. Squad will scan your repo and propose a team — having answers ready makes setup faster.
+Before running `crew init`, think through these decisions. Crew will scan your repo and propose a team — having answers ready makes setup faster.
 
-- **What does your project do?** Have a 1–2 sentence description of the language, stack, and purpose ready — Squad uses this to pick roles
-- **What roles do you need?** The [default composition](#default-team-composition) covers common cases, or let Squad propose custom roles based on your repo
+- **What does your project do?** Have a 1–2 sentence description of the language, stack, and purpose ready — Crew uses this to pick roles
+- **What roles do you need?** The [default composition](#default-team-composition) covers common cases, or let Crew propose custom roles based on your repo
 - **How many agents?** Typical teams are 3–7 agents. Scribe (memory) is always included
 - **Will humans join the team?** [Human members](#human-team-members) can serve as reviewers or domain experts alongside AI agents
 - **Will @copilot participate?** The GitHub Copilot coding agent can pick up issues autonomously — see [Agent anatomy](#agent-anatomy)
-- **How will you track work?** GitHub Issues with `squad:{member}` labels, or conversational tasking via named prompts
+- **How will you track work?** GitHub Issues with `crew:{member}` labels, or conversational tasking via named prompts
 - **Do you want review gates?** [Reviewers](#reviewer-protocol) can approve or reject work before it proceeds
 - **What ceremonies matter?** [Design reviews and retrospectives](#ceremonies) can auto-trigger or run on demand
 - **What model preferences?** Default is automatic selection, or specify preferred models per agent — see [Parallel Work & Models](parallel-work.md)
-- **How many squads, and where do they live?** One squad per repo is the default — your `.squad/` directory lives alongside your code. For multi-repo projects, you can run one squad per repo (each with its own team) or share a single squad across repos using a personal squad or linked team repo. Start with one squad in one repo and expand as needed.
+- **How many crews, and where do they live?** One crew per repo is the default — your `.crew/` directory lives alongside your code. For multi-repo projects, you can run one crew per repo (each with its own team) or share a single crew across repos using a personal crew or linked team repo. Start with one crew in one repo and expand as needed.
 
 ---
 
 ## Agent anatomy
 
-An agent is a directory at `.squad/agents/{name}/`. The contents depend on the member type.
+An agent is a directory at `.crew/agents/{name}/`. The contents depend on the member type.
 
 For how humans differ from AI agents, see [Human team members](#human-team-members) above.
 
@@ -254,7 +254,7 @@ For how humans differ from AI agents, see [Human team members](#human-team-membe
 
 **@copilot** (🤖) appears on the roster and works via GitHub issue assignment. It reads `.github/copilot-instructions.md` instead of a charter.
 
-**Retired agents** move to `.squad/agents/_alumni/{name}/` — charter preserved as a read-only archive, not spawnable.
+**Retired agents** move to `.crew/agents/_alumni/{name}/` — charter preserved as a read-only archive, not spawnable.
 
 ---
 
@@ -265,7 +265,7 @@ Agents don't share memory directly. Context flows through explicit shared files:
 - **`team.md`** — who's on the team and what they do
 - **`routing.md`** — work assignment rules the coordinator reads on every request
 - **`decisions.md`** — canonical team memory: directives, patterns, learnings
-- **`.squad/decisions/inbox/`** — agents drop decision files here; the Scribe merges them into `decisions.md`
+- **`.crew/decisions/inbox/`** — agents drop decision files here; the Scribe merges them into `decisions.md`
 
 Each agent's `history.md` is personal — only that agent reads it at spawn time. For the full picture on knowledge flow, see [Memory and knowledge](../features/memory.md).
 
@@ -275,8 +275,8 @@ Each agent's `history.md` is personal — only that agent reads it at spawn time
 
 To add a new AI agent to your team:
 
-- [ ] Create `.squad/agents/{name}/` directory
-- [ ] Write `charter.md` — start from `.squad/templates/charter.md`
+- [ ] Create `.crew/agents/{name}/` directory
+- [ ] Write `charter.md` — start from `.crew/templates/charter.md`
 - [ ] Add to `team.md` roster with status `✅ Active`
 - [ ] Add to `routing.md` with work type assignments
 - [ ] (Optional) Create `history.md` for persistent memory
@@ -288,21 +288,21 @@ To add a **human member**, skip the directory — just add them to `team.md`. Se
 
 ## Tips
 
-- **Commit `.squad/`** to version control — anyone who clones the repo gets the full team with all accumulated knowledge.
+- **Commit `.crew/`** to version control — anyone who clones the repo gets the full team with all accumulated knowledge.
 - Use human members for approval gates: design review, compliance, final sign-off.
 - Design reviews prevent agents from building conflicting implementations — let them run on multi-agent tasks.
 - Retros produce [decisions](../features/memory.md) that improve future work, not just diagnose the current failure.
-- You're the relay for human members. Squad can't message them directly — it tells you, and you coordinate.
+- You're the relay for human members. Crew can't message them directly — it tells you, and you coordinate.
 
 ---
 
 ## Sample Prompts
 
 ```
-Start a new Squad team for this project
+Start a new Crew team for this project
 ```
 
-Triggers init mode — Squad analyzes the repo and proposes a team.
+Triggers init mode — Crew analyzes the repo and proposes a team.
 
 ```
 Fenster, implement the new search API. Hockney, write integration tests for it.
@@ -320,7 +320,7 @@ Adds a human team member with a specific review responsibility.
 Route all database migrations to Backend
 ```
 
-Adds a domain routing rule to `.squad/routing.md`.
+Adds a domain routing rule to `.crew/routing.md`.
 
 ```
 Lead, review PR #15

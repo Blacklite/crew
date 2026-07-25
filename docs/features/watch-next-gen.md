@@ -16,7 +16,7 @@ Ralph's watch mode evolved to achieve **parity with the PowerShell reference imp
 - Agents get full autonomy over prioritization
 - Removes hardcoded decision logic from the TypeScript layer
 - Enables agents to escalate, negotiate, or refuse unsuitable work
-- Context stays live — agent sees latest squad state, decisions, blockers
+- Context stays live — agent sees latest crew state, decisions, blockers
 
 ### Prompt Delivery Pattern
 
@@ -41,13 +41,13 @@ This approach:
 The temp file includes a structured Task/WHY/Success/Escalation scaffold:
 
 ```markdown
-## Squad Work Context
+## Crew Work Context
 
 ### Current Task
 Select an issue to work on from the priority list below.
 
 ### WHY (Context)
-- Squad is at 87% test coverage (trend: ↑)
+- Crew is at 87% test coverage (trend: ↑)
 - Decision archive has 23 unmerged files (needs hygiene)
 - Two blockers waiting on external review (API team)
 
@@ -83,7 +83,7 @@ If you detect any of these, pause and notify humans:
 ### How to Proceed
 1. Pick one issue
 2. Work autonomously (create branch, commit, push, PR)
-3. If blocked → write summary to `.squad/ralph-escalation.md`
+3. If blocked → write summary to `.crew/ralph-escalation.md`
 4. Report completion to stdout
 ```
 
@@ -95,13 +95,13 @@ If you detect any of these, pause and notify humans:
 
 ```bash
 # Minimal — triage mode only (scan, don't execute)
-squad watch
+crew watch
 
 # Standard — with execution
-squad watch --execute --interval 5
+crew watch --execute --interval 5
 
 # Full-featured
-squad watch --execute \
+crew watch --execute \
   --interval 5 \
   --agent-cmd "agency copilot" \
   --copilot-flags "--yolo --autopilot --mcp mail" \
@@ -171,7 +171,7 @@ Tier 3 syncs local state, often fixes race conditions or divergence.
 ```
 Error: Still failing after pull
 → Log full error and context
-→ Set .squad/ralph-stop file
+→ Set .crew/ralph-stop file
 → Pause watch for 30 minutes
 → Human intervention required
 ```
@@ -185,7 +185,7 @@ Tier 4 prevents spam and signals that manual action is needed.
 ### In-Memory (Default)
 
 ```bash
-squad watch --execute
+crew watch --execute
 ```
 
 - ✓ Fast, no I/O overhead
@@ -196,7 +196,7 @@ squad watch --execute
 ### Git-Notes Backend
 
 ```bash
-squad watch --execute --state-backend git-notes
+crew watch --execute --state-backend git-notes
 ```
 
 - ✓ Survives restarts
@@ -218,7 +218,7 @@ cat .git/refs/notes/watch-state
 ### Orphan-Branch Backend
 
 ```bash
-squad watch --execute --state-backend orphan-branch
+crew watch --execute --state-backend orphan-branch
 ```
 
 - ✓ Survives restarts
@@ -261,10 +261,10 @@ adapter.ensureAuth(preferredUser); // ✓ explicit, dynamic
 
 ```bash
 # Auto-detect from git remote
-squad watch --execute
+crew watch --execute
 
 # Use specific account
-squad watch --execute --auth-user alice@example.com
+crew watch --execute --auth-user alice@example.com
 
 # Switch accounts mid-session
 # (create new watch with different --auth-user)
@@ -278,7 +278,7 @@ squad watch --execute --auth-user alice@example.com
 
 ```bash
 # Create sentinel
-touch .squad/ralph-stop
+touch .crew/ralph-stop
 
 # Watch detects this at end of round and:
 # 1. Finishes current operation
@@ -296,8 +296,8 @@ Advantages over SIGTERM:
 
 ```bash
 # If watch crashed or got stuck
-rm .squad/ralph-stop  # clear sentinel if present
-squad watch --execute --state-backend git-notes
+rm .crew/ralph-stop  # clear sentinel if present
+crew watch --execute --state-backend git-notes
 # Resumes from last saved state
 ```
 
@@ -309,7 +309,7 @@ Watch can prune old artifacts:
 
 ```bash
 # Manual cleanup pass
-squad watch --cleanup
+crew watch --cleanup
 
 # Automatic cleanup on startup (if state is stale)
 # Prunes:
@@ -360,7 +360,7 @@ Control watch verbosity with `--notify-level`:
 Check status with `--health`:
 
 ```bash
-squad watch --health
+crew watch --health
 ```
 
 ---
@@ -370,12 +370,12 @@ squad watch --health
 The `--health` flag shows a snapshot of the running process:
 
 ```bash
-$ squad watch --health
+$ crew watch --health
 
 Ralph Watch Process Status
 
 PID: 12345
-Command: squad watch --execute --interval 5 --auth-user alice@example.com
+Command: crew watch --execute --interval 5 --auth-user alice@example.com
 Uptime: 2h 15m 30s
 Status: Running
 
@@ -415,13 +415,13 @@ Watch now supports **label-based claim/reclaim** across multiple machines:
 
 ```bash
 # Machine 1 (claims "watch-fleet")
-squad watch --execute --fleet-label "watch-fleet" --machine-id "prod-1"
+crew watch --execute --fleet-label "watch-fleet" --machine-id "prod-1"
 
 # Machine 2 (claims same label, syncs via git)
-squad watch --execute --fleet-label "watch-fleet" --machine-id "prod-2"
+crew watch --execute --fleet-label "watch-fleet" --machine-id "prod-2"
 
 # Coordination:
-# - Each machine writes its claim to .squad/.watch-claims
+# - Each machine writes its claim to .crew/.watch-claims
 # - Claims include: machine-id, timestamp, capabilities
 # - Load distribution: claims rotate which machine works each round
 ```
@@ -429,7 +429,7 @@ squad watch --execute --fleet-label "watch-fleet" --machine-id "prod-2"
 Use cases:
 - Distribute watch load across machines
 - Auto-failover if one machine goes down
-- Inspect fleet status with `squad watch --health --fleet-label watch-fleet`
+- Inspect fleet status with `crew watch --health --fleet-label watch-fleet`
 
 ---
 
@@ -457,7 +457,7 @@ Allows humans to:
 Enable detailed logging:
 
 ```bash
-squad watch --execute --log-file ./watch.log --verbose
+crew watch --execute --log-file ./watch.log --verbose
 ```
 
 Log format: JSON Lines (one log object per line)
@@ -511,7 +511,7 @@ If you have a running PS1 ralph-watch, transition to Next-Gen:
 
 ```bash
 # Short interval, verbose output, all notifications
-squad watch --execute \
+crew watch --execute \
   --interval 1 \
   --notify-level all \
   --log-file ./watch-dev.log \
@@ -522,7 +522,7 @@ squad watch --execute \
 
 ```bash
 # Normal interval, important notifications, git-notes persistence
-squad watch --execute \
+crew watch --execute \
   --interval 5 \
   --notify-level important \
   --log-file ./watch-staging.log \
@@ -533,10 +533,10 @@ squad watch --execute \
 
 ```bash
 # Longer interval (less noise), git-notes for durability, fleet labels
-squad watch --execute \
+crew watch --execute \
   --interval 10 \
   --notify-level important \
-  --log-file /var/log/squad/watch.log \
+  --log-file /var/log/crew/watch.log \
   --state-backend git-notes \
   --fleet-label "prod-watch" \
   --machine-id "$HOSTNAME"
@@ -546,7 +546,7 @@ squad watch --execute \
 
 ```bash
 # Stop watch from 6 PM to 8 AM
-squad watch --execute \
+crew watch --execute \
   --overnight-start 18:00 \
   --overnight-end 08:00
 ```
@@ -559,14 +559,14 @@ squad watch --execute \
 
 ```bash
 # Check health
-squad watch --health
+crew watch --health
 
 # Common causes:
-# - .squad/ralph-stop sentinel exists
-#   → rm .squad/ralph-stop
+# - .crew/ralph-stop sentinel exists
+#   → rm .crew/ralph-stop
 
 # - Auth broken
-#   → squad watch --execute --auth-user <account>
+#   → crew watch --execute --auth-user <account>
 #   → Check gh auth status
 ```
 
@@ -574,7 +574,7 @@ squad watch --health
 
 ```bash
 # Enable verbose output
-squad watch --execute --verbose --log-file watch-debug.log
+crew watch --execute --verbose --log-file watch-debug.log
 
 # Common causes:
 # - Insufficient copilot-flags
@@ -588,7 +588,7 @@ squad watch --execute --verbose --log-file watch-debug.log
 
 ```bash
 # Reset to in-memory (no persistence)
-squad watch --execute
+crew watch --execute
 
 # Or clear saved state
 rm .git/refs/notes/watch-state  # git-notes backend
@@ -599,13 +599,13 @@ git branch -D ralph-watch       # orphan-branch backend
 
 ```bash
 # Increase interval
-squad watch --execute --interval 30  # check every 30 min
+crew watch --execute --interval 30  # check every 30 min
 
 # Reduce notifications
-squad watch --execute --notify-level important
+crew watch --execute --notify-level important
 
 # Reduce agent parallelism (if fleet)
-squad watch --execute --fleet-label prod-watch --max-concurrent 1
+crew watch --execute --fleet-label prod-watch --max-concurrent 1
 ```
 
 ---
@@ -614,4 +614,4 @@ squad watch --execute --fleet-label prod-watch --max-concurrent 1
 
 - [Persistent Ralph](/features/persistent-ralph) — Monitoring and trend analysis
 - [Generic Scheduler](/features/generic-scheduler) — Schedule watch via cron/systemd
-- [Cross-Squad Orchestration](/features/cross-squad-orchestration) — Watch across squad boundaries
+- [Cross-Crew Orchestration](/features/cross-crew-orchestration) — Watch across crew boundaries

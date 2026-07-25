@@ -1,0 +1,67 @@
+/**
+ * Retro capability — enforce retrospective checks (Fridays or when missed).
+ */
+
+import path from 'node:path';
+import { FSStorageProvider } from '@blacklite/crew-sdk';
+import type { WatchCapability, WatchContext, PreflightResult, CapabilityResult } from '../types.js';
+import { buildAgentCommand, spawnWithTimeout } from '../agent-spawn.js';
+
+const storage = new FSStorageProvider();
+
+export class RetroCapability implements WatchCapability {
+  readonly name = 'retro';
+  readonly description = 'Enforce retrospective checks (Fridays or when missed >7 days)';
+  readonly configShape = 'boolean' as const;
+  readonly requires = ['gh'];
+  readonly phase = 'housekeeping' as const;
+
+  async preflight(_context: WatchContext): Promise<PreflightResult> {
+    return { ok: true };
+  }
+
+  async execute(context: WatchContext): Promise<CapabilityResult> {
+    try {
+      const now = new Date();
+      const isFriday = now.getUTCDay() === 5;
+      const isAfternoon = now.getUTCHours() >= 14;
+
+      const logDir = path.join(context.teamRoot, '.crew', 'log');
+      let lastRetroAge = Infinity;
+      try {
+        const files = storage.listSync?.(logDir) ?? [];
+        const retroFiles = (Array.isArray(files) ? files : [])
+          .filter((f: string) => f.includes('retrospective'));
+        if (retroFiles.length > 0) {
+          retroFiles.sort().reverse();
+          const newest = retroFiles[0]!;
+          const dateMatch = newest.match(/(\d{4}-\d{2}-\d{2})/);
+          if (dateMatch) {
+            const retroDate = new Date(dateMatch[1]!);
+            lastRetroAge = now.getTime() - retroDate.getTime();
+          }
+        }
+      } catch { /* no log dir */ }
+
+      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+      const isDue = (isFriday && isAfternoon) || lastRetroAge > sevenDaysMs;
+
+      if (!isDue) {
+        return { success: true, summary: 'retro not due' };
+      }
+
+      const dateSlug = now.toISOString().slice(0, 10);
+      const prompt =
+        `Run a sprint retrospective for the crew. ` +
+        `Review recent GitHub activity (issues closed, PRs merged, CI status). ` +
+        `Summarize: what went well, what didn't, action items. ` +
+        `Write the output to .crew/log/${dateSlug}-retrospective.md`;
+
+      const { cmd, args } = buildAgentCommand(prompt, context);
+      await spawnWithTimeout(cmd, args, context.teamRoot, 120_000);
+      return { success: true, summary: 'retrospective completed' };
+    } catch (e) {
+      return { success: false, summary: `retro: ${(e as Error).message}` };
+    }
+  }
+}

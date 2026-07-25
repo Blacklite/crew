@@ -8,7 +8,7 @@ import {
   detectConnectivity,
   OfflineManager,
   type PendingOperation,
-} from '@bradygaster/squad-sdk/runtime/offline';
+} from '@blacklite/crew-sdk/runtime/offline';
 
 // --- Helpers ---
 

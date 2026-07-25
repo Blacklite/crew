@@ -1,12 +1,12 @@
 /**
- * iter-8 tests for the repo-root `.mcp.json` squad_state writer + the
+ * iter-8 tests for the repo-root `.mcp.json` crew_state writer + the
  * `.copilot/mcp-config.json` tombstone helper.
  *
  * Validates:
  *   - Missing `.mcp.json` is created with valid JSON containing exactly
- *     the desired squad_state entry.
+ *     the desired crew_state entry.
  *   - Existing user `mcpServers.*` entries are preserved byte-for-byte.
- *   - Tombstone removes only `squad_state` from `.copilot/mcp-config.json`
+ *   - Tombstone removes only `crew_state` from `.copilot/mcp-config.json`
  *     and preserves siblings.
  *   - Malformed `.mcp.json` is refused (throws) rather than overwritten.
  *   - Idempotency: re-writing the same spec is a no-op (written === false).
@@ -18,40 +18,40 @@ import os from 'node:os';
 import path from 'node:path';
 
 import {
-  ensureSquadStateMcpInRoot,
-  tombstoneStaleSquadStateInProjectMcp,
+  ensureCrewStateMcpInRoot,
+  tombstoneStaleCrewStateInProjectMcp,
   getProjectMcpJsonPath,
-} from '../packages/squad-cli/src/cli/core/mcp-root.js';
-import type { SquadStateMcpSpec } from '../packages/squad-cli/src/cli/core/mcp-spec.js';
+} from '../packages/crew-cli/src/cli/core/mcp-root.js';
+import type { CrewStateMcpSpec } from '../packages/crew-cli/src/cli/core/mcp-spec.js';
 
-const PINNED_SPEC: SquadStateMcpSpec = {
+const PINNED_SPEC: CrewStateMcpSpec = {
   source: 'pinned',
   command: 'npx',
-  args: ['-y', '@bradygaster/squad-cli@0.9.6-preview.14', 'state-mcp'],
+  args: ['-y', '@blacklite/crew-cli@0.9.6-preview.14', 'state-mcp'],
 };
 
 describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () => {
   let tmpProject: string;
 
   beforeEach(() => {
-    tmpProject = fs.mkdtempSync(path.join(os.tmpdir(), 'squad-proj-'));
+    tmpProject = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-proj-'));
   });
 
   afterEach(() => {
     fs.rmSync(tmpProject, { recursive: true, force: true });
   });
 
-  it('creates .mcp.json with the squad_state entry when missing', () => {
-    const result = ensureSquadStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
+  it('creates .mcp.json with the crew_state entry when missing', () => {
+    const result = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
     expect(result.written).toBe(true);
-    expect(result.key).toBe('squad_state');
+    expect(result.key).toBe('crew_state');
     expect(result.path).toBe(getProjectMcpJsonPath(tmpProject));
 
     const parsed = JSON.parse(fs.readFileSync(result.path, 'utf8'));
-    expect(parsed.mcpServers.squad_state.command).toBe('npx');
-    expect(parsed.mcpServers.squad_state.args).toEqual(PINNED_SPEC.args);
-    expect(parsed.mcpServers.squad_state.tools).toEqual(['*']);
-    expect(parsed.mcpServers.squad_state.env).toEqual({});
+    expect(parsed.mcpServers.crew_state.command).toBe('npx');
+    expect(parsed.mcpServers.crew_state.args).toEqual(PINNED_SPEC.args);
+    expect(parsed.mcpServers.crew_state.tools).toEqual(['*']);
+    expect(parsed.mcpServers.crew_state.env).toEqual({});
   });
 
   it('preserves existing user mcpServers entries', () => {
@@ -70,20 +70,20 @@ describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () =
       ),
     );
 
-    const result = ensureSquadStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
+    const result = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
     expect(result.written).toBe(true);
 
     const parsed = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
     expect(parsed.mcpServers.github).toEqual({ command: 'gh-mcp', args: ['--stdio'] });
     expect(parsed.mcpServers['custom-tool']).toEqual({ command: 'node', args: ['./tool.js'] });
-    expect(parsed.mcpServers.squad_state.command).toBe('npx');
+    expect(parsed.mcpServers.crew_state.command).toBe('npx');
   });
 
   it('refuses to overwrite malformed .mcp.json', () => {
     const cfgPath = getProjectMcpJsonPath(tmpProject);
     fs.writeFileSync(cfgPath, '{ this is : not json');
     expect(() =>
-      ensureSquadStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC),
+      ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC),
     ).toThrow(/Refusing to overwrite malformed/);
 
     // Original content untouched.
@@ -91,14 +91,14 @@ describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () =
   });
 
   it('is idempotent — second call with same spec returns written=false', () => {
-    const first = ensureSquadStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
+    const first = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
     expect(first.written).toBe(true);
 
-    const second = ensureSquadStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
+    const second = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
     expect(second.written).toBe(false);
   });
 
-  it('tombstone removes squad_state from .copilot/mcp-config.json while preserving siblings', () => {
+  it('tombstone removes crew_state from .copilot/mcp-config.json while preserving siblings', () => {
     const copilotDir = path.join(tmpProject, '.copilot');
     fs.mkdirSync(copilotDir, { recursive: true });
     const cfgPath = path.join(copilotDir, 'mcp-config.json');
@@ -107,7 +107,7 @@ describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () =
       JSON.stringify(
         {
           mcpServers: {
-            squad_state: { command: 'old-stale', args: [] },
+            crew_state: { command: 'old-stale', args: [] },
             github: { command: 'gh-mcp', args: ['--stdio'] },
           },
         },
@@ -116,27 +116,27 @@ describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () =
       ),
     );
 
-    const result = tombstoneStaleSquadStateInProjectMcp(tmpProject);
+    const result = tombstoneStaleCrewStateInProjectMcp(tmpProject);
     expect(result.removed).toBe(true);
     expect(result.path).toBe(cfgPath);
 
     const parsed = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
-    expect(parsed.mcpServers.squad_state).toBeUndefined();
+    expect(parsed.mcpServers.crew_state).toBeUndefined();
     expect(parsed.mcpServers.github).toEqual({ command: 'gh-mcp', args: ['--stdio'] });
   });
 
-  it('tombstone is a no-op when project mcp-config.json has no squad_state or is missing', () => {
+  it('tombstone is a no-op when project mcp-config.json has no crew_state or is missing', () => {
     // missing file
-    const r1 = tombstoneStaleSquadStateInProjectMcp(tmpProject);
+    const r1 = tombstoneStaleCrewStateInProjectMcp(tmpProject);
     expect(r1.removed).toBe(false);
 
-    // present without squad_state
+    // present without crew_state
     const copilotDir = path.join(tmpProject, '.copilot');
     fs.mkdirSync(copilotDir, { recursive: true });
     const cfgPath = path.join(copilotDir, 'mcp-config.json');
     fs.writeFileSync(cfgPath, JSON.stringify({ mcpServers: { github: { command: 'gh' } } }));
 
-    const r2 = tombstoneStaleSquadStateInProjectMcp(tmpProject);
+    const r2 = tombstoneStaleCrewStateInProjectMcp(tmpProject);
     expect(r2.removed).toBe(false);
 
     const parsed = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));

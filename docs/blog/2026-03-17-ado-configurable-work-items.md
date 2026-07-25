@@ -1,20 +1,20 @@
 ---
 title: "ADO Configurable Work Items: Match Your Process"
 date: 2026-03-17
-author: "Squad (Copilot)"
+author: "Crew (Copilot)"
 wave: null
-tags: [squad, azure-devops, ado, work-items, configuration]
+tags: [crew, azure-devops, ado, work-items, configuration]
 status: published
-hero: "Squad now adapts to your Azure DevOps process template. Automatically detect available work item types, area paths, and iterations. No more hardcoded defaults."
+hero: "Crew now adapts to your Azure DevOps process template. Automatically detect available work item types, area paths, and iterations. No more hardcoded defaults."
 ---
 
 # ADO Configurable Work Items: Match Your Process
 
-> _Use any Azure DevOps process template. Squad introspects your project, learns your structure, and creates work items the way your team works._
+> _Use any Azure DevOps process template. Crew introspects your project, learns your structure, and creates work items the way your team works._
 
 ## The Problem
 
-Squad originally hardcoded work item creation: always User Stories, always in the default area, no iterations. This worked for simple projects but broke with reality:
+Crew originally hardcoded work item creation: always User Stories, always in the default area, no iterations. This worked for simple projects but broke with reality:
 
 - Scrum teams use different types than Agile teams
 - Some teams organize by component, others by team
@@ -22,23 +22,23 @@ Squad originally hardcoded work item creation: always User Stories, always in th
 - Iterations/sprints matter for sprint planning
 
 As a result:
-- Squad created work items in the wrong area
+- Crew created work items in the wrong area
 - Wrong work item types appearing in backlog
 - Ralph (work monitor) created clutter, not structure
 
-Organizations had to work around Squad instead of Squad adapting to their workflow.
+Organizations had to work around Crew instead of Crew adapting to their workflow.
 
 ## How It Works
 
 ### Auto-Discovery
 
-During squad initialization:
+During crew initialization:
 
 ```bash
-squad init --org contoso --project "My Project" --introspect
+crew init --org contoso --project "My Project" --introspect
 ```
 
-Squad connects to your ADO project and discovers:
+Crew connects to your ADO project and discovers:
 
 ✓ Available work item types (Bug, Task, User Story, Feature, Scenario, etc.)
 ✓ Area paths (team/component organization)
@@ -49,7 +49,7 @@ Suggests a config based on what exists.
 
 ### Configuration
 
-Store your preferences in `.squad/config.json`:
+Store your preferences in `.crew/config.json`:
 
 ```json
 {
@@ -68,7 +68,7 @@ Store your preferences in `.squad/config.json`:
 Before creating work items, validate:
 
 ```bash
-squad config validate
+crew config validate
 ```
 
 Returns:
@@ -85,7 +85,7 @@ Returns:
 When Ralph monitors work:
 
 ```bash
-squad ralph scan
+crew ralph scan
 ```
 
 Creates issues as:
@@ -99,11 +99,11 @@ Issues appear in the right backlog, organized correctly.
 
 ### Before: Hardcoded Approach
 
-Squad creates all issues as "User Story" in default area → Scrum backlog is polluted with non-stories, area organization is ignored.
+Crew creates all issues as "User Story" in default area → Scrum backlog is polluted with non-stories, area organization is ignored.
 
 ### After: Configurable Approach
 
-**Backend Team** runs their squad with:
+**Backend Team** runs their crew with:
 ```json
 {
   "defaultWorkItemType": "User Story",
@@ -111,7 +111,7 @@ Squad creates all issues as "User Story" in default area → Scrum backlog is po
 }
 ```
 
-**QA Team** runs their squad with:
+**QA Team** runs their crew with:
 ```json
 {
   "defaultWorkItemType": "Bug",
@@ -119,7 +119,7 @@ Squad creates all issues as "User Story" in default area → Scrum backlog is po
 }
 ```
 
-**DevOps Team** runs their squad with:
+**DevOps Team** runs their crew with:
 ```json
 {
   "defaultWorkItemType": "Task",
@@ -158,7 +158,7 @@ Any custom template is supported. Introspect to see what's available.
 
 ## Configuration Reference
 
-In `.squad/config.json`, add an `ado` section:
+In `.crew/config.json`, add an `ado` section:
 
 ```json
 {
@@ -182,12 +182,12 @@ All fields optional. Defaults:
 ### Step 1: Connect
 
 ```bash
-squad init --org contoso --project "Platform" --introspect
+crew init --org contoso --project "Platform" --introspect
 ```
 
 ### Step 2: Review Suggestions
 
-Squad prints discovered options:
+Crew prints discovered options:
 ```
 Available Work Item Types:
   - User Story
@@ -210,12 +210,12 @@ Available Iterations:
 
 ### Step 3: Configure
 
-Update `.squad/config.json` with your choices.
+Update `.crew/config.json` with your choices.
 
 ### Step 4: Validate
 
 ```bash
-squad config validate
+crew config validate
 ```
 
 ### Step 5: Use
@@ -227,12 +227,12 @@ Ralph now creates work items correctly.
 Override defaults for specific work items:
 
 ```bash
-squad create issue "Critical bug" --type Bug --areaPath "Platform\QA"
+crew create issue "Critical bug" --type Bug --areaPath "Platform\QA"
 ```
 
 Or in code:
 ```typescript
-squad.createWorkItem({
+crew.createWorkItem({
   title: "Setup logging",
   type: "Task",
   areaPath: "Platform\Infrastructure",
@@ -242,19 +242,19 @@ squad.createWorkItem({
 
 ## Multi-Team Setup
 
-Each team/squad has their own config:
+Each team/crew has their own config:
 
-**squad-backend/.squad/config.json**:
+**crew-backend/.crew/config.json**:
 ```json
 { "ado": { "defaultWorkItemType": "User Story", "areaPath": "Platform\Backend" } }
 ```
 
-**squad-frontend/.squad/config.json**:
+**crew-frontend/.crew/config.json**:
 ```json
 { "ado": { "defaultWorkItemType": "User Story", "areaPath": "Platform\Frontend" } }
 ```
 
-**squad-qa/.squad/config.json**:
+**crew-qa/.crew/config.json**:
 ```json
 { "ado": { "defaultWorkItemType": "Bug", "areaPath": "Platform\QA" } }
 ```
@@ -273,5 +273,5 @@ If config is missing or invalid:
 ## See Also
 
 - [Persistent Ralph](/features/persistent-ralph) — Ralph creates work with your config
-- [Cross-Squad Orchestration](/features/cross-squad-orchestration) — Delegate work with correct types
+- [Cross-Crew Orchestration](/features/cross-crew-orchestration) — Delegate work with correct types
 - [Generic Scheduler](/features/generic-scheduler) — Run ADO operations on schedule

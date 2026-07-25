@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-cli": patch
+"@blacklite/crew-cli": patch
 ---
 
 chore: adapt CLI to ink 7.0.6

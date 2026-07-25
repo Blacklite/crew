@@ -10,8 +10,8 @@ import {
   discoverConfigFile,
   ConfigValidationError,
   DEFAULT_CONFIG,
-  type SquadConfig 
-} from '@bradygaster/squad-sdk/runtime';
+  type CrewConfig 
+} from '@blacklite/crew-sdk/runtime';
 import { writeFileSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 
@@ -181,7 +181,7 @@ describe('Configuration Loader', () => {
     });
     
     it('should load valid JSON config', () => {
-      const configPath = join(testDir, 'squad.config.json');
+      const configPath = join(testDir, 'crew.config.json');
       const config = {
         version: '1.0.0',
         models: {
@@ -220,14 +220,14 @@ describe('Configuration Loader', () => {
     });
     
     it('should throw on invalid JSON', () => {
-      const configPath = join(testDir, 'squad.config.json');
+      const configPath = join(testDir, 'crew.config.json');
       writeFileSync(configPath, '{ invalid json }');
       
       expect(() => loadConfigSync(testDir)).toThrow();
     });
     
     it('should throw on validation failure', () => {
-      const configPath = join(testDir, 'squad.config.json');
+      const configPath = join(testDir, 'crew.config.json');
       const config = {
         version: '1.0.0'
         // Missing required fields
@@ -373,7 +373,7 @@ describe('Configuration Loader', () => {
     });
 
     it('finds config in current directory', () => {
-      const configPath = join(testDir, 'squad.config.json');
+      const configPath = join(testDir, 'crew.config.json');
       writeFileSync(configPath, '{}');
 
       const found = discoverConfigFile(testDir);
@@ -386,7 +386,7 @@ describe('Configuration Loader', () => {
       const childDir = join(testDir, 'subdir');
       mkdirSync(childDir, { recursive: true });
 
-      const configPath = join(parentDir, 'squad.config.json');
+      const configPath = join(parentDir, 'crew.config.json');
       writeFileSync(configPath, '{}');
 
       const found = discoverConfigFile(childDir);
@@ -404,9 +404,9 @@ describe('Configuration Loader', () => {
       expect(found).toBeUndefined();
     });
 
-    it('prefers squad.config.ts over json', () => {
-      const tsPath = join(testDir, 'squad.config.ts');
-      const jsonPath = join(testDir, 'squad.config.json');
+    it('prefers crew.config.ts over json', () => {
+      const tsPath = join(testDir, 'crew.config.ts');
+      const jsonPath = join(testDir, 'crew.config.json');
 
       writeFileSync(tsPath, 'export default {};');
       writeFileSync(jsonPath, '{}');
@@ -416,11 +416,11 @@ describe('Configuration Loader', () => {
       expect(found).toBe(tsPath);
     });
 
-    it('finds .squad/config.json', () => {
-      const squadDir = join(testDir, '.squad');
-      mkdirSync(squadDir, { recursive: true });
+    it('finds .crew/config.json', () => {
+      const crewDir = join(testDir, '.crew');
+      mkdirSync(crewDir, { recursive: true });
 
-      const configPath = join(squadDir, 'config.json');
+      const configPath = join(crewDir, 'config.json');
       writeFileSync(configPath, '{}');
 
       const found = discoverConfigFile(testDir);

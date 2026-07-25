@@ -1,5 +1,5 @@
 /**
- * Builder function tests — SDK-First Squad Mode (Phase 1)
+ * Builder function tests — SDK-First Crew Mode (Phase 1)
  *
  * Tests the defineTeam(), defineAgent(), defineRouting(), defineCeremony(),
  * defineHooks(), defineCasting(), and defineTelemetry() builder functions.
@@ -7,8 +7,8 @@
  * Builder functions are typed identity wrappers with runtime validation.
  * Valid configs pass through; invalid configs throw with actionable messages.
  *
- * ⚠️ Implementation expected at: packages/squad-sdk/src/builders/index.ts
- * @see packages/squad-sdk/src/builders/types.ts
+ * ⚠️ Implementation expected at: packages/crew-sdk/src/builders/index.ts
+ * @see packages/crew-sdk/src/builders/types.ts
  * When implementation lands, remove local stubs and use real imports.
  * @module test/builders
  */
@@ -25,8 +25,8 @@ import type {
   HooksDefinition,
   CastingDefinition,
   TelemetryDefinition,
-  SquadSDKConfig,
-} from '../packages/squad-sdk/src/builders/types.js';
+  CrewSDKConfig,
+} from '../packages/crew-sdk/src/builders/types.js';
 
 // ⚠️ Note: SkillDefinition type will be added to types.ts when #255 lands
 // Until then, using the stub type defined with the stub function below
@@ -35,7 +35,7 @@ import type {
 //   import {
 //     defineTeam, defineAgent, defineRouting, defineCeremony,
 //     defineHooks, defineCasting, defineTelemetry,
-//   } from '../packages/squad-sdk/src/builders/index.js';
+//   } from '../packages/crew-sdk/src/builders/index.js';
 //
 // ============================================================================
 // Local stubs — implement the PRD contract so tests are runnable today.
@@ -149,7 +149,7 @@ function defineTelemetry(config: TelemetryDefinition): TelemetryDefinition {
   return {
     endpoint: config.endpoint ?? 'http://localhost:4317',
     enabled: config.enabled ?? true,
-    serviceName: config.serviceName ?? 'squad',
+    serviceName: config.serviceName ?? 'crew',
     sampleRate: config.sampleRate ?? 1.0,
     ...config,
   };
@@ -206,21 +206,21 @@ function defineSkill(config: SkillDefinition): SkillDefinition {
 describe('defineTeam()', () => {
   it('returns a typed TeamDefinition for a valid config', () => {
     const input: TeamDefinition = {
-      name: 'Alpha Squad',
+      name: 'Alpha Crew',
       description: 'Frontend team',
       members: ['edie', 'hockney', 'fenster'],
     };
 
     const result = defineTeam(input);
     expect(result).toEqual(input);
-    expect(result.name).toBe('Alpha Squad');
+    expect(result.name).toBe('Alpha Crew');
     expect(result.members).toHaveLength(3);
     expect(result.description).toBe('Frontend team');
   });
 
   it('accepts config with projectContext', () => {
     const input: TeamDefinition = {
-      name: 'Backend Squad',
+      name: 'Backend Crew',
       projectContext: 'TypeScript monorepo, Node 20+, ESM-only',
       members: ['kujan'],
     };
@@ -237,7 +237,7 @@ describe('defineTeam()', () => {
 
   it('throws with actionable message when members array is empty', () => {
     expect(() =>
-      defineTeam({ name: 'Empty Squad', members: [] }),
+      defineTeam({ name: 'Empty Crew', members: [] }),
     ).toThrow(/at least one member/i);
   });
 
@@ -248,7 +248,7 @@ describe('defineTeam()', () => {
   });
 
   it('readonly contract — returned object has readonly members array', () => {
-    const result = defineTeam({ name: 'Squad', members: ['edie'] });
+    const result = defineTeam({ name: 'Crew', members: ['edie'] });
     // The type system enforces readonly; runtime check that shape is intact
     expect(Array.isArray(result.members)).toBe(true);
   });
@@ -510,7 +510,7 @@ describe('defineTelemetry()', () => {
     const input: TelemetryDefinition = {
       enabled: true,
       endpoint: 'http://otel-collector:4317',
-      serviceName: 'my-squad',
+      serviceName: 'my-crew',
       sampleRate: 0.5,
       aspireDefaults: true,
     };
@@ -518,7 +518,7 @@ describe('defineTelemetry()', () => {
     const result = defineTelemetry(input);
     expect(result.enabled).toBe(true);
     expect(result.endpoint).toBe('http://otel-collector:4317');
-    expect(result.serviceName).toBe('my-squad');
+    expect(result.serviceName).toBe('my-crew');
     expect(result.sampleRate).toBe(0.5);
     expect(result.aspireDefaults).toBe(true);
   });
@@ -530,7 +530,7 @@ describe('defineTelemetry()', () => {
 
   it('applies default serviceName when omitted', () => {
     const result = defineTelemetry({});
-    expect(result.serviceName).toBe('squad');
+    expect(result.serviceName).toBe('crew');
   });
 
   it('applies default sampleRate when omitted', () => {
@@ -550,12 +550,12 @@ describe('defineTelemetry()', () => {
 });
 
 // ============================================================================
-// SquadSDKConfig composition — the full config built from builders
+// CrewSDKConfig composition — the full config built from builders
 // ============================================================================
 
-describe('SquadSDKConfig composition', () => {
+describe('CrewSDKConfig composition', () => {
   it('composes a full config from all builder results', () => {
-    const config: SquadSDKConfig = {
+    const config: CrewSDKConfig = {
       version: '1.0.0',
       team: defineTeam({ name: 'Alpha', members: ['edie', 'hockney'] }),
       agents: [
@@ -588,7 +588,7 @@ describe('SquadSDKConfig composition', () => {
   });
 
   it('minimal config requires only team and agents', () => {
-    const config: SquadSDKConfig = {
+    const config: CrewSDKConfig = {
       team: defineTeam({ name: 'Tiny', members: ['solo'] }),
       agents: [defineAgent({ name: 'solo', role: 'Generalist' })],
     };
@@ -608,7 +608,7 @@ describe('defineSkill()', () => {
   it('accepts a valid skill with all fields', () => {
     const skill = defineSkill({
       name: 'git-workflow',
-      description: 'Squad branching model',
+      description: 'Crew branching model',
       domain: 'workflow',
       confidence: 'high',
       source: 'manual',
@@ -616,7 +616,7 @@ describe('defineSkill()', () => {
       tools: [{ name: 'gh', description: 'GitHub CLI', when: 'Creating PRs' }],
     });
     expect(skill.name).toBe('git-workflow');
-    expect(skill.description).toBe('Squad branching model');
+    expect(skill.description).toBe('Crew branching model');
     expect(skill.domain).toBe('workflow');
     expect(skill.confidence).toBe('high');
     expect(skill.source).toBe('manual');

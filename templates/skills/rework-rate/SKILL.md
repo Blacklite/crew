@@ -5,7 +5,7 @@ domain: "metrics, code-review, quality"
 confidence: "high"
 source: "manual"
 tools:
-  - name: "squad rework"
+  - name: "crew rework"
     description: "Analyze PR rework rate from merged PRs"
     when: "When measuring code quality, review efficiency, or team health metrics"
 ---
@@ -46,13 +46,13 @@ Sub-metrics:
 
 ```bash
 # Analyze last 30 days (default)
-npx github:bradygaster/squad rework
+npx github:Blacklite/crew rework
 
 # Custom period
-npx github:bradygaster/squad rework --days 7 --limit 50
+npx github:Blacklite/crew rework --days 7 --limit 50
 
 # Machine-readable output
-npx github:bradygaster/squad rework --json
+npx github:Blacklite/crew rework --json
 ```
 
 ### Improvement Strategies
@@ -70,7 +70,7 @@ When rework rate is high:
 // Ralph can use rework metrics in watch cycles:
 // "📊 Weekly Rework Rate: 12% (healthy) — 3/25 PRs had changes requested"
 
-// In squad ceremonies, rework trends inform retrospectives:
+// In crew ceremonies, rework trends inform retrospectives:
 // "Rework rate dropped from 28% to 14% after adopting smaller PR sizes"
 ```
 

@@ -1,4 +1,4 @@
-module github.com/squad/go-service
+module github.com/crew/go-service
 
 go 1.21
 

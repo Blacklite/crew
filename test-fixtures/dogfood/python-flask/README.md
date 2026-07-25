@@ -1,6 +1,6 @@
 # Flask API
 
-A simple Flask API for testing Squad dogfooding.
+A simple Flask API for testing Crew dogfooding.
 
 ## Setup
 ```bash

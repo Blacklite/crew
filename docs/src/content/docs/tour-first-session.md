@@ -1,29 +1,29 @@
 # First Session Walkthrough
 
-A step-by-step tour of your first time using Squad. Follow along in your terminal.
+A step-by-step tour of your first time using Crew. Follow along in your terminal.
 
 ---
 
-## 1. Install Squad
+## 1. Install Crew
 
 Start with a git repo (new or existing):
 
 ```bash
 mkdir my-app && cd my-app
 git init
-npm install -g @bradygaster/squad-cli
-squad init
+npm install -g @blacklite/crew-cli
+crew init
 ```
 
 You'll see:
 
 ```
-✅ Squad installed.
-   .github/agents/squad.agent.md — coordinator agent
+✅ Crew installed.
+   .github/agents/crew.agent.md — coordinator agent
    .github/workflows/            — 5 GitHub workflows (heartbeat, triage, CI, etc.)
-   .squad/templates/             — 11 template files
+   .crew/templates/             — 11 template files
 
-Open GitHub Copilot and select Squad from the agent list.
+Open GitHub Copilot and select Crew from the agent list.
 ```
 
 ---
@@ -36,7 +36,7 @@ Start the Copilot CLI:
 copilot
 ```
 
-Select **Squad** from the `/agent` list (CLI) or `/agents` (VS Code). Squad greets you by name (pulled from `git config user.name`):
+Select **Crew** from the `/agent` list (CLI) or `/agents` (VS Code). Crew greets you by name (pulled from `git config user.name`):
 
 ```
 Hey Brady, what are you building?
@@ -49,7 +49,7 @@ Describe your project:
 > post recipes, search by ingredient, and save favorites.
 ```
 
-Squad proposes a team. Names come from a fictional universe — the exact universe depends on your project shape and history. Here's what it might look like:
+Crew proposes a team. Names come from a fictional universe — the exact universe depends on your project shape and history. Here's what it might look like:
 
 ```
 Here's your team:
@@ -74,7 +74,7 @@ You can say "yes" or skip straight to a task (which is implicit confirmation):
 > Yes. Dallas, set up the Express server with basic routing.
 ```
 
-Squad creates the `.ai-team/` directory structure (team roster, routing rules, casting state, ceremony config, agent charters and histories — all seeded with your project context). Then it spawns Dallas.
+Crew creates the `.ai-team/` directory structure (team roster, routing rules, casting state, ceremony config, agent charters and histories — all seeded with your project context). Then it spawns Dallas.
 
 ```
 🔧 Dallas — setting up Express server with routing
@@ -93,7 +93,7 @@ Now give a bigger task to see parallel work:
 > that returns recipes and a React component that displays them.
 ```
 
-Squad decomposes the work and launches agents simultaneously:
+Crew decomposes the work and launches agents simultaneously:
 
 ```
 🏗️ Hicks   — reviewing requirements, defining API contract
@@ -176,7 +176,7 @@ Give a follow-up task:
 > recipes by ingredient name.
 ```
 
-Squad sees this involves multiple domains and fans out again:
+Crew sees this involves multiple domains and fans out again:
 
 ```
 🔧 Dallas  — adding search endpoint with ingredient filtering
@@ -220,7 +220,7 @@ You notice something you want to standardize:
 > Always use Zod for API input validation
 ```
 
-Squad captures this as a directive — no agent spawn needed:
+Crew captures this as a directive — no agent spawn needed:
 
 ```
 📌 Captured. All API input validation must use Zod.
@@ -230,16 +230,16 @@ This is written to `decisions.md` via the inbox. Every agent will see it in thei
 
 ---
 
-## 9. Export Your Squad
+## 9. Export Your Crew
 
 After a productive session, export your team for portability:
 
 ```bash
-squad export
+crew export
 ```
 
 ```
-✅ Exported to squad-export.json
+✅ Exported to crew-export.json
    5 agents, 3 skills, 6 decisions
 ```
 
@@ -247,9 +247,9 @@ This snapshot contains everything — charters, histories, casting state, skills
 
 ```bash
 cd ../other-project
-npm install -g @bradygaster/squad-cli
-squad init
-squad import ../my-app/squad-export.json
+npm install -g @blacklite/crew-cli
+crew init
+crew import ../my-app/crew-export.json
 ```
 
 ---

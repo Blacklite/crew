@@ -7,9 +7,9 @@
 ## Scope
 
 Tested the critical first 30 seconds of user experience:
-1. `squad --help` (discovery phase)
-2. `squad init` (setup phase) — *skipped, covered by issue #387*
-3. `squad` (first launch)
+1. `crew --help` (discovery phase)
+2. `crew init` (setup phase) — *skipped, covered by issue #387*
+3. `crew` (first launch)
 4. First message — *skipped, requires SDK, covered by issue #397*
 
 ## Issues Filed
@@ -23,21 +23,21 @@ Tested the critical first 30 seconds of user experience:
 - **Reproduction:** `node cli.js` (no args) → runs init ceremony, not shell
 
 **#424 — Help wall of text drowns impatient users**
-- **Problem:** `squad --help` returns 44 lines, 16 commands
+- **Problem:** `crew --help` returns 44 lines, 16 commands
 - **Impact:** User needs 2 commands (init, shell) but must scan through scrub-emails, aspire, plugin marketplace
 - **Evidence:** Measured 44 lines, 1331ms render time (Node.js startup floor)
 - **Fix:** Split into quick help (≤10 lines) and extended (`--all`)
 
 **#427 — Shell launch has 2-4 seconds of dead air**
-- **Problem:** Running `squad` (no args) produces 2-4 seconds of silence before welcome banner
+- **Problem:** Running `crew` (no args) produces 2-4 seconds of silence before welcome banner
 - **Impact:** "Is this working?" anxiety, bailout risk increases every second
 - **Evidence:** Reproduced with stopwatch, measured 2+ seconds to first visual output
-- **Fix:** Add `◆ Loading squad...` spinner before Ink render
+- **Fix:** Add `◆ Loading crew...` spinner before Ink render
 
 ### P2 Issues (2)
 
 **#429 — Version format inconsistent**
-- Root cli.js: `squad 0.6.0-alpha.0`
+- Root cli.js: `crew 0.6.0-alpha.0`
 - Proper entry: `0.8.5.1`
 - Blocked by #417 (stale bundle)
 
@@ -52,7 +52,7 @@ Tested the critical first 30 seconds of user experience:
 - ✅ Version command: bare number format (correct per CLI conventions)
 - ✅ Invalid command: friendly error with exit code 1
 - ✅ Empty/whitespace args: shows abbreviated help (defensive)
-- ✅ Status with no .squad: graceful "none" with hint
+- ✅ Status with no .crew: graceful "none" with hint
 - ✅ Unicode handling: piped emoji/CJK/Hebrew works correctly
 - ✅ Root vs proper entry point divergence: confirmed stale bundle
 
@@ -81,7 +81,7 @@ Created `test-fixtures/hostile-qa-first-30-seconds.ps1`:
 
 ## Decision Document
 
-Filed `.squad/decisions/inbox/waingro-first-30-seconds-ux.md`:
+Filed `.crew/decisions/inbox/waingro-first-30-seconds-ux.md`:
 - Proposes 3 UX standards for first 30 seconds
 - No stale entry points (single source of truth)
 - Help respects impatient users (≤10 lines default)
@@ -127,6 +127,6 @@ These were filed earlier (2025-07-25) and remain open:
 
 **The first 30 seconds have 3 P1 blockers that create bailout risk.**
 
-The proper entry point (`packages/squad-cli/dist/cli-entry.js`) works well. The root bundle is the problem. Fix the stale bundle, add loading feedback, and tier the help output to eliminate friction.
+The proper entry point (`packages/crew-cli/dist/cli-entry.js`) works well. The root bundle is the problem. Fix the stale bundle, add loading feedback, and tier the help output to eliminate friction.
 
 Edge case handling, error messages, and unicode support are all solid. The happy path works — it's the entry experience that needs polish.

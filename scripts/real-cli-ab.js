@@ -127,7 +127,7 @@ export function parseArgs(args) {
 
 export function buildPrompt({ repoPath, variant, productCli }) {
   const shared = [
-    'You are executing one bounded A/B measurement turn for the Squad memory governance experiment.',
+    'You are executing one bounded A/B measurement turn for the Crew memory governance experiment.',
     'Do not modify files. Do not commit. Do not install packages. Do not access private remotes.',
     `Repository under test: ${repoPath}`,
     'Keep the run short: execute only the requested shell commands and then summarize observations.',
@@ -140,7 +140,7 @@ export function buildPrompt({ repoPath, variant, productCli }) {
       'Run: git status --short',
       'Run: git rev-parse --show-toplevel',
       'Run: list the first 20 non-hidden top-level files/directories using the platform shell.',
-      'Do not run `squad memory` or `node cli.js memory` commands in this baseline turn.',
+      'Do not run `crew memory` or `node cli.js memory` commands in this baseline turn.',
       'Summarize whether any memory diagnostics appeared naturally.',
     ].join('\n');
   }
@@ -242,7 +242,7 @@ export function collectDiagnostics(run, stdoutText, stderrText) {
 
   const combinedText = removePromptOnlyJsonl(`${stdoutText}\n${stderrText}`);
   const memoryCommandMentions = [
-    /squad\s+memory/i,
+    /crew\s+memory/i,
     /node\s+["']?[^"'\r\n]*cli\.js["']?\s+memory/i,
     /memory\s+(provider|classify|write|search|audit)/i,
   ].filter(pattern => pattern.test(combinedText)).length;
@@ -320,7 +320,7 @@ export async function runOne(run, options, executor = runProcess) {
     '--output-format', 'json',
     '--log-level', 'debug',
     '--log-dir', run.logDir,
-    '--name', `squad-memory-ab-${run.repoSlug}-${run.variant}`,
+    '--name', `crew-memory-ab-${run.repoSlug}-${run.variant}`,
   ];
   if (options.model) args.push('--model', options.model);
 
@@ -430,7 +430,7 @@ function printHelp() {
     '  --out-dir <path>       Artifact directory',
     '  --variants <csv>       Variants to run (default: baseline,memory-governance)',
     '  --copilot-bin <path>   Copilot CLI executable (default: copilot)',
-    '  --product-cli <path>   Built Squad CLI entry point (default: ./cli.js)',
+    '  --product-cli <path>   Built Crew CLI entry point (default: ./cli.js)',
     '  --timeout-ms <n>       Per-turn timeout (default: 600000)',
     '  --model <name>         Optional Copilot model override',
     '  --dry-run              Write the plan/artifact skeleton without invoking Copilot',

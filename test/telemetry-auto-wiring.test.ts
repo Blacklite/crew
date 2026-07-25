@@ -1,51 +1,51 @@
 /**
  * Telemetry Auto-Wiring Tests (Issue #281)
  *
- * Validates that initSquadTelemetry() auto-creates EventBus and CostTracker,
- * wires them together, and that SquadClient forwards usage events correctly.
+ * Validates that initCrewTelemetry() auto-creates EventBus and CostTracker,
+ * wires them together, and that CrewClient forwards usage events correctly.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 
-import { initSquadTelemetry } from '@bradygaster/squad-sdk/runtime/otel-init';
-import type { SquadTelemetryHandle } from '@bradygaster/squad-sdk/runtime/otel-init';
-import { EventBus } from '@bradygaster/squad-sdk/runtime/event-bus';
-import { CostTracker } from '@bradygaster/squad-sdk/runtime/cost-tracker';
-import { estimateCost } from '@bradygaster/squad-sdk/config/models';
-import { MODEL_CATALOG } from '@bradygaster/squad-sdk/config/models';
-import type { ModelPricing } from '@bradygaster/squad-sdk/config/models';
+import { initCrewTelemetry } from '@blacklite/crew-sdk/runtime/otel-init';
+import type { CrewTelemetryHandle } from '@blacklite/crew-sdk/runtime/otel-init';
+import { EventBus } from '@blacklite/crew-sdk/runtime/event-bus';
+import { CostTracker } from '@blacklite/crew-sdk/runtime/cost-tracker';
+import { estimateCost } from '@blacklite/crew-sdk/config/models';
+import { MODEL_CATALOG } from '@blacklite/crew-sdk/config/models';
+import type { ModelPricing } from '@blacklite/crew-sdk/config/models';
 
 // ============================================================================
-// initSquadTelemetry — auto-wiring
+// initCrewTelemetry — auto-wiring
 // ============================================================================
 
-describe('initSquadTelemetry — auto-wiring', () => {
-  let handle: SquadTelemetryHandle;
+describe('initCrewTelemetry — auto-wiring', () => {
+  let handle: CrewTelemetryHandle;
 
   afterEach(async () => {
     // Reset handle without calling shutdown() to avoid OTel flush timeouts in tests.
     // The CostTracker and EventBus are garbage-collected.
-    handle = undefined as unknown as SquadTelemetryHandle;
+    handle = undefined as unknown as CrewTelemetryHandle;
   });
 
   it('auto-creates an EventBus when none is provided', () => {
-    handle = initSquadTelemetry();
+    handle = initCrewTelemetry();
     expect(handle.eventBus).toBeInstanceOf(EventBus);
   });
 
   it('uses a user-provided EventBus when one is supplied', () => {
     const myBus = new EventBus();
-    handle = initSquadTelemetry({ eventBus: myBus });
+    handle = initCrewTelemetry({ eventBus: myBus });
     expect(handle.eventBus).toBe(myBus);
   });
 
   it('auto-creates a CostTracker on the handle', () => {
-    handle = initSquadTelemetry();
+    handle = initCrewTelemetry();
     expect(handle.costTracker).toBeInstanceOf(CostTracker);
   });
 
   it('CostTracker is wired to the EventBus — usage events flow through', async () => {
-    handle = initSquadTelemetry();
+    handle = initCrewTelemetry();
 
     // Emit a session:message event with usage payload through the EventBus
     await handle.eventBus.emit({
@@ -70,7 +70,7 @@ describe('initSquadTelemetry — auto-wiring', () => {
   });
 
   it('formatSummary() returns readable output after events', async () => {
-    handle = initSquadTelemetry();
+    handle = initCrewTelemetry();
 
     await handle.eventBus.emit({
       type: 'session:message',
@@ -86,13 +86,13 @@ describe('initSquadTelemetry — auto-wiring', () => {
     });
 
     const formatted = handle.costTracker.formatSummary();
-    expect(formatted).toContain('Squad Cost Summary');
+    expect(formatted).toContain('Crew Cost Summary');
     expect(formatted).toContain('FIDO');
     expect(formatted).toContain('1,000');
   });
 
   it('multiple usage events accumulate correctly', async () => {
-    handle = initSquadTelemetry();
+    handle = initCrewTelemetry();
 
     for (let i = 0; i < 5; i++) {
       await handle.eventBus.emit({
@@ -116,7 +116,7 @@ describe('initSquadTelemetry — auto-wiring', () => {
   });
 
   it('shutdown() disconnects CostTracker from EventBus', async () => {
-    handle = initSquadTelemetry();
+    handle = initCrewTelemetry();
 
     // Manually unwire CostTracker by calling shutdown — only tests the unwire
     // path, not the OTel flush (tested separately in otel tests).
@@ -144,7 +144,7 @@ describe('initSquadTelemetry — auto-wiring', () => {
   });
 
   it('exposes tracing and metrics status booleans', () => {
-    handle = initSquadTelemetry();
+    handle = initCrewTelemetry();
     expect(typeof handle.tracing).toBe('boolean');
     expect(typeof handle.metrics).toBe('boolean');
   });

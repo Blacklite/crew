@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { compileCharter, type CharterCompileOptions } from '@bradygaster/squad-sdk/agents';
-import { resolveModel, type ModelResolutionOptions } from '@bradygaster/squad-sdk/agents';
-import { ConfigurationError } from '@bradygaster/squad-sdk/adapter/errors';
+import { compileCharter, type CharterCompileOptions } from '@blacklite/crew-sdk/agents';
+import { resolveModel, type ModelResolutionOptions } from '@blacklite/crew-sdk/agents';
+import { ConfigurationError } from '@blacklite/crew-sdk/adapter/errors';
 
 describe('Charter Compilation (M1-8)', () => {
   describe('compileCharter', () => {

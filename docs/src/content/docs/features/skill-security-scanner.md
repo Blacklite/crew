@@ -5,9 +5,9 @@ description: Markdown-aware security scanner that catches embedded credentials, 
 
 # Skill Security Scanner
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-The skill security scanner is a markdown-aware safety check that runs as part of `scripts/security-review.mjs` to inspect every SKILL.md file in `.copilot/skills/` and `.squad/skills/`. It catches three classes of problem before a skill gets installed or merged:
+The skill security scanner is a markdown-aware safety check that runs as part of `scripts/security-review.mjs` to inspect every SKILL.md file in `.copilot/skills/` and `.crew/skills/`. It catches three classes of problem before a skill gets installed or merged:
 
 1. **Embedded credentials** — API keys, tokens, passwords pasted into skill text
 2. **Download-and-execute patterns** — `curl ... | bash`, `Invoke-Expression`, and friends
@@ -21,9 +21,9 @@ It ships as Phase 1 — focused on the highest-signal issues with **zero false p
 
 The scanner is invoked by the existing security-review pipeline (`scripts/security-review.mjs`), which is triggered:
 
-- On every PR that touches `.copilot/skills/**` or `.squad/skills/**` (via the Security Review CI workflow)
+- On every PR that touches `.copilot/skills/**` or `.crew/skills/**` (via the Security Review CI workflow)
 - Manually: `node scripts/security-review.mjs --scope skills`
-- As part of [Plugin Marketplace](/squad/docs/features/plugins/) install (skills from external sources get scanned before landing on disk)
+- As part of [Plugin Marketplace](/crew/docs/features/plugins/) install (skills from external sources get scanned before landing on disk)
 
 A finding produces a CI failure with the file path, line number, pattern type, and the matched substring (redacted for credentials).
 
@@ -105,7 +105,7 @@ This is **Phase 1**. The scanner is deliberately conservative — it would rathe
 - **Multi-line patterns** — the scanner is line-oriented; a credential split across lines won't match
 - **Skill scripts (`.js`/`.mjs` files in `scripts/`)** — only the SKILL.md narrative is scanned; executable handlers need their own audit
 - **Semantic context** — the scanner doesn't understand whether a `sudo` example is contextually safe; if it's in prose without a placeholder marker, it flags
-- **Hooks beyond `.copilot/skills/` and `.squad/skills/`** — other markdown files (charters, decisions, README) aren't scanned by this rule
+- **Hooks beyond `.copilot/skills/` and `.crew/skills/`** — other markdown files (charters, decisions, README) aren't scanned by this rule
 
 Phase 2 work tracked in the issue tracker would extend coverage to scripts and add an LLM-based semantic pass.
 
@@ -113,6 +113,6 @@ Phase 2 work tracked in the issue tracker would extend coverage to scripts and a
 
 ## See also
 
-- [Skills](/squad/docs/features/skills/) — the broader skills system
-- [Plugin Marketplace](/squad/docs/features/plugins/) — how external skills get installed
-- [Secret Handling](/squad/docs/features/skills/) — see also the `secret-handling` built-in skill
+- [Skills](/crew/docs/features/skills/) — the broader skills system
+- [Plugin Marketplace](/crew/docs/features/plugins/) — how external skills get installed
+- [Secret Handling](/crew/docs/features/skills/) — see also the `secret-handling` built-in skill

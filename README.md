@@ -1,25 +1,25 @@
-# Squad
+# Crew
 
 [English](README.md) | [中文](README.zh.md)
 
 **Human-led AI agent teams for any project.** One command. A team that helps you move faster with your code.
 
 [![Status](https://img.shields.io/badge/status-alpha-blueviolet)](#status)
-[![Platform](https://img.shields.io/badge/platform-GitHub%20Copilot-blue)](#what-is-squad)
+[![Platform](https://img.shields.io/badge/platform-GitHub%20Copilot-blue)](#what-is-crew)
 
-> ⚠️ **Alpha Software** — Squad is experimental. APIs and CLI commands may change between releases. We'll document breaking changes in [CHANGELOG.md](CHANGELOG.md).
+> ⚠️ **Alpha Software** — Crew is experimental. APIs and CLI commands may change between releases. We'll document breaking changes in [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
-## What is Squad?
+## What is Crew?
 
-Squad gives you a human-directed AI development team through GitHub Copilot. Describe what you're building. Get a team of specialists — frontend, backend, tester, lead — that live in your repo as files. They persist across sessions, learn your codebase, share decisions, and help you move faster without giving up oversight.
+Crew gives you a human-directed AI development team through GitHub Copilot. Describe what you're building. Get a team of specialists — frontend, backend, tester, lead — that live in your repo as files. They persist across sessions, learn your codebase, share decisions, and help you move faster without giving up oversight.
 
-Squad is a productivity tool for humans, not a replacement for engineers, reviewers, or decision-makers. People stay accountable for priorities, approvals, and final changes; Squad helps with coordination, repetition, and parallel execution.
+Crew is a productivity tool for humans, not a replacement for engineers, reviewers, or decision-makers. People stay accountable for priorities, approvals, and final changes; Crew helps with coordination, repetition, and parallel execution.
 
 It's not a chatbot wearing hats. Each team member runs in its own context, reads only its own knowledge, and writes back what it learned so the work stays inspectable.
 
-> **Responsible AI stance** — Squad is built to amplify a human operator with GitHub Copilot, not to remove humans from the loop. Use it to delegate faster, review better, and keep governance close to the code.
+> **Responsible AI stance** — Crew is built to amplify a human operator with GitHub Copilot, not to remove humans from the loop. Use it to delegate faster, review better, and keep governance close to the code.
 
 ---
 
@@ -34,16 +34,16 @@ git init
 
 **✓ Validate:** Run `git status` — you should see "No commits yet".
 
-### 2. Install Squad
+### 2. Install Crew
 
 ```bash
-npm install -g @bradygaster/squad-cli
-squad init
+npm install -g @blacklite/crew-cli
+crew init
 ```
 
-> **⚡ Want to be up and running in under a second?** Use `squad init --preset default` to start with a fully-configured squad — complete with members, charters, and routing rules — ready to go immediately. The default `squad init` (without the flag) walks you through setup step by step, ideal if you prefer to build and customize your squad deliberately.
+> **⚡ Want to be up and running in under a second?** Use `crew init --preset default` to start with a fully-configured crew — complete with members, charters, and routing rules — ready to go immediately. The default `crew init` (without the flag) walks you through setup step by step, ideal if you prefer to build and customize your crew deliberately.
 
-**✓ Validate:** Check that `.squad/team.md` was created in your project.
+**✓ Validate:** Check that `.crew/team.md` was created in your project.
 
 ### 3. Authenticate with GitHub (for Issues, PRs, and Ralph)
 
@@ -56,12 +56,12 @@ gh auth login
 ### 4. Open Copilot and go
 
 ```
-copilot --agent squad --yolo
+copilot --agent crew --yolo
 ```
 
-> **Why `--yolo`?** Squad makes many tool calls in a typical session. Without it, Copilot will prompt you to approve each one.
+> **Why `--yolo`?** Crew makes many tool calls in a typical session. Without it, Copilot will prompt you to approve each one.
 
-**In VS Code**, open Copilot Chat and select the **Squad** agent.
+**In VS Code**, open Copilot Chat and select the **Crew** agent.
 
 Then:
 
@@ -70,33 +70,33 @@ I'm starting a new project. Set up the team.
 Here's what I'm building: a recipe sharing app with React and Node.
 ```
 
-**✓ Validate:** Squad responds with team member proposals. Type `yes` to confirm — they're ready to work.
+**✓ Validate:** Crew responds with team member proposals. Type `yes` to confirm — they're ready to work.
 
-Squad proposes a team — each member named from a persistent thematic cast. You say **yes**. They're ready.
+Crew proposes a team — each member named from a persistent thematic cast. You say **yes**. They're ready.
 
 ---
 
 ## .NET package preview
 
-Building a .NET app that should call a Squad team as a Microsoft Agent Framework agent? `Squad.Agents.AI` is a preview NuGet package under [`src/Squad.Agents.AI`](src/Squad.Agents.AI/README.md). It registers a Squad-backed `AIAgent` in DI and targets early `0.1.0-preview` consumers.
+Building a .NET app that should call a Crew team as a Microsoft Agent Framework agent? `Crew.Agents.AI` is a preview NuGet package under [`src/Crew.Agents.AI`](src/Crew.Agents.AI/README.md). It registers a Crew-backed `AIAgent` in DI and targets early `0.1.0-preview` consumers.
 
 ## Upgrading
 
-Upgrading Squad is a two-step process.
+Upgrading Crew is a two-step process.
 
 **Step 1: Update the CLI binary**
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest
+npm install -g @blacklite/crew-cli@latest
 ```
 
-**Step 2: Update Squad-owned files in your project**
+**Step 2: Update Crew-owned files in your project**
 
 ```bash
-squad upgrade
+crew upgrade
 ```
 
-`squad upgrade` updates `squad.agent.md`, templates, and GitHub workflows to the latest versions. It never touches your `.squad/` team state — your agents, decisions, and history are always preserved.
+`crew upgrade` updates `crew.agent.md`, templates, and GitHub workflows to the latest versions. It never touches your `.crew/` team state — your agents, decisions, and history are always preserved.
 
 Use `--force` to re-apply updates even when your installed version already matches the latest.
 
@@ -104,12 +104,12 @@ Use `--force` to re-apply updates even when your installed version already match
 
 ## Local Development Installation
 
-To install and run Squad from source for development:
+To install and run Crew from source for development:
 
 ```bash
 # Clone the repository
-git clone https://github.com/bradygaster/squad.git
-cd squad
+git clone https://github.com/Blacklite/crew.git
+cd crew
 
 # Install dependencies (npm workspaces)
 npm install
@@ -118,19 +118,19 @@ npm install
 npm run build
 
 # Run the CLI directly
-node ./packages/squad-cli/dist/cli-entry.js init
+node ./packages/crew-cli/dist/cli-entry.js init
 
 # Or link it globally for convenience
 npm run dev:link
 ```
 
-After `npm run dev:link`, the `squad` command will be available globally and will use your local build. To update after code changes, re-run `npm run build` to recompile.
+After `npm run dev:link`, the `crew` command will be available globally and will use your local build. To update after code changes, re-run `npm run build` to recompile.
 
 ---
 
 ## Quick Commands
 
-Say **"squad commands"** in chat to see a categorized menu of common operations — install & upgrade, team management, issues & PRs, plugins, model settings, and session state. You can also ask naturally: *"how do I switch state backends?"* or *"how do I add a team member?"* — Squad matches your intent and walks you through it. The `squad-commands` skill ships out of the box with every `squad init` and `squad upgrade`.
+Say **"crew commands"** in chat to see a categorized menu of common operations — install & upgrade, team management, issues & PRs, plugins, model settings, and session state. You can also ask naturally: *"how do I switch state backends?"* or *"how do I add a team member?"* — Crew matches your intent and walks you through it. The `crew-commands` skill ships out of the box with every `crew init` and `crew upgrade`.
 
 ---
 
@@ -138,25 +138,25 @@ Say **"squad commands"** in chat to see a categorized menu of common operations 
 
 | Command | What it does |
 |---------|-------------|
-| `squad init` | **Init** — scaffold Squad in the current directory (idempotent — safe to run multiple times); alias: `cast`; use `--global` to init in personal squad directory, `--mode remote <path>` for dual-root mode |
-| `squad upgrade` | Update Squad-owned files to latest; never touches your team state; use `--global` to upgrade personal squad, `--migrate-directory` to rename `.ai-team/` → `.squad/` |
-| `squad upgrade --self` | Update the Squad CLI package itself; add `--insider` for dev-channel prerelease builds |
-| `squad update-check` | Report cached CLI update status for tooling/CI; use `--json` for structured output, `--refresh` to bypass the cache |
-| `squad status` | Show which squad is active and why |
-| `squad triage` | **Watch mode** — poll for issues and auto-triage to team (aliases: `watch`, `loop`); use `--interval <minutes>` to set polling frequency (default: 10); with `--execute` dispatch Copilot agents; use `--agent-cmd`, `--copilot-flags`, `--auth-user` to customize agent execution; `--health` shows watch status; `--log-file` for diagnostics |
-| `squad copilot` | Add/remove the Copilot coding agent (@copilot); use `--off` to remove, `--auto-assign` to enable auto-assignment |
-| `squad doctor` | Check your setup and diagnose issues (alias: `heartbeat`) |
-| `squad link <team-repo-path>` | Connect to a remote team |
-| `squad externalize` | Move `.squad/` state outside the working tree; survives branch switches; use `--key <name>` for custom project key |
-| `squad internalize` | Move externalized state back into `.squad/` |
-| `squad shell` | **Deprecated** — Launch interactive shell explicitly. Use `copilot --agent squad` instead. |
-| `squad export` | Export squad to a portable JSON snapshot |
-| `squad import <file>` | Import squad from an export file |
-| `squad plugin marketplace add\|remove\|list\|browse` | Manage plugin marketplaces |
-| `squad upstream add\|remove\|list\|sync` | Manage upstream Squad sources |
-| `squad nap` | Context hygiene — compress, prune, archive; use `--deep` for aggressive compression, `--dry-run` to preview changes |
-| `squad aspire` | Open Aspire dashboard for observability |
-| `squad scrub-emails [directory]` | Remove email addresses from Squad state files (default: `.squad/`) |
+| `crew init` | **Init** — scaffold Crew in the current directory (idempotent — safe to run multiple times); alias: `cast`; use `--global` to init in personal crew directory, `--mode remote <path>` for dual-root mode |
+| `crew upgrade` | Update Crew-owned files to latest; never touches your team state; use `--global` to upgrade personal crew, `--migrate-directory` to rename `.ai-team/` → `.crew/` |
+| `crew upgrade --self` | Update the Crew CLI package itself; add `--insider` for dev-channel prerelease builds |
+| `crew update-check` | Report cached CLI update status for tooling/CI; use `--json` for structured output, `--refresh` to bypass the cache |
+| `crew status` | Show which crew is active and why |
+| `crew triage` | **Watch mode** — poll for issues and auto-triage to team (aliases: `watch`, `loop`); use `--interval <minutes>` to set polling frequency (default: 10); with `--execute` dispatch Copilot agents; use `--agent-cmd`, `--copilot-flags`, `--auth-user` to customize agent execution; `--health` shows watch status; `--log-file` for diagnostics |
+| `crew copilot` | Add/remove the Copilot coding agent (@copilot); use `--off` to remove, `--auto-assign` to enable auto-assignment |
+| `crew doctor` | Check your setup and diagnose issues (alias: `heartbeat`) |
+| `crew link <team-repo-path>` | Connect to a remote team |
+| `crew externalize` | Move `.crew/` state outside the working tree; survives branch switches; use `--key <name>` for custom project key |
+| `crew internalize` | Move externalized state back into `.crew/` |
+| `crew shell` | **Deprecated** — Launch interactive shell explicitly. Use `copilot --agent crew` instead. |
+| `crew export` | Export crew to a portable JSON snapshot |
+| `crew import <file>` | Import crew from an export file |
+| `crew plugin marketplace add\|remove\|list\|browse` | Manage plugin marketplaces |
+| `crew upstream add\|remove\|list\|sync` | Manage upstream Crew sources |
+| `crew nap` | Context hygiene — compress, prune, archive; use `--deep` for aggressive compression, `--dry-run` to preview changes |
+| `crew aspire` | Open Aspire dashboard for observability |
+| `crew scrub-emails [directory]` | Remove email addresses from Crew state files (default: `.crew/`) |
 
 ---
 
@@ -168,22 +168,22 @@ Ralph continuously polls for work and dispatches agents to handle it. Watch mode
 
 ```bash
 # Monitor for issues (triage mode — no execution)
-npx @bradygaster/squad-cli watch
+npx @blacklite/crew-cli watch
 
 # Monitor and auto-execute against actionable issues
-npx @bradygaster/squad-cli watch --execute --interval 5
+npx @blacklite/crew-cli watch --execute --interval 5
 
 # With custom agent runner and copilot flags
-npx @bradygaster/squad-cli watch --execute \
+npx @blacklite/crew-cli watch --execute \
   --agent-cmd "agency copilot" \
-  --copilot-flags "--yolo --autopilot --mcp mail --agent squad" \
+  --copilot-flags "--yolo --autopilot --mcp mail --agent crew" \
   --auth-user myaccount
 
 # Run watch with diagnostics
-npx @bradygaster/squad-cli watch --execute --log-file ./watch.log --verbose
+npx @blacklite/crew-cli watch --execute --log-file ./watch.log --verbose
 
 # Check health of running watch process
-npx @bradygaster/squad-cli watch --health
+npx @blacklite/crew-cli watch --health
 ```
 
 ### Key Flags
@@ -208,7 +208,7 @@ npx @bradygaster/squad-cli watch --health
 Ralph uses an **agent-delegated selection pattern**:
 
 1. Ralph scans for triage-eligible issues (unassigned, labeled, etc.)
-2. Ralph builds a context snapshot: issue list, squad state, recent decisions
+2. Ralph builds a context snapshot: issue list, crew state, recent decisions
 3. Ralph writes this context to a **temp file** using the `-p <path>` flag
 4. Ralph invokes the agent with that file: `gh copilot -p context.md`
 5. The agent **decides which issue to work on** and **how**
@@ -259,13 +259,13 @@ Watch can persist its state in different ways:
 
 ```bash
 # Default: in-memory (loses state on restart)
-squad watch --execute
+crew watch --execute
 
 # Persist to git-notes (survives restarts, no new branches)
-squad watch --execute --state-backend git-notes
+crew watch --execute --state-backend git-notes
 
 # Persist to orphan branch (isolated history, easy to prune)
-squad watch --execute --state-backend orphan-branch
+crew watch --execute --state-backend orphan-branch
 ```
 
 ### Graceful Shutdown
@@ -274,7 +274,7 @@ To stop a running watch process gracefully:
 
 ```bash
 # Create sentinel file
-touch .squad/ralph-stop
+touch .crew/ralph-stop
 
 # Watch will finish current round and exit cleanly
 # Logs final state, cleans scratch dirs
@@ -292,7 +292,7 @@ Watch automatically prunes stale artifacts:
 Check on a running watch:
 
 ```bash
-squad watch --health
+crew watch --health
 ```
 
 Output example:
@@ -314,26 +314,26 @@ Round: 42 / 1200
 
 ## Interactive Shell
 
-> ⚠️ **Deprecated:** The interactive shell (`squad` with no arguments) has been deprecated. For the best Squad experience, use the [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli) instead.
+> ⚠️ **Deprecated:** The interactive shell (`crew` with no arguments) has been deprecated. For the best Crew experience, use the [GitHub Copilot CLI](https://docs.github.com/en/copilot/github-copilot-in-the-cli) instead.
 >
 > ```bash
-> copilot --agent squad
+> copilot --agent crew
 > ```
 >
 > See [Choose your interface](docs/src/content/docs/get-started/choose-your-interface.md) for current options.
 
-Tired of typing `squad` followed by a command every time? Enter the interactive shell.
+Tired of typing `crew` followed by a command every time? Enter the interactive shell.
 
 ### Entering the Shell
 
 ```bash
-squad
+crew
 ```
 
-No arguments. Just `squad`. You'll get a prompt:
+No arguments. Just `crew`. You'll get a prompt:
 
 ```
-squad >
+crew >
 ```
 
 You're now connected to your team. Talk to them.
@@ -359,9 +359,9 @@ All shell commands start with `/`:
 Use `@AgentName` (case-insensitive) or natural language with a comma:
 
 ```
-squad > @Keaton, analyze the architecture of this project
-squad > McManus, write a blog post about our new feature
-squad > Build the login page
+crew > @Keaton, analyze the architecture of this project
+crew > McManus, write a blog post about our new feature
+crew > Build the login page
 ```
 
 The coordinator routes messages to the right agents. Multiple agents can work in parallel—you'll see progress in real-time.
@@ -372,7 +372,7 @@ The coordinator routes messages to the right agents. Multiple agents can work in
 - **Message routing:** Describe what you need; the coordinator figures out who should do it
 - **Parallel execution:** Multiple agents work simultaneously on independent tasks
 - **Session persistence:** If an agent crashes, it resumes from checkpoint; you never lose context
-- **Decision logging:** Every decision is recorded in `.squad/decisions.md` for the whole team to see
+- **Decision logging:** Every decision is recorded in `.crew/decisions.md` for the whole team to see
 
 For more details on shell usage, see the commands table above.
 
@@ -384,7 +384,7 @@ Eight working examples from beginner to advanced — casting, governance, stream
 
 ## Agents Work in Parallel — You Stay in Control
 
-Squad helps one human coordinate more work at once. When you give a task, the coordinator launches every agent that can usefully start — simultaneously — while you keep priorities, review, and final decisions.
+Crew helps one human coordinate more work at once. When you give a task, the coordinator launches every agent that can usefully start — simultaneously — while you keep priorities, review, and final decisions.
 
 ```
 You: "Team, build the login page"
@@ -411,7 +411,7 @@ When agents finish, the coordinator records follow-up work and leaves a breadcru
 ## What Gets Created
 
 ```
-.squad/
+.crew/
 ├── team.md              # Roster — who's on the team
 ├── routing.md           # Routing — who handles what
 ├── decisions.md         # Shared brain — team decisions
@@ -439,14 +439,14 @@ When agents finish, the coordinator records follow-up work and leaves a breadcru
 
 > ⚠️ **Experimental.** SDK-first mode is under active development and has known bugs. Use markdown-first (the default) for production teams.
 
-Prefer TypeScript? You can define your team in code instead of markdown. Create a `squad.config.ts` with builder functions, run `squad build`, and the `.squad/` files are generated automatically.
+Prefer TypeScript? You can define your team in code instead of markdown. Create a `crew.config.ts` with builder functions, run `crew build`, and the `.crew/` files are generated automatically.
 
 ```typescript
-// squad.config.ts
-import { defineSquad, defineTeam, defineAgent } from '@bradygaster/squad-sdk';
+// crew.config.ts
+import { defineCrew, defineTeam, defineAgent } from '@blacklite/crew-sdk';
 
-export default defineSquad({
-  team: defineTeam({ name: 'Platform Squad', members: ['@edie', '@mcmanus'] }),
+export default defineCrew({
+  team: defineTeam({ name: 'Platform Crew', members: ['@edie', '@mcmanus'] }),
   agents: [
     defineAgent({ name: 'edie', role: 'TypeScript Engineer', model: 'claude-sonnet-4' }),
     defineAgent({ name: 'mcmanus', role: 'DevRel', model: 'claude-haiku-4.5' }),
@@ -454,15 +454,15 @@ export default defineSquad({
 });
 ```
 
-Run `squad build` to generate all the markdown. See the [SDK-First Mode Guide](docs/src/content/docs/sdk-first-mode.md) for full documentation.
+Run `crew build` to generate all the markdown. See the [SDK-First Mode Guide](docs/src/content/docs/sdk-first-mode.md) for full documentation.
 
 ---
 
 ## Monorepo Development
 
-Squad is a monorepo with two packages:
-- **`@bradygaster/squad-sdk`** — Core runtime and library for programmable agent orchestration
-- **`@bradygaster/squad-cli`** — Command-line interface that depends on the SDK
+Crew is a monorepo with two packages:
+- **`@blacklite/crew-sdk`** — Core runtime and library for programmable agent orchestration
+- **`@blacklite/crew-cli`** — Command-line interface that depends on the SDK
 
 ### Building
 
@@ -499,7 +499,7 @@ npm run lint
 
 ### Publishing
 
-Squad uses [changesets](https://github.com/changesets/changesets) for independent versioning across packages:
+Crew uses [changesets](https://github.com/changesets/changesets) for independent versioning across packages:
 
 ```bash
 # Add a changeset
@@ -522,7 +522,7 @@ The SDK provides programmatic control over agent orchestration — custom tools,
 - [Extensibility guide](docs/src/content/docs/guide/extensibility.md)
 - [Samples](samples/README.md) — eight working examples from beginner to advanced
 
-For SDK installation: `npm install @bradygaster/squad-sdk`
+For SDK installation: `npm install @blacklite/crew-sdk`
 
 ---
 
@@ -546,7 +546,7 @@ See [CODEOWNERS](.github/CODEOWNERS) for the full list.
 
 ## Support
 
-For help or questions about using Squad, please use [GitHub Discussions](https://github.com/github/squad/discussions). See [SUPPORT.md](./SUPPORT.md) for details.
+For help or questions about using Crew, please use [GitHub Discussions](https://github.com/github/crew/discussions). See [SUPPORT.md](./SUPPORT.md) for details.
 
 ## Contributing
 

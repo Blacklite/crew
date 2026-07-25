@@ -6,7 +6,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
-  SquadError,
+  CrewError,
   SDKConnectionError,
   SessionLifecycleError,
   ToolExecutionError,
@@ -21,9 +21,9 @@ import {
   ErrorCategory,
   TelemetryCollector,
   type ErrorContext,
-} from '@bradygaster/squad-sdk/adapter/errors';
+} from '@blacklite/crew-sdk/adapter/errors';
 
-describe('SquadError — Base Error', () => {
+describe('CrewError — Base Error', () => {
   it('should construct with all required fields', () => {
     const context: ErrorContext = {
       sessionId: 'session-1',
@@ -32,7 +32,7 @@ describe('SquadError — Base Error', () => {
       timestamp: new Date(),
     };
 
-    const error = new SquadError(
+    const error = new CrewError(
       'Test error',
       ErrorSeverity.ERROR,
       ErrorCategory.RUNTIME,
@@ -54,7 +54,7 @@ describe('SquadError — Base Error', () => {
       timestamp: new Date(),
     };
 
-    const error = new SquadError(
+    const error = new CrewError(
       'Wrapped error',
       ErrorSeverity.ERROR,
       ErrorCategory.UNKNOWN,
@@ -74,7 +74,7 @@ describe('SquadError — Base Error', () => {
       timestamp: new Date(),
     };
 
-    const error = new SquadError(
+    const error = new CrewError(
       'Test error',
       ErrorSeverity.ERROR,
       ErrorCategory.RUNTIME,
@@ -84,7 +84,7 @@ describe('SquadError — Base Error', () => {
 
     const json = error.toJSON();
 
-    expect(json.name).toBe('SquadError');
+    expect(json.name).toBe('CrewError');
     expect(json.message).toBe('Test error');
     expect(json.severity).toBe(ErrorSeverity.ERROR);
     expect(json.category).toBe(ErrorCategory.RUNTIME);
@@ -93,7 +93,7 @@ describe('SquadError — Base Error', () => {
   });
 
   it('should generate user-friendly message without context', () => {
-    const error = new SquadError(
+    const error = new CrewError(
       'Test error',
       ErrorSeverity.ERROR,
       ErrorCategory.RUNTIME,
@@ -105,7 +105,7 @@ describe('SquadError — Base Error', () => {
   });
 
   it('should generate user-friendly message with session context', () => {
-    const error = new SquadError(
+    const error = new CrewError(
       'Test error',
       ErrorSeverity.ERROR,
       ErrorCategory.RUNTIME,
@@ -118,7 +118,7 @@ describe('SquadError — Base Error', () => {
   });
 
   it('should generate user-friendly message with agent context', () => {
-    const error = new SquadError(
+    const error = new CrewError(
       'Test error',
       ErrorSeverity.ERROR,
       ErrorCategory.RUNTIME,
@@ -130,7 +130,7 @@ describe('SquadError — Base Error', () => {
   });
 
   it('should include recovery hint for recoverable errors', () => {
-    const error = new SquadError(
+    const error = new CrewError(
       'Test error',
       ErrorSeverity.ERROR,
       ErrorCategory.RUNTIME,
@@ -147,7 +147,7 @@ describe('Specific Error Types', () => {
   it('should create SDKConnectionError', () => {
     const error = new SDKConnectionError('Connection failed', { timestamp: new Date() });
 
-    expect(error).toBeInstanceOf(SquadError);
+    expect(error).toBeInstanceOf(CrewError);
     expect(error.name).toBe('SDKConnectionError');
     expect(error.severity).toBe(ErrorSeverity.ERROR);
     expect(error.category).toBe(ErrorCategory.SDK_CONNECTION);
@@ -327,25 +327,25 @@ describe('ErrorFactory', () => {
     expect(error.context.toolName).toBe('bash');
   });
 
-  it('should default to generic SquadError for unknown errors', () => {
+  it('should default to generic CrewError for unknown errors', () => {
     const originalError = new Error('Something went wrong');
     const error = ErrorFactory.wrap(originalError, { operation: 'unknown' });
 
-    expect(error).toBeInstanceOf(SquadError);
+    expect(error).toBeInstanceOf(CrewError);
     expect(error.category).toBe(ErrorCategory.UNKNOWN);
   });
 
   it('should handle non-Error objects', () => {
     const error = ErrorFactory.wrap('String error', { operation: 'test' });
 
-    expect(error).toBeInstanceOf(SquadError);
+    expect(error).toBeInstanceOf(CrewError);
     expect(error.message).toBe('String error');
   });
 
   it('should handle null/undefined errors', () => {
     const error = ErrorFactory.wrap(undefined, { operation: 'test' });
 
-    expect(error).toBeInstanceOf(SquadError);
+    expect(error).toBeInstanceOf(CrewError);
   });
 });
 

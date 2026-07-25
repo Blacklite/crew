@@ -6,18 +6,18 @@
 #   ./scripts/create-storage.sh [resource-group] [location]
 #
 # Defaults:
-#   resource-group: squad-storage-demo-rg
+#   resource-group: crew-storage-demo-rg
 #   location: eastus2
 
 set -euo pipefail
 
-RG="${1:-squad-storage-demo-rg}"
+RG="${1:-crew-storage-demo-rg}"
 LOCATION="${2:-eastus2}"
 # Generate a unique storage account name (max 24 chars, lowercase alphanumeric)
-ACCOUNT="squaddemo$(date +%s | tail -c 8)"
+ACCOUNT="crewdemo$(date +%s | tail -c 8)"
 
 echo "══════════════════════════════════════════════"
-echo "  Azure Storage — Create for Squad Demo"
+echo "  Azure Storage — Create for Crew Demo"
 echo "══════════════════════════════════════════════"
 echo ""
 echo "  Resource Group:   $RG"

@@ -2,15 +2,15 @@
  * knock-knock — Real LLM Knock-Knock Joke Exchange
  *
  * Two Copilot sessions trade knock-knock jokes forever.
- * Demonstrates: SquadClientWithPool, CastingEngine, StreamingPipeline,
+ * Demonstrates: CrewClientWithPool, CastingEngine, StreamingPipeline,
  * and live LLM-generated comedy.
  *
  * GITHUB_TOKEN required.
  */
 
-import { CastingEngine, StreamingPipeline } from '@bradygaster/squad-sdk';
-import type { StreamDelta } from '@bradygaster/squad-sdk';
-import { SquadClientWithPool } from '@bradygaster/squad-sdk/client';
+import { CastingEngine, StreamingPipeline } from '@blacklite/crew-sdk';
+import type { StreamDelta } from '@blacklite/crew-sdk';
+import { CrewClientWithPool } from '@blacklite/crew-sdk/client';
 
 // ── Agent Setup ──────────────────────────────────────────────────────
 
@@ -65,7 +65,7 @@ async function main(): Promise<void> {
   console.log('   Connecting to Copilot...\n');
 
   // Connect to Copilot
-  const client = new SquadClientWithPool({ githubToken: process.env.GITHUB_TOKEN });
+  const client = new CrewClientWithPool({ githubToken: process.env.GITHUB_TOKEN });
   
   try {
     await client.connect();
@@ -142,7 +142,7 @@ async function main(): Promise<void> {
 // ── Helper: Send message and capture full response ──────────────────
 
 async function sendAndCapture(
-  client: SquadClientWithPool,
+  client: CrewClientWithPool,
   pipeline: StreamingPipeline,
   agent: AgentInfo,
   message: string,

@@ -1,11 +1,11 @@
 # Ghost Protocol — Personal Agent Behavior in Project Context
 
-> **Applies to:** Personal agents operating in a project squad context.
+> **Applies to:** Personal agents operating in a project crew context.
 > **Origin tag:** `origin: 'personal'`
 
 ## Core Rules
 
-1. **Read-only project state.** Personal agents MUST NOT write to the project's `.squad/` directory (decisions.md, orchestration-log/, agents/). The coordinator writes audit trails on their behalf.
+1. **Read-only project state.** Personal agents MUST NOT write to the project's `.crew/` directory (decisions.md, orchestration-log/, agents/). The coordinator writes audit trails on their behalf.
 
 2. **No project ownership.** Personal agents cannot own project files, modules, or work items. They advise; project agents execute.
 
@@ -19,11 +19,11 @@
    - ✅ Run builds and tests (read-only verification)
    - ✅ Provide code review feedback
    - ❌ Create/edit project files directly
-   - ❌ Write to `.squad/` project state
+   - ❌ Write to `.crew/` project state
    - ❌ Push to project branches
    - ❌ Create issues or PRs on the project repo
 
-6. **Kill switch respected.** If `SQUAD_NO_PERSONAL` is set, personal agents are completely excluded from the session cast. No exceptions.
+6. **Kill switch respected.** If `CREW_NO_PERSONAL` is set, personal agents are completely excluded from the session cast. No exceptions.
 
 ## Consult Mode
 

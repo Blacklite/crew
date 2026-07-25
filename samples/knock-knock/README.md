@@ -28,7 +28,7 @@ Watch the agents trade knock-knock jokes with LLM-generated responses.
 
 ## What you'll learn
 
-- How to connect to GitHub Copilot using `SquadClientWithPool`
+- How to connect to GitHub Copilot using `CrewClientWithPool`
 - How to cast multiple agents and assign each a system prompt personality
 - How to create concurrent Copilot sessions with `createSession()`
 - How to capture streaming responses via the `StreamingPipeline` and `message_delta` events
@@ -63,11 +63,11 @@ The sample creates two agents from The Usual Suspects universe. Each agent gets 
 | File | Purpose |
 |---|---|
 | `index.ts` | Main interactive loop with agent role swapping |
-| `package.json` | Dependencies (squad-sdk, copilot-sdk) |
+| `package.json` | Dependencies (crew-sdk, copilot-sdk) |
 | `tsconfig.json` | TypeScript configuration (ESM, strict) |
 
 ## Next steps
 
 - See [hook-governance](../hook-governance/README.md) to learn how to enforce rules with SDK hooks
 - Check [rock-paper-scissors](../rock-paper-scissors/README.md) for a more complex multi-agent system with strategy and learning
-- Read the [Squad SDK documentation](../../README.md) for session management patterns
+- Read the [Crew SDK documentation](../../README.md) for session management patterns

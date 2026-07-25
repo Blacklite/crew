@@ -2,12 +2,12 @@
   "id": "graphify-knowledge",
   "name": "Graphify Knowledge Graph",
   "version": "1.0.0",
-  "description": "Example Squad knowledge plugin that documents integration with the safishamsi/graphify code knowledge graph tool.",
+  "description": "Example Crew knowledge plugin that documents integration with the safishamsi/graphify code knowledge graph tool.",
   "authors": [
-    "Squad"
+    "Crew"
   ],
   "license": "MIT",
-  "squad": ">=0.9.1",
+  "crew": ">=0.9.1",
   "components": {
     "knowledge": [
       "graphify"
@@ -25,7 +25,7 @@
   },
   "mcp": {
     "available": false,
-    "reason": "Graphify is represented here as a CLI and Copilot skill integration, not a Squad-managed MCP memory provider."
+    "reason": "Graphify is represented here as a CLI and Copilot skill integration, not a Crew-managed MCP memory provider."
   },
   "providers": [
     {

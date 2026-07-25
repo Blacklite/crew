@@ -1,11 +1,11 @@
 /**
  * Playwright e2e tests for Phase 1 search improvements.
- * Tests run against the live preview at http://localhost:4321/squad/
+ * Tests run against the live preview at http://localhost:4321/crew/
  * Run with: npx playwright test
  */
 import { test, expect } from '@playwright/test';
 
-const BASE = '/squad/';
+const BASE = '/crew/';
 
 // Helper: open search modal via button click
 async function openSearchViaButton(page) {

@@ -40,7 +40,7 @@ function detectSourceType(source: string): 'local' | 'git' | 'export' {
 
 /** Mirrors deriveName from upstream.ts */
 function deriveName(source: string, type: string): string {
-  if (type === 'export') return path.basename(source, '.json').replace('squad-export', 'upstream');
+  if (type === 'export') return path.basename(source, '.json').replace('crew-export', 'upstream');
   if (type === 'git') {
     const cleaned = source.replace(/\.git$/, '');
     const parts = cleaned.split('/');
@@ -164,7 +164,7 @@ describe('detectSourceType', () => {
   });
 
   it('detects slash-containing paths as git when dir does not exist', () => {
-    expect(detectSourceType('bradygaster/squad')).toBe('git');
+    expect(detectSourceType('Blacklite/crew')).toBe('git');
   });
 
   it('throws on ambiguous source', () => {
@@ -186,7 +186,7 @@ describe('deriveName', () => {
   });
 
   it('derives name from export file', () => {
-    expect(deriveName('squad-export-team.json', 'export')).toBe('upstream-team');
+    expect(deriveName('crew-export-team.json', 'export')).toBe('upstream-team');
   });
 
   it('falls back to "upstream" for edge case', () => {
@@ -254,28 +254,28 @@ describe('Upstream git clone — failure recovery', () => {
   it('network error produces descriptive message', () => {
     const error = new Error('Command failed: git clone ... fatal: unable to access');
     expect(error.message).toContain('fatal');
-    // In upstream.ts, the catch block produces: warn(`Clone failed — run "squad upstream sync" to retry: ${msg}`)
-    const userMessage = `Clone failed — run "squad upstream sync" to retry: ${error.message}`;
-    expect(userMessage).toContain('squad upstream sync');
+    // In upstream.ts, the catch block produces: warn(`Clone failed — run "crew upstream sync" to retry: ${msg}`)
+    const userMessage = `Clone failed — run "crew upstream sync" to retry: ${error.message}`;
+    expect(userMessage).toContain('crew upstream sync');
     expect(userMessage).toContain('retry');
   });
 
   it('timeout error from execFileSync is catchable', () => {
     const error = new Error('Command failed: SIGTERM (timeout)');
     error.name = 'Error';
-    const userMessage = `Clone failed — run "squad upstream sync" to retry: ${error.message}`;
+    const userMessage = `Clone failed — run "crew upstream sync" to retry: ${error.message}`;
     expect(userMessage).toContain('timeout');
   });
 
   it('permission denied error is catchable', () => {
     const error = new Error('fatal: could not read Password for');
-    const userMessage = `Clone failed — run "squad upstream sync" to retry: ${error.message}`;
+    const userMessage = `Clone failed — run "crew upstream sync" to retry: ${error.message}`;
     expect(userMessage).toContain('Password');
   });
 
   it('non-existent repo error is catchable', () => {
     const error = new Error('fatal: repository not found');
-    const userMessage = `Clone failed — run "squad upstream sync" to retry: ${error.message}`;
+    const userMessage = `Clone failed — run "crew upstream sync" to retry: ${error.message}`;
     expect(userMessage).toContain('not found');
   });
 });
@@ -355,7 +355,7 @@ describe('ensureGitignoreEntry behavior', () => {
 
   it('adds entry to empty gitignore', () => {
     const gitignorePath = path.join(tmpDir, '.gitignore');
-    const entry = '.squad/_upstream_repos/';
+    const entry = '.crew/_upstream_repos/';
     // Simulate ensureGitignoreEntry
     let content = '';
     if (fs.existsSync(gitignorePath)) content = fs.readFileSync(gitignorePath, 'utf8');
@@ -369,7 +369,7 @@ describe('ensureGitignoreEntry behavior', () => {
 
   it('does not duplicate existing entry', () => {
     const gitignorePath = path.join(tmpDir, '.gitignore');
-    const entry = '.squad/_upstream_repos/';
+    const entry = '.crew/_upstream_repos/';
     fs.writeFileSync(gitignorePath, `node_modules/\n${entry}\n`);
 
     let content = fs.readFileSync(gitignorePath, 'utf8');
@@ -385,7 +385,7 @@ describe('ensureGitignoreEntry behavior', () => {
   it('appends with newline when existing file lacks trailing newline', () => {
     const gitignorePath = path.join(tmpDir, '.gitignore');
     fs.writeFileSync(gitignorePath, 'node_modules/');  // no trailing newline
-    const entry = '.squad/_upstream_repos/';
+    const entry = '.crew/_upstream_repos/';
 
     let content = fs.readFileSync(gitignorePath, 'utf8');
     if (!content.includes(entry)) {

@@ -1,13 +1,13 @@
-# Squad Community
+# Crew Community
 
-Squad is built by contributors who believe in democratizing multi-agent development. This page recognizes everyone who shapes the project — through code, feedback, ideas, and engagement.
+Crew is built by contributors who believe in democratizing multi-agent development. This page recognizes everyone who shapes the project — through code, feedback, ideas, and engagement.
 
 ## Project Metrics
 
-[![GitHub stars](https://img.shields.io/github/stars/bradygaster/squad?style=flat-square&logo=github)](https://github.com/bradygaster/squad/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/bradygaster/squad?style=flat-square&logo=github)](https://github.com/bradygaster/squad/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/bradygaster/squad?style=flat-square&logo=github)](https://github.com/bradygaster/squad/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/bradygaster/squad?style=flat-square&logo=github)](https://github.com/bradygaster/squad/pulls)
+[![GitHub stars](https://img.shields.io/github/stars/Blacklite/crew?style=flat-square&logo=github)](https://github.com/Blacklite/crew/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Blacklite/crew?style=flat-square&logo=github)](https://github.com/Blacklite/crew/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/Blacklite/crew?style=flat-square&logo=github)](https://github.com/Blacklite/crew/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/Blacklite/crew?style=flat-square&logo=github)](https://github.com/Blacklite/crew/pulls)
 
 ## How to Contribute
 
@@ -16,20 +16,20 @@ We welcome contributions in all forms:
 **For detailed contribution guidelines, including branch rules and PR process, see the [Contributing Guide](./guide/contributing.html).**
 
 ### Report Issues
-Found a bug, have a feature request, or want to discuss an idea? [Open an issue](https://github.com/bradygaster/squad/issues).
+Found a bug, have a feature request, or want to discuss an idea? [Open an issue](https://github.com/Blacklite/crew/issues).
 
 ### Submit a Pull Request
-Ready to contribute code? [Check out the open issues](https://github.com/bradygaster/squad/issues) and submit a PR. See the [Contributing Guide](./guide/contributing.html) for branch protection rules and the branch model.
+Ready to contribute code? [Check out the open issues](https://github.com/Blacklite/crew/issues) and submit a PR. See the [Contributing Guide](./guide/contributing.html) for branch protection rules and the branch model.
 
 ### Join the Discussion
-Have questions, want to share how you're using Squad, or discuss the roadmap? [Start a discussion](https://github.com/bradygaster/squad/discussions).
+Have questions, want to share how you're using Crew, or discuss the roadmap? [Start a discussion](https://github.com/Blacklite/crew/discussions).
 
 ### External Deployments & Case Studies
-Deploy Squad on your project and share your experience. These real-world deployments inform our roadmap and help the community learn from each other.
+Deploy Crew on your project and share your experience. These real-world deployments inform our roadmap and help the community learn from each other.
 
 ## Contributors
 
-This section recognizes people who have contributed to Squad through code, feedback, deployments, and community engagement.
+This section recognizes people who have contributed to Crew through code, feedback, deployments, and community engagement.
 
 ### Core Team
 
@@ -48,23 +48,23 @@ We recognize contributions including:
 
 ### Early Deployments
 
-- **Shayne Boyer** ([@spboyer](https://github.com/spboyer)) — First external deployment on a Next.js project. Introduced the `squad:` label convention for GitHub-native routing.
+- **Shayne Boyer** ([@spboyer](https://github.com/spboyer)) — First external deployment on a Next.js project. Introduced the `crew:` label convention for GitHub-native routing.
 
 ### Video Coverage
 
-- **Jeff Fritz** ([@csharpfritz](https://github.com/csharpfritz)) — ["Introducing your AI Dev Team Squad with GitHub Copilot"](https://www.youtube.com/watch?v=TXcL-te7ByY). First public technical deep-dive video demonstrating Squad in action.
+- **Jeff Fritz** ([@csharpfritz](https://github.com/csharpfritz)) — ["Introducing your AI Dev Team Crew with GitHub Copilot"](https://www.youtube.com/watch?v=TXcL-te7ByY). First public technical deep-dive video demonstrating Crew in action.
 
 ## Learning Resources
 
 ### Hands-On Workshop
 
-[**Tamir's Squad Skills Workshop**](https://github.com/tamirdresher/squad-skills/tree/main/workshop) — A practical, hands-on workshop covering Squad fundamentals and advanced patterns. Great for developers who learn by building.
+[**Tamir's Crew Skills Workshop**](https://github.com/tamirdresher/crew-skills/tree/main/workshop) — A practical, hands-on workshop covering Crew fundamentals and advanced patterns. Great for developers who learn by building.
 
 ---
 
 ## Giving Back
 
-If you're using Squad, consider:
+If you're using Crew, consider:
 - Starring the repository — helps others discover the project
 - Sharing your experience in an issue or discussion
 - Contributing improvements back to the community
@@ -72,6 +72,6 @@ If you're using Squad, consider:
 
 ## Contact & Support
 
-- **Issues & Feature Requests:** [GitHub Issues](https://github.com/bradygaster/squad/issues)
-- **Discussion & Questions:** [GitHub Discussions](https://github.com/bradygaster/squad/discussions)
+- **Issues & Feature Requests:** [GitHub Issues](https://github.com/Blacklite/crew/issues)
+- **Discussion & Questions:** [GitHub Discussions](https://github.com/Blacklite/crew/discussions)
 - **Security Issues:** Report privately via GitHub Security Advisory

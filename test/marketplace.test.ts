@@ -18,8 +18,8 @@ import {
   validatePackageContents,
   type MarketplaceManifest,
   type ExtensionEvent,
-} from '@bradygaster/squad-sdk/marketplace';
-import type { SquadConfig } from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/marketplace';
+import type { CrewConfig } from '@blacklite/crew-sdk/config';
 
 // --- Helpers ---
 
@@ -27,21 +27,21 @@ function makeManifest(overrides: Partial<MarketplaceManifest> = {}): Marketplace
   return {
     name: overrides.name ?? 'test-extension',
     version: overrides.version ?? '1.0.0',
-    description: overrides.description ?? 'A test marketplace extension for Squad',
+    description: overrides.description ?? 'A test marketplace extension for Crew',
     author: overrides.author ?? 'test-author',
     repository: overrides.repository ?? 'https://github.com/test/repo',
     categories: overrides.categories ?? [ManifestCategory.Development],
-    tags: overrides.tags ?? ['test', 'squad'],
+    tags: overrides.tags ?? ['test', 'crew'],
     icon: overrides.icon ?? 'icon.png',
     screenshots: overrides.screenshots ?? ['screenshot1.png'],
     pricing: overrides.pricing ?? { model: 'free' },
   };
 }
 
-function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
+function makeConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
   return {
     version: overrides.version ?? '0.6.0',
-    team: overrides.team ?? { name: 'Test Squad', description: 'A test squad team' },
+    team: overrides.team ?? { name: 'Test Crew', description: 'A test crew team' },
     routing: overrides.routing ?? { rules: [], fallbackBehavior: 'coordinator' },
     models: overrides.models ?? {
       default: 'claude-sonnet-4',
@@ -158,10 +158,10 @@ describe('validateManifest', () => {
 // --- generateManifest ---
 
 describe('generateManifest', () => {
-  it('should generate a manifest from squad config', () => {
+  it('should generate a manifest from crew config', () => {
     const config = makeConfig();
     const manifest = generateManifest(config);
-    expect(manifest.name).toBe('test-squad');
+    expect(manifest.name).toBe('test-crew');
     expect(manifest.version).toBe('0.6.0');
     expect(manifest.categories).toContain(ManifestCategory.Development);
   });
@@ -195,11 +195,11 @@ describe('generateManifest', () => {
 // --- toExtensionConfig ---
 
 describe('toExtensionConfig', () => {
-  it('should convert squad config to extension config shape', () => {
+  it('should convert crew config to extension config shape', () => {
     const config = makeConfig();
     const ext = toExtensionConfig(config);
-    expect(ext.id).toBe('test-squad');
-    expect(ext.name).toBe('Test Squad');
+    expect(ext.id).toBe('test-crew');
+    expect(ext.name).toBe('Test Crew');
     expect(ext.version).toBe('0.6.0');
     expect(ext.agents).toHaveLength(2);
   });
@@ -292,7 +292,7 @@ describe('ExtensionAdapter', () => {
   it('should expose toExtensionConfig as instance method', () => {
     const adapter = new ExtensionAdapter(makeConfig());
     const ext = adapter.toExtensionConfig();
-    expect(ext.name).toBe('Test Squad');
+    expect(ext.name).toBe('Test Crew');
   });
 
   it('should expose fromExtensionEvent as instance method', () => {
@@ -362,7 +362,7 @@ describe('packageForMarketplace', () => {
   it('should compute output path with name and version', () => {
     fs.mkdirSync(path.join(tmpDir, 'dist'));
     const result = packageForMarketplace(tmpDir, makeManifest());
-    expect(result.outputPath).toContain('test-extension-1.0.0.squad-pkg');
+    expect(result.outputPath).toContain('test-extension-1.0.0.crew-pkg');
   });
 });
 

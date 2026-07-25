@@ -8,14 +8,14 @@ export async function GET(context) {
     .sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 
   return rss({
-    title: 'Squad Docs - Blog',
-    description: 'Updates, releases, and stories from the Squad team.',
-    site: context.site ?? 'https://bradygaster.github.io/squad/',
+    title: 'Crew Docs - Blog',
+    description: 'Updates, releases, and stories from the Crew team.',
+    site: context.site ?? 'https://blacklite.github.io/crew/',
     items: sorted.map((post) => ({
       title: post.data.title ?? post.id,
       pubDate: new Date(post.data.date),
       description: post.data.description ?? '',
-      link: '/squad/blog/' + post.id + '/',
+      link: '/crew/blog/' + post.id + '/',
     })),
     customData: '<language>en-us</language>',
   });

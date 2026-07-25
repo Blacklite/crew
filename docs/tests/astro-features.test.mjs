@@ -52,7 +52,7 @@ describe('"Edit this page" link', () => {
   it('DocsLayout.astro contains edit-this-page link', () => {
     const layout = fs.readFileSync(path.join(SRC, 'layouts', 'DocsLayout.astro'), 'utf-8');
     assert.ok(layout.includes('edit-this-page') || layout.includes('Edit this page'), 'DocsLayout should include Edit this page link');
-    assert.ok(layout.includes('github.com/bradygaster/squad/edit'), 'Edit link should point to GitHub edit URL');
+    assert.ok(layout.includes('github.com/Blacklite/crew/edit'), 'Edit link should point to GitHub edit URL');
   });
 });
 

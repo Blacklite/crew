@@ -17,14 +17,14 @@ import { tmpdir } from 'node:os';
 import {
   buildInitModePrompt,
   type CoordinatorConfig,
-} from '../packages/squad-cli/src/cli/shell/coordinator.js';
+} from '../packages/crew-cli/src/cli/shell/coordinator.js';
 
 describe('buildInitModePrompt — base roles opt-in (#379)', () => {
   let teamRoot: string;
 
   beforeEach(async () => {
-    teamRoot = await mkdtemp(join(tmpdir(), 'squad-init-roles-'));
-    mkdirSync(join(teamRoot, '.squad'), { recursive: true });
+    teamRoot = await mkdtemp(join(tmpdir(), 'crew-init-roles-'));
+    mkdirSync(join(teamRoot, '.crew'), { recursive: true });
   });
 
   afterEach(async () => {
@@ -74,8 +74,8 @@ describe('.init-roles marker file lifecycle', () => {
   let teamRoot: string;
 
   beforeEach(async () => {
-    teamRoot = await mkdtemp(join(tmpdir(), 'squad-init-roles-marker-'));
-    mkdirSync(join(teamRoot, '.squad'), { recursive: true });
+    teamRoot = await mkdtemp(join(tmpdir(), 'crew-init-roles-marker-'));
+    mkdirSync(join(teamRoot, '.crew'), { recursive: true });
   });
 
   afterEach(async () => {
@@ -83,11 +83,11 @@ describe('.init-roles marker file lifecycle', () => {
   });
 
   it('.init-roles marker does not exist by default', () => {
-    expect(existsSync(join(teamRoot, '.squad', '.init-roles'))).toBe(false);
+    expect(existsSync(join(teamRoot, '.crew', '.init-roles'))).toBe(false);
   });
 
   it('.init-roles marker can be created and detected', () => {
-    const markerPath = join(teamRoot, '.squad', '.init-roles');
+    const markerPath = join(teamRoot, '.crew', '.init-roles');
     writeFileSync(markerPath, '1', 'utf-8');
     expect(existsSync(markerPath)).toBe(true);
   });

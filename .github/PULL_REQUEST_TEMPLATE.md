@@ -32,7 +32,7 @@
 - [ ] For migration PRs (>20 files): include test output summary in PR description
 
 #### Changeset
-- [ ] Changeset added via `npx changeset add` (if `packages/squad-sdk/src/` or `packages/squad-cli/src/` changed)
+- [ ] Changeset added via `npx changeset add` (if `packages/crew-sdk/src/` or `packages/crew-cli/src/` changed)
 - [ ] Or direct `CHANGELOG.md` entry (maintainers only — write-protected for external contributors)
 - [ ] Or `skip-changelog` label applied (if no user-facing changes)
 

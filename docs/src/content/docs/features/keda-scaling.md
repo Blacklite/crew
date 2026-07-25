@@ -1,19 +1,19 @@
 ---
 title: KEDA Autoscaling
-description: Autoscale Squad agents based on GitHub issue queue depth using the KEDA external scaler template.
+description: Autoscale Crew agents based on GitHub issue queue depth using the KEDA external scaler template.
 order: 38
 ---
 
 # KEDA Autoscaling
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 **Try this to understand your scaling needs:**
 ```
-How many issues are currently queued for Squad agents?
+How many issues are currently queued for Crew agents?
 ```
 
-KEDA (Kubernetes Event-Driven Autoscaling) is an open-source component that scales Kubernetes workloads based on external event sources. Squad ships an external scaler template that scales agent pods up and down based on the depth of your GitHub issue queue.
+KEDA (Kubernetes Event-Driven Autoscaling) is an open-source component that scales Kubernetes workloads based on external event sources. Crew ships an external scaler template that scales agent pods up and down based on the depth of your GitHub issue queue.
 
 ---
 
@@ -21,14 +21,14 @@ KEDA (Kubernetes Event-Driven Autoscaling) is an open-source component that scal
 
 Use KEDA autoscaling when:
 
-- Squad agents run as Kubernetes pods (not local machines)
+- Crew agents run as Kubernetes pods (not local machines)
 - Issue volume is unpredictable — bursts of work should spawn more agents automatically
 - You want zero-agent idle cost when there is no work
 
 ## Prerequisites
 
 - A Kubernetes cluster with KEDA installed ([keda.sh](https://keda.sh))
-- Squad agents packaged as container images and deployed as a `Deployment`
+- Crew agents packaged as container images and deployed as a `Deployment`
 - A GitHub token with `repo` scope for issue queue polling
 
 ## Setup
@@ -39,24 +39,24 @@ Use KEDA autoscaling when:
    helm install keda kedacore/keda --namespace keda --create-namespace
    ```
 
-2. Apply the Squad KEDA `ScaledObject` template from `templates/keda/scaled-object.yaml`:
+2. Apply the Crew KEDA `ScaledObject` template from `templates/keda/scaled-object.yaml`:
    ```yaml
    apiVersion: keda.sh/v1alpha1
    kind: ScaledObject
    metadata:
-     name: squad-agents
+     name: crew-agents
    spec:
      scaleTargetRef:
-       name: squad-agent-deployment
+       name: crew-agent-deployment
      minReplicaCount: 0
      maxReplicaCount: 10
      triggers:
        - type: external
          metadata:
-           scalerAddress: squad-external-scaler:8080
+           scalerAddress: crew-external-scaler:8080
            owner: your-org
            repo: your-repo
-           labels: "squad:ready"
+           labels: "crew:ready"
            targetQueueLength: "5"
          authenticationRef:
            name: github-token-secret

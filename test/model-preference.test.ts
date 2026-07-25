@@ -1,7 +1,7 @@
 /**
  * Tests for persistent model preference (Layer 0) — the fix for #284.
  *
- * Validates that model preferences written to `.squad/config.json`
+ * Validates that model preferences written to `.crew/config.json`
  * are correctly read back, merged without clobbering other fields,
  * and that the 5-layer resolveModel() hierarchy works as documented.
  *
@@ -30,17 +30,17 @@ import {
   writeAgentContextTierOverrides,
   resolveContextTier,
   clampContextTier,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // Temp directory for each test
-let squadDir: string;
+let crewDir: string;
 
 beforeEach(() => {
-  squadDir = mkdtempSync(join(tmpdir(), 'squad-model-pref-'));
+  crewDir = mkdtempSync(join(tmpdir(), 'crew-model-pref-'));
 });
 
 afterEach(() => {
-  rmSync(squadDir, { recursive: true, force: true });
+  rmSync(crewDir, { recursive: true, force: true });
 });
 
 // ============================================================================
@@ -49,41 +49,41 @@ afterEach(() => {
 
 describe('readModelPreference', () => {
   it('returns null when config.json does not exist', () => {
-    expect(readModelPreference(squadDir)).toBeNull();
+    expect(readModelPreference(crewDir)).toBeNull();
   });
 
   it('returns null when config.json has no defaultModel', () => {
-    writeFileSync(join(squadDir, 'config.json'), JSON.stringify({ version: 1 }));
-    expect(readModelPreference(squadDir)).toBeNull();
+    writeFileSync(join(crewDir, 'config.json'), JSON.stringify({ version: 1 }));
+    expect(readModelPreference(crewDir)).toBeNull();
   });
 
   it('returns null when defaultModel is empty string', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: '' })
     );
-    expect(readModelPreference(squadDir)).toBeNull();
+    expect(readModelPreference(crewDir)).toBeNull();
   });
 
   it('returns null when defaultModel is not a string', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 42 })
     );
-    expect(readModelPreference(squadDir)).toBeNull();
+    expect(readModelPreference(crewDir)).toBeNull();
   });
 
   it('returns the model when defaultModel is set', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
-    expect(readModelPreference(squadDir)).toBe('claude-opus-4.6');
+    expect(readModelPreference(crewDir)).toBe('claude-opus-4.6');
   });
 
   it('returns null on malformed JSON', () => {
-    writeFileSync(join(squadDir, 'config.json'), '{ broken json');
-    expect(readModelPreference(squadDir)).toBeNull();
+    writeFileSync(join(crewDir, 'config.json'), '{ broken json');
+    expect(readModelPreference(crewDir)).toBeNull();
   });
 });
 
@@ -93,17 +93,17 @@ describe('readModelPreference', () => {
 
 describe('readAgentModelOverrides', () => {
   it('returns empty object when config.json does not exist', () => {
-    expect(readAgentModelOverrides(squadDir)).toEqual({});
+    expect(readAgentModelOverrides(crewDir)).toEqual({});
   });
 
   it('returns empty object when no overrides field', () => {
-    writeFileSync(join(squadDir, 'config.json'), JSON.stringify({ version: 1 }));
-    expect(readAgentModelOverrides(squadDir)).toEqual({});
+    writeFileSync(join(crewDir, 'config.json'), JSON.stringify({ version: 1 }));
+    expect(readAgentModelOverrides(crewDir)).toEqual({});
   });
 
   it('reads per-agent overrides', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentModelOverrides: {
@@ -112,20 +112,20 @@ describe('readAgentModelOverrides', () => {
         },
       })
     );
-    const overrides = readAgentModelOverrides(squadDir);
+    const overrides = readAgentModelOverrides(crewDir);
     expect(overrides.fenster).toBe('claude-sonnet-4.6');
     expect(overrides.mcmanus).toBe('claude-haiku-4.5');
   });
 
   it('ignores non-string values in overrides', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentModelOverrides: { fenster: 'claude-sonnet-4.6', bad: 123 },
       })
     );
-    const overrides = readAgentModelOverrides(squadDir);
+    const overrides = readAgentModelOverrides(crewDir);
     expect(overrides.fenster).toBe('claude-sonnet-4.6');
     expect(overrides).not.toHaveProperty('bad');
   });
@@ -137,19 +137,19 @@ describe('readAgentModelOverrides', () => {
 
 describe('writeModelPreference', () => {
   it('creates config.json if missing', () => {
-    writeModelPreference(squadDir, 'claude-opus-4.6');
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeModelPreference(crewDir, 'claude-opus-4.6');
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.version).toBe(1);
     expect(raw.defaultModel).toBe('claude-opus-4.6');
   });
 
   it('merges with existing config without clobbering', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, platform: 'azure-devops', custom: true })
     );
-    writeModelPreference(squadDir, 'claude-opus-4.6');
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeModelPreference(crewDir, 'claude-opus-4.6');
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.version).toBe(1);
     expect(raw.platform).toBe('azure-devops');
     expect(raw.custom).toBe(true);
@@ -158,28 +158,28 @@ describe('writeModelPreference', () => {
 
   it('removes defaultModel when set to null', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
-    writeModelPreference(squadDir, null);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeModelPreference(crewDir, null);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw).not.toHaveProperty('defaultModel');
   });
 
   it('overwrites existing defaultModel', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-haiku-4.5' })
     );
-    writeModelPreference(squadDir, 'claude-opus-4.6');
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeModelPreference(crewDir, 'claude-opus-4.6');
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.defaultModel).toBe('claude-opus-4.6');
   });
 
   it('handles malformed existing config gracefully', () => {
-    writeFileSync(join(squadDir, 'config.json'), '{ broken');
-    writeModelPreference(squadDir, 'claude-opus-4.6');
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeFileSync(join(crewDir, 'config.json'), '{ broken');
+    writeModelPreference(crewDir, 'claude-opus-4.6');
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.version).toBe(1);
     expect(raw.defaultModel).toBe('claude-opus-4.6');
   });
@@ -191,38 +191,38 @@ describe('writeModelPreference', () => {
 
 describe('writeAgentModelOverrides', () => {
   it('writes per-agent overrides', () => {
-    writeAgentModelOverrides(squadDir, { fenster: 'claude-sonnet-4.6' });
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeAgentModelOverrides(crewDir, { fenster: 'claude-sonnet-4.6' });
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.agentModelOverrides.fenster).toBe('claude-sonnet-4.6');
   });
 
   it('removes overrides when set to null', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, agentModelOverrides: { fenster: 'claude-sonnet-4.6' } })
     );
-    writeAgentModelOverrides(squadDir, null);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeAgentModelOverrides(crewDir, null);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw).not.toHaveProperty('agentModelOverrides');
   });
 
   it('removes overrides when set to empty object', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, agentModelOverrides: { fenster: 'claude-sonnet-4.6' } })
     );
-    writeAgentModelOverrides(squadDir, {});
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeAgentModelOverrides(crewDir, {});
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw).not.toHaveProperty('agentModelOverrides');
   });
 
   it('merges without clobbering other config fields', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
-    writeAgentModelOverrides(squadDir, { fenster: 'claude-sonnet-4.6' });
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeAgentModelOverrides(crewDir, { fenster: 'claude-sonnet-4.6' });
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.defaultModel).toBe('claude-opus-4.6');
     expect(raw.agentModelOverrides.fenster).toBe('claude-sonnet-4.6');
   });
@@ -262,12 +262,12 @@ describe('resolveModel', () => {
 
   it('Layer 0b: persistent config wins over session directive', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
     expect(
       resolveModel({
-        squadDir,
+        crewDir,
         sessionDirective: 'gpt-5.4',
         charterPreference: 'claude-sonnet-4.6',
         taskModel: 'claude-haiku-4.5',
@@ -277,7 +277,7 @@ describe('resolveModel', () => {
 
   it('Layer 0a: per-agent override wins over global defaultModel', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         defaultModel: 'claude-opus-4.6',
@@ -287,7 +287,7 @@ describe('resolveModel', () => {
     expect(
       resolveModel({
         agentName: 'fenster',
-        squadDir,
+        crewDir,
         sessionDirective: 'gpt-5.4',
       })
     ).toBe('gpt-5.3-codex');
@@ -295,7 +295,7 @@ describe('resolveModel', () => {
 
   it('Layer 0b: global config used when agent has no per-agent override', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         defaultModel: 'claude-opus-4.6',
@@ -305,18 +305,18 @@ describe('resolveModel', () => {
     expect(
       resolveModel({
         agentName: 'mcmanus',
-        squadDir,
+        crewDir,
         sessionDirective: 'gpt-5.4',
       })
     ).toBe('claude-opus-4.6');
   });
 
   it('falls through all layers correctly when no config file exists', () => {
-    const nonexistentDir = join(squadDir, 'nonexistent');
+    const nonexistentDir = join(crewDir, 'nonexistent');
     expect(
       resolveModel({
         agentName: 'fenster',
-        squadDir: nonexistentDir,
+        crewDir: nonexistentDir,
         sessionDirective: null,
         charterPreference: null,
         taskModel: 'claude-sonnet-4.6',
@@ -340,27 +340,27 @@ describe('resolveModel', () => {
 
 describe('round-trip persistence', () => {
   it('writeModelPreference → readModelPreference', () => {
-    writeModelPreference(squadDir, 'claude-opus-4.6');
-    expect(readModelPreference(squadDir)).toBe('claude-opus-4.6');
+    writeModelPreference(crewDir, 'claude-opus-4.6');
+    expect(readModelPreference(crewDir)).toBe('claude-opus-4.6');
   });
 
   it('write → clear → read returns null', () => {
-    writeModelPreference(squadDir, 'claude-opus-4.6');
-    writeModelPreference(squadDir, null);
-    expect(readModelPreference(squadDir)).toBeNull();
+    writeModelPreference(crewDir, 'claude-opus-4.6');
+    writeModelPreference(crewDir, null);
+    expect(readModelPreference(crewDir)).toBeNull();
   });
 
   it('write → overwrite → read returns latest', () => {
-    writeModelPreference(squadDir, 'claude-opus-4.6');
-    writeModelPreference(squadDir, 'gpt-5.4');
-    expect(readModelPreference(squadDir)).toBe('gpt-5.4');
+    writeModelPreference(crewDir, 'claude-opus-4.6');
+    writeModelPreference(crewDir, 'gpt-5.4');
+    expect(readModelPreference(crewDir)).toBe('gpt-5.4');
   });
 
   it('model + agent overrides coexist', () => {
-    writeModelPreference(squadDir, 'claude-opus-4.6');
-    writeAgentModelOverrides(squadDir, { fenster: 'claude-sonnet-4.6' });
-    expect(readModelPreference(squadDir)).toBe('claude-opus-4.6');
-    expect(readAgentModelOverrides(squadDir).fenster).toBe('claude-sonnet-4.6');
+    writeModelPreference(crewDir, 'claude-opus-4.6');
+    writeAgentModelOverrides(crewDir, { fenster: 'claude-sonnet-4.6' });
+    expect(readModelPreference(crewDir)).toBe('claude-opus-4.6');
+    expect(readAgentModelOverrides(crewDir).fenster).toBe('claude-sonnet-4.6');
   });
 });
 
@@ -370,25 +370,25 @@ describe('round-trip persistence', () => {
 
 describe('readReasoningEffort', () => {
   it('returns null when config.json does not exist', () => {
-    expect(readReasoningEffort(squadDir)).toBeNull();
+    expect(readReasoningEffort(crewDir)).toBeNull();
   });
 
   it('returns null when config.json has no defaultReasoningEffort', () => {
-    writeFileSync(join(squadDir, 'config.json'), JSON.stringify({ version: 1 }));
-    expect(readReasoningEffort(squadDir)).toBeNull();
+    writeFileSync(join(crewDir, 'config.json'), JSON.stringify({ version: 1 }));
+    expect(readReasoningEffort(crewDir)).toBeNull();
   });
 
   it('returns the effort when defaultReasoningEffort is set', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultReasoningEffort: 'xhigh' })
     );
-    expect(readReasoningEffort(squadDir)).toBe('xhigh');
+    expect(readReasoningEffort(crewDir)).toBe('xhigh');
   });
 
   it('returns null on malformed JSON', () => {
-    writeFileSync(join(squadDir, 'config.json'), '{ broken json');
-    expect(readReasoningEffort(squadDir)).toBeNull();
+    writeFileSync(join(crewDir, 'config.json'), '{ broken json');
+    expect(readReasoningEffort(crewDir)).toBeNull();
   });
 });
 
@@ -398,12 +398,12 @@ describe('readReasoningEffort', () => {
 
 describe('readAgentReasoningEffortOverrides', () => {
   it('returns empty object when config.json does not exist', () => {
-    expect(readAgentReasoningEffortOverrides(squadDir)).toEqual({});
+    expect(readAgentReasoningEffortOverrides(crewDir)).toEqual({});
   });
 
   it('reads per-agent overrides', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentReasoningEffortOverrides: {
@@ -412,20 +412,20 @@ describe('readAgentReasoningEffortOverrides', () => {
         },
       })
     );
-    const overrides = readAgentReasoningEffortOverrides(squadDir);
+    const overrides = readAgentReasoningEffortOverrides(crewDir);
     expect(overrides.fenster).toBe('xhigh');
     expect(overrides.mcmanus).toBe('low');
   });
 
   it('ignores invalid effort values in overrides', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentReasoningEffortOverrides: { fenster: 'xhigh', bad: 'invalid-effort' },
       })
     );
-    const overrides = readAgentReasoningEffortOverrides(squadDir);
+    const overrides = readAgentReasoningEffortOverrides(crewDir);
     expect(overrides.fenster).toBe('xhigh');
     expect(overrides).not.toHaveProperty('bad');
   });
@@ -437,30 +437,30 @@ describe('readAgentReasoningEffortOverrides', () => {
 
 describe('writeReasoningEffort', () => {
   it('creates config.json if missing', () => {
-    writeReasoningEffort(squadDir, 'xhigh');
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeReasoningEffort(crewDir, 'xhigh');
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.version).toBe(1);
     expect(raw.defaultReasoningEffort).toBe('xhigh');
   });
 
   it('merges with existing config without clobbering', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
-    writeReasoningEffort(squadDir, 'high');
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeReasoningEffort(crewDir, 'high');
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.defaultModel).toBe('claude-opus-4.6');
     expect(raw.defaultReasoningEffort).toBe('high');
   });
 
   it('removes defaultReasoningEffort when set to null', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultReasoningEffort: 'xhigh' })
     );
-    writeReasoningEffort(squadDir, null);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeReasoningEffort(crewDir, null);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw).not.toHaveProperty('defaultReasoningEffort');
   });
 });
@@ -491,12 +491,12 @@ describe('resolveReasoningEffort', () => {
 
   it('Layer 0b: persistent config wins over spawn override', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultReasoningEffort: 'medium' })
     );
     expect(
       resolveReasoningEffort({
-        squadDir,
+        crewDir,
         spawnOverride: 'xhigh',
         charterPreference: 'high',
       })
@@ -505,7 +505,7 @@ describe('resolveReasoningEffort', () => {
 
   it('Layer 0a: per-agent override wins over global', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         defaultReasoningEffort: 'medium',
@@ -515,7 +515,7 @@ describe('resolveReasoningEffort', () => {
     expect(
       resolveReasoningEffort({
         agentName: 'fenster',
-        squadDir,
+        crewDir,
         spawnOverride: 'high',
       })
     ).toBe('xhigh');
@@ -533,12 +533,12 @@ describe('resolveReasoningEffort', () => {
 
   it('falls through to charter when config has no effort', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
     expect(
       resolveReasoningEffort({
-        squadDir,
+        crewDir,
         charterPreference: 'xhigh',
       })
     ).toBe('xhigh');
@@ -586,12 +586,12 @@ describe('resolveReasoningEffort', () => {
 
   it('ignores invalid persisted defaultReasoningEffort', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultReasoningEffort: 'invalid' })
     );
     expect(
       resolveReasoningEffort({
-        squadDir,
+        crewDir,
         charterPreference: 'high',
       })
     ).toBe('high');
@@ -666,36 +666,36 @@ describe('clampReasoningEffort', () => {
 
 describe('readContextTier', () => {
   it('returns null when config.json does not exist', () => {
-    expect(readContextTier(squadDir)).toBeNull();
+    expect(readContextTier(crewDir)).toBeNull();
   });
 
   it('returns null when config.json has no defaultContextTier', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1 })
     );
-    expect(readContextTier(squadDir)).toBeNull();
+    expect(readContextTier(crewDir)).toBeNull();
   });
 
   it('returns the tier when defaultContextTier is set', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultContextTier: 'long_context' })
     );
-    expect(readContextTier(squadDir)).toBe('long_context');
+    expect(readContextTier(crewDir)).toBe('long_context');
   });
 
   it('returns "auto" when persisted (sentinel is readable)', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultContextTier: 'auto' })
     );
-    expect(readContextTier(squadDir)).toBe('auto');
+    expect(readContextTier(crewDir)).toBe('auto');
   });
 
   it('returns null on malformed JSON', () => {
-    writeFileSync(join(squadDir, 'config.json'), '{ broken json');
-    expect(readContextTier(squadDir)).toBeNull();
+    writeFileSync(join(crewDir, 'config.json'), '{ broken json');
+    expect(readContextTier(crewDir)).toBeNull();
   });
 });
 
@@ -705,12 +705,12 @@ describe('readContextTier', () => {
 
 describe('readAgentContextTierOverrides', () => {
   it('returns empty object when config.json does not exist', () => {
-    expect(readAgentContextTierOverrides(squadDir)).toEqual({});
+    expect(readAgentContextTierOverrides(crewDir)).toEqual({});
   });
 
   it('reads per-agent overrides', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentContextTierOverrides: {
@@ -719,14 +719,14 @@ describe('readAgentContextTierOverrides', () => {
         },
       })
     );
-    const overrides = readAgentContextTierOverrides(squadDir);
+    const overrides = readAgentContextTierOverrides(crewDir);
     expect(overrides.fenster).toBe('long_context');
     expect(overrides.mcmanus).toBe('default');
   });
 
   it('drops "auto" and invalid values in overrides', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentContextTierOverrides: {
@@ -736,7 +736,7 @@ describe('readAgentContextTierOverrides', () => {
         },
       })
     );
-    const overrides = readAgentContextTierOverrides(squadDir);
+    const overrides = readAgentContextTierOverrides(crewDir);
     expect(overrides.fenster).toBe('long_context');
     expect(overrides).not.toHaveProperty('keaton');
     expect(overrides).not.toHaveProperty('bad');
@@ -749,40 +749,40 @@ describe('readAgentContextTierOverrides', () => {
 
 describe('writeContextTier', () => {
   it('creates config.json if missing', () => {
-    writeContextTier(squadDir, 'long_context');
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf8'));
+    writeContextTier(crewDir, 'long_context');
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf8'));
     expect(raw.version).toBe(1);
     expect(raw.defaultContextTier).toBe('long_context');
   });
 
   it('merges with existing config without clobbering', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
-    writeContextTier(squadDir, 'long_context');
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf8'));
+    writeContextTier(crewDir, 'long_context');
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf8'));
     expect(raw.defaultModel).toBe('claude-opus-4.6');
     expect(raw.defaultContextTier).toBe('long_context');
   });
 
   it('removes defaultContextTier when set to null', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultContextTier: 'long_context' })
     );
-    writeContextTier(squadDir, null);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf8'));
+    writeContextTier(crewDir, null);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf8'));
     expect(raw).not.toHaveProperty('defaultContextTier');
   });
 
   it('does not write an invalid tier', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
-    writeContextTier(squadDir, 'invalid-tier' as never);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf8'));
+    writeContextTier(crewDir, 'invalid-tier' as never);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf8'));
     expect(raw).not.toHaveProperty('defaultContextTier');
     expect(raw.defaultModel).toBe('claude-opus-4.6');
   });
@@ -794,43 +794,43 @@ describe('writeContextTier', () => {
 
 describe('writeAgentContextTierOverrides', () => {
   it('creates config.json with overrides', () => {
-    writeAgentContextTierOverrides(squadDir, { fenster: 'long_context' });
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf8'));
+    writeAgentContextTierOverrides(crewDir, { fenster: 'long_context' });
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf8'));
     expect(raw.agentContextTierOverrides.fenster).toBe('long_context');
   });
 
   it('removes the field when set to null', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentContextTierOverrides: { fenster: 'long_context' },
       })
     );
-    writeAgentContextTierOverrides(squadDir, null);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf8'));
+    writeAgentContextTierOverrides(crewDir, null);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf8'));
     expect(raw).not.toHaveProperty('agentContextTierOverrides');
   });
 
   it('removes the field when given an empty object', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentContextTierOverrides: { fenster: 'long_context' },
       })
     );
-    writeAgentContextTierOverrides(squadDir, {});
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf8'));
+    writeAgentContextTierOverrides(crewDir, {});
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf8'));
     expect(raw).not.toHaveProperty('agentContextTierOverrides');
   });
 
   it('keeps valid entries and drops invalid ones', () => {
-    writeAgentContextTierOverrides(squadDir, {
+    writeAgentContextTierOverrides(crewDir, {
       fenster: 'long_context',
       bad: 'invalid-tier' as never,
     });
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf8'));
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf8'));
     expect(raw.agentContextTierOverrides.fenster).toBe('long_context');
     expect(raw.agentContextTierOverrides).not.toHaveProperty('bad');
   });
@@ -862,12 +862,12 @@ describe('resolveContextTier', () => {
 
   it('Layer 0b: persistent config wins over spawn override', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultContextTier: 'default' })
     );
     expect(
       resolveContextTier({
-        squadDir,
+        crewDir,
         spawnOverride: 'long_context',
         charterPreference: 'long_context',
       })
@@ -876,7 +876,7 @@ describe('resolveContextTier', () => {
 
   it('Layer 0a: per-agent override wins over global', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         defaultContextTier: 'default',
@@ -886,7 +886,7 @@ describe('resolveContextTier', () => {
     expect(
       resolveContextTier({
         agentName: 'fenster',
-        squadDir,
+        crewDir,
         spawnOverride: 'default',
       })
     ).toBe('long_context');
@@ -904,12 +904,12 @@ describe('resolveContextTier', () => {
 
   it('falls through to charter when config has no tier', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
     expect(
       resolveContextTier({
-        squadDir,
+        crewDir,
         charterPreference: 'long_context',
       })
     ).toBe('long_context');
@@ -948,12 +948,12 @@ describe('resolveContextTier', () => {
 
   it('ignores invalid persisted defaultContextTier', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultContextTier: 'invalid' })
     );
     expect(
       resolveContextTier({
-        squadDir,
+        crewDir,
         charterPreference: 'long_context',
       })
     ).toBe('long_context');

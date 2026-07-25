@@ -3,19 +3,19 @@
 **Authors:** Keaton (Lead) — synthesized from audits by Trejo (Release Manager) and Drucker (CI/CD Engineer)  
 **Date:** 2026-03-07  
 **Status:** Draft  
-**Related:** [v0.8.22 Retrospective](../../.squad/decisions/inbox/keaton-v0822-retrospective.md), [Release Process Skill](../../.squad/skills/release-process/SKILL.md)
+**Related:** [v0.8.22 Retrospective](../../.crew/decisions/inbox/keaton-v0822-retrospective.md), [Release Process Skill](../../.crew/skills/release-process/SKILL.md)
 
 ---
 
 ## Executive Summary
 
-The v0.8.22 release was **the worst release in Squad history**. A 4-part semver (0.8.21.4) was committed without validation, mangled by npm into 0.8.2-1.4, and published to the registry. The `latest` dist-tag pointed to a phantom version for 6+ hours. Draft releases didn't trigger CI. User tokens with 2FA failed with EOTP errors 5+ times. The disaster exposed systemic gaps in our CI/CD infrastructure.
+The v0.8.22 release was **the worst release in Crew history**. A 4-part semver (0.8.21.4) was committed without validation, mangled by npm into 0.8.2-1.4, and published to the registry. The `latest` dist-tag pointed to a phantom version for 6+ hours. Draft releases didn't trigger CI. User tokens with 2FA failed with EOTP errors 5+ times. The disaster exposed systemic gaps in our CI/CD infrastructure.
 
 This PRD consolidates findings from two comprehensive audits — Trejo's GitOps/release process audit (27KB) and Drucker's CI/CD pipeline audit (29KB) — into a single actionable plan. The goal: make our release pipeline **disaster-proof** through validation gates, automation, and defense-in-depth.
 
 **Current State:**
 - ✅ **Working:** Manual release runbook exists, retry logic in publish.yml, main branch protected
-- 🟡 **Fragile:** squad-release.yml blocked by test failures (9+ consecutive runs failed), bump-build.mjs still mutates versions during npm ci, multiple overlapping/redundant workflows
+- 🟡 **Fragile:** crew-release.yml blocked by test failures (9+ consecutive runs failed), bump-build.mjs still mutates versions during npm ci, multiple overlapping/redundant workflows
 - ❌ **Missing:** Semver validation gates, dev branch protection, pre-publish checklists in CI, NPM_TOKEN type verification, rollback automation
 
 **Bottom Line:** We're one bad commit away from another v0.8.22-style incident. This PRD prioritizes fixes that directly prevent release failures, followed by hardening and operational improvements.
@@ -32,22 +32,22 @@ The v0.8.22 release disaster was a **cascade of validation gaps**:
 2. **npm mangled the version:** npm's parser misinterpreted 0.8.21.4 as major.minor.patch-prerelease, publishing it as **0.8.2-1.4** to the registry. The `latest` dist-tag pointed to this phantom version for 6+ hours.
 3. **Draft release didn't trigger CI:** GitHub Release was created as DRAFT, which doesn't fire the `release: published` event. publish.yml never ran automatically.
 4. **Wrong NPM_TOKEN type:** NPM_TOKEN was a User token with 2FA enabled, causing EOTP (one-time password) errors 5+ times during CI. Automation tokens don't require 2FA.
-5. **No validation gates anywhere:** No pre-commit hooks, no CI checks, no squad-release.yml gates. Invalid versions sailed through to production.
+5. **No validation gates anywhere:** No pre-commit hooks, no CI checks, no crew-release.yml gates. Invalid versions sailed through to production.
 
 ### Why Our Current CI/CD is Fragile
 
 Beyond v0.8.22, broader systemic issues exist:
 
 **Broken Infrastructure:**
-- **squad-release.yml is completely blocked:** 9+ consecutive failures due to ES module syntax errors in tests (`require()` instead of `import` with `"type": "module"`). Releases from main cannot ship.
-- **squad-ci.yml has flaky tests:** 12 failing tests in `human-journeys.test.ts`. CI failures are normalized, reducing confidence.
+- **crew-release.yml is completely blocked:** 9+ consecutive failures due to ES module syntax errors in tests (`require()` instead of `import` with `"type": "module"`). Releases from main cannot ship.
+- **crew-ci.yml has flaky tests:** 12 failing tests in `human-journeys.test.ts`. CI failures are normalized, reducing confidence.
 - **bump-build.mjs CI detection ineffective:** Despite `CI=true` check, the script ran during Trejo's audit, creating 0.8.22.1. Version mutation during CI is unpredictable.
 
 **Branch & Process Gaps:**
 - **dev branch unprotected:** Primary integration branch allows direct commits and force pushes, bypassing PR review and CI checks.
 - **Branch naming inconsistency:** Both `insider` and `insiders` branches exist; workflows reference `insider` but active development uses `insiders`.
 - **Stale dist-tags mislead users:** `preview` points to 0.8.17-preview (pre-disaster), `insider` points to 0.6.0-alpha.0 (ancient).
-- **No preview branch:** squad-promote.yml and squad-preview.yml reference a `preview` branch that doesn't exist — dead code or incomplete implementation.
+- **No preview branch:** crew-promote.yml and crew-preview.yml reference a `preview` branch that doesn't exist — dead code or incomplete implementation.
 
 **Publish Pipeline Gaps:**
 - **No semver validation:** Nothing prevents 4-part versions (X.Y.Z.N) from being committed or published.
@@ -57,9 +57,9 @@ Beyond v0.8.22, broader systemic issues exist:
 - **No rollback automation:** v0.8.22 rollback took 9 manual steps over 6+ hours.
 
 **Workflow Redundancy:**
-- **Duplicate publish workflows:** publish.yml and squad-publish.yml may overlap (same workflow ID suggests rename).
-- **Deprecated files not deleted:** squad-publish.yml.deprecated still exists.
-- **Unclear insider publish flow:** squad-insider-publish.yml exists but unclear if it runs or to which npm dist-tag.
+- **Duplicate publish workflows:** publish.yml and crew-publish.yml may overlap (same workflow ID suggests rename).
+- **Deprecated files not deleted:** crew-publish.yml.deprecated still exists.
+- **Unclear insider publish flow:** crew-insider-publish.yml exists but unclear if it runs or to which npm dist-tag.
 
 ---
 
@@ -67,7 +67,7 @@ Beyond v0.8.22, broader systemic issues exist:
 
 ### P0: Must Fix Before Next Release (Ship Blockers)
 
-#### 1. Fix squad-release.yml Test Failures ❌ **BLOCKING ALL RELEASES**
+#### 1. Fix crew-release.yml Test Failures ❌ **BLOCKING ALL RELEASES**
 **Problem:** 9+ consecutive workflow failures. 8 test files use `require('node:test')` in ES module context.  
 **Impact:** Releases from main are completely blocked. Emergency hotfixes cannot ship.  
 **Source:** Drucker audit (workflow analysis)  
@@ -145,8 +145,8 @@ jobs:
           fi
           echo "✅ SKIP_BUILD_BUMP is set"
       
-      - name: Build squad-sdk
-        run: npm -w packages/squad-sdk run build
+      - name: Build crew-sdk
+        run: npm -w packages/crew-sdk run build
         env:
           SKIP_BUILD_BUMP: "1"
 ```
@@ -161,7 +161,7 @@ jobs:
 **Effort:** **S** (10 minutes via GitHub UI)  
 **Fix:** Apply same protection rules as main:
 - Require 1 approval for PRs
-- Require "Squad CI" status check (tests must pass)
+- Require "Crew CI" status check (tests must pass)
 - Require conversation resolution
 - Disable force pushes and deletions
 - Enable `enforce_admins: true`  
@@ -201,13 +201,13 @@ jobs:
 **Fix:**
 ```yaml
 - name: Dry-run publish (catch package.json issues)
-  run: npm -w packages/squad-sdk publish --dry-run --access public
+  run: npm -w packages/crew-sdk publish --dry-run --access public
 ```
 **Dependencies:** None.
 
 ---
 
-#### 8. Fix squad-ci.yml Test Failures (human-journeys.test.ts) ⚠️
+#### 8. Fix crew-ci.yml Test Failures (human-journeys.test.ts) ⚠️
 **Problem:** 12 failing tests related to CLI command handling. Flaky CI undermines confidence.  
 **Impact:** PRs may merge with broken tests. Normalizes failures ("it's always red").  
 **Source:** Drucker audit (workflow #3)  
@@ -225,43 +225,43 @@ jobs:
 **Fix:**
 1. Choose canonical name (recommend `insiders` to match npm dist-tag convention)
 2. Delete unused branch
-3. Update all workflow references (squad-ci.yml, squad-insider-*.yml)  
+3. Update all workflow references (crew-ci.yml, crew-insider-*.yml)  
 **Dependencies:** None.
 
 ---
 
 #### 10. Preview Branch Decision ⚠️
-**Problem:** squad-promote.yml and squad-preview.yml reference a `preview` branch that doesn't exist.  
+**Problem:** crew-promote.yml and crew-preview.yml reference a `preview` branch that doesn't exist.  
 **Impact:** Dead code wastes CI resources, confuses contributors.  
 **Source:** Both audits (Trejo: Section 1 & 7, Drucker: workflow #10)  
 **Effort:** **S** (decision) or **M** (implementation if keeping)  
 **Options:**
-- **Option A:** Implement preview branch as documented (dev → preview → main with .squad/ stripping)
+- **Option A:** Implement preview branch as documented (dev → preview → main with .crew/ stripping)
 - **Option B:** Remove preview workflows if not part of release model  
 **Recommendation:** Remove workflows. Three-branch model (dev/insiders/main) is sufficient.  
 **Dependencies:** Brady decision required.
 
 ---
 
-#### 11. Apply Validation Fixes to squad-insider-publish.yml ⚠️
+#### 11. Apply Validation Fixes to crew-insider-publish.yml ⚠️
 **Problem:** Same validation gaps as publish.yml (no semver check, no SKIP_BUILD_BUMP, no dry-run).  
 **Impact:** Insider builds can fail with same issues as main releases.  
 **Source:** Drucker audit (workflow #6, P1 item #8)  
 **Effort:** **S** (copy fixes from publish.yml)  
-**Fix:** Apply items #2, #4, #6, #7 to squad-insider-publish.yml.  
+**Fix:** Apply items #2, #4, #6, #7 to crew-insider-publish.yml.  
 **Dependencies:** Must complete P0 items #2-#4 first.
 
 ---
 
-#### 12. Clarify squad-publish.yml vs. publish.yml ⚠️
+#### 12. Clarify crew-publish.yml vs. publish.yml ⚠️
 **Problem:** Two workflows with overlapping triggers (tag-based vs. release-based). Same workflow ID suggests rename/duplication.  
 **Impact:** Confusion about which workflow is canonical. Duplicate CI runs waste resources.  
 **Source:** Both audits (Trejo: Section 7, Drucker: workflow #12)  
 **Effort:** **S** (1 hour investigation + cleanup)  
 **Fix:**
 1. Audit: Are these duplicates or do they serve different purposes?
-2. Check `.github/workflows/squad-publish.yml.deprecated` history
-3. **Recommendation:** Delete squad-publish.yml (use publish.yml as canonical)  
+2. Check `.github/workflows/crew-publish.yml.deprecated` history
+3. **Recommendation:** Delete crew-publish.yml (use publish.yml as canonical)  
 **Dependencies:** Requires Trejo investigation.
 
 ---
@@ -307,7 +307,7 @@ Audit and deprecate stale versions if channels abandoned.
   if: failure() && steps.publish-sdk.outcome == 'success'
   run: |
     VERSION="${{ steps.version.outputs.version }}"
-    npm deprecate "@bradygaster/squad-sdk@$VERSION" "Automated rollback: CLI publish failed"
+    npm deprecate "@blacklite/crew-sdk@$VERSION" "Automated rollback: CLI publish failed"
 ```
 **Dependencies:** None.
 
@@ -316,7 +316,7 @@ Audit and deprecate stale versions if channels abandoned.
 ### P2: Improve When Possible (Technical Debt & Quality of Life)
 
 #### 16. Stale Branch Cleanup 🧹
-**Problem:** Merged squad/* branches not deleted (squad/195, squad/223, squad/228, feature/squad-streams, etc.).  
+**Problem:** Merged crew/* branches not deleted (crew/195, crew/223, crew/228, feature/crew-streams, etc.).  
 **Impact:** Clutter, potential accidental rebasing.  
 **Source:** Trejo audit (Section 1, P2 item #3)  
 **Effort:** **S** (manual) or **M** (automation)  
@@ -357,11 +357,11 @@ Audit and deprecate stale versions if channels abandoned.
 **Impact:** Releases fail after tag/release created, requiring rollback.  
 **Source:** Drucker audit (missing automation #2)  
 **Effort:** **M** (3-4 hours)  
-**Fix:** Create `squad-pre-flight.yml` workflow (workflow_dispatch) that runs:
+**Fix:** Create `crew-pre-flight.yml` workflow (workflow_dispatch) that runs:
 - Semver validation
 - Version matches CHANGELOG
 - All tests pass
-- No .squad/ files on preview branch
+- No .crew/ files on preview branch
 - Dry-run publish succeeds  
 **Dependencies:** None.
 
@@ -405,23 +405,23 @@ Update workflows to use `build:release`.
 
 ---
 
-#### 23. Delete squad-publish.yml.deprecated 🧹
+#### 23. Delete crew-publish.yml.deprecated 🧹
 **Problem:** Deprecated file still exists, causes confusion.  
 **Source:** Drucker audit (workflow #13)  
 **Effort:** **XS** (1 minute)  
-**Fix:** `rm .github/workflows/squad-publish.yml.deprecated`  
+**Fix:** `rm .github/workflows/crew-publish.yml.deprecated`  
 **Dependencies:** None.
 
 ---
 
-#### 24. Re-Enable or Remove squad-heartbeat.yml Cron 🤔
+#### 24. Re-Enable or Remove crew-heartbeat.yml Cron 🤔
 **Problem:** Cron heartbeat disabled. Ralph automation mostly dormant.  
-**Impact:** Issue triage relies on other workflows (squad-triage.yml).  
+**Impact:** Issue triage relies on other workflows (crew-triage.yml).  
 **Source:** Drucker audit (workflow #5, P2 item #12)  
 **Effort:** **S** (decision) or **M** (implementation if re-enabling)  
 **Options:**
 - **Option A:** Re-enable cron once Ralph triage script is stable
-- **Option B:** Remove workflow if redundant with squad-triage.yml  
+- **Option B:** Remove workflow if redundant with crew-triage.yml  
 **Recommendation:** Keep disabled until Ralph script stabilized.  
 **Dependencies:** Ralph triage script maturity.
 
@@ -459,7 +459,7 @@ Update workflows to use `build:release`.
 **Effort:** **S** (30 minutes)  
 **Fix:** Create `.github/CODEOWNERS`:
 ```
-.squad/ @bradygaster
+.crew/ @bradygaster
 .github/workflows/ @bradygaster
 packages/*/package.json @bradygaster
 ```
@@ -490,13 +490,13 @@ packages/*/package.json @bradygaster
 
 ## Architecture Decisions Required
 
-### 1. Consolidate publish.yml and squad-publish.yml?
+### 1. Consolidate publish.yml and crew-publish.yml?
 
 **Context:** Two workflows with overlapping triggers. Same workflow ID suggests rename/duplication.  
 **Source:** Both audits (Trejo: Section 7, Drucker: workflow #12, work item #12)
 
 **Options:**
-- **A. Delete squad-publish.yml** (use publish.yml as canonical)
+- **A. Delete crew-publish.yml** (use publish.yml as canonical)
   - ✅ Simplifies CI, reduces confusion
   - ❌ Loses tag-based publish as fallback if release-based publish breaks
 - **B. Keep both, document differences**
@@ -506,29 +506,29 @@ packages/*/package.json @bradygaster
   - ✅ Single source of truth
   - ❌ More complex workflow logic
 
-**Recommendation:** **Option A** (delete squad-publish.yml). publish.yml triggered by GitHub Releases is canonical. Tag-based publish as fallback adds complexity without clear value.
+**Recommendation:** **Option A** (delete crew-publish.yml). publish.yml triggered by GitHub Releases is canonical. Tag-based publish as fallback adds complexity without clear value.
 
 **Decision Owner:** Brady + Trejo
 
 ---
 
-### 2. Delete or Fix squad-release.yml?
+### 2. Delete or Fix crew-release.yml?
 
-**Context:** squad-release.yml is broken (9+ consecutive failures). Manual release process via SKILL.md works.  
+**Context:** crew-release.yml is broken (9+ consecutive failures). Manual release process via SKILL.md works.  
 **Source:** Both audits (Drucker: workflow #2, P0 item #1)
 
 **Options:**
-- **A. Fix squad-release.yml** (update tests to ES modules)
+- **A. Fix crew-release.yml** (update tests to ES modules)
   - ✅ Automation reduces human error
   - ❌ Test suite currently flaky, could block future releases
-- **B. Delete squad-release.yml** (rely on manual runbook)
+- **B. Delete crew-release.yml** (rely on manual runbook)
   - ✅ Removes failing CI, forces manual review
   - ❌ Loses automation, increases release friction
 - **C. Bypass tests temporarily** (skip broken tests in workflow)
   - ✅ Unblocks releases immediately
   - ❌ Normalizes broken tests, hides real issues
 
-**Recommendation:** **Option A** (fix squad-release.yml). Automation is valuable, test failures are fixable (ES module syntax). Work item #1 (P0) addresses this.
+**Recommendation:** **Option A** (fix crew-release.yml). Automation is valuable, test failures are fixable (ES module syntax). Work item #1 (P0) addresses this.
 
 **Decision Owner:** Drucker
 
@@ -582,20 +582,20 @@ packages/*/package.json @bradygaster
 
 ### 5. Preview Branch Architecture
 
-**Context:** squad-promote.yml and squad-preview.yml reference a `preview` branch that doesn't exist.  
+**Context:** crew-promote.yml and crew-preview.yml reference a `preview` branch that doesn't exist.  
 **Source:** Both audits (Trejo: Section 1 & 7, Drucker: workflow #10, work item #10)
 
 **Options:**
-- **A. Implement preview branch** (dev → preview → main with .squad/ stripping)
+- **A. Implement preview branch** (dev → preview → main with .crew/ stripping)
   - ✅ Gate before stable release, test stripped state
   - ❌ Adds complexity, maintenance burden
 - **B. Remove preview workflows** (use three-branch model: dev/insiders/main)
   - ✅ Simplifies release flow
-  - ❌ Loses gate that validates .squad/ stripping
+  - ❌ Loses gate that validates .crew/ stripping
 
-**Current State:** squad-promote.yml already supports dev → preview → main promotion with path stripping. preview branch just needs to be created.
+**Current State:** crew-promote.yml already supports dev → preview → main promotion with path stripping. preview branch just needs to be created.
 
-**Recommendation:** **Option B** (remove preview workflows). Three-branch model is sufficient. If .squad/ stripping is critical, add validation to squad-release.yml that fails if .squad/ files are tracked on main.
+**Recommendation:** **Option B** (remove preview workflows). Three-branch model is sufficient. If .crew/ stripping is critical, add validation to crew-release.yml that fails if .crew/ files are tracked on main.
 
 **Decision Owner:** Brady + Trejo
 
@@ -606,10 +606,10 @@ packages/*/package.json @bradygaster
 ### Phase 1: Unblock Releases (1-2 days)
 **Goal:** Make releases from main possible again.
 
-- ✅ P0 Item #1: Fix squad-release.yml test failures (ES module syntax)
+- ✅ P0 Item #1: Fix crew-release.yml test failures (ES module syntax)
 - ✅ P0 Item #5: Protect dev branch (GitHub UI, 5 minutes)
 
-**Success Criteria:** squad-release.yml workflow succeeds, dev branch rejects direct commits.
+**Success Criteria:** crew-release.yml workflow succeeds, dev branch rejects direct commits.
 
 ---
 
@@ -631,8 +631,8 @@ packages/*/package.json @bradygaster
 
 - ✅ P1 Item #9: Resolve insider/insiders naming
 - ✅ P1 Item #10: Preview branch decision (remove workflows)
-- ✅ P1 Item #12: Clarify/consolidate squad-publish.yml
-- ✅ P2 Item #23: Delete squad-publish.yml.deprecated
+- ✅ P1 Item #12: Clarify/consolidate crew-publish.yml
+- ✅ P2 Item #23: Delete crew-publish.yml.deprecated
 - ✅ P2 Item #16: Stale branch cleanup
 
 **Success Criteria:** Single canonical publish workflow, no dead workflows, clear branch model.
@@ -642,8 +642,8 @@ packages/*/package.json @bradygaster
 ### Phase 4: Hardening & Validation (5-7 days)
 **Goal:** Add validation gates and hardening.
 
-- ✅ P1 Item #8: Fix squad-ci.yml test failures
-- ✅ P1 Item #11: Apply validation fixes to squad-insider-publish.yml
+- ✅ P1 Item #8: Fix crew-ci.yml test failures
+- ✅ P1 Item #11: Apply validation fixes to crew-insider-publish.yml
 - ✅ P1 Item #13: Add pre-publish checklist CI job
 - ✅ P1 Item #15: Add automated rollback for partial failures
 - ✅ P2 Item #18: Add semver tag validation (pre-push hook)
@@ -684,9 +684,9 @@ packages/*/package.json @bradygaster
 **Measurable Outcomes:**
 
 1. **Zero Invalid Semver Incidents:** No 4-part versions reach npm for 6 months post-implementation.
-2. **squad-release.yml Success Rate ≥ 95%:** No more than 1 failure per 20 runs (excluding transient GitHub/npm API issues).
+2. **crew-release.yml Success Rate ≥ 95%:** No more than 1 failure per 20 runs (excluding transient GitHub/npm API issues).
 3. **MTTR for Release Failures < 1 hour:** Rollback automation reduces time from 6+ hours (v0.8.22) to <1 hour.
-4. **CI Confidence Restored:** squad-ci.yml and squad-release.yml pass consistently. No normalized failures.
+4. **CI Confidence Restored:** crew-ci.yml and crew-release.yml pass consistently. No normalized failures.
 5. **Zero Unprotected Critical Branches:** main AND dev protected with same rules.
 6. **Publish Pipeline Defense-in-Depth:** At least 3 validation layers before npm publish (pre-commit validation, CI checks, publish.yml gates).
 
@@ -709,20 +709,20 @@ packages/*/package.json @bradygaster
 | Workflow | Purpose | Status | Priority |
 |----------|---------|--------|----------|
 | publish.yml | Publish to npm (release-based) | ⚠️ Needs hardening | P0 |
-| squad-release.yml | Auto-create GitHub Release | ❌ Broken (tests) | P0 |
-| squad-ci.yml | PR/push CI | ⚠️ Flaky tests | P1 |
-| squad-docs.yml | Deploy docs to Pages | ✅ Working | — |
-| squad-heartbeat.yml | Ralph auto-triage | ⚠️ Dormant (cron disabled) | P2 |
-| squad-insider-publish.yml | Insider builds to npm | 🤔 Needs hardening | P1 |
-| squad-insider-release.yml | Insider GitHub Releases | ✅ Working | — |
-| squad-issue-assign.yml | Issue assignment | ✅ Working | — |
-| squad-label-enforce.yml | Label mutual exclusivity | ✅ Working | — |
-| squad-preview.yml | Preview validation | ❓ Dead code? | P1 |
-| squad-promote.yml | Branch promotion | ✅ Working | — |
-| squad-publish.yml | Tag-based publish | ❓ Redundant? | P2 |
-| squad-publish.yml.deprecated | — | ❌ Stale | P2 |
-| squad-triage.yml | Initial squad triage | ✅ Working | — |
-| sync-squad-labels.yml | Sync squad labels | ✅ Working | — |
+| crew-release.yml | Auto-create GitHub Release | ❌ Broken (tests) | P0 |
+| crew-ci.yml | PR/push CI | ⚠️ Flaky tests | P1 |
+| crew-docs.yml | Deploy docs to Pages | ✅ Working | — |
+| crew-heartbeat.yml | Ralph auto-triage | ⚠️ Dormant (cron disabled) | P2 |
+| crew-insider-publish.yml | Insider builds to npm | 🤔 Needs hardening | P1 |
+| crew-insider-release.yml | Insider GitHub Releases | ✅ Working | — |
+| crew-issue-assign.yml | Issue assignment | ✅ Working | — |
+| crew-label-enforce.yml | Label mutual exclusivity | ✅ Working | — |
+| crew-preview.yml | Preview validation | ❓ Dead code? | P1 |
+| crew-promote.yml | Branch promotion | ✅ Working | — |
+| crew-publish.yml | Tag-based publish | ❓ Redundant? | P2 |
+| crew-publish.yml.deprecated | — | ❌ Stale | P2 |
+| crew-triage.yml | Initial crew triage | ✅ Working | — |
+| sync-crew-labels.yml | Sync crew labels | ✅ Working | — |
 
 **Total:** 15 workflows  
 **Working:** 8 ✅ | **Needs hardening:** 3 ⚠️ | **Broken:** 1 ❌ | **Unclear/Redundant:** 3 ❓
@@ -734,7 +734,7 @@ packages/*/package.json @bradygaster
 ### Trejo vs. Drucker Perspectives
 
 **Where they agree:**
-- squad-release.yml is broken and blocking releases
+- crew-release.yml is broken and blocking releases
 - Semver validation is critical (P0)
 - bump-build.mjs is a footgun and caused v0.8.22
 - dev branch needs protection
@@ -775,7 +775,7 @@ packages/*/package.json @bradygaster
 
 3. **Branch Model Complexity:**
    - **Decision:** Three-branch model (dev/insiders/main), remove preview.
-   - **Rationale:** preview branch adds complexity without clear value. If .squad/ stripping is critical, validate in squad-release.yml.
+   - **Rationale:** preview branch adds complexity without clear value. If .crew/ stripping is critical, validate in crew-release.yml.
 
 4. **CI Test Strategy:**
    - **Decision:** Fix tests (don't skip), separate flaky tests from critical path.

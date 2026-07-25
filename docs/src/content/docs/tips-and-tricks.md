@@ -1,4 +1,4 @@
-# Tips and Tricks for Managing Your Squad
+# Tips and Tricks for Managing Your Crew
 
 > **Quick Start Prompts:**  
 > `"Team, build the login feature — include UI, API endpoints, and tests"`  
@@ -6,7 +6,7 @@
 > `"Ralph, start monitoring — handle the backlog while I work on urgent tasks"`  
 > `"What did the team accomplish last session?"`
 
-Real patterns from using Squad effectively. These are techniques that work.
+Real patterns from using Crew effectively. These are techniques that work.
 
 ---
 
@@ -130,7 +130,7 @@ When you don't care who handles it, or when it's context-dependent.
 > Add error logging to the API.
 ```
 
-Squad routes this intelligently. Could be backend, could be ops, depends on team.
+Crew routes this intelligently. Could be backend, could be ops, depends on team.
 
 ---
 
@@ -138,11 +138,11 @@ Squad routes this intelligently. Could be backend, could be ops, depends on team
 
 ### 1. Wait for Work to Complete Before Following Up
 
-Squad agents chain their own work. When you give a task, **don't interrupt**.
+Crew agents chain their own work. When you give a task, **don't interrupt**.
 
 ```
 You:  "Team, build the login page."
-      [Squad spawns frontend, backend, tester, lead]
+      [Crew spawns frontend, backend, tester, lead]
       [Frontend finishes UI, backend finishes endpoints, tester writes test cases]
       
       [Test failures show up → backend picks them up automatically]
@@ -254,14 +254,14 @@ When you see this, you can:
 
 ### 4. Use Ralph Between Sessions
 
-The `squad-heartbeat` workflow runs Ralph on event-based triggers (issue close, PR merge, manual dispatch). For persistent polling when you're away from the keyboard, use `squad watch` locally.
+The `crew-heartbeat` workflow runs Ralph on event-based triggers (issue close, PR merge, manual dispatch). For persistent polling when you're away from the keyboard, use `crew watch` locally.
 
 Ralph will:
 - Triage new issues
 - Assign them to team members
 - Trigger `@copilot` if you have the coding agent enabled
 
-This means your squad works even when you're not at the keyboard.
+This means your crew works even when you're not at the keyboard.
 
 ### 5. Check Ralph's Status Before Wrapping Up
 
@@ -403,7 +403,7 @@ If an agent keeps asking "where are the components?", their history might not ha
 
 **Problem:** You give a task to the team, then jump in after 2 minutes with a follow-up question.
 
-**Solution:** Let parallel work finish. Squad agents chain automatically. Your interruption breaks the chain.
+**Solution:** Let parallel work finish. Crew agents chain automatically. Your interruption breaks the chain.
 
 ```
 ❌ You: "Team, build the checkout page"
@@ -457,7 +457,7 @@ Ralph handles the backlog, you handle the critical path.
 
 ```bash
 git add .ai-team/
-git commit -m "Add squad team state"
+git commit -m "Add crew team state"
 git push
 ```
 
@@ -514,8 +514,8 @@ This prevents "we built different things" surprises.
 If you have a large project, you can run one team on one feature, another team on another.
 
 ```
-Squad 1: "Team A, build the admin dashboard. You own features/admin/."
-Squad 2: "Team B, build the mobile app. You own features/mobile/."
+Crew 1: "Team A, build the admin dashboard. You own features/admin/."
+Crew 2: "Team B, build the mobile app. You own features/mobile/."
 
 [Both teams work in parallel]
 [Shared decisions in .ai-team/decisions.md prevent conflicts]

@@ -1,18 +1,18 @@
-# Squad for Solo Developers
+# Crew for Solo Developers
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this:**
 ```
-I'm working alone on a side project — set up a minimal squad to help with code review and testing
+I'm working alone on a side project — set up a minimal crew to help with code review and testing
 ```
 
-Squad gives solo devs what they're missing: code review, test coverage, and architectural second opinions. Start with 3 agents instead of 5.
+Crew gives solo devs what they're missing: code review, test coverage, and architectural second opinions. Start with 3 agents instead of 5.
 
 ---
 
-## 1. Why Squad Works for Solo Devs
+## 1. Why Crew Works for Solo Devs
 
 When you're working alone:
 
@@ -20,7 +20,7 @@ When you're working alone:
 - **No testing discipline.** You skip tests when you're in a hurry.
 - **No second opinion.** Architectural decisions go unchallenged.
 
-Squad gives you a **Lead who reviews everything**, a **tester who catches edge cases**, and **specialists who know their domain**. You're one person, but you have a team that remembers everything.
+Crew gives you a **Lead who reviews everything**, a **tester who catches edge cases**, and **specialists who know their domain**. You're one person, but you have a team that remembers everything.
 
 ---
 
@@ -95,9 +95,9 @@ Next time any agent builds an auth feature, they read this skill first. The mist
 
 ## 5. You're Solo, But Your Team Remembers Everything
 
-As a solo dev, you juggle dozens of context switches. Squad doesn't forget:
+As a solo dev, you juggle dozens of context switches. Crew doesn't forget:
 
-- **Decisions** are logged. "Why did I use PostgreSQL instead of MongoDB?" — check `.squad/decisions.md`.
+- **Decisions** are logged. "Why did I use PostgreSQL instead of MongoDB?" — check `.crew/decisions.md`.
 - **Skills** capture patterns. "How do I structure FastAPI routes?" — check `.copilot/skills/`.
 - **Histories** track what each agent learned. Fredo knows your database schema after one session.
 
@@ -105,7 +105,7 @@ You get back to a project after 3 weeks, and the team is still up to speed.
 
 ---
 
-## 6. Workflow: Solo Dev + Squad
+## 6. Workflow: Solo Dev + Crew
 
 ```
 > Fredo, add a /users endpoint with pagination and filtering.

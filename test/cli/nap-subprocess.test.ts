@@ -3,13 +3,13 @@
  *
  * Verifies that the nap command works correctly when invoked from a
  * subprocess with a different working directory, as happens with
- * Copilot CLI bang commands (!squad nap) on Windows.
+ * Copilot CLI bang commands (!crew nap) on Windows.
  *
- * The fix: getSquadStartDir() respects SQUAD_TEAM_ROOT env var,
+ * The fix: getCrewStartDir() respects CREW_TEAM_ROOT env var,
  * falling back to process.cwd() when unset.
  *
- * @see packages/squad-cli/src/cli-entry.ts — getSquadStartDir()
- * @see https://github.com/bradygaster/squad/issues/734
+ * @see packages/crew-cli/src/cli-entry.ts — getCrewStartDir()
+ * @see https://github.com/Blacklite/crew/issues/734
  */
 
 import { describe, it, expect, afterEach, beforeEach } from 'vitest';
@@ -22,7 +22,7 @@ import {
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-import { runNap } from '../../packages/squad-cli/src/cli/core/nap.js';
+import { runNap } from '../../packages/crew-cli/src/cli/core/nap.js';
 
 // ============================================================================
 // Helpers
@@ -30,21 +30,21 @@ import { runNap } from '../../packages/squad-cli/src/cli/core/nap.js';
 
 const tmpDirs: string[] = [];
 
-function createTestSquadDir(): string {
-  const tmpDir = mkdtempSync(join(tmpdir(), 'squad-nap-subprocess-'));
+function createTestCrewDir(): string {
+  const tmpDir = mkdtempSync(join(tmpdir(), 'crew-nap-subprocess-'));
   tmpDirs.push(tmpDir);
-  const squadDir = join(tmpDir, '.squad');
-  mkdirSync(join(squadDir, 'agents', 'edie'), { recursive: true });
-  mkdirSync(join(squadDir, 'decisions', 'inbox'), { recursive: true });
-  mkdirSync(join(squadDir, 'orchestration-log'), { recursive: true });
-  writeFileSync(join(squadDir, 'team.md'), '# Team\n');
-  writeFileSync(join(squadDir, 'routing.md'), '# Routing\n');
-  writeFileSync(join(squadDir, 'decisions.md'), '# Decisions\n');
+  const crewDir = join(tmpDir, '.crew');
+  mkdirSync(join(crewDir, 'agents', 'edie'), { recursive: true });
+  mkdirSync(join(crewDir, 'decisions', 'inbox'), { recursive: true });
+  mkdirSync(join(crewDir, 'orchestration-log'), { recursive: true });
+  writeFileSync(join(crewDir, 'team.md'), '# Team\n');
+  writeFileSync(join(crewDir, 'routing.md'), '# Routing\n');
+  writeFileSync(join(crewDir, 'decisions.md'), '# Decisions\n');
   writeFileSync(
-    join(squadDir, 'agents', 'edie', 'history.md'),
+    join(crewDir, 'agents', 'edie', 'history.md'),
     '## Core Context\n\nTest agent.\n',
   );
-  return squadDir;
+  return crewDir;
 }
 
 // ============================================================================
@@ -52,18 +52,18 @@ function createTestSquadDir(): string {
 // ============================================================================
 
 describe('nap: subprocess / --team-root resolution (#734)', () => {
-  const savedTeamRoot = process.env['SQUAD_TEAM_ROOT'];
+  const savedTeamRoot = process.env['CREW_TEAM_ROOT'];
 
   beforeEach(() => {
-    delete process.env['SQUAD_TEAM_ROOT'];
+    delete process.env['CREW_TEAM_ROOT'];
   });
 
   afterEach(() => {
     // Restore env
     if (savedTeamRoot !== undefined) {
-      process.env['SQUAD_TEAM_ROOT'] = savedTeamRoot;
+      process.env['CREW_TEAM_ROOT'] = savedTeamRoot;
     } else {
-      delete process.env['SQUAD_TEAM_ROOT'];
+      delete process.env['CREW_TEAM_ROOT'];
     }
     // Clean up temp dirs
     for (const dir of tmpDirs) {
@@ -72,19 +72,19 @@ describe('nap: subprocess / --team-root resolution (#734)', () => {
     tmpDirs.length = 0;
   });
 
-  it('runNap succeeds with explicit squadDir from a different working directory', async () => {
-    const squadDir = createTestSquadDir();
-    const differentCwd = mkdtempSync(join(tmpdir(), 'squad-nap-other-cwd-'));
+  it('runNap succeeds with explicit crewDir from a different working directory', async () => {
+    const crewDir = createTestCrewDir();
+    const differentCwd = mkdtempSync(join(tmpdir(), 'crew-nap-other-cwd-'));
     tmpDirs.push(differentCwd);
     const previousCwd = process.cwd();
 
     try {
       // This simulates the key scenario from #734: nap is called with a
-      // squadDir resolved from SQUAD_TEAM_ROOT while the current working
+      // crewDir resolved from CREW_TEAM_ROOT while the current working
       // directory points somewhere else.
       process.chdir(differentCwd);
 
-      const result = await runNap({ squadDir, dryRun: true });
+      const result = await runNap({ crewDir, dryRun: true });
 
       expect(result).toBeDefined();
       expect(result.actions).toBeDefined();
@@ -95,9 +95,9 @@ describe('nap: subprocess / --team-root resolution (#734)', () => {
     }
   });
 
-  it('runNap returns empty result when squadDir does not exist', async () => {
-    const nonExistent = join(tmpdir(), 'squad-nap-nonexistent-dir');
-    const result = await runNap({ squadDir: nonExistent, dryRun: true });
+  it('runNap returns empty result when crewDir does not exist', async () => {
+    const nonExistent = join(tmpdir(), 'crew-nap-nonexistent-dir');
+    const result = await runNap({ crewDir: nonExistent, dryRun: true });
 
     expect(result.actions).toHaveLength(0);
     expect(result.before.totalFiles).toBe(0);

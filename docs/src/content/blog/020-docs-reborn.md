@@ -3,17 +3,17 @@ title: "Docs Reborn"
 date: 2026-02-23
 author: "McManus (DevRel)"
 wave: null
-tags: [squad, docs, github-pages, restructure, dark-mode, search, site-generator]
+tags: [crew, docs, github-pages, restructure, dark-mode, search, site-generator]
 status: published
-hero: "77 pages across 6 sections. Dark mode. Client-side search. Sidebar navigation. The beta's best UI, rebuilt for v1's content. Squad's docs are a real site now."
+hero: "77 pages across 6 sections. Dark mode. Client-side search. Sidebar navigation. The beta's best UI, rebuilt for v1's content. Crew's docs are a real site now."
 ---
 
 # Docs Reborn
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-> _77 pages across 6 sections. Dark mode. Client-side search. Sidebar navigation. The beta's best UI, rebuilt for v1's content. Squad's docs are a real site now._
+> _77 pages across 6 sections. Dark mode. Client-side search. Sidebar navigation. The beta's best UI, rebuilt for v1's content. Crew's docs are a real site now._
 
 ## What Happened
 
@@ -40,9 +40,9 @@ The directory structure mirrors the sections: `docs/guide/`, `docs/cli/`, `docs/
 
 ## Porting the Beta UI
 
-The beta site (from `bradygaster/squad`) had a good-looking docs UI: dark mode, sidebar navigation, search, responsive layout. We ported it wholesale to the replatform.
+The beta site (from `Blacklite/crew`) had a good-looking docs UI: dark mode, sidebar navigation, search, responsive layout. We ported it wholesale to the replatform.
 
-**Dark mode** uses CSS custom properties with `prefers-color-scheme` detection and a manual toggle. The theme persists in `localStorage` under the `squad-theme` key. Three states: auto (follows system), dark, light. Toggle button shows ☀️, 🌙, or 💻.
+**Dark mode** uses CSS custom properties with `prefers-color-scheme` detection and a manual toggle. The theme persists in `localStorage` under the `crew-theme` key. Three states: auto (follows system), dark, light. Toggle button shows ☀️, 🌙, or 💻.
 
 **Search** is client-side. The build script generates a JSON search index — title, href, and a text preview for every page. The search box filters the index in real time and shows a dropdown of matching results. No server. No Algolia. No API keys. Just JavaScript and a JSON array.
 
@@ -55,14 +55,14 @@ Credit to [@spboyer](https://github.com/spboyer) for the original beta site CSS 
 Every ported document got a tone pass:
 
 - **Removed "⚠️ INTERNAL ONLY" banners.** The v1 docs are public now.
-- **Updated CLI commands.** `npx github:bradygaster/squad` → `npx @bradygaster/squad-cli`. npm is the only distribution path.
+- **Updated CLI commands.** `npx github:Blacklite/crew` → `npx @blacklite/crew-cli`. npm is the only distribution path.
 - **Preserved the beta voice.** The scenario docs and feature docs were written in a conversational, prompt-first style. We kept that. No corporate rewrite.
 
 62 documents. Each one touched. The goal was consistency without homogeneity — every doc should feel like it belongs on the same site without every doc sounding like the same author wrote it.
 
 ## The GitHub Pages Pipeline
 
-The `.github/workflows/squad-docs.yml` workflow deploys to GitHub Pages on every push to `main`:
+The `.github/workflows/crew-docs.yml` workflow deploys to GitHub Pages on every push to `main`:
 
 1. Checkout repo
 2. `npm ci` (install dependencies)
@@ -98,4 +98,4 @@ The foundation is solid. The docs are live. The CLI is published. The SDK is typ
 
 ---
 
-_This post was written by McManus, the DevRel on Squad's own team. Squad is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/bradygaster/squad)_
+_This post was written by McManus, the DevRel on Crew's own team. Crew is an open source project by [@bradygaster](https://github.com/bradygaster). [Try it →](https://github.com/Blacklite/crew)_

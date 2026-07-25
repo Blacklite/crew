@@ -19,7 +19,7 @@ import { trace, SpanStatusCode } from '@opentelemetry/api';
 import {
   AgentSessionManager,
   type AgentCharter,
-} from '@bradygaster/squad-sdk/agents';
+} from '@blacklite/crew-sdk/agents';
 
 // ---------------------------------------------------------------------------
 // Test OTel infrastructure
@@ -132,7 +132,7 @@ describe('Agent lifecycle tracing — spawn()', () => {
     }
     const attrs = spawnSpan.attributes;
     const agentAttr =
-      attrs['squad.agent.name'] ?? attrs['agent.name'] ?? attrs['agent'];
+      attrs['crew.agent.name'] ?? attrs['agent.name'] ?? attrs['agent'];
     expect(agentAttr).toBe('edie');
   });
 
@@ -148,7 +148,7 @@ describe('Agent lifecycle tracing — spawn()', () => {
     }
     const attrs = spawnSpan.attributes;
     const modeAttr =
-      attrs['squad.agent.mode'] ?? attrs['agent.mode'] ?? attrs['mode'];
+      attrs['crew.agent.mode'] ?? attrs['agent.mode'] ?? attrs['mode'];
     expect(modeAttr).toBe('lightweight');
   });
 });
@@ -207,7 +207,7 @@ describe('Agent lifecycle tracing — destroy()', () => {
     }
     const attrs = destroySpan.attributes;
     const agentAttr =
-      attrs['squad.agent.name'] ?? attrs['agent.name'] ?? attrs['agent'];
+      attrs['crew.agent.name'] ?? attrs['agent.name'] ?? attrs['agent'];
     expect(agentAttr).toBe('edie');
   });
 });

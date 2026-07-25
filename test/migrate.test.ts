@@ -1,10 +1,10 @@
 /**
- * Test suite for squad migrate command (Issue #250)
+ * Test suite for crew migrate command (Issue #250)
  *
  * Tests the migration between markdown and SDK-First config modes:
- * - `squad migrate --to sdk`: converts markdown squad to SDK config
- * - `squad migrate --to markdown`: removes SDK config, keeps .squad/
- * - `squad migrate --from ai-team`: renames .ai-team/ to .squad/
+ * - `crew migrate --to sdk`: converts markdown crew to SDK config
+ * - `crew migrate --to markdown`: removes SDK config, keeps .crew/
+ * - `crew migrate --from ai-team`: renames .ai-team/ to .crew/
  *
  * @module test/migrate
  */
@@ -16,14 +16,14 @@ import { tmpdir } from 'os';
 import { existsSync } from 'fs';
 
 // Note: migrate function location TBD - adjust import when implementation lands
-// Expected at packages/squad-sdk/src/config/migration.ts or cli command
+// Expected at packages/crew-sdk/src/config/migration.ts or cli command
 // For now, define test structure that can be filled in when implementation is ready
 
-describe('squad migrate', () => {
+describe('crew migrate', () => {
   let tempDir: string;
 
   beforeEach(async () => {
-    tempDir = await mkdtemp(join(tmpdir(), 'squad-migrate-test-'));
+    tempDir = await mkdtemp(join(tmpdir(), 'crew-migrate-test-'));
   });
 
   afterEach(async () => {
@@ -31,14 +31,14 @@ describe('squad migrate', () => {
   });
 
   /**
-   * Helper: Create a minimal markdown-only squad structure
+   * Helper: Create a minimal markdown-only crew structure
    */
-  async function createMarkdownSquad(targetDir: string) {
-    const squadDir = join(targetDir, '.squad');
-    await mkdir(squadDir, { recursive: true });
-    await mkdir(join(squadDir, 'agents'), { recursive: true });
-    await mkdir(join(squadDir, 'decisions'), { recursive: true });
-    await mkdir(join(squadDir, 'skills'), { recursive: true });
+  async function createMarkdownCrew(targetDir: string) {
+    const crewDir = join(targetDir, '.crew');
+    await mkdir(crewDir, { recursive: true });
+    await mkdir(join(crewDir, 'agents'), { recursive: true });
+    await mkdir(join(crewDir, 'decisions'), { recursive: true });
+    await mkdir(join(crewDir, 'skills'), { recursive: true });
 
     // Create team.md with roster
     const teamMd = `# Team
@@ -51,26 +51,26 @@ describe('squad migrate', () => {
 | hockney | Tester | active |
 | fenster | Systems Engineer | active |
 `;
-    await writeFile(join(squadDir, 'team.md'), teamMd, 'utf-8');
+    await writeFile(join(crewDir, 'team.md'), teamMd, 'utf-8');
 
     // Create agent charters
-    await mkdir(join(squadDir, 'agents', 'edie'), { recursive: true });
+    await mkdir(join(crewDir, 'agents', 'edie'), { recursive: true });
     await writeFile(
-      join(squadDir, 'agents', 'edie', 'charter.md'),
+      join(crewDir, 'agents', 'edie', 'charter.md'),
       '# Edie — TypeScript Engineer\n\nExpert in TypeScript...',
       'utf-8'
     );
 
-    await mkdir(join(squadDir, 'agents', 'hockney'), { recursive: true });
+    await mkdir(join(crewDir, 'agents', 'hockney'), { recursive: true });
     await writeFile(
-      join(squadDir, 'agents', 'hockney', 'charter.md'),
+      join(crewDir, 'agents', 'hockney', 'charter.md'),
       '# Hockney — Tester\n\nSkeptical, relentless...',
       'utf-8'
     );
 
-    await mkdir(join(squadDir, 'agents', 'fenster'), { recursive: true });
+    await mkdir(join(crewDir, 'agents', 'fenster'), { recursive: true });
     await writeFile(
-      join(squadDir, 'agents', 'fenster', 'charter.md'),
+      join(crewDir, 'agents', 'fenster', 'charter.md'),
       '# Fenster — Systems Engineer\n\nInfrastructure expert...',
       'utf-8'
     );
@@ -82,20 +82,20 @@ describe('squad migrate', () => {
 - Use TypeScript strict mode
 - Vitest for testing
 `;
-    await writeFile(join(squadDir, 'decisions.md'), decisionsMd, 'utf-8');
+    await writeFile(join(crewDir, 'decisions.md'), decisionsMd, 'utf-8');
   }
 
   /**
-   * Helper: Create an SDK-First squad with squad.config.ts
+   * Helper: Create an SDK-First crew with crew.config.ts
    */
-  async function createSdkSquad(targetDir: string) {
-    await createMarkdownSquad(targetDir);
+  async function createSdkCrew(targetDir: string) {
+    await createMarkdownCrew(targetDir);
 
-    const configTs = `import { defineSquad, defineTeam, defineAgent } from '@bradygaster/squad-sdk';
+    const configTs = `import { defineCrew, defineTeam, defineAgent } from '@blacklite/crew-sdk';
 
-export default defineSquad({
+export default defineCrew({
   team: defineTeam({
-    name: 'Test Squad',
+    name: 'Test Crew',
     members: ['edie', 'hockney'],
   }),
   agents: [
@@ -104,11 +104,11 @@ export default defineSquad({
   ],
 });
 `;
-    await writeFile(join(targetDir, 'squad.config.ts'), configTs, 'utf-8');
+    await writeFile(join(targetDir, 'crew.config.ts'), configTs, 'utf-8');
   }
 
-  it('--to sdk generates squad.config.ts from existing .squad/', async () => {
-    await createMarkdownSquad(tempDir);
+  it('--to sdk generates crew.config.ts from existing .crew/', async () => {
+    await createMarkdownCrew(tempDir);
 
     // TODO: Call migrate function when implementation lands
     // await migrate({ targetDir: tempDir, to: 'sdk' });
@@ -116,33 +116,33 @@ export default defineSquad({
     // For now, test structure is defined but will skip
     // Uncomment when implementation is ready:
     /*
-    const configPath = join(tempDir, 'squad.config.ts');
+    const configPath = join(tempDir, 'crew.config.ts');
     expect(existsSync(configPath)).toBe(true);
 
     const configContent = await readFile(configPath, 'utf-8');
-    expect(configContent).toContain('defineSquad');
+    expect(configContent).toContain('defineCrew');
     expect(configContent).toContain('defineTeam');
     expect(configContent).toContain('defineAgent');
     */
   });
 
   it('--to sdk --dry-run prints preview without writing', async () => {
-    await createMarkdownSquad(tempDir);
+    await createMarkdownCrew(tempDir);
 
     // TODO: Call migrate with dry-run flag
     // const result = await migrate({ targetDir: tempDir, to: 'sdk', dryRun: true });
 
-    // Assert: squad.config.ts NOT created
-    expect(existsSync(join(tempDir, 'squad.config.ts'))).toBe(false);
+    // Assert: crew.config.ts NOT created
+    expect(existsSync(join(tempDir, 'crew.config.ts'))).toBe(false);
 
     // Assert: output contains the config preview (check return value)
     // expect(result.preview).toBeTruthy();
   });
 
   it('--to sdk preserves decisions.md untouched', async () => {
-    await createMarkdownSquad(tempDir);
+    await createMarkdownCrew(tempDir);
 
-    const decisionsPath = join(tempDir, '.squad', 'decisions.md');
+    const decisionsPath = join(tempDir, '.crew', 'decisions.md');
     const originalContent = await readFile(decisionsPath, 'utf-8');
 
     // TODO: Call migrate
@@ -154,12 +154,12 @@ export default defineSquad({
   });
 
   it('--to sdk parses team.md members table correctly', async () => {
-    await createMarkdownSquad(tempDir);
+    await createMarkdownCrew(tempDir);
 
     // TODO: Call migrate
     // await migrate({ targetDir: tempDir, to: 'sdk' });
 
-    // const configPath = join(tempDir, 'squad.config.ts');
+    // const configPath = join(tempDir, 'crew.config.ts');
     // const configContent = await readFile(configPath, 'utf-8');
 
     // Assert: generated config has 3 defineAgent() calls (edie, hockney, fenster)
@@ -167,27 +167,27 @@ export default defineSquad({
     // expect(agentMatches).toHaveLength(3);
   });
 
-  it('--to markdown removes squad.config.ts', async () => {
-    await createSdkSquad(tempDir);
+  it('--to markdown removes crew.config.ts', async () => {
+    await createSdkCrew(tempDir);
 
     // Verify config exists before migration
-    expect(existsSync(join(tempDir, 'squad.config.ts'))).toBe(true);
+    expect(existsSync(join(tempDir, 'crew.config.ts'))).toBe(true);
 
     // TODO: Call migrate
     // await migrate({ targetDir: tempDir, to: 'markdown' });
 
-    // Assert: squad.config.ts removed (or backed up)
-    // expect(existsSync(join(tempDir, 'squad.config.ts'))).toBe(false);
+    // Assert: crew.config.ts removed (or backed up)
+    // expect(existsSync(join(tempDir, 'crew.config.ts'))).toBe(false);
 
-    // Assert: .squad/ directory preserved
-    expect(existsSync(join(tempDir, '.squad'))).toBe(true);
-    expect(existsSync(join(tempDir, '.squad', 'team.md'))).toBe(true);
+    // Assert: .crew/ directory preserved
+    expect(existsSync(join(tempDir, '.crew'))).toBe(true);
+    expect(existsSync(join(tempDir, '.crew', 'team.md'))).toBe(true);
   });
 
-  it('detects already-SDK squad and reports no-op', async () => {
-    await createSdkSquad(tempDir);
+  it('detects already-SDK crew and reports no-op', async () => {
+    await createSdkCrew(tempDir);
 
-    // TODO: Call migrate --to sdk on already-SDK squad
+    // TODO: Call migrate --to sdk on already-SDK crew
     // const result = await migrate({ targetDir: tempDir, to: 'sdk' });
 
     // Assert: reports "already in SDK mode" or similar
@@ -195,7 +195,7 @@ export default defineSquad({
     // expect(result.message).toMatch(/already.*sdk/i);
   });
 
-  it('--from ai-team renames .ai-team/ to .squad/', async () => {
+  it('--from ai-team renames .ai-team/ to .crew/', async () => {
     // Create old .ai-team/ structure
     const aiTeamDir = join(tempDir, '.ai-team');
     await mkdir(aiTeamDir, { recursive: true });
@@ -208,28 +208,28 @@ export default defineSquad({
     // Assert: .ai-team/ gone
     // expect(existsSync(join(tempDir, '.ai-team'))).toBe(false);
 
-    // Assert: .squad/ exists with contents
-    // expect(existsSync(join(tempDir, '.squad'))).toBe(true);
-    // expect(existsSync(join(tempDir, '.squad', 'team.md'))).toBe(true);
+    // Assert: .crew/ exists with contents
+    // expect(existsSync(join(tempDir, '.crew'))).toBe(true);
+    // expect(existsSync(join(tempDir, '.crew', 'team.md'))).toBe(true);
   });
 
   it('--to sdk handles agents with no charter file', async () => {
-    await createMarkdownSquad(tempDir);
+    await createMarkdownCrew(tempDir);
 
     // Remove one charter file
-    await rm(join(tempDir, '.squad', 'agents', 'fenster', 'charter.md'));
+    await rm(join(tempDir, '.crew', 'agents', 'fenster', 'charter.md'));
 
     // TODO: Call migrate
     // await migrate({ targetDir: tempDir, to: 'sdk' });
 
     // Assert: still generates config with fenster agent (with empty or placeholder charter)
-    // const configPath = join(tempDir, 'squad.config.ts');
+    // const configPath = join(tempDir, 'crew.config.ts');
     // const configContent = await readFile(configPath, 'utf-8');
     // expect(configContent).toContain('fenster');
   });
 
   it('--to sdk preserves agent capabilities from charter frontmatter', async () => {
-    await createMarkdownSquad(tempDir);
+    await createMarkdownCrew(tempDir);
 
     // Add frontmatter to edie's charter
     const charterWithMeta = `---
@@ -245,7 +245,7 @@ capabilities:
 Expert in TypeScript...
 `;
     await writeFile(
-      join(tempDir, '.squad', 'agents', 'edie', 'charter.md'),
+      join(tempDir, '.crew', 'agents', 'edie', 'charter.md'),
       charterWithMeta,
       'utf-8'
     );
@@ -253,7 +253,7 @@ Expert in TypeScript...
     // TODO: Call migrate
     // await migrate({ targetDir: tempDir, to: 'sdk' });
 
-    // const configPath = join(tempDir, 'squad.config.ts');
+    // const configPath = join(tempDir, 'crew.config.ts');
     // const configContent = await readFile(configPath, 'utf-8');
 
     // Assert: capabilities included in defineAgent call
@@ -261,7 +261,7 @@ Expert in TypeScript...
   });
 
   it('--to sdk preserves routing rules from routing.md', async () => {
-    await createMarkdownSquad(tempDir);
+    await createMarkdownCrew(tempDir);
 
     // Create routing.md
     const routingMd = `# Routing
@@ -274,12 +274,12 @@ Expert in TypeScript...
 
 Default: edie
 `;
-    await writeFile(join(tempDir, '.squad', 'routing.md'), routingMd, 'utf-8');
+    await writeFile(join(tempDir, '.crew', 'routing.md'), routingMd, 'utf-8');
 
     // TODO: Call migrate
     // await migrate({ targetDir: tempDir, to: 'sdk' });
 
-    // const configPath = join(tempDir, 'squad.config.ts');
+    // const configPath = join(tempDir, 'crew.config.ts');
     // const configContent = await readFile(configPath, 'utf-8');
 
     // Assert: routing section included
@@ -288,19 +288,19 @@ Default: edie
   });
 
   it('--to sdk handles skills/ directory', async () => {
-    await createMarkdownSquad(tempDir);
+    await createMarkdownCrew(tempDir);
 
     // Create a skill file
-    await mkdir(join(tempDir, '.squad', 'skills', 'git-workflow'), { recursive: true });
+    await mkdir(join(tempDir, '.crew', 'skills', 'git-workflow'), { recursive: true });
     const skillMd = `---
 name: Git Workflow
 domain: workflow
 ---
 
-Branch from dev, use squad/* naming...
+Branch from dev, use crew/* naming...
 `;
     await writeFile(
-      join(tempDir, '.squad', 'skills', 'git-workflow', 'SKILL.md'),
+      join(tempDir, '.crew', 'skills', 'git-workflow', 'SKILL.md'),
       skillMd,
       'utf-8'
     );
@@ -308,28 +308,28 @@ Branch from dev, use squad/* naming...
     // TODO: Call migrate
     // await migrate({ targetDir: tempDir, to: 'sdk' });
 
-    // const configPath = join(tempDir, 'squad.config.ts');
+    // const configPath = join(tempDir, 'crew.config.ts');
     // const configContent = await readFile(configPath, 'utf-8');
 
     // Assert: skills section included (if supported)
     // expect(configContent).toContain('skills');
   });
 
-  it('validates markdown squad exists before migration', async () => {
-    // Empty directory, no .squad/
+  it('validates markdown crew exists before migration', async () => {
+    // Empty directory, no .crew/
 
     // TODO: Call migrate on empty directory
     // await expect(
     //   migrate({ targetDir: tempDir, to: 'sdk' })
-    // ).rejects.toThrow(/no squad found/i);
+    // ).rejects.toThrow(/no crew found/i);
   });
 
-  it('--force flag overwrites existing squad.config.ts', async () => {
-    await createMarkdownSquad(tempDir);
+  it('--force flag overwrites existing crew.config.ts', async () => {
+    await createMarkdownCrew(tempDir);
 
     // Create existing config with different content
     await writeFile(
-      join(tempDir, 'squad.config.ts'),
+      join(tempDir, 'crew.config.ts'),
       '// Old config',
       'utf-8'
     );
@@ -337,8 +337,8 @@ Branch from dev, use squad/* naming...
     // TODO: Call migrate with force
     // await migrate({ targetDir: tempDir, to: 'sdk', force: true });
 
-    // const configContent = await readFile(join(tempDir, 'squad.config.ts'), 'utf-8');
+    // const configContent = await readFile(join(tempDir, 'crew.config.ts'), 'utf-8');
     // expect(configContent).not.toContain('Old config');
-    // expect(configContent).toContain('defineSquad');
+    // expect(configContent).toContain('defineCrew');
   });
 });

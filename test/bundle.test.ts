@@ -15,7 +15,7 @@ import {
   getBundleTargets,
   validateBundleOutput,
   type BundleConfig,
-} from '@bradygaster/squad-sdk/build';
+} from '@blacklite/crew-sdk/build';
 
 import {
   generatePackageJson,
@@ -23,7 +23,7 @@ import {
   getPublishFiles,
   getDefaultExports,
   type NpmPackageConfig,
-} from '@bradygaster/squad-sdk/build';
+} from '@blacklite/crew-sdk/build';
 
 import {
   generateInstallScript,
@@ -32,7 +32,7 @@ import {
   generateNpxEntryPoint,
   getDefaultDistConfig,
   type GitHubDistConfig,
-} from '@bradygaster/squad-sdk/build';
+} from '@blacklite/crew-sdk/build';
 
 // ─── M4-1: Bundle strategy ──────────────────────────────────────────────
 
@@ -126,7 +126,7 @@ describe('bundle', () => {
     let tempDir: string;
 
     beforeEach(() => {
-      tempDir = join(tmpdir(), `squad-bundle-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      tempDir = join(tmpdir(), `crew-bundle-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
       mkdirSync(tempDir, { recursive: true });
     });
 
@@ -187,9 +187,9 @@ describe('bundle', () => {
 
 describe('npm-package', () => {
   const baseConfig: NpmPackageConfig = {
-    name: '@bradygaster/squad',
+    name: '@blacklite/crew',
     version: '0.6.0',
-    description: 'Squad SDK',
+    description: 'Crew SDK',
     exports: {
       '.': { import: './dist/index.js', types: './dist/index.d.ts' },
     },
@@ -198,7 +198,7 @@ describe('npm-package', () => {
   describe('generatePackageJson', () => {
     it('generates valid package.json with required fields', () => {
       const pkg = generatePackageJson(baseConfig);
-      expect(pkg.name).toBe('@bradygaster/squad');
+      expect(pkg.name).toBe('@blacklite/crew');
       expect(pkg.version).toBe('0.6.0');
       expect(pkg.type).toBe('module');
     });
@@ -231,8 +231,8 @@ describe('npm-package', () => {
     });
 
     it('includes bin entries when provided', () => {
-      const pkg = generatePackageJson({ ...baseConfig, bin: { squad: './dist/index.js' } });
-      expect(pkg.bin).toEqual({ squad: './dist/index.js' });
+      const pkg = generatePackageJson({ ...baseConfig, bin: { crew: './dist/index.js' } });
+      expect(pkg.bin).toEqual({ crew: './dist/index.js' });
     });
 
     it('omits bin when not provided', () => {
@@ -312,7 +312,7 @@ describe('npm-package', () => {
 
     it('validates scoped package names', () => {
       const result = validatePackageJson({
-        name: '@bradygaster/squad', version: '1.0.0',
+        name: '@blacklite/crew', version: '1.0.0',
         type: 'module', exports: { '.': './dist/index.js' },
         files: ['dist/'],
       });
@@ -378,10 +378,10 @@ describe('github-dist', () => {
       expect(script).toContain('REPO="myrepo"');
     });
 
-    it('uses bradygaster/squad as default', () => {
+    it('uses Blacklite/crew as default', () => {
       const script = generateInstallScript();
-      expect(script).toContain('OWNER="bradygaster"');
-      expect(script).toContain('REPO="squad"');
+      expect(script).toContain('OWNER="Blacklite"');
+      expect(script).toContain('REPO="crew"');
     });
 
     it('uses custom binary name', () => {
@@ -398,10 +398,10 @@ describe('github-dist', () => {
 
   describe('validateGitHubRelease', () => {
     const config: GitHubDistConfig = {
-      owner: 'bradygaster',
-      repo: 'squad',
-      binaryName: 'squad',
-      installCommandTemplate: 'npx @bradygaster/squad-cli',
+      owner: 'Blacklite',
+      repo: 'crew',
+      binaryName: 'crew',
+      installCommandTemplate: 'npx @blacklite/crew-cli',
     };
 
     it('validates a proper version', () => {
@@ -411,8 +411,8 @@ describe('github-dist', () => {
 
     it('returns expected assets list', () => {
       const result = validateGitHubRelease(config, '1.0.0');
-      expect(result.expectedAssets).toContain('squad-1.0.0.tar.gz');
-      expect(result.expectedAssets).toContain('squad-1.0.0.zip');
+      expect(result.expectedAssets).toContain('crew-1.0.0.tar.gz');
+      expect(result.expectedAssets).toContain('crew-1.0.0.zip');
     });
 
     it('fails for empty version', () => {
@@ -444,12 +444,12 @@ describe('github-dist', () => {
   describe('getInstallCommand', () => {
     it('returns npx command with defaults', () => {
       const cmd = getInstallCommand();
-      expect(cmd).toBe('npx @bradygaster/squad-cli');
+      expect(cmd).toBe('npx @blacklite/crew-cli');
     });
 
     it('substitutes custom owner/repo', () => {
       const cmd = getInstallCommand({ owner: 'acme', repo: 'tool' });
-      expect(cmd).toBe('npx @bradygaster/squad-cli');
+      expect(cmd).toBe('npx @blacklite/crew-cli');
     });
 
     it('uses custom template', () => {
@@ -483,19 +483,19 @@ describe('github-dist', () => {
   describe('getDefaultDistConfig', () => {
     it('returns config with bradygaster owner', () => {
       const config = getDefaultDistConfig();
-      expect(config.owner).toBe('bradygaster');
+      expect(config.owner).toBe('Blacklite');
     });
 
-    it('returns config with squad repo', () => {
+    it('returns config with crew repo', () => {
       const config = getDefaultDistConfig();
-      expect(config.repo).toBe('squad');
+      expect(config.repo).toBe('crew');
     });
 
     it('returns a copy (no mutation)', () => {
       const a = getDefaultDistConfig();
       a.owner = 'changed';
       const b = getDefaultDistConfig();
-      expect(b.owner).toBe('bradygaster');
+      expect(b.owner).toBe('Blacklite');
     });
   });
 });

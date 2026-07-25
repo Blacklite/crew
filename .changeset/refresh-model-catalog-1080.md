@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-sdk": minor
+"@blacklite/crew-sdk": minor
 ---
 
 Refresh the model catalog to GitHub Copilot CLI-reachable IDs and prune dead fallback IDs.

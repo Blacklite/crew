@@ -18,7 +18,7 @@ import { trace } from '@opentelemetry/api';
 import {
   Coordinator,
   type CoordinatorConfig,
-} from '@bradygaster/squad-sdk/coordinator';
+} from '@blacklite/crew-sdk/coordinator';
 
 // ---------------------------------------------------------------------------
 // Test OTel infrastructure
@@ -75,12 +75,12 @@ describe('Coordinator routing tracing — route() spans', () => {
     expect(Array.isArray(result.agents)).toBe(true);
   });
 
-  it('route() creates a squad.coordinator.route span', async () => {
+  it('route() creates a crew.coordinator.route span', async () => {
     await coordinator.route('hello team');
     const spans = exporter.getFinishedSpans();
     const routeSpan = spans.find(
       (s) =>
-        s.name === 'squad.coordinator.route' ||
+        s.name === 'crew.coordinator.route' ||
         s.name.includes('coordinator') ||
         s.name.includes('route'),
     );
@@ -105,7 +105,7 @@ describe('Coordinator routing tracing — route() spans', () => {
     }
     const attrs = routeSpan.attributes;
     const tier =
-      attrs['squad.routing.tier'] ?? attrs['routing.tier'] ?? attrs['tier'];
+      attrs['crew.routing.tier'] ?? attrs['routing.tier'] ?? attrs['tier'];
     expect(tier).toBe('direct');
   });
 
@@ -121,7 +121,7 @@ describe('Coordinator routing tracing — route() spans', () => {
     }
     const attrs = routeSpan.attributes;
     const msg =
-      attrs['squad.routing.message'] ?? attrs['message'] ?? attrs['squad.message'];
+      attrs['crew.routing.message'] ?? attrs['message'] ?? attrs['crew.message'];
     expect(msg).toBeDefined();
   });
 
@@ -137,7 +137,7 @@ describe('Coordinator routing tracing — route() spans', () => {
     }
     const attrs = routeSpan.attributes;
     const agents =
-      attrs['squad.routing.agents'] ?? attrs['routing.agents'] ?? attrs['agents'];
+      attrs['crew.routing.agents'] ?? attrs['routing.agents'] ?? attrs['agents'];
     expect(agents).toBeDefined();
   });
 });
@@ -170,7 +170,7 @@ describe('Coordinator routing tracing — attributes per tier', () => {
       console.warn('[PROACTIVE] No route span — instrumentation pending');
       return;
     }
-    expect(routeSpan.attributes['squad.routing.tier'] ?? routeSpan.attributes['tier']).toBe('direct');
+    expect(routeSpan.attributes['crew.routing.tier'] ?? routeSpan.attributes['tier']).toBe('direct');
   });
 
   it('@mention route includes agent names in attributes', async () => {
@@ -184,7 +184,7 @@ describe('Coordinator routing tracing — attributes per tier', () => {
       console.warn('[PROACTIVE] No route span — instrumentation pending');
       return;
     }
-    expect(routeSpan.attributes['squad.routing.agents']).toBeDefined();
+    expect(routeSpan.attributes['crew.routing.agents']).toBeDefined();
   });
 
   it('team fan-out route has parallel=true attribute', async () => {
@@ -199,7 +199,7 @@ describe('Coordinator routing tracing — attributes per tier', () => {
       return;
     }
     expect(
-      routeSpan.attributes['squad.routing.parallel'] ?? routeSpan.attributes['parallel'],
+      routeSpan.attributes['crew.routing.parallel'] ?? routeSpan.attributes['parallel'],
     ).toBe(true);
   });
 });

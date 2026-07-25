@@ -1,9 +1,9 @@
 # CLI Reference
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Everything you need to run Squad from the command line — commands, shell interactions, configuration files, and environment variables.
+Everything you need to run Crew from the command line — commands, shell interactions, configuration files, and environment variables.
 
 ---
 
@@ -11,81 +11,81 @@ Everything you need to run Squad from the command line — commands, shell inter
 
 ```bash
 # Global install (recommended)
-npm install -g @bradygaster/squad-cli
+npm install -g @blacklite/crew-cli
 
 # One-off with npx
-npx @bradygaster/squad-cli init
+npx @blacklite/crew-cli init
 
 # Latest from GitHub (bleeding edge)
-squad init
+crew init
 ```
 
 ---
 
 ## CLI Commands (17 commands)
 
-| Command | Description | Requires `.squad/` |
+| Command | Description | Requires `.crew/` |
 |---------|-------------|:------------------:|
-| `squad` | **Deprecated** — Enter interactive shell (no args). Use `copilot --agent squad` instead. | No |
-| `squad init` | Initialize Squad in the current repo (idempotent — safe to run multiple times) | No |
-| `squad init --state-backend <type>` | Initialize with a specific state backend (`local`, `orphan`, `two-layer`) | No |
-| `squad init --global` | Create a personal squad in your platform-specific directory | No |
-| `squad init --mode remote <path>` | Initialize linked to a remote team root (dual-root mode) | No |
-| `squad link <team-repo-path>` | Link project to a remote team root | Yes |
-| `squad loop` | Run a prompt-driven work loop from `loop.md` | Yes |
-| `squad loop --init` | Create a starter `loop.md` file | Yes |
-| `squad loop --file <path>` | Run a loop from a custom file path | Yes |
-| `squad start [--tunnel] [--port N] [--command cmd]` | Start Copilot with remote phone access via PTY and WebSocket | No |
-| `squad status` | Show which squad is active and why | Yes |
-| `squad doctor` | Validate squad setup integrity and diagnose issues (alias: `heartbeat`) | Yes |
-| `squad upgrade` | Upgrade Squad-owned files to latest version | Yes |
-| `squad upgrade --state-backend <type>` | Migrate state backend (`orphan`, `two-layer`); installs git hooks automatically | Yes |
-| `squad upgrade --migrate-directory` | Rename legacy `.ai-team/` directory to `.squad/` | Yes |
-| `squad triage` | Auto-triage issues and assign to team (primary name; `watch` is an alias) | Yes |
-| `squad triage --interval <min>` | Continuous triage (default: every 10 min) | Yes |
-| `squad watch --execute` | Enable work execution (spawn Copilot to work on issues) | Yes |
-| `squad watch --monitor-teams` | Scan Teams for actionable messages each round | Yes |
-| `squad watch --monitor-email` | Scan email for alerts and action items each round | Yes |
-| `squad watch --board` | Enable project board lifecycle management | Yes |
-| `squad watch --two-pass` | Use two-pass scanning (lightweight → hydrate) | Yes |
-| `squad watch --wave-dispatch` | Parallel sub-task execution within issues | Yes |
-| `squad watch --retro` | Enforce retrospective checks | Yes |
-| `squad watch --decision-hygiene` | Auto-merge decision inbox | Yes |
-| `squad watch --max-concurrent N` | Max parallel issues per round (default: 1) | Yes |
-| `squad watch --timeout N` | Per-issue timeout in minutes (default: 30) | Yes |
-| `squad watch --copilot-flags "..."` | Extra flags for Copilot CLI | Yes |
-| `squad shell` | **Deprecated** — Launch interactive shell explicitly. Use `copilot --agent squad` instead. | No |
-| `squad copilot` | Add the @copilot coding agent to the team | Yes |
-| `squad copilot --off` | Remove @copilot from the team | Yes |
-| `squad copilot --auto-assign` | Enable auto-assignment for @copilot | Yes |
-| `squad plugin marketplace add\|remove\|list\|browse` | Manage plugin marketplaces | Yes |
-| `squad export` | Export squad to a portable JSON snapshot | Yes |
-| `squad export --out <path>` | Export to a custom path | Yes |
-| `squad import <file>` | Import a squad from an export file | No |
-| `squad import <file> --force` | Replace existing squad (archives the old one) | No |
-| `squad aspire` | Launch Aspire dashboard for observability | No |
-| `squad aspire --docker` | Force Docker mode for Aspire | No |
-| `squad upstream add\|remove\|list\|sync` | Manage upstream Squad sources | Yes |
-| `copilot --agent squad` | Launch interactive shell explicitly | No |
-| `squad nap` | Context hygiene (compress, prune, archive .squad/ state) | Yes |
-| `squad nap --deep` | Thorough cleanup with recursive descent | Yes |
-| `squad nap --dry-run` | Preview cleanup actions without changes | Yes |
-| `squad scrub-emails [directory]` | Remove email addresses from Squad state files (default: `.squad/`) | No |
-| `squad --version` | Print installed version | No |
+| `crew` | **Deprecated** — Enter interactive shell (no args). Use `copilot --agent crew` instead. | No |
+| `crew init` | Initialize Crew in the current repo (idempotent — safe to run multiple times) | No |
+| `crew init --state-backend <type>` | Initialize with a specific state backend (`local`, `orphan`, `two-layer`) | No |
+| `crew init --global` | Create a personal crew in your platform-specific directory | No |
+| `crew init --mode remote <path>` | Initialize linked to a remote team root (dual-root mode) | No |
+| `crew link <team-repo-path>` | Link project to a remote team root | Yes |
+| `crew loop` | Run a prompt-driven work loop from `loop.md` | Yes |
+| `crew loop --init` | Create a starter `loop.md` file | Yes |
+| `crew loop --file <path>` | Run a loop from a custom file path | Yes |
+| `crew start [--tunnel] [--port N] [--command cmd]` | Start Copilot with remote phone access via PTY and WebSocket | No |
+| `crew status` | Show which crew is active and why | Yes |
+| `crew doctor` | Validate crew setup integrity and diagnose issues (alias: `heartbeat`) | Yes |
+| `crew upgrade` | Upgrade Crew-owned files to latest version | Yes |
+| `crew upgrade --state-backend <type>` | Migrate state backend (`orphan`, `two-layer`); installs git hooks automatically | Yes |
+| `crew upgrade --migrate-directory` | Rename legacy `.ai-team/` directory to `.crew/` | Yes |
+| `crew triage` | Auto-triage issues and assign to team (primary name; `watch` is an alias) | Yes |
+| `crew triage --interval <min>` | Continuous triage (default: every 10 min) | Yes |
+| `crew watch --execute` | Enable work execution (spawn Copilot to work on issues) | Yes |
+| `crew watch --monitor-teams` | Scan Teams for actionable messages each round | Yes |
+| `crew watch --monitor-email` | Scan email for alerts and action items each round | Yes |
+| `crew watch --board` | Enable project board lifecycle management | Yes |
+| `crew watch --two-pass` | Use two-pass scanning (lightweight → hydrate) | Yes |
+| `crew watch --wave-dispatch` | Parallel sub-task execution within issues | Yes |
+| `crew watch --retro` | Enforce retrospective checks | Yes |
+| `crew watch --decision-hygiene` | Auto-merge decision inbox | Yes |
+| `crew watch --max-concurrent N` | Max parallel issues per round (default: 1) | Yes |
+| `crew watch --timeout N` | Per-issue timeout in minutes (default: 30) | Yes |
+| `crew watch --copilot-flags "..."` | Extra flags for Copilot CLI | Yes |
+| `crew shell` | **Deprecated** — Launch interactive shell explicitly. Use `copilot --agent crew` instead. | No |
+| `crew copilot` | Add the @copilot coding agent to the team | Yes |
+| `crew copilot --off` | Remove @copilot from the team | Yes |
+| `crew copilot --auto-assign` | Enable auto-assignment for @copilot | Yes |
+| `crew plugin marketplace add\|remove\|list\|browse` | Manage plugin marketplaces | Yes |
+| `crew export` | Export crew to a portable JSON snapshot | Yes |
+| `crew export --out <path>` | Export to a custom path | Yes |
+| `crew import <file>` | Import a crew from an export file | No |
+| `crew import <file> --force` | Replace existing crew (archives the old one) | No |
+| `crew aspire` | Launch Aspire dashboard for observability | No |
+| `crew aspire --docker` | Force Docker mode for Aspire | No |
+| `crew upstream add\|remove\|list\|sync` | Manage upstream Crew sources | Yes |
+| `copilot --agent crew` | Launch interactive shell explicitly | No |
+| `crew nap` | Context hygiene (compress, prune, archive .crew/ state) | Yes |
+| `crew nap --deep` | Thorough cleanup with recursive descent | Yes |
+| `crew nap --dry-run` | Preview cleanup actions without changes | Yes |
+| `crew scrub-emails [directory]` | Remove email addresses from Crew state files (default: `.crew/`) | No |
+| `crew --version` | Print installed version | No |
 
 ### Remote Init Mode
 
 Use `--mode remote` to link your project to a shared team root:
 
 ```bash
-squad init --mode remote ../team-repo
+crew init --mode remote ../team-repo
 ```
 
-In dual-root mode, project-specific state lives in your local `.squad/` while team identity (casting, charters, shared decisions) lives in the remote location. This is useful for monorepos or organizations with a shared team definition.
+In dual-root mode, project-specific state lives in your local `.crew/` while team identity (casting, charters, shared decisions) lives in the remote location. This is useful for monorepos or organizations with a shared team definition.
 
 ---
 
-### squad start
+### crew start
 
 Start Copilot with optional remote access via phone. Spawns Copilot in a PTY and mirrors to your phone via WebSocket + devtunnel.
 
@@ -94,43 +94,43 @@ Start Copilot with optional remote access via phone. Spawns Copilot in a PTY and
 - `--tunnel` — Create a devtunnel for remote access (shows QR code for phone scanning). Requires `devtunnel` CLI installed and authenticated (`devtunnel user login`).
 - `--port <N>` — Specific WebSocket port (default: random). Example: `--port 3456`
 - `--command <cmd>` — Run a custom command instead of copilot. Example: `--command powershell`
-- All copilot flags pass through. Example: `squad start --tunnel --yolo` or `squad start --tunnel --model gpt-4`
+- All copilot flags pass through. Example: `crew start --tunnel --yolo` or `crew start --tunnel --model gpt-4`
 
 **Examples:**
 
 ```bash
 # Basic local PTY (no phone access)
-squad start
+crew start
 
 # With phone access + devtunnel
-squad start --tunnel
+crew start --tunnel
 # Output: QR Code, URL, Session ID
 
 # Custom port, local only
-squad start --port 3456
+crew start --port 3456
 
 # Custom command with tunnel
-squad start --tunnel --command powershell
+crew start --tunnel --command powershell
 
 # Copilot flags pass through
-squad start --tunnel --yolo
-squad start --tunnel --model gpt-4 --no-config
+crew start --tunnel --yolo
+crew start --tunnel --model gpt-4 --no-config
 ```
 
 For details on architecture, security, mobile keyboard, and troubleshooting, see [Remote Control Guide](../features/remote-control.md).
 
 ---
 
-### squad loop
+### crew loop
 
 Run a prompt-driven work loop from a `loop.md` file. Each cycle, Loop sends your prompt to Copilot and loops again at your chosen interval.
 
 **Basic usage:**
 
 ```bash
-squad loop                               # Run the loop from loop.md
-squad loop --init                        # Create a starter loop.md
-squad loop --file scripts/monitor.md     # Run a custom loop file
+crew loop                               # Run the loop from loop.md
+crew loop --init                        # Create a starter loop.md
+crew loop --file scripts/monitor.md     # Run a custom loop file
 ```
 
 **Flags:**
@@ -160,22 +160,22 @@ Loop.md requires YAML frontmatter with:
 
 ```bash
 # Create a starter loop
-squad loop --init
+crew loop --init
 
 # Edit loop.md, then run it
-squad loop
+crew loop
 
 # Run with faster interval (overrides frontmatter)
-squad loop --interval 3
+crew loop --interval 3
 
 # Run with monitoring
-squad loop --monitor-email --monitor-teams
+crew loop --monitor-email --monitor-teams
 
 # Run a named loop file
-squad loop --file scripts/ci-monitor.md
+crew loop --file scripts/ci-monitor.md
 
 # Run with custom Copilot model
-squad loop --copilot-flags "--model gpt-4"
+crew loop --copilot-flags "--model gpt-4"
 ```
 
 **Example loop.md:**
@@ -200,16 +200,16 @@ Each cycle, you will:
 Keep cycles to 20 minutes max.
 ```
 
-**MCP auto-injection:** When using the default Copilot agent, `squad loop` automatically injects `--yolo --additional-mcp-config @.mcp.json` into every Copilot invocation. See [Copilot CLI MCP Trust Gate](../features/copilot-mcp-trust.md).
+**MCP auto-injection:** When using the default Copilot agent, `crew loop` automatically injects `--yolo --additional-mcp-config @.mcp.json` into every Copilot invocation. See [Copilot CLI MCP Trust Gate](../features/copilot-mcp-trust.md).
 
 For complete documentation and examples, see [Loop — Prompt-driven work loop](../features/loop.md).
 
 ---
 
-Enter the shell with `squad` (no arguments). You'll see:
+Enter the shell with `crew` (no arguments). You'll see:
 
 ```
-squad >
+crew >
 ```
 
 ### Shell Commands
@@ -231,9 +231,9 @@ All shell commands start with `/`.
 ### Addressing Agents
 
 ```
-squad > @Keaton, analyze the architecture
-squad > Keaton, set up the database schema
-squad > Build a blog post about our casting system
+crew > @Keaton, analyze the architecture
+crew > Keaton, set up the database schema
+crew > Build a blog post about our casting system
 ```
 
 Agent name matching is **case-insensitive** — `@keaton`, `@Keaton`, and `@KEATON` all route to the same agent. Name an agent to route directly. Omit the name and the coordinator routes to the best fit.
@@ -254,10 +254,10 @@ Agent name matching is **case-insensitive** — `@keaton`, `@Keaton`, and `@KEAT
 
 ## Configuration Files
 
-### `.squad/` Directory Structure
+### `.crew/` Directory Structure
 
 ```
-.squad/
+.crew/
 ├── team.md              # Roster — agent names, roles, human members
 ├── routing.md           # Work routing rules
 ├── decisions.md         # Architectural decisions log
@@ -278,7 +278,7 @@ Agent name matching is **case-insensitive** — `@keaton`, `@Keaton`, and `@KEAT
 
 ### `team.md`
 
-Defines the roster. Squad generates this during init, but you can edit it:
+Defines the roster. Crew generates this during init, but you can edit it:
 
 ```markdown
 ## Team
@@ -335,11 +335,11 @@ Permanent rules agents always follow:
 
 ## Resolution Order
 
-When Squad starts, it looks for `.squad/` in this order:
+When Crew starts, it looks for `.crew/` in this order:
 
-1. Current directory (`./.squad/`)
+1. Current directory (`./.crew/`)
 2. Parent directories (walk up to project root)
-3. Personal squad directory (platform-specific: `~/.config/squad/` on Linux, `~/Library/Application Support/squad/` on macOS, `%APPDATA%\squad\` on Windows)
+3. Personal crew directory (platform-specific: `~/.config/crew/` on Linux, `~/Library/Application Support/crew/` on macOS, `%APPDATA%\crew\` on Windows)
 4. Global CLI default (fallback only)
 
 First match wins.
@@ -350,24 +350,24 @@ First match wins.
 
 | Variable | Purpose | Values |
 |----------|---------|--------|
-| `SQUAD_CLIENT` | Detected client platform | `cli`, `vscode` |
+| `CREW_CLIENT` | Detected client platform | `cli`, `vscode` |
 | `COPILOT_TOKEN` | Copilot auth token (SDK usage) | Token string |
 
 ---
 
 ---
 
-## Troubleshooting with `squad doctor`
+## Troubleshooting with `crew doctor`
 
 When something isn't working, run:
 
 ```bash
-squad doctor
+crew doctor
 ```
 
-This performs a comprehensive diagnostic check of your Squad setup, validating:
+This performs a comprehensive diagnostic check of your Crew setup, validating:
 
-- `.squad/` directory structure
+- `.crew/` directory structure
 - Required configuration files (team.md, routing.md, etc.)
 - Agent definitions and capabilities
 - File permissions and integrity
@@ -377,19 +377,19 @@ This performs a comprehensive diagnostic check of your Squad setup, validating:
 
 ```bash
 # Run diagnostics on the current project
-squad doctor
+crew doctor
 
-# Quick check after upgrading Squad
-squad upgrade && squad doctor
+# Quick check after upgrading Crew
+crew upgrade && crew doctor
 
-# Verify setup after cloning a repo with a squad
-git clone my-project && cd my-project && squad doctor
+# Verify setup after cloning a repo with a crew
+git clone my-project && cd my-project && crew doctor
 ```
 
 ### Example Output
 
 ```
-✓ .squad/ directory exists
+✓ .crew/ directory exists
 ✓ team.md is readable and valid
 ✓ 4 agents registered
 ⚠ skills/ directory is empty — consider adding documentation
@@ -403,10 +403,10 @@ The doctor always exits cleanly (no error code) because it's a diagnostic tool, 
 ## Version Management
 
 ```bash
-squad --version                              # Check version
-npm install -g @bradygaster/squad-cli@latest # Update
-npm install -g @bradygaster/squad-cli@1.2.3  # Pin version
-npm install -g @bradygaster/squad-cli@insider # Dev-channel prerelease builds
+crew --version                              # Check version
+npm install -g @blacklite/crew-cli@latest # Update
+npm install -g @blacklite/crew-cli@1.2.3  # Pin version
+npm install -g @blacklite/crew-cli@insider # Dev-channel prerelease builds
 ```
 
 ---
@@ -415,4 +415,4 @@ npm install -g @bradygaster/squad-cli@insider # Dev-channel prerelease builds
 
 - [SDK Reference](./sdk.md) — Programmatic API
 - [Recipes & Advanced Scenarios](../cookbook/recipes.md) — Prompt-driven cookbook
-- [Adding Squad to an Existing Repo](../scenarios/existing-repo.md) — Getting started walkthrough
+- [Adding Crew to an Existing Repo](../scenarios/existing-repo.md) — Getting started walkthrough

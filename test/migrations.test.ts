@@ -4,7 +4,7 @@ import {
   migration_0_5_to_0_6,
   getRegisteredMigrations,
   createDefaultRegistry,
-} from '@bradygaster/squad-sdk/config/migrations';
+} from '@blacklite/crew-sdk/config/migrations';
 
 // ============================================================================
 // getRegisteredMigrations
@@ -67,12 +67,12 @@ describe('createDefaultRegistry', () => {
     const registry = createDefaultRegistry();
     const config = {
       version: '0.6.0',
-      configDir: '.squad',
+      configDir: '.crew',
       agents: [{ name: '@keaton', role: 'lead', displayName: 'Keaton' }],
       routing: { rules: [], fallbackBehavior: 'coordinator' },
       models: { default: 'claude-sonnet-4', defaultTier: 'standard', tiers: {} },
-      agentSources: [{ type: 'local', name: 'local', path: '.squad/agents' }],
-      configFormat: 'squad.config.ts',
+      agentSources: [{ type: 'local', name: 'local', path: '.crew/agents' }],
+      configFormat: 'crew.config.ts',
     };
 
     const result = registry.runMigrations(config, '0.6.0', '0.4.0');
@@ -92,9 +92,9 @@ describe('migration 0.4.0 → 0.5.0', () => {
     expect(result.version).toBe('0.5.0');
   });
 
-  it('should rename .ai-team → .squad in configDir', () => {
+  it('should rename .ai-team → .crew in configDir', () => {
     const result = migration_0_4_to_0_5.migrate({ configDir: '.ai-team' });
-    expect(result.configDir).toBe('.squad');
+    expect(result.configDir).toBe('.crew');
   });
 
   it('should convert teamMembers to agents array', () => {
@@ -117,18 +117,18 @@ describe('migration 0.4.0 → 0.5.0', () => {
     expect(result.teamMembers).toBeUndefined();
   });
 
-  it('should set configFormat to squad.config.ts', () => {
+  it('should set configFormat to crew.config.ts', () => {
     const result = migration_0_4_to_0_5.migrate({ version: '0.4.0' });
-    expect(result.configFormat).toBe('squad.config.ts');
+    expect(result.configFormat).toBe('crew.config.ts');
   });
 
   it('should rename .ai-team in agentDir', () => {
     const result = migration_0_4_to_0_5.migrate({ agentDir: '.ai-team/agents' });
-    expect(result.agentDir).toBe('.squad/agents');
+    expect(result.agentDir).toBe('.crew/agents');
   });
 
   it('should rollback version to 0.4.0', () => {
-    const result = migration_0_4_to_0_5.rollback!({ version: '0.5.0', configFormat: 'squad.config.ts' });
+    const result = migration_0_4_to_0_5.rollback!({ version: '0.5.0', configFormat: 'crew.config.ts' });
     expect(result.version).toBe('0.4.0');
     expect(result.configFormat).toBeUndefined();
   });
@@ -146,8 +146,8 @@ describe('migration 0.4.0 → 0.5.0', () => {
     expect(members[0].name).toBe('Keaton');
   });
 
-  it('should rollback .squad → .ai-team in configDir', () => {
-    const result = migration_0_4_to_0_5.rollback!({ configDir: '.squad' });
+  it('should rollback .crew → .ai-team in configDir', () => {
+    const result = migration_0_4_to_0_5.rollback!({ configDir: '.crew' });
     expect(result.configDir).toBe('.ai-team');
   });
 });

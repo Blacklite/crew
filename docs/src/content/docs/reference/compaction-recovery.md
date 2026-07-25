@@ -2,7 +2,7 @@
 
 > Recovery mechanism for when conversation context is compacted.
 
-The Coordinator writes a recovery checkpoint to `.squad/sessions/{session-id}.json` after each agent batch. If prior messages are missing upon context resumption (detected by the Coordinator), it reads the checkpoint to recover its place in the workflow without losing the plan.
+The Coordinator writes a recovery checkpoint to `.crew/sessions/{session-id}.json` after each agent batch. If prior messages are missing upon context resumption (detected by the Coordinator), it reads the checkpoint to recover its place in the workflow without losing the plan.
 
 ## Why Compaction Recovery Matters
 
@@ -35,7 +35,7 @@ Example:
 ### File Location
 
 ```
-.squad/sessions/{session-id}.json
+.crew/sessions/{session-id}.json
 ```
 
 This file is **temporary** — it's overwritten after each agent batch and is listed in `.gitignore` to prevent accidental commits.
@@ -52,7 +52,7 @@ The Coordinator detects context compaction when:
 
 1. **Read Session State**
    ```
-   Open .squad/sessions/{session-id}.json
+   Open .crew/sessions/{session-id}.json
    Parse "nextAction" field
    ```
 
@@ -85,7 +85,7 @@ Coordinator's memory of agent work is gone
 **Upon Context Resumption:**
 ```
 Coordinator notices missing prior messages
-Reads .squad/sessions/{session-id}.json
+Reads .crew/sessions/{session-id}.json
 Finds: "lastCompletedStep": 8
 Finds: "nextAction": "Spawn Scribe to summarize decisions"
 Coordinator skips steps 1-8, jumps directly to spawning Scribe
@@ -128,8 +128,8 @@ Warnings: Frontend Agent flagged 2 deprecated React APIs
 ## Checkpoint Limitations
 
 The session state checkpoint is **NOT**:
-- Authoritative for architectural decisions (use `.squad/decisions.md` instead)
-- Authoritative for work routing (use `.squad/routing.md` instead)
+- Authoritative for architectural decisions (use `.crew/decisions.md` instead)
+- Authoritative for work routing (use `.crew/routing.md` instead)
 - A permanent archive (it's overwritten after each batch)
 - A detailed work log (use the orchestration log for details)
 
@@ -138,7 +138,7 @@ It is **ONLY** a breadcrumb to help the Coordinator resume at the right place.
 ## Related Concepts
 
 - **Result Persistence** — Immediate archival of agent results to disk before context expires
-- **Orchestration Log** — Timestamped records of every agent's work (`.squad/orchestration-log/`)
+- **Orchestration Log** — Timestamped records of every agent's work (`.crew/orchestration-log/`)
 
 ## See Also
 

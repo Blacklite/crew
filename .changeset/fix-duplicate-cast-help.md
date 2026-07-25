@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-cli": patch
+"@blacklite/crew-cli": patch
 ---
 
-Remove duplicate `cast` entry in `squad -h` output
+Remove duplicate `cast` entry in `crew -h` output

@@ -10,7 +10,7 @@
 
 ## Overview
 
-Currently, the Squad CLI input prompt flows linearly with message content — it renders below the message stream without a visual container or fixed position. The Copilot CLI and Claude CLI anchor their input in a squared-off box at the bottom of the terminal, fixed in place as content scrolls above.
+Currently, the Crew CLI input prompt flows linearly with message content — it renders below the message stream without a visual container or fixed position. The Copilot CLI and Claude CLI anchor their input in a squared-off box at the bottom of the terminal, fixed in place as content scrolls above.
 
 **Proposal:** Implement a fixed-position input box at the terminal bottom, styled with a border, that:
 - Stays visually anchored during scrolling
@@ -33,7 +33,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 │ ❯ User message 2         │
 │ ▸ Agent response         │
 └──────────────────────────┘
-◆ squad> [cursor]
+◆ crew> [cursor]
  Tab completes · ↑↓ history
 ```
 
@@ -53,7 +53,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 │ [scrollable content]     │
 │ ▸ Agent response         │
 ├──────────────────────────┤
-│ ◆ squad> [cursor]        │
+│ ◆ crew> [cursor]        │
 │ Tab completes ↑↓ history │
 └──────────────────────────┘
 ```
@@ -86,7 +86,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 ║ ▸ Devon: Sure! Here's my approach...                               ║
 ║ [... more messages scroll above ...]                               ║
 ╠════════════════════════════════════════════════════════════════════╣
-║ ◆ squad> [cursor]                                                  ║
+║ ◆ crew> [cursor]                                                  ║
 ║ Tab completes · ↑↓ history                                         ║
 ╚════════════════════════════════════════════════════════════════════╝
 ```
@@ -94,7 +94,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 **Typing State:**
 ```
 ╠════════════════════════════════════════════════════════════════════╣
-║ ◆ squad> Fix the login validation errors▌                         ║
+║ ◆ crew> Fix the login validation errors▌                         ║
 ║ Tab completes · ↑↓ history                                         ║
 ╚════════════════════════════════════════════════════════════════════╝
 ```
@@ -102,7 +102,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 **Processing State:**
 ```
 ╠════════════════════════════════════════════════════════════════════╣
-║ ◆ squad ⠙ > [Keaton thinking...]                                  ║
+║ ◆ crew ⠙ > [Keaton thinking...]                                  ║
 ║ [working...]                                                       ║
 ╚════════════════════════════════════════════════════════════════════╝
 ```
@@ -110,7 +110,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 **Error State (after submission):**
 ```
 ╠════════════════════════════════════════════════════════════════════╣
-║ ◆ squad> [previous input shown]                                    ║
+║ ◆ crew> [previous input shown]                                    ║
 ║ ✖ Error: Couldn't route to agent. Check your connection.           ║
 ╚════════════════════════════════════════════════════════════════════╝
 ```
@@ -127,7 +127,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 ║ \__ \ (_) | |_| / _ \| |) |                                    ║
 ║ |___/\__\_\\___/_/ \_\___/                                      ║
 ║ v0.0.1-alpha · Type naturally · @Agent · /help                 ║
-║ ⚠️  Experimental — github.com/bradygaster/squad              ║
+║ ⚠️  Experimental — github.com/Blacklite/crew              ║
 ╠════════════════════════════════════════════════════════════════╣
 ║ ❯ What should we build first?                                  ║
 ║ ▸ Keaton: Let's start with the auth...                         ║
@@ -135,7 +135,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 ║ ▸ Devon: I'll tackle that...                                   ║
 ║ [... scrollable ...]                                           ║
 ╠════════════════════════════════════════════════════════════════╣
-║ ◆ squad> [cursor]                                              ║
+║ ◆ crew> [cursor]                                              ║
 ║ Tab · ↑↓ history                                               ║
 ╚════════════════════════════════════════════════════════════════╝
 ```
@@ -143,7 +143,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 **Typing (wrapped if necessary):**
 ```
 ╠════════════════════════════════════════════════════════════════╣
-║ ◆ squad> Fix the login validation issue and refactor           ║
+║ ◆ crew> Fix the login validation issue and refactor           ║
 ║ the password hashing logic▌                                    ║
 ║ Tab · ↑↓ history                                               ║
 ╚════════════════════════════════════════════════════════════════╝
@@ -156,7 +156,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 **Idle State:**
 ```
 ╔════════════════════════════════╗
-║  SQUAD v0.0.1-alpha            ║
+║  CREW v0.0.1-alpha            ║
 ║ Type naturally · @Agent · /help║
 ╠════════════════════════════════╣
 ║ ❯ What should we build?        ║
@@ -230,7 +230,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 ### 1. **Idle**
 ```
 ┌────────────────────────────────────┐
-│ ◆ squad> [cursor]                  │
+│ ◆ crew> [cursor]                  │
 │ Tab completes · ↑↓ history         │
 └────────────────────────────────────┘
 ```
@@ -241,7 +241,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 ### 2. **Typing**
 ```
 ┌────────────────────────────────────┐
-│ ◆ squad> User types here▌          │
+│ ◆ crew> User types here▌          │
 │ [hint text appears only if empty]  │
 └────────────────────────────────────┘
 ```
@@ -252,7 +252,7 @@ Currently, the Squad CLI input prompt flows linearly with message content — it
 ### 3. **Processing (Disabled)**
 ```
 ┌────────────────────────────────────┐
-│ ◆ squad ⠙ > [Keaton thinking...]  │
+│ ◆ crew ⠙ > [Keaton thinking...]  │
 │ [working...]                       │
 └────────────────────────────────────┘
 ```
@@ -267,7 +267,7 @@ Option A: **Error as system message above box**
 ┌────────────────────────────────────┐
 │ ✖ Error: Connection failed         │
 ├────────────────────────────────────┤
-│ ◆ squad> [cursor]                  │
+│ ◆ crew> [cursor]                  │
 │ Tab completes · ↑↓ history         │
 └────────────────────────────────────┘
 ```
@@ -276,7 +276,7 @@ Error is added to the message stream above.
 Option B: **Error inline (red border)**
 ```
 ┌ ✖ Error ─────────────────────────────┐
-│ ◆ squad> [previous input]            │
+│ ◆ crew> [previous input]            │
 │ Connection failed. Check network.    │
 └────────────────────────────────────────┘
 ```
@@ -313,13 +313,13 @@ Ink 6 can render to an **alternate screen buffer** (ANSI `\x1B[?1049h`), which s
 **Cons:**
 - **Requires explicit alt-buffer mode** — not default in Ink
 - **Loss of scrollback history** — user can't scroll up after exit
-- **Incompatible with streaming philosophy** — Squad emphasizes live message flow, not "full screen then exit"
+- **Incompatible with streaming philosophy** — Crew emphasizes live message flow, not "full screen then exit"
 - **Cold SDK startup visual** — whole screen white until first agent responds (bad UX during 3-5 second wait)
 - **Escape sequence issues** — some terminals may not support alt buffer (older SSH clients, constrained environments)
 
-**Verdict:** ❌ **NOT recommended for Squad.** 
+**Verdict:** ❌ **NOT recommended for Crew.** 
 
-Alt-buffer is right for text editors and dashboards, but Squad is a streaming conversation tool. Users want scrollback, message history, and the ability to reference past context. Alt-buffer doesn't fit.
+Alt-buffer is right for text editors and dashboards, but Crew is a streaming conversation tool. Users want scrollback, message history, and the ability to reference past context. Alt-buffer doesn't fit.
 
 ### Fixed Positioning Within Standard Buffer
 
@@ -383,7 +383,7 @@ The fixed input box must degrade gracefully:
 **Color Mode:**
 ```
 ╔════════════════════════════════════╗
-│ ◆ squad> [cursor]                  │
+│ ◆ crew> [cursor]                  │
 │ Tab completes · ↑↓ history         │
 ╚════════════════════════════════════╝
 ```
@@ -402,7 +402,7 @@ const noColor = isNoColor();
 
 return (
   <Box borderStyle={noColor ? undefined : 'round'} borderColor={noColor ? undefined : 'cyan'}>
-    <Text color={noColor ? undefined : 'cyan'} bold>{narrow ? 'sq>' : '◆ squad>'}</Text>
+    <Text color={noColor ? undefined : 'cyan'} bold>{narrow ? 'sq>' : '◆ crew>'}</Text>
     <Text>{value}</Text>
     <Text color={noColor ? undefined : 'cyan'} bold>▌</Text>
     {!value && <Text dimColor>{getHintText(messageCount, narrow)}</Text>}
@@ -414,8 +414,8 @@ return (
 
 | Width | Prompt | Hint | Border |
 |-------|--------|------|--------|
-| ≥100 | `◆ squad>` | Full text | `╔═══╗` box-drawing |
-| 61-99 | `◆ squad>` | Abbreviated | Box-drawing |
+| ≥100 | `◆ crew>` | Full text | `╔═══╗` box-drawing |
+| 61-99 | `◆ crew>` | Abbreviated | Box-drawing |
 | ≤60 | `sq>` | Minimal | Box-drawing or `─` line |
 
 ### Keyboard Navigation
@@ -431,10 +431,10 @@ No changes needed for a11y.
 ## Copy Review
 
 ### Prompts & Labels
-- **Idle:** `◆ squad>` (consistent with brand mark)
+- **Idle:** `◆ crew>` (consistent with brand mark)
 - **Hint:** `Tab completes · ↑↓ history` (imperative, scannable)
 - **Processing:** `[Keaton thinking...]` (agent name + action)
-- **Error:** "Connection failed. Try: (1) check network (2) squad doctor"
+- **Error:** "Connection failed. Try: (1) check network (2) crew doctor"
 
 **Standards:**
 - Short, direct verbs (no "ing" forms where possible)
@@ -452,8 +452,8 @@ No changes needed for a11y.
 
 ### Phase 1 — Box Styling (Week 1)
 **Files to change:**
-- `packages/squad-cli/src/cli/shell/components/InputPrompt.tsx` — Wrap in `<Box borderStyle="round">`, add `marginTop={1}`
-- `packages/squad-cli/src/cli/shell/components/App.tsx` — Update layout comments
+- `packages/crew-cli/src/cli/shell/components/InputPrompt.tsx` — Wrap in `<Box borderStyle="round">`, add `marginTop={1}`
+- `packages/crew-cli/src/cli/shell/components/App.tsx` — Update layout comments
 
 **What ships:**
 - Visual box around input prompt
@@ -461,7 +461,7 @@ No changes needed for a11y.
 - Works at all terminal widths
 
 **Testing:**
-- Manual: run `squad` and verify box renders
+- Manual: run `crew` and verify box renders
 - Test: assert that input box has border in color mode, no border in NO_COLOR
 
 **Acceptance:**
@@ -471,7 +471,7 @@ No changes needed for a11y.
 
 ### Phase 2 — Hint Text Polish (Week 1)
 **Files to change:**
-- `packages/squad-cli/src/cli/shell/components/InputPrompt.tsx` — Move hint text into box, add padding
+- `packages/crew-cli/src/cli/shell/components/InputPrompt.tsx` — Move hint text into box, add padding
 
 **What ships:**
 - Hint text ("Tab completes") now appears inside the box
@@ -488,8 +488,8 @@ No changes needed for a11y.
 
 ### Phase 3 — Error State Refinement (Week 2, optional)
 **Files to change:**
-- `packages/squad-cli/src/cli/shell/components/App.tsx` — Add error message handling below input box
-- `packages/squad-cli/src/cli/shell/commands.ts` — Standardize error output (prefix with `✖`)
+- `packages/crew-cli/src/cli/shell/components/App.tsx` — Add error message handling below input box
+- `packages/crew-cli/src/cli/shell/commands.ts` — Standardize error output (prefix with `✖`)
 
 **What ships:**
 - Errors appear as system messages above input box
@@ -508,7 +508,7 @@ No changes needed for a11y.
 **Precondition:** Ink adds `useTerminalHeight()` or similar.
 
 **Files to change:**
-- `packages/squad-cli/src/cli/shell/components/App.tsx` — Refactor to use Static for footer
+- `packages/crew-cli/src/cli/shell/components/App.tsx` — Refactor to use Static for footer
 
 **What ships:**
 - Input box stays visible even as messages scroll
@@ -531,7 +531,7 @@ No changes needed for a11y.
 **Context:** Copilot/Claude use alt-buffer for fixed input.  
 **Decision:** Don't use alt-buffer for MVP.  
 **Rationale:**
-1. Squad is streaming-first, not full-screen-first
+1. Crew is streaming-first, not full-screen-first
 2. Users value scrollback history (past context)
 3. Alt-buffer breaks on some terminals (SSH, web-based)
 4. Same visual effect achievable with `borderStyle="round"` in standard buffer
@@ -563,8 +563,8 @@ No changes needed for a11y.
 
 | Width | State | Appearance |
 |-------|-------|-----------|
-| 120 | Idle | `╔═══════════╗ ◆ squad> ▌ ╚═══════════╝` |
-| 80 | Typing | `╔═══════╗ ◆ squad> text text text▌ ╚═══════╝` |
+| 120 | Idle | `╔═══════════╗ ◆ crew> ▌ ╚═══════════╝` |
+| 80 | Typing | `╔═══════╗ ◆ crew> text text text▌ ╚═══════╝` |
 | 40 | Processing | `╔═════╗ sq ⠙ > [agent...] ╚═════╝` |
 | Any | NO_COLOR | `─────── sq> [text] ───────` |
 
@@ -596,7 +596,7 @@ No changes needed for a11y.
 - [Ink Static component](https://github.com/vadimdemedes/ink#static)
 - [Copilot CLI Input](https://github.com/github/copilot-cli) — reference for fixed-box UX
 - Claude CLI — reference for aesthetic
-- Related UX audit: `.squad/agents/marquez/history.md` (Feb 2026)
+- Related UX audit: `.crew/agents/marquez/history.md` (Feb 2026)
 
 ---
 
@@ -604,7 +604,7 @@ No changes needed for a11y.
 
 ### Alt 1: Inline Border (No Box Container)
 ```
-◆ squad> [cursor]
+◆ crew> [cursor]
 ────────────────────────────
 ```
 - ❌ Weak visual hierarchy
@@ -614,12 +614,12 @@ No changes needed for a11y.
 ### Alt 2: Underline Instead of Box
 ```
 ┌────────────────────────────┐
-│ ◆ squad> [cursor]          │
+│ ◆ crew> [cursor]          │
 └────────────────────────────┘
 ```
 vs. just underline:
 ```
-◆ squad> [cursor]
+◆ crew> [cursor]
 ─────────────────────────────
 ```
 - ❌ Underline alone is weaker (less containment feel)
@@ -628,7 +628,7 @@ vs. just underline:
 
 ### Alt 3: Highlight Background Color
 ```
-◆ squad> [cursor]
+◆ crew> [cursor]
 (dark gray or subtle background)
 ```
 - ❌ NO_COLOR compatibility issue (can't show color difference)

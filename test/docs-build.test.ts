@@ -25,7 +25,7 @@ function docsBuildSkipReason(): string | null {
 // Expected content directories in src/content/docs/
 const EXPECTED_GET_STARTED = ['installation', 'first-session', 'five-minute-start', 'choosing-your-path', 'migration'];
 
-const EXPECTED_GUIDES = ['build-autonomous-agent', 'building-extensions', 'building-resilient-agents', 'contributing', 'contributors', 'extensibility', 'faq', 'github-auth-setup', 'personal-squad', 'sample-prompts', 'shell', 'tips-and-tricks'];
+const EXPECTED_GUIDES = ['build-autonomous-agent', 'building-extensions', 'building-resilient-agents', 'contributing', 'contributors', 'extensibility', 'faq', 'github-auth-setup', 'personal-crew', 'sample-prompts', 'shell', 'tips-and-tricks'];
 
 const EXPECTED_REFERENCE = ['cli', 'sdk', 'config', 'api-reference', 'integration', 'tools-and-hooks', 'glossary'];
 
@@ -37,12 +37,12 @@ const EXPECTED_SCENARIOS = [
   'disaster-recovery',
   'existing-repo',
   'issue-driven-dev',
-  'keep-my-squad',
+  'keep-my-crew',
   'large-codebase',
   'mid-project',
   'monorepo',
   'multi-codespace',
-  'multiple-squads',
+  'multiple-crews',
   'new-project',
   'open-source',
   'private-repos',
@@ -88,7 +88,7 @@ const EXPECTED_FEATURES = [
   'routing',
   'skills',
   'storage-provider',
-  'squad-rc',
+  'crew-rc',
   'streams',
   'team-setup',
   'upstream-inheritance',

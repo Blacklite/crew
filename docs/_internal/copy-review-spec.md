@@ -2,7 +2,7 @@
 
 **Requested by:** Brady  
 **Prepared by:** Marquez (CLI UX Designer)  
-**Scope:** All user-facing text in the Squad CLI shell  
+**Scope:** All user-facing text in the Crew CLI shell  
 **Goal:** Tighten verbose copy, improve clarity, reduce jargon  
 
 ---
@@ -18,14 +18,14 @@ Brady flagged 5 key areas where copy needs work:
 5. **Dead zones:** Users see nothing during processing; need more feedback
 
 This spec provides concrete rewrites for every user-facing string in:
-- `packages/squad-cli/src/cli/shell/index.ts`
-- `packages/squad-cli/src/cli/shell/components/App.tsx`
-- `packages/squad-cli/src/cli/shell/components/MessageStream.tsx`
-- `packages/squad-cli/src/cli/shell/components/InputPrompt.tsx`
-- `packages/squad-cli/src/cli/shell/components/AgentPanel.tsx`
-- `packages/squad-cli/src/cli/shell/components/ThinkingIndicator.tsx`
-- `packages/squad-cli/src/cli/shell/coordinator.ts`
-- `packages/squad-cli/src/cli/shell/commands.ts`
+- `packages/crew-cli/src/cli/shell/index.ts`
+- `packages/crew-cli/src/cli/shell/components/App.tsx`
+- `packages/crew-cli/src/cli/shell/components/MessageStream.tsx`
+- `packages/crew-cli/src/cli/shell/components/InputPrompt.tsx`
+- `packages/crew-cli/src/cli/shell/components/AgentPanel.tsx`
+- `packages/crew-cli/src/cli/shell/components/ThinkingIndicator.tsx`
+- `packages/crew-cli/src/cli/shell/coordinator.ts`
+- `packages/crew-cli/src/cli/shell/commands.ts`
 
 ---
 
@@ -33,12 +33,12 @@ This spec provides concrete rewrites for every user-facing string in:
 
 | File | Location | Current | Proposed | Rationale |
 |------|----------|---------|----------|-----------|
-| index.ts | line 142 | `◆ Loading Squad shell...` | `◆ Loading Squad...` | Shorter, still clear. "Shell" is technical jargon. |
-| index.ts | line 135–137 | `✗ Squad shell requires an interactive terminal (TTY).\n  Piped or redirected stdin is not supported.\n  Tip: Run 'squad --preview' for non-interactive usage.` | `✗ Squad needs an interactive terminal.\n  Redirect or pipe not supported.\n  Try: squad --preview for non-interactive mode` | More human. "TTY" is jargon. Shorter, actionable. |
+| index.ts | line 142 | `◆ Loading Crew shell...` | `◆ Loading Crew...` | Shorter, still clear. "Shell" is technical jargon. |
+| index.ts | line 135–137 | `✗ Crew shell requires an interactive terminal (TTY).\n  Piped or redirected stdin is not supported.\n  Tip: Run 'crew --preview' for non-interactive usage.` | `✗ Crew needs an interactive terminal.\n  Redirect or pipe not supported.\n  Try: crew --preview for non-interactive mode` | More human. "TTY" is jargon. Shorter, actionable. |
 | App.tsx | line 51 | `const EXIT_WORDS = new Set(['exit', 'quit', 'q']);` | *(no change)* | Already concise and correct. |
 | App.tsx | line 166 | `Press Ctrl+C again to exit.` | *(no change)* | Clear and direct. |
-| App.tsx | line 234 | `SDK not connected. Try: (1) squad doctor to check setup, (2) check your internet connection, (3) restart the shell to reconnect.` | `SDK disconnected. Try: squad doctor, check internet, or restart.` | 3× shorter. Removes numbered list. Same remediation. |
-| App.tsx | line 230 | `'  Just type what you need — Squad routes your message to the right agent.'` (in /help) | *(no change)* | This is good. Present tense, human-readable. |
+| App.tsx | line 234 | `SDK not connected. Try: (1) crew doctor to check setup, (2) check your internet connection, (3) restart the shell to reconnect.` | `SDK disconnected. Try: crew doctor, check internet, or restart.` | 3× shorter. Removes numbered list. Same remediation. |
+| App.tsx | line 230 | `'  Just type what you need — Crew routes your message to the right agent.'` (in /help) | *(no change)* | This is good. Present tense, human-readable. |
 | InputPrompt.tsx | line 20 | `return narrow ? ' Tab · ↑↓ history' : ' Tab completes · ↑↓ history';` | `return narrow ? ' Tab · ↑↓' : ' Tab for help · ↑↓ for history';` | More specific: "Tab for help" vs "Tab completes" (help is broader). "↑↓ for history" removes ambiguity. |
 | InputPrompt.tsx | line 22 | `return narrow ? ' /status · /clear · /export' : ' /status · /clear · /export';` | `return narrow ? ' /status · /help' : ' /status · /help · /clear';` | More discoverable: first-run users need /help. Narrow mode gets only essentials. |
 | AgentPanel.tsx | line 68 | `No agents active. Send a message to start. /help for commands.` | `No agents yet. Send a message to wake them.` | Warmer, shorter. "Wake them" is more human than "start." Removes redundant /help hint (already in header). |
@@ -48,17 +48,17 @@ This spec provides concrete rewrites for every user-facing string in:
 | ThinkingIndicator.tsx | line 46 | `'Connecting to GitHub Copilot...'` | `'Connecting...'` | "GitHub Copilot" is product name, not user-facing context. Three dots unnecessary (already have spinner). |
 | ThinkingIndicator.tsx | line 47 | `'Routing to agent...'` | *(no change)* | This one is good. Concise, accurate. |
 | ThinkingIndicator.tsx | line 48 | `'Thinking...'` | *(no change)* | Good as-is. |
-| commands.ts | line 72–77 | `/status` output: `Squad Status\n-----------\nTeam:     {count} agent(s)...\nRoot:     {path}\nMessages: {count}` | Tighten header "Team" label to show active count prominently: `` `Team: 3 agents (1 active)` `` on one line, max 60 chars. | Status output is a wall of text. Lead with the most relevant info (active count). One-line layout easier to scan. |
+| commands.ts | line 72–77 | `/status` output: `Crew Status\n-----------\nTeam:     {count} agent(s)...\nRoot:     {path}\nMessages: {count}` | Tighten header "Team" label to show active count prominently: `` `Team: 3 agents (1 active)` `` on one line, max 60 chars. | Status output is a wall of text. Lead with the most relevant info (active count). One-line layout easier to scan. |
 | commands.ts | line 79–84 | `/status` "Working:" section | `'  Working:'` + agent list | No change here. Already tidy. |
 | commands.ts | line 160 | `'No team members yet.'` | `'No agents connected.'` | Team members are discoverable from team.md. "Not connected" is more accurate for what's shown here. |
 | commands.ts | line 163 | `'Team Members:\n'` | `'Your Team:\n'` | One word saved. More warm. "Your" builds ownership. |
 | commands.ts | line 177 | `/sessions` output: `Saved Sessions (X total)` | *(no change)* | Good as-is. |
 | commands.ts | line 189 | `/resume` error: `No session found matching "{prefix}". Try /sessions to list.` | `No session found. Try: /sessions` | Shorter error. Removes user input echo (can be confusing if ID is long). |
 | commands.ts | line 197 | `/resume` success: `✓ Restored session {id} ({count} messages)` | `✓ Restored {id} ({count} msgs)` | "msgs" is casual but saves 5 chars per line in narrow terminals. Still clear. |
-| commands.ts | line 121–131 | `/help` compact layout | Current: `'How it works:', '  Just type what you need — Squad routes your message to the right agent.', ...` | Change intro to: `'How it works:', '  Type what you need. @Agent to direct. /help for commands.'` — one line instead of two. | Compact mode must fit in ≤60 cols. Current intro wraps awkwardly. Tighten to one sentence. |
+| commands.ts | line 121–131 | `/help` compact layout | Current: `'How it works:', '  Just type what you need — Crew routes your message to the right agent.', ...` | Change intro to: `'How it works:', '  Type what you need. @Agent to direct. /help for commands.'` — one line instead of two. | Compact mode must fit in ≤60 cols. Current intro wraps awkwardly. Tighten to one sentence. |
 | commands.ts | line 143–153 | `/help` normal layout | Same as compact but with more detail | Keep the details but ensure no line > 60 chars in compact mode. | Easier to scan if all lines are predictable length. |
 | commands.ts | line 229–238 | `/init` help output | Current multi-line guidance | Tighten to: `'Cast your team by typing what you want to build.\n\nExample: "Build a React app with Node backend"\n\nTeam file: {path}'` | 3× shorter. Removes explanation of "what coordinator does" (users don't need to know internals). Focus on the action. |
-| coordinator.ts | line 43–85 | `buildInitModePrompt()` system message | "You are the Squad Coordinator in Init Mode..." | No user-facing change (internal prompt). ✓ | This is internal LLM instruction, not user-facing. Skip. |
+| coordinator.ts | line 43–85 | `buildInitModePrompt()` system message | "You are the Crew Coordinator in Init Mode..." | No user-facing change (internal prompt). ✓ | This is internal LLM instruction, not user-facing. Skip. |
 
 ---
 
@@ -82,7 +82,7 @@ This spec provides concrete rewrites for every user-facing string in:
 
 4. **Error messages: what + what-to-do**
    - ✗ "Connection failed"
-   - ✓ "SDK disconnected. Try: squad doctor"
+   - ✓ "SDK disconnected. Try: crew doctor"
 
 5. **Success messages: past tense, brief**
    - ✗ "Your session has been successfully restored and is ready to accept input"
@@ -104,7 +104,7 @@ This spec provides concrete rewrites for every user-facing string in:
 ### ✗ DON'T
 
 1. Use technical jargon ("TTY", "SDK", "CLI", "shell") in user-facing messages
-   - Exception: "Squad CLI" is the product name. "Squad shell" is not.
+   - Exception: "Crew CLI" is the product name. "Crew shell" is not.
 
 2. Explain system internals
    - ✗ "Coordinator is routing your message"
@@ -152,8 +152,8 @@ These are moments where users see nothing or insufficient feedback:
 
 ### 5. **Error recovery paths**
 - **Current:** Some errors say "Try X" but user doesn't know what "X" does
-- **Issue:** "squad doctor" is assumed to be known, but first-run users won't have heard of it
-- **Fix:** Always include brief explanation: "Try: squad doctor (diagnoses setup issues)"
+- **Issue:** "crew doctor" is assumed to be known, but first-run users won't have heard of it
+- **Fix:** Always include brief explanation: "Try: crew doctor (diagnoses setup issues)"
 - **Owner:** Kovash/Cheritto (wherever commands.ts errors appear in shell)
 
 ### 6. **Session restore feedback**

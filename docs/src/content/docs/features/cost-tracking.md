@@ -1,24 +1,24 @@
 # Token Usage & Cost Tracking
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Squad can track token usage and estimated cost for each agent spawn, roll that data up by session, and expose it through orchestration logs, terminal summaries, and telemetry backends.
+Crew can track token usage and estimated cost for each agent spawn, roll that data up by session, and expose it through orchestration logs, terminal summaries, and telemetry backends.
 
 ---
 
 ## Overview
 
-- Squad tracks token usage (input/output tokens) and estimated cost per agent spawn
-- Usage data is recorded in orchestration logs and available via `squad cost` CLI
+- Crew tracks token usage (input/output tokens) and estimated cost per agent spawn
+- Usage data is recorded in orchestration logs and available via `crew cost` CLI
 - Optional budget limits can be configured per agent or per session
 
 ---
 
 ## How It Works
 
-- The `CostTracker` class (`packages/squad-sdk/src/runtime/cost-tracker.ts`) accumulates token data
+- The `CostTracker` class (`packages/crew-sdk/src/runtime/cost-tracker.ts`) accumulates token data
 - Each orchestration log entry includes a **Token usage** row
-- OTel metrics (`squad.tokens.input`, `squad.tokens.output`, `squad.tokens.cost`) are emitted when telemetry is enabled
+- OTel metrics (`crew.tokens.input`, `crew.tokens.output`, `crew.tokens.cost`) are emitted when telemetry is enabled
 
 The orchestration log template stores usage in a markdown table row like this:
 
@@ -31,15 +31,15 @@ The orchestration log template stores usage in a markdown table row like this:
 ## Viewing Costs
 
 ```bash
-squad cost                 # current session costs
-squad cost --all           # all historical costs
-squad cost --agent fenster # costs for specific agent
+crew cost                 # current session costs
+crew cost --all           # all historical costs
+crew cost --agent fenster # costs for specific agent
 ```
 
 **Example output:**
 
 ```text
-=== Squad Cost Summary ===
+=== Crew Cost Summary ===
 Total input tokens:  12,450
 Total output tokens: 3,200
 Estimated cost:      $0.0234
@@ -56,9 +56,9 @@ Estimated cost:      $0.0234
 ## Budget Configuration
 
 ```typescript
-import { defineSquad, defineAgent, defineBudget } from '@bradygaster/squad-sdk';
+import { defineCrew, defineAgent, defineBudget } from '@blacklite/crew-sdk';
 
-export default defineSquad({
+export default defineCrew({
   defaults: {
     budget: defineBudget({
       perAgentSpawn: 50000,
@@ -86,4 +86,4 @@ export default defineSquad({
 
 - Token metrics are exported as OpenTelemetry counters when telemetry is enabled
 - Compatible with Aspire dashboard, Grafana, and any OTel-compatible backend
-- Metrics: `squad.tokens.input`, `squad.tokens.output`, `squad.tokens.cost`
+- Metrics: `crew.tokens.input`, `crew.tokens.output`, `crew.tokens.cost`

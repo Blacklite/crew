@@ -9,8 +9,8 @@ import {
   TelemetryCollector,
   shouldNotifyUpdate,
   setTelemetryTransport,
-} from '@bradygaster/squad-sdk/runtime/telemetry';
-import type { TelemetryEvent, TelemetryConfig } from '@bradygaster/squad-sdk/runtime/telemetry';
+} from '@blacklite/crew-sdk/runtime/telemetry';
+import type { TelemetryEvent, TelemetryConfig } from '@blacklite/crew-sdk/runtime/telemetry';
 
 // ============================================================================
 // TelemetryCollector — consent
@@ -48,33 +48,33 @@ describe('TelemetryCollector — collectEvent', () => {
   });
 
   it('queues an event when enabled', () => {
-    collector.collectEvent({ name: 'squad.init' });
+    collector.collectEvent({ name: 'crew.init' });
     expect(collector.pendingCount).toBe(1);
   });
 
   it('does nothing when disabled', () => {
     collector.setConsent(false);
-    collector.collectEvent({ name: 'squad.init' });
+    collector.collectEvent({ name: 'crew.init' });
     expect(collector.pendingCount).toBe(0);
   });
 
   it('respects excludeEvents', () => {
-    const c = new TelemetryCollector({ enabled: true, excludeEvents: ['squad.error'] });
-    c.collectEvent({ name: 'squad.error' });
+    const c = new TelemetryCollector({ enabled: true, excludeEvents: ['crew.error'] });
+    c.collectEvent({ name: 'crew.error' });
     expect(c.pendingCount).toBe(0);
-    c.collectEvent({ name: 'squad.init' });
+    c.collectEvent({ name: 'crew.init' });
     expect(c.pendingCount).toBe(1);
   });
 
   it('adds timestamp when not provided', () => {
     const before = Date.now();
-    collector.collectEvent({ name: 'squad.run' });
+    collector.collectEvent({ name: 'crew.run' });
     // We can't directly inspect the queue, but flush will exercise the timestamp
     expect(collector.pendingCount).toBe(1);
   });
 
   it('preserves provided timestamp', () => {
-    collector.collectEvent({ name: 'squad.run', timestamp: 1000 });
+    collector.collectEvent({ name: 'crew.run', timestamp: 1000 });
     expect(collector.pendingCount).toBe(1);
   });
 
@@ -83,7 +83,7 @@ describe('TelemetryCollector — collectEvent', () => {
     setTelemetryTransport(async (events) => { captured.push(...events); });
 
     const c = new TelemetryCollector({ enabled: true, anonymize: true, endpoint: 'http://x' });
-    c.collectEvent({ name: 'squad.init', properties: { foo: 'bar' } });
+    c.collectEvent({ name: 'crew.init', properties: { foo: 'bar' } });
     await c.flush();
 
     expect(captured[0].properties).toBeUndefined();
@@ -94,7 +94,7 @@ describe('TelemetryCollector — collectEvent', () => {
     setTelemetryTransport(async (events) => { captured.push(...events); });
 
     const c = new TelemetryCollector({ enabled: true, anonymize: false, endpoint: 'http://x' });
-    c.collectEvent({ name: 'squad.init', properties: { foo: 'bar' } });
+    c.collectEvent({ name: 'crew.init', properties: { foo: 'bar' } });
     await c.flush();
 
     expect(captured[0].properties).toEqual({ foo: 'bar' });
@@ -111,8 +111,8 @@ describe('TelemetryCollector — flush', () => {
     setTelemetryTransport(async (events) => { captured.push(...events); });
 
     const c = new TelemetryCollector({ enabled: true, endpoint: 'http://test' });
-    c.collectEvent({ name: 'squad.init' });
-    c.collectEvent({ name: 'squad.run' });
+    c.collectEvent({ name: 'crew.init' });
+    c.collectEvent({ name: 'crew.run' });
 
     const count = await c.flush();
     expect(count).toBe(2);
@@ -122,7 +122,7 @@ describe('TelemetryCollector — flush', () => {
 
   it('returns 0 when disabled', async () => {
     const c = new TelemetryCollector({ enabled: false });
-    c.collectEvent({ name: 'squad.init' }); // no-op
+    c.collectEvent({ name: 'crew.init' }); // no-op
     const count = await c.flush();
     expect(count).toBe(0);
   });
@@ -141,8 +141,8 @@ describe('TelemetryCollector — flush', () => {
 describe('TelemetryCollector — drain', () => {
   it('discards all queued events', () => {
     const c = new TelemetryCollector({ enabled: true });
-    c.collectEvent({ name: 'squad.init' });
-    c.collectEvent({ name: 'squad.run' });
+    c.collectEvent({ name: 'crew.init' });
+    c.collectEvent({ name: 'crew.run' });
     expect(c.pendingCount).toBe(2);
     c.drain();
     expect(c.pendingCount).toBe(0);

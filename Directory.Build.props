@@ -1,19 +1,19 @@
 <Project>
   <!--
-    Repo-wide MSBuild defaults for the Squad.Agents.AI .NET package (src/Squad.Agents.AI,
-    test/Squad.Agents.AI.Tests, src/Squad.Agents.AI/samples/Squad.Agents.AI.Sample).
+    Repo-wide MSBuild defaults for the Crew.Agents.AI .NET package (src/Crew.Agents.AI,
+    test/Crew.Agents.AI.Tests, src/Crew.Agents.AI/samples/Crew.Agents.AI.Sample).
     This file currently only exists to fix Copilot CLI native-payload propagation; see
     below. It applies to every project in the repo, but today those three are the only
     .csproj files that exist.
   -->
   <PropertyGroup>
     <!--
-      Single source of truth for the GitHub.Copilot.SDK version Squad.Agents.AI targets.
-      Squad.Agents.AI.csproj's PackageReference uses this value, and the override right
+      Single source of truth for the GitHub.Copilot.SDK version Crew.Agents.AI targets.
+      Crew.Agents.AI.csproj's PackageReference uses this value, and the override right
       below keeps the Microsoft.Agents.AI.GitHub.Copilot native-payload bridge in sync
       with it, so bumping this one property is enough to move both together.
     -->
-    <SquadCopilotSdkVersion>1.0.7</SquadCopilotSdkVersion>
+    <CrewCopilotSdkVersion>1.0.7</CrewCopilotSdkVersion>
 
     <!--
       Why this override is required:
@@ -26,13 +26,13 @@
       and, when $(_MicrosoftAgentsAICopilotSdkVersion) is unset, defaults it to the SDK
       version the adapter itself was packed against, its nuspec's dependency FLOOR
       (1.0.5 for Microsoft.Agents.AI.GitHub.Copilot 1.14.0-rc1), NOT the version this repo
-      actually depends on ($(SquadCopilotSdkVersion), i.e. 1.0.7). Left unset, any project
+      actually depends on ($(CrewCopilotSdkVersion), i.e. 1.0.7). Left unset, any project
       that pulls in the adapter WITHOUT a direct PackageReference to GitHub.Copilot.SDK
-      (test/Squad.Agents.AI.Tests, src/Squad.Agents.AI/samples/Squad.Agents.AI.Sample here,
-      and any real external NuGet consumer of Squad.Agents.AI) downloads and bundles the
+      (test/Crew.Agents.AI.Tests, src/Crew.Agents.AI/samples/Crew.Agents.AI.Sample here,
+      and any real external NuGet consumer of Crew.Agents.AI) downloads and bundles the
       OLDER Copilot CLI build pinned to SDK 1.0.5 (Copilot CLI 1.0.67) instead of the CLI
       pinned to SDK 1.0.7 (Copilot CLI 1.0.71); verified against this repo's own CI logs
-      for PR #1519 (run 29856026557): "Build package" (src/Squad.Agents.AI, which DOES have
+      for PR #1519 (run 29856026557): "Build package" (src/Crew.Agents.AI, which DOES have
       the direct PackageReference) downloaded CLI 1.0.71, while "Build tests" and
       "Build sample" (no direct PackageReference) downloaded CLI 1.0.67, on both
       ubuntu-latest and windows-latest.
@@ -47,18 +47,18 @@
       regardless of NuGet's props/targets import ordering between packages: if this file's
       value is seen first, the adapter's own conditional default (guarded by
       Condition="'$(_MicrosoftAgentsAICopilotSdkVersion)' == ''") never fires; if it is
-      seen after, Squad.Agents.AI's own packed buildTransitive/Squad.Agents.AI.props
-      (generated at pack time from this same property, see Squad.Agents.AI.csproj)
+      seen after, Crew.Agents.AI's own packed buildTransitive/Crew.Agents.AI.props
+      (generated at pack time from this same property, see Crew.Agents.AI.csproj)
       unconditionally overwrites it again for real external consumers.
 
-      Excluded for the Squad.Agents.AI project itself: it already gets the right SDK
+      Excluded for the Crew.Agents.AI project itself: it already gets the right SDK
       version via its own direct PackageReference to GitHub.Copilot.SDK (whose build/
       import happens unconditionally, ahead of the adapter's fallback), so setting the
       override there too would just make NuGet import the SAME
-      github.copilot.sdk/$(SquadCopilotSdkVersion)/build/GitHub.Copilot.SDK.targets file
+      github.copilot.sdk/$(CrewCopilotSdkVersion)/build/GitHub.Copilot.SDK.targets file
       twice, and MSBuild warns (MSB4011) about the resulting harmless-but-noisy duplicate
       import.
     -->
-    <_MicrosoftAgentsAICopilotSdkVersion Condition="'$(MSBuildProjectName)' != 'Squad.Agents.AI'">$(SquadCopilotSdkVersion)</_MicrosoftAgentsAICopilotSdkVersion>
+    <_MicrosoftAgentsAICopilotSdkVersion Condition="'$(MSBuildProjectName)' != 'Crew.Agents.AI'">$(CrewCopilotSdkVersion)</_MicrosoftAgentsAICopilotSdkVersion>
   </PropertyGroup>
 </Project>

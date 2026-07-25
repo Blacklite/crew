@@ -9,8 +9,8 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import type { SquadConfig, AgentConfig } from '@bradygaster/squad-sdk/config';
-import { defineConfig, validateConfig } from '@bradygaster/squad-sdk/config';
+import type { CrewConfig, AgentConfig } from '@blacklite/crew-sdk/config';
+import { defineConfig, validateConfig } from '@blacklite/crew-sdk/config';
 import {
   ManifestCategory,
   validateManifest,
@@ -23,7 +23,7 @@ import {
   validatePackageContents,
   type MarketplaceManifest,
   type ExtensionEvent,
-} from '@bradygaster/squad-sdk/marketplace';
+} from '@blacklite/crew-sdk/marketplace';
 import {
   LocalAgentSource,
   GitHubAgentSource,
@@ -33,15 +33,15 @@ import {
   type AgentManifest,
   type AgentDefinition,
   type GitHubFetcher,
-} from '@bradygaster/squad-sdk/config';
-import { SkillRegistry, type SkillDefinition } from '@bradygaster/squad-sdk/skills';
+} from '@blacklite/crew-sdk/config';
+import { SkillRegistry, type SkillDefinition } from '@blacklite/crew-sdk/skills';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
+function makeConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
   return defineConfig({
     version: '0.6.0',
-    team: { name: 'Integration Squad', description: 'Integration test team' },
+    team: { name: 'Integration Crew', description: 'Integration test team' },
     agents: [
       { name: 'coder', role: 'developer', tools: ['edit', 'terminal'] },
       { name: 'reviewer', role: 'reviewer', tools: ['edit'] },
@@ -54,11 +54,11 @@ function makeManifest(overrides: Partial<MarketplaceManifest> = {}): Marketplace
   return {
     name: overrides.name ?? 'test-extension',
     version: overrides.version ?? '1.0.0',
-    description: overrides.description ?? 'A test marketplace extension for Squad',
+    description: overrides.description ?? 'A test marketplace extension for Crew',
     author: overrides.author ?? 'test-author',
     repository: overrides.repository ?? 'https://github.com/test/repo',
     categories: overrides.categories ?? [ManifestCategory.Development],
-    tags: overrides.tags ?? ['test', 'squad'],
+    tags: overrides.tags ?? ['test', 'crew'],
     icon: overrides.icon ?? 'icon.png',
     screenshots: overrides.screenshots ?? ['screenshot1.png'],
     pricing: overrides.pricing ?? { model: 'free' },
@@ -114,7 +114,7 @@ describe('Export → Import Roundtrip', () => {
     const ext = toExtensionConfig(config);
 
     // Manifest captures team identity
-    expect(manifest.name).toBe('integration-squad');
+    expect(manifest.name).toBe('integration-crew');
     expect(manifest.version).toBe(config.version);
 
     // Extension config preserves agents
@@ -127,8 +127,8 @@ describe('Export → Import Roundtrip', () => {
     const config = makeConfig();
     const manifest = generateManifest(config);
     // generateManifest doesn't fill author/repo — set them for validation
-    manifest.author = 'squad-team';
-    manifest.repository = 'https://github.com/squad/test';
+    manifest.author = 'crew-team';
+    manifest.repository = 'https://github.com/crew/test';
     const result = validateManifest(manifest);
     expect(result.valid).toBe(true);
   });
@@ -146,7 +146,7 @@ describe('Export → Import Roundtrip', () => {
 // ─── 2. Export with anonymization, import with merge vs overwrite ───────────
 
 describe('Anonymization & Merge Strategies', () => {
-  function anonymize(config: SquadConfig): SquadConfig {
+  function anonymize(config: CrewConfig): CrewConfig {
     return defineConfig({
       ...config,
       team: { ...config.team, description: 'Anonymized team', projectContext: undefined },
@@ -287,7 +287,7 @@ describe('Agent Versioning', () => {
 describe('GitHub Agent Source (Mocked)', () => {
   it('should list agents from mocked GitHub repo', async () => {
     const fetcher = mockFetcher({ fenster: { charter: CHARTER_MD }, verbal: { charter: CHARTER_MD } });
-    const source = new GitHubAgentSource('squad/agents', { fetcher });
+    const source = new GitHubAgentSource('crew/agents', { fetcher });
     const agents = await source.listAgents();
     expect(agents).toHaveLength(2);
     expect(agents.map(a => a.source)).toEqual(['github', 'github']);
@@ -295,7 +295,7 @@ describe('GitHub Agent Source (Mocked)', () => {
 
   it('should get a specific agent with charter metadata', async () => {
     const fetcher = mockFetcher({ fenster: { charter: CHARTER_MD, history: '# History\nSome history.' } });
-    const source = new GitHubAgentSource('squad/agents', { fetcher });
+    const source = new GitHubAgentSource('crew/agents', { fetcher });
     const agent = await source.getAgent('fenster');
     expect(agent).not.toBeNull();
     expect(agent!.name).toBe('fenster');
@@ -305,14 +305,14 @@ describe('GitHub Agent Source (Mocked)', () => {
 
   it('should fetch charter content', async () => {
     const fetcher = mockFetcher({ fenster: { charter: CHARTER_MD } });
-    const source = new GitHubAgentSource('squad/agents', { fetcher });
+    const source = new GitHubAgentSource('crew/agents', { fetcher });
     const charter = await source.getCharter('fenster');
     expect(charter).toContain('## Identity');
   });
 
   it('should return null for non-existent agent', async () => {
     const fetcher = mockFetcher({});
-    const source = new GitHubAgentSource('squad/agents', { fetcher });
+    const source = new GitHubAgentSource('crew/agents', { fetcher });
     expect(await source.getAgent('nonexistent')).toBeNull();
   });
 });
@@ -434,7 +434,7 @@ describe('Conflict Detection & Resolution', () => {
 
   interface Conflict { field: string; local: unknown; remote: unknown }
 
-  function detectConflicts(local: SquadConfig, remote: SquadConfig): Conflict[] {
+  function detectConflicts(local: CrewConfig, remote: CrewConfig): Conflict[] {
     const conflicts: Conflict[] = [];
     if (local.team.name !== remote.team.name) {
       conflicts.push({ field: 'team.name', local: local.team.name, remote: remote.team.name });
@@ -456,7 +456,7 @@ describe('Conflict Detection & Resolution', () => {
     return conflicts;
   }
 
-  function resolveConflicts(local: SquadConfig, remote: SquadConfig, strategy: Strategy): SquadConfig {
+  function resolveConflicts(local: CrewConfig, remote: CrewConfig, strategy: Strategy): CrewConfig {
     switch (strategy) {
       case 'keep-local': return { ...local };
       case 'keep-remote': return { ...remote };
@@ -475,7 +475,7 @@ describe('Conflict Detection & Resolution', () => {
 
   const local = makeConfig();
   const remote = makeConfig({
-    team: { name: 'Remote Squad', description: 'Remote' },
+    team: { name: 'Remote Crew', description: 'Remote' },
     models: { default: 'gpt-5.1-codex', defaultTier: 'standard', tiers: {} },
     agents: [
       { name: 'coder', role: 'senior-dev', tools: ['edit'] },
@@ -500,12 +500,12 @@ describe('Conflict Detection & Resolution', () => {
 
   it('should resolve with keep-local strategy', () => {
     const resolved = resolveConflicts(local, remote, 'keep-local');
-    expect(resolved.team.name).toBe('Integration Squad');
+    expect(resolved.team.name).toBe('Integration Crew');
   });
 
   it('should resolve with keep-remote strategy', () => {
     const resolved = resolveConflicts(local, remote, 'keep-remote');
-    expect(resolved.team.name).toBe('Remote Squad');
+    expect(resolved.team.name).toBe('Remote Crew');
   });
 
   it('should resolve with merge strategy (union of agents)', () => {
@@ -518,7 +518,7 @@ describe('Conflict Detection & Resolution', () => {
 
   it('should resolve with manual strategy (returns local for review)', () => {
     const resolved = resolveConflicts(local, remote, 'manual');
-    expect(resolved.team.name).toBe('Integration Squad');
+    expect(resolved.team.name).toBe('Integration Crew');
   });
 });
 
@@ -577,11 +577,11 @@ describe('Marketplace Operations', () => {
   });
 
   it('should search by name', () => {
-    marketplace.publish(makeManifest({ name: 'squad-linter' }));
-    marketplace.publish(makeManifest({ name: 'squad-deploy' }));
+    marketplace.publish(makeManifest({ name: 'crew-linter' }));
+    marketplace.publish(makeManifest({ name: 'crew-deploy' }));
     const results = marketplace.search('linter');
     expect(results).toHaveLength(1);
-    expect(results[0].name).toBe('squad-linter');
+    expect(results[0].name).toBe('crew-linter');
   });
 
   it('should browse by category', () => {
@@ -834,7 +834,7 @@ describe('Full Distribution Pipeline', () => {
 
     // Convert config
     const ext = adapter.toExtensionConfig();
-    expect(ext.name).toBe('Integration Squad');
+    expect(ext.name).toBe('Integration Crew');
 
     // Process an event
     const event: ExtensionEvent = {

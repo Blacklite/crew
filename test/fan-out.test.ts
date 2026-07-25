@@ -15,10 +15,10 @@ import {
   type AgentSpawnConfig,
   type SpawnResult,
   type FanOutDependencies,
-} from '@bradygaster/squad-sdk/coordinator';
-import { EventBus } from '@bradygaster/squad-sdk/client';
-import { SessionPool } from '@bradygaster/squad-sdk/client';
-import type { AgentCharter } from '@bradygaster/squad-sdk/agents';
+} from '@blacklite/crew-sdk/coordinator';
+import { EventBus } from '@blacklite/crew-sdk/client';
+import { SessionPool } from '@blacklite/crew-sdk/client';
+import type { AgentCharter } from '@blacklite/crew-sdk/agents';
 
 describe('spawnParallel', () => {
   let mockDeps: FanOutDependencies;
@@ -540,7 +540,7 @@ describe('aggregateSessionEvents', () => {
       on: vi.fn((eventType: string, handler: any) => {
         // Simulate tool.start event
         if (eventType === 'tool.start') {
-          handler({ toolName: 'squad_route', timestamp: Date.now() });
+          handler({ toolName: 'crew_route', timestamp: Date.now() });
         }
       }),
     };

@@ -1,6 +1,6 @@
 /**
- * Regression tests for bradygaster/squad#1305 — the canonical squad.agent.md
- * template must instruct the coordinator to probe for squad_state and memory
+ * Regression tests for Blacklite/crew#1305 — the canonical crew.agent.md
+ * template must instruct the coordinator to probe for crew_state and memory
  * tools before mutating state on non-local backends, and must hard-refuse
  * writes when the bridge isn't reachable.
  *
@@ -8,7 +8,7 @@
  * always advertised in the initial function list. The pre-1305 prompt said
  * "when memory tools are available, use them" which models interpreted as
  * "if listed" instead of "after probing". That led to a real incident where
- * a coordinator session against a two-layer backend wrote .squad/decisions.md
+ * a coordinator session against a two-layer backend wrote .crew/decisions.md
  * via raw create/edit tools, hit the pre-commit hook, and treated it as a
  * git problem instead of a contract violation.
  */
@@ -20,13 +20,13 @@ import path from 'node:path';
 const REPO_ROOT = path.resolve(__dirname, '..');
 
 const TEMPLATE_TARGETS = [
-  '.squad-templates/squad.agent.md',
-  'templates/squad.agent.md.template',
-  'packages/squad-cli/templates/squad.agent.md.template',
-  'packages/squad-sdk/templates/squad.agent.md.template',
+  '.crew-templates/crew.agent.md',
+  'templates/crew.agent.md.template',
+  'packages/crew-cli/templates/crew.agent.md.template',
+  'packages/crew-sdk/templates/crew.agent.md.template',
 ];
 
-describe('squad.agent.md.template — state-backend handshake (#1305)', () => {
+describe('crew.agent.md.template — state-backend handshake (#1305)', () => {
   for (const rel of TEMPLATE_TARGETS) {
     describe(rel, () => {
       const fullPath = path.join(REPO_ROOT, rel);
@@ -45,12 +45,12 @@ describe('squad.agent.md.template — state-backend handshake (#1305)', () => {
         expect(content).toMatch(/before any state mutation/i);
       });
 
-      it('instructs the coordinator to PROBE for squad_state_health on non-local backends', () => {
+      it('instructs the coordinator to PROBE for crew_state_health on non-local backends', () => {
         // The probe is the load-bearing behavioral instruction. The pre-1305
         // prompt said "when memory tools are available" which models read as
         // "if listed in my tool block"; the post-1305 prompt explicitly says
         // to probe via tool-discovery (e.g. tool_search_tool_regex).
-        expect(content).toMatch(/squad_state_health/);
+        expect(content).toMatch(/crew_state_health/);
         expect(content).toMatch(/tool_search_tool_regex|tool-discovery/i);
       });
 
@@ -67,9 +67,9 @@ describe('squad.agent.md.template — state-backend handshake (#1305)', () => {
       it('declares a HARD RULE forbidding raw file writes to runtime-owned paths under non-local backends', () => {
         expect(content).toMatch(/HARD RULE/i);
         // The forbidden-paths list must include the high-traffic state files.
-        expect(content).toMatch(/\.squad\/decisions\.md/);
-        expect(content).toMatch(/\.squad\/decisions\/inbox/);
-        expect(content).toMatch(/\.squad\/agents\/\*\/history\.md/);
+        expect(content).toMatch(/\.crew\/decisions\.md/);
+        expect(content).toMatch(/\.crew\/decisions\/inbox/);
+        expect(content).toMatch(/\.crew\/agents\/\*\/history\.md/);
         // And must call out the create/edit/write_file tools by name so the
         // model maps the rule to its actual function inventory. Match each
         // tool name with separate assertions so dropping any one of them
@@ -83,7 +83,7 @@ describe('squad.agent.md.template — state-backend handshake (#1305)', () => {
 
       it('keeps the local/worktree carve-out explicit (file ops valid for local backends)', () => {
         // The rule applies ONLY to non-local backends. Local-backend users
-        // must still be able to use create/edit/write_file on .squad/.
+        // must still be able to use create/edit/write_file on .crew/.
         expect(content).toMatch(/local.*worktree|local.*backend.*valid/i);
       });
     });

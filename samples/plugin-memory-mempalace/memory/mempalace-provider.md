@@ -1,6 +1,6 @@
 # MemPalace Memory Provider
 
-MemPalace is an example memory provider profile for teams that want to arrange Squad memory as rooms, shelves, trails, and landmarks.
+MemPalace is an example memory provider profile for teams that want to arrange Crew memory as rooms, shelves, trails, and landmarks.
 
 ## What this plugin contributes
 
@@ -21,7 +21,7 @@ MemPalace is an example memory provider profile for teams that want to arrange S
 
 ## Boundary
 
-This sample does not execute MemPalace code. It is a declarative Squad plugin that installs static memory guidance under `.squad/memory/` and records external metadata only.
+This sample does not execute MemPalace code. It is a declarative Crew plugin that installs static memory guidance under `.crew/memory/` and records external metadata only.
 
 Install and run MemPalace separately:
 
@@ -34,4 +34,4 @@ mempalace search "query"
 mempalace wake-up
 ```
 
-MemPalace also exposes `mempalace-mcp` for assistant environments that support MCP. Squad records that metadata but does not start the server, configure MCP clients, or install assistant hooks.
+MemPalace also exposes `mempalace-mcp` for assistant environments that support MCP. Crew records that metadata but does not start the server, configure MCP clients, or install assistant hooks.

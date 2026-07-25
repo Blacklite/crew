@@ -2,7 +2,7 @@
 
 All files in this directory are **hand-authored synthetic content**, safe for a
 public repository. No real secrets, no real PII, no real customer data, no
-snapshot of any user `.squad` state.
+snapshot of any user `.crew` state.
 
 ## Provenance
 

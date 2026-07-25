@@ -3,14 +3,14 @@
  */
 import { test, expect } from '@playwright/test';
 
-const START = '/squad/docs/get-started/five-minute-start/';
-const TARGET = '/squad/docs/scenarios/ci-cd-integration/';
+const START = '/crew/docs/get-started/five-minute-start/';
+const TARGET = '/crew/docs/scenarios/ci-cd-integration/';
 
 test.describe('Docs sidebar navigation', () => {
   test('keeps the sidebar scroll position when opening another article', async ({ page }) => {
     await page.goto(START);
 
-    await page.evaluate(() => sessionStorage.removeItem('squad-docs-sidebar-scroll'));
+    await page.evaluate(() => sessionStorage.removeItem('crew-docs-sidebar-scroll'));
 
     const sidebar = page.locator('#sidebar');
     await expect(sidebar).toBeVisible();

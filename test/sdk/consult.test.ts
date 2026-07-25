@@ -13,11 +13,11 @@ import {
   detectLicense,
   loadStagedLearnings,
   logConsultation,
-  mergeToPersonalSquad,
+  mergeToPersonalCrew,
   type LicenseInfo,
   type ExtractionResult,
   type StagedLearning,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
 const TEST_ROOT = join(
   process.cwd(),
@@ -151,7 +151,7 @@ describe('loadStagedLearnings', () => {
     process.cwd(),
     `.test-staged-${randomBytes(4).toString('hex')}`,
   );
-  const EXTRACT_DIR = join(STAGED_ROOT, '.squad', 'extract');
+  const EXTRACT_DIR = join(STAGED_ROOT, '.crew', 'extract');
 
   beforeEach(() => {
     mkdirSync(EXTRACT_DIR, { recursive: true });
@@ -165,20 +165,20 @@ describe('loadStagedLearnings', () => {
     writeFileSync(join(EXTRACT_DIR, 'async-await.md'), '### Always use async/await');
     writeFileSync(join(EXTRACT_DIR, 'error-handling.md'), '### Handle errors explicitly');
 
-    const result = loadStagedLearnings(join(STAGED_ROOT, '.squad'));
+    const result = loadStagedLearnings(join(STAGED_ROOT, '.crew'));
 
     expect(result).toHaveLength(2);
     expect(result.map((l) => l.filename).sort()).toEqual(['async-await.md', 'error-handling.md']);
   });
 
   it('returns empty array if extract folder is empty', () => {
-    const result = loadStagedLearnings(join(STAGED_ROOT, '.squad'));
+    const result = loadStagedLearnings(join(STAGED_ROOT, '.crew'));
     expect(result).toHaveLength(0);
   });
 
   it('returns empty array if extract folder does not exist', () => {
     rmSync(EXTRACT_DIR, { recursive: true, force: true });
-    const result = loadStagedLearnings(join(STAGED_ROOT, '.squad'));
+    const result = loadStagedLearnings(join(STAGED_ROOT, '.crew'));
     expect(result).toHaveLength(0);
   });
 
@@ -186,7 +186,7 @@ describe('loadStagedLearnings', () => {
     const content = '### Test Pattern\n\nUse this pattern for testing.';
     writeFileSync(join(EXTRACT_DIR, 'test-pattern.md'), content);
 
-    const result = loadStagedLearnings(join(STAGED_ROOT, '.squad'));
+    const result = loadStagedLearnings(join(STAGED_ROOT, '.crew'));
 
     expect(result[0].content).toBe(content);
     expect(result[0].filename).toBe('test-pattern.md');
@@ -198,7 +198,7 @@ describe('loadStagedLearnings', () => {
     writeFileSync(join(EXTRACT_DIR, 'invalid.txt'), 'Invalid');
     writeFileSync(join(EXTRACT_DIR, 'invalid.json'), '{}');
 
-    const result = loadStagedLearnings(join(STAGED_ROOT, '.squad'));
+    const result = loadStagedLearnings(join(STAGED_ROOT, '.crew'));
 
     expect(result).toHaveLength(1);
     expect(result[0].filename).toBe('valid.md');
@@ -313,7 +313,7 @@ describe('logConsultation', () => {
   });
 });
 
-describe('mergeToPersonalSquad', () => {
+describe('mergeToPersonalCrew', () => {
   beforeEach(() => {
     mkdirSync(TEST_ROOT, { recursive: true });
   });
@@ -335,7 +335,7 @@ describe('mergeToPersonalSquad', () => {
     const learnings = [
       makeLearning('validate-inputs.md', '### Always validate inputs'),
     ];
-    await mergeToPersonalSquad(learnings, TEST_ROOT);
+    await mergeToPersonalCrew(learnings, TEST_ROOT);
 
     expect(existsSync(join(TEST_ROOT, 'decisions.md'))).toBe(true);
   });
@@ -345,7 +345,7 @@ describe('mergeToPersonalSquad', () => {
       makeLearning('validate-inputs.md', '### Always validate inputs'),
       makeLearning('user-input.md', '### Never trust user input'),
     ];
-    const result = await mergeToPersonalSquad(learnings, TEST_ROOT);
+    const result = await mergeToPersonalCrew(learnings, TEST_ROOT);
 
     expect(result.decisions).toBe(2);
     const content = readFileSync(join(TEST_ROOT, 'decisions.md'), 'utf-8');
@@ -357,13 +357,13 @@ describe('mergeToPersonalSquad', () => {
     // Pre-existing decisions file
     writeFileSync(
       join(TEST_ROOT, 'decisions.md'),
-      '# Squad Decisions\n\n- Existing decision\n',
+      '# Crew Decisions\n\n- Existing decision\n',
     );
 
     const learnings = [
       makeLearning('new-decision.md', '### New decision from consultation'),
     ];
-    await mergeToPersonalSquad(learnings, TEST_ROOT);
+    await mergeToPersonalCrew(learnings, TEST_ROOT);
 
     const content = readFileSync(join(TEST_ROOT, 'decisions.md'), 'utf-8');
     expect(content).toContain('Existing decision');
@@ -375,7 +375,7 @@ describe('mergeToPersonalSquad', () => {
     const learnings = [
       makeLearning('factory-pattern.md', '### Pattern: Use factories'),
     ];
-    const result = await mergeToPersonalSquad(learnings, TEST_ROOT);
+    const result = await mergeToPersonalCrew(learnings, TEST_ROOT);
 
     // Patterns are logged but not merged to skills yet
     expect(result.skills).toBe(0);
@@ -390,24 +390,24 @@ import {
   setupConsultMode,
   extractLearnings,
   loadSessionHistory,
-  getPersonalSquadRoot,
-  resolveGlobalSquadPath,
-} from '@bradygaster/squad-sdk';
+  getPersonalCrewRoot,
+  resolveGlobalCrewPath,
+} from '@blacklite/crew-sdk';
 
 // ============================================================================
-// getPersonalSquadRoot tests (#590)
+// getPersonalCrewRoot tests (#590)
 // ============================================================================
 
-describe('getPersonalSquadRoot', () => {
-  it('resolves to personal-squad subdirectory, not .squad', () => {
-    const root = getPersonalSquadRoot();
-    const globalDir = resolveGlobalSquadPath();
-    expect(root).toBe(join(globalDir, 'personal-squad'));
+describe('getPersonalCrewRoot', () => {
+  it('resolves to personal-crew subdirectory, not .crew', () => {
+    const root = getPersonalCrewRoot();
+    const globalDir = resolveGlobalCrewPath();
+    expect(root).toBe(join(globalDir, 'personal-crew'));
   });
 
-  it('does not resolve to .squad subdirectory', () => {
-    const root = getPersonalSquadRoot();
-    expect(root).not.toMatch(/[/\\]\.squad$/);
+  it('does not resolve to .crew subdirectory', () => {
+    const root = getPersonalCrewRoot();
+    expect(root).not.toMatch(/[/\\]\.crew$/);
   });
 });
 
@@ -417,53 +417,53 @@ describe('setupConsultMode', () => {
     `.test-setup-${randomBytes(4).toString('hex')}`,
   );
   const PROJECT_ROOT = join(SETUP_ROOT, 'my-project');
-  const PERSONAL_SQUAD = join(SETUP_ROOT, 'personal-squad');
+  const PERSONAL_CREW = join(SETUP_ROOT, 'personal-crew');
 
   beforeEach(() => {
     // Create fake project with git
     mkdirSync(join(PROJECT_ROOT, '.git', 'info'), { recursive: true });
-    // Create fake personal squad
-    mkdirSync(PERSONAL_SQUAD, { recursive: true });
+    // Create fake personal crew
+    mkdirSync(PERSONAL_CREW, { recursive: true });
   });
 
   afterEach(() => {
     rmSync(SETUP_ROOT, { recursive: true, force: true });
   });
 
-  it('creates .squad/ directory with config.json', async () => {
+  it('creates .crew/ directory with config.json', async () => {
     const result = await setupConsultMode({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
-    expect(result.squadDir).toBe(join(PROJECT_ROOT, '.squad'));
+    expect(result.crewDir).toBe(join(PROJECT_ROOT, '.crew'));
     expect(result.projectName).toBe('my-project');
-    expect(existsSync(join(PROJECT_ROOT, '.squad'))).toBe(true);
-    expect(existsSync(join(PROJECT_ROOT, '.squad', 'config.json'))).toBe(true);
+    expect(existsSync(join(PROJECT_ROOT, '.crew'))).toBe(true);
+    expect(existsSync(join(PROJECT_ROOT, '.crew', 'config.json'))).toBe(true);
 
     const config = JSON.parse(
-      readFileSync(join(PROJECT_ROOT, '.squad', 'config.json'), 'utf-8'),
+      readFileSync(join(PROJECT_ROOT, '.crew', 'config.json'), 'utf-8'),
     );
     expect(config.consult).toBe(true);
-    expect(config.sourceSquad).toBe(PERSONAL_SQUAD);
+    expect(config.sourceCrew).toBe(PERSONAL_CREW);
   });
 
-  it('copies personal squad contents into project .squad/', async () => {
-    // Create some content in personal squad
-    writeFileSync(join(PERSONAL_SQUAD, 'decisions.md'), '# Decisions\n- Use TypeScript');
-    mkdirSync(join(PERSONAL_SQUAD, 'agents'), { recursive: true });
-    writeFileSync(join(PERSONAL_SQUAD, 'agents', 'test-agent.md'), '# Test Agent');
+  it('copies personal crew contents into project .crew/', async () => {
+    // Create some content in personal crew
+    writeFileSync(join(PERSONAL_CREW, 'decisions.md'), '# Decisions\n- Use TypeScript');
+    mkdirSync(join(PERSONAL_CREW, 'agents'), { recursive: true });
+    writeFileSync(join(PERSONAL_CREW, 'agents', 'test-agent.md'), '# Test Agent');
 
     const result = await setupConsultMode({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
     // Verify content was copied
-    expect(existsSync(join(PROJECT_ROOT, '.squad', 'decisions.md'))).toBe(true);
-    expect(existsSync(join(PROJECT_ROOT, '.squad', 'agents', 'test-agent.md'))).toBe(true);
+    expect(existsSync(join(PROJECT_ROOT, '.crew', 'decisions.md'))).toBe(true);
+    expect(existsSync(join(PROJECT_ROOT, '.crew', 'agents', 'test-agent.md'))).toBe(true);
     
-    const copiedDecisions = readFileSync(join(PROJECT_ROOT, '.squad', 'decisions.md'), 'utf-8');
+    const copiedDecisions = readFileSync(join(PROJECT_ROOT, '.crew', 'decisions.md'), 'utf-8');
     expect(copiedDecisions).toContain('Use TypeScript');
 
     // Verify createdFiles list includes the copied files
@@ -474,43 +474,43 @@ describe('setupConsultMode', () => {
   it('creates sessions directory', async () => {
     await setupConsultMode({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
-    expect(existsSync(join(PROJECT_ROOT, '.squad', 'sessions'))).toBe(true);
+    expect(existsSync(join(PROJECT_ROOT, '.crew', 'sessions'))).toBe(true);
   });
 
-  it('adds .squad/ to git exclude', async () => {
+  it('adds .crew/ to git exclude', async () => {
     const result = await setupConsultMode({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
     const excludeContent = readFileSync(result.gitExclude, 'utf-8');
-    expect(excludeContent).toContain('.squad/');
+    expect(excludeContent).toContain('.crew/');
   });
 
-  it('creates .github/agents/squad.agent.md', async () => {
+  it('creates .github/agents/crew.agent.md', async () => {
     const result = await setupConsultMode({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
-    expect(result.agentFile).toBe(join(PROJECT_ROOT, '.github', 'agents', 'squad.agent.md'));
+    expect(result.agentFile).toBe(join(PROJECT_ROOT, '.github', 'agents', 'crew.agent.md'));
     expect(existsSync(result.agentFile)).toBe(true);
 
     const content = readFileSync(result.agentFile, 'utf-8');
-    expect(content).toContain('name: Squad');
+    expect(content).toContain('name: Crew');
     expect(content).toContain('consult-mode: true');
-    // Agent file should reference local .squad/ (the copy), not absolute paths
-    expect(content).toContain('.squad/decisions.md');
-    expect(content).toContain('.squad/agents/');
+    // Agent file should reference local .crew/ (the copy), not absolute paths
+    expect(content).toContain('.crew/decisions.md');
+    expect(content).toContain('.crew/agents/');
   });
 
-  it('uses full squad.agent.md template with consult mode preamble', async () => {
+  it('uses full crew.agent.md template with consult mode preamble', async () => {
     const result = await setupConsultMode({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
     const content = readFileSync(result.agentFile, 'utf-8');
@@ -522,14 +522,14 @@ describe('setupConsultMode', () => {
     expect(content).toContain('Team Mode');
   });
 
-  it('adds .github/agents/squad.agent.md to git exclude', async () => {
+  it('adds .github/agents/crew.agent.md to git exclude', async () => {
     const result = await setupConsultMode({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
     const excludeContent = readFileSync(result.gitExclude, 'utf-8');
-    expect(excludeContent).toContain('.github/agents/squad.agent.md');
+    expect(excludeContent).toContain('.github/agents/crew.agent.md');
   });
 
   it('throws if not a git repository', async () => {
@@ -539,42 +539,42 @@ describe('setupConsultMode', () => {
     await expect(
       setupConsultMode({
         projectRoot: nonGitDir,
-        personalSquadRoot: PERSONAL_SQUAD,
+        personalCrewRoot: PERSONAL_CREW,
       }),
     ).rejects.toThrow('Not a git repository');
   });
 
-  it('throws if personal squad missing', async () => {
-    const missingSquad = join(SETUP_ROOT, 'nonexistent');
+  it('throws if personal crew missing', async () => {
+    const missingCrew = join(SETUP_ROOT, 'nonexistent');
 
     await expect(
       setupConsultMode({
         projectRoot: PROJECT_ROOT,
-        personalSquadRoot: missingSquad,
+        personalCrewRoot: missingCrew,
       }),
-    ).rejects.toThrow('No personal squad found');
+    ).rejects.toThrow('No personal crew found');
   });
 
-  it('throws if project already has .squad/', async () => {
-    mkdirSync(join(PROJECT_ROOT, '.squad'), { recursive: true });
+  it('throws if project already has .crew/', async () => {
+    mkdirSync(join(PROJECT_ROOT, '.crew'), { recursive: true });
 
     await expect(
       setupConsultMode({
         projectRoot: PROJECT_ROOT,
-        personalSquadRoot: PERSONAL_SQUAD,
+        personalCrewRoot: PERSONAL_CREW,
       }),
-    ).rejects.toThrow('already has a .squad/ directory');
+    ).rejects.toThrow('already has a .crew/ directory');
   });
 
   it('dry run does not create files', async () => {
     const result = await setupConsultMode({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
       dryRun: true,
     });
 
     expect(result.dryRun).toBe(true);
-    expect(existsSync(join(PROJECT_ROOT, '.squad'))).toBe(false);
+    expect(existsSync(join(PROJECT_ROOT, '.crew'))).toBe(false);
   });
 });
 
@@ -588,18 +588,18 @@ describe('extractLearnings', () => {
     `.test-extract-${randomBytes(4).toString('hex')}`,
   );
   const PROJECT_ROOT = join(EXTRACT_ROOT, 'my-project');
-  const PERSONAL_SQUAD = join(EXTRACT_ROOT, 'personal-squad');
+  const PERSONAL_CREW = join(EXTRACT_ROOT, 'personal-crew');
 
   beforeEach(() => {
     // Create project with consult mode set up
     mkdirSync(join(PROJECT_ROOT, '.git', 'info'), { recursive: true });
-    mkdirSync(join(PROJECT_ROOT, '.squad', 'extract'), { recursive: true });
+    mkdirSync(join(PROJECT_ROOT, '.crew', 'extract'), { recursive: true });
     writeFileSync(
-      join(PROJECT_ROOT, '.squad', 'config.json'),
-      JSON.stringify({ consult: true, sourceSquad: PERSONAL_SQUAD }),
+      join(PROJECT_ROOT, '.crew', 'config.json'),
+      JSON.stringify({ consult: true, sourceCrew: PERSONAL_CREW }),
     );
-    // Create personal squad
-    mkdirSync(PERSONAL_SQUAD, { recursive: true });
+    // Create personal crew
+    mkdirSync(PERSONAL_CREW, { recursive: true });
   });
 
   afterEach(() => {
@@ -609,13 +609,13 @@ describe('extractLearnings', () => {
   it('extracts staged learnings from extract folder', async () => {
     // Add a staged learning
     writeFileSync(
-      join(PROJECT_ROOT, '.squad', 'extract', 'use-async-await.md'),
+      join(PROJECT_ROOT, '.crew', 'extract', 'use-async-await.md'),
       '### Always use async/await\n\nThis is a best practice.',
     );
 
     const result = await extractLearnings({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
     expect(result.blocked).toBe(false);
@@ -629,7 +629,7 @@ describe('extractLearnings', () => {
 
     const result = await extractLearnings({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
     expect(result.blocked).toBe(true);
@@ -640,13 +640,13 @@ describe('extractLearnings', () => {
   it('allows copyleft extraction with acceptRisks', async () => {
     writeFileSync(join(PROJECT_ROOT, 'LICENSE'), 'SPDX-License-Identifier: GPL-3.0');
     writeFileSync(
-      join(PROJECT_ROOT, '.squad', 'extract', 'factories.md'),
+      join(PROJECT_ROOT, '.crew', 'extract', 'factories.md'),
       '### Use factories\n\nFactory pattern is cleaner.',
     );
 
     const result = await extractLearnings({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
       acceptRisks: true,
     });
 
@@ -655,40 +655,40 @@ describe('extractLearnings', () => {
     expect(result.extracted.length).toBe(1);
   });
 
-  it('cleans up project .squad/ when clean=true', async () => {
+  it('cleans up project .crew/ when clean=true', async () => {
     writeFileSync(join(PROJECT_ROOT, 'LICENSE'), 'MIT License');
 
     const result = await extractLearnings({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
       clean: true,
     });
 
     expect(result.cleaned).toBe(true);
-    expect(existsSync(join(PROJECT_ROOT, '.squad'))).toBe(false);
+    expect(existsSync(join(PROJECT_ROOT, '.crew'))).toBe(false);
   });
 
   it('throws if not in consult mode', async () => {
-    rmSync(join(PROJECT_ROOT, '.squad'), { recursive: true, force: true });
+    rmSync(join(PROJECT_ROOT, '.crew'), { recursive: true, force: true });
 
     await expect(
       extractLearnings({
         projectRoot: PROJECT_ROOT,
-        personalSquadRoot: PERSONAL_SQUAD,
+        personalCrewRoot: PERSONAL_CREW,
       }),
     ).rejects.toThrow('Not in consult mode');
   });
 
-  it('logs consultation to personal squad', async () => {
+  it('logs consultation to personal crew', async () => {
     writeFileSync(join(PROJECT_ROOT, 'LICENSE'), 'MIT License');
     writeFileSync(
-      join(PROJECT_ROOT, '.squad', 'extract', 'test-learning.md'),
+      join(PROJECT_ROOT, '.crew', 'extract', 'test-learning.md'),
       '### Test learning\n\nSome content.',
     );
 
     const result = await extractLearnings({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
     expect(result.consultationLogPath).toBeDefined();
@@ -697,12 +697,12 @@ describe('extractLearnings', () => {
 
   it('removes extracted files from extract folder', async () => {
     writeFileSync(join(PROJECT_ROOT, 'LICENSE'), 'MIT License');
-    const extractPath = join(PROJECT_ROOT, '.squad', 'extract', 'to-extract.md');
+    const extractPath = join(PROJECT_ROOT, '.crew', 'extract', 'to-extract.md');
     writeFileSync(extractPath, '### Learning\n\nContent.');
 
     await extractLearnings({
       projectRoot: PROJECT_ROOT,
-      personalSquadRoot: PERSONAL_SQUAD,
+      personalCrewRoot: PERSONAL_CREW,
     });
 
     expect(existsSync(extractPath)).toBe(false);
@@ -718,10 +718,10 @@ describe('loadSessionHistory', () => {
     process.cwd(),
     `.test-history-${randomBytes(4).toString('hex')}`,
   );
-  const SQUAD_DIR = join(HISTORY_ROOT, '.squad');
+  const CREW_DIR = join(HISTORY_ROOT, '.crew');
 
   beforeEach(() => {
-    mkdirSync(join(SQUAD_DIR, 'sessions'), { recursive: true });
+    mkdirSync(join(CREW_DIR, 'sessions'), { recursive: true });
   });
 
   afterEach(() => {
@@ -729,7 +729,7 @@ describe('loadSessionHistory', () => {
   });
 
   it('returns empty entries if no sessions', () => {
-    const history = loadSessionHistory(SQUAD_DIR);
+    const history = loadSessionHistory(CREW_DIR);
     expect(history.entries).toHaveLength(0);
   });
 
@@ -742,11 +742,11 @@ describe('loadSessionHistory', () => {
       ],
     };
     writeFileSync(
-      join(SQUAD_DIR, 'sessions', 'session1.json'),
+      join(CREW_DIR, 'sessions', 'session1.json'),
       JSON.stringify(session),
     );
 
-    const history = loadSessionHistory(SQUAD_DIR);
+    const history = loadSessionHistory(CREW_DIR);
     expect(history.entries).toHaveLength(2);
     expect(history.entries[0].content).toBe('Use dependency injection');
     expect(history.entries[1].content).toBe('Always use TypeScript');
@@ -759,26 +759,26 @@ describe('loadSessionHistory', () => {
       ],
     };
     writeFileSync(
-      join(SQUAD_DIR, 'sessions', 'session1.json'),
+      join(CREW_DIR, 'sessions', 'session1.json'),
       JSON.stringify(session),
     );
 
-    const history = loadSessionHistory(SQUAD_DIR);
+    const history = loadSessionHistory(CREW_DIR);
     expect(history.entries).toHaveLength(1);
     expect(history.entries[0].type).toBe('decision');
   });
 
   it('skips malformed session files', () => {
     writeFileSync(
-      join(SQUAD_DIR, 'sessions', 'bad.json'),
+      join(CREW_DIR, 'sessions', 'bad.json'),
       'not valid json',
     );
     writeFileSync(
-      join(SQUAD_DIR, 'sessions', 'good.json'),
+      join(CREW_DIR, 'sessions', 'good.json'),
       JSON.stringify({ learnings: [{ content: 'Valid' }] }),
     );
 
-    const history = loadSessionHistory(SQUAD_DIR);
+    const history = loadSessionHistory(CREW_DIR);
     expect(history.entries).toHaveLength(1);
     expect(history.entries[0].content).toBe('Valid');
   });

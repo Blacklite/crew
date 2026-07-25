@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-sdk": patch
+"@blacklite/crew-sdk": patch
 ---
 
 Fix: strip surrounding quotes from routing.md example phrases in `parseRoutingMarkdown`

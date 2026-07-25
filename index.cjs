@@ -17,26 +17,26 @@ function fatal(msg) {
   process.exit(1);
 }
 
-// Detect squad directory — .squad/ first, fall back to .ai-team/
-function detectSquadDir(dest) {
-  const squadDir = path.join(dest, '.squad');
+// Detect crew directory — .crew/ first, fall back to .ai-team/
+function detectCrewDir(dest) {
+  const crewDir = path.join(dest, '.crew');
   const aiTeamDir = path.join(dest, '.ai-team');
 
-  if (fs.existsSync(squadDir)) {
-    return { path: squadDir, name: '.squad', isLegacy: false };
+  if (fs.existsSync(crewDir)) {
+    return { path: crewDir, name: '.crew', isLegacy: false };
   }
   if (fs.existsSync(aiTeamDir)) {
     return { path: aiTeamDir, name: '.ai-team', isLegacy: true };
   }
   // Default for new installations
-  return { path: squadDir, name: '.squad', isLegacy: false };
+  return { path: crewDir, name: '.crew', isLegacy: false };
 }
 
 function showDeprecationWarning() {
   console.log();
   console.log(`${YELLOW}⚠️  DEPRECATION: .ai-team/ is deprecated and will be removed in v1.0.0${RESET}`);
-  console.log(`${YELLOW}    Run 'npx github:bradygaster/squad upgrade --migrate-directory' to migrate to .squad/${RESET}`);
-  console.log(`${YELLOW}    Details: https://github.com/bradygaster/squad/issues/101${RESET}`);
+  console.log(`${YELLOW}    Run 'npx github:Blacklite/crew upgrade --migrate-directory' to migrate to .crew/${RESET}`);
+  console.log(`${YELLOW}    Details: https://github.com/Blacklite/crew/issues/101${RESET}`);
   console.log();
 }
 
@@ -52,7 +52,7 @@ const cmd = process.argv[2];
 // --version / --help
 if (cmd === '--version' || cmd === '-v') {
   console.log(`Package: ${pkg.version}`);
-  const agentMdPath = path.join(dest, '.github', 'agents', 'squad.agent.md');
+  const agentMdPath = path.join(dest, '.github', 'agents', 'crew.agent.md');
   let installedVersion = 'not installed';
   if (fs.existsSync(agentMdPath)) {
     const content = fs.readFileSync(agentMdPath, 'utf8');
@@ -64,14 +64,14 @@ if (cmd === '--version' || cmd === '-v') {
 }
 
 if (cmd === '--help' || cmd === '-h' || cmd === 'help') {
-  console.log(`\n${BOLD}squad${RESET} v${pkg.version} — Add an AI agent team to any project\n`);
-  console.log(`Usage: npx github:bradygaster/squad [command]\n`);
+  console.log(`\n${BOLD}crew${RESET} v${pkg.version} — Add an AI agent team to any project\n`);
+  console.log(`Usage: npx github:Blacklite/crew [command]\n`);
   console.log(`Commands:`);
-  console.log(`  ${BOLD}(default)${RESET}  Initialize Squad (skip files that already exist)`);
-  console.log(`  ${BOLD}upgrade${RESET}    Update Squad-owned files to latest version`);
-  console.log(`             Overwrites: squad.agent.md, templates dir (.squad/templates/ or .ai-team-templates/)`);
-  console.log(`             Never touches: .squad/ or .ai-team/ (your team state)`);
-  console.log(`             Flags: --migrate-directory (rename .ai-team/ → .squad/)`);
+  console.log(`  ${BOLD}(default)${RESET}  Initialize Crew (skip files that already exist)`);
+  console.log(`  ${BOLD}upgrade${RESET}    Update Crew-owned files to latest version`);
+  console.log(`             Overwrites: crew.agent.md, templates dir (.crew/templates/ or .ai-team-templates/)`);
+  console.log(`             Never touches: .crew/ or .ai-team/ (your team state)`);
+  console.log(`             Flags: --migrate-directory (rename .ai-team/ → .crew/)`);
   console.log(`  ${BOLD}copilot${RESET}    Add/remove the Copilot coding agent (@copilot)`);
   console.log(`             Usage: copilot [--off] [--auto-assign]`);
   console.log(`  ${BOLD}rework${RESET}     Analyze PR rework rate (the 5th DORA metric)`);
@@ -82,17 +82,17 @@ if (cmd === '--help' || cmd === '-h' || cmd === 'help') {
   console.log(`             Default: checks every 10 minutes (Ctrl+C to stop)`);
   console.log(`  ${BOLD}plugin${RESET}     Manage plugin marketplaces`);
   console.log(`             Usage: plugin marketplace add|remove|list|browse`);
-  console.log(`  ${BOLD}export${RESET}     Export squad to a portable JSON snapshot`);
-  console.log(`             Default: squad-export.json (use --out <path> to override)`);
-  console.log(`  ${BOLD}import${RESET}     Import squad from an export file`);
+  console.log(`  ${BOLD}export${RESET}     Export crew to a portable JSON snapshot`);
+  console.log(`             Default: crew-export.json (use --out <path> to override)`);
+  console.log(`  ${BOLD}import${RESET}     Import crew from an export file`);
   console.log(`             Usage: import <file> [--force]`);
-  console.log(`  ${BOLD}scrub-emails${RESET}  Remove email addresses from Squad state files`);
+  console.log(`  ${BOLD}scrub-emails${RESET}  Remove email addresses from Crew state files`);
   console.log(`             Usage: scrub-emails [directory] (default: .ai-team/)`);
   console.log(`  ${BOLD}help${RESET}       Show this help message`);
   console.log(`\nFlags:`);
   console.log(`  ${BOLD}--version, -v${RESET}  Print version`);
   console.log(`  ${BOLD}--help, -h${RESET}     Show help`);
-  console.log(`\nInsider channel: npx github:bradygaster/squad#insider\n`);
+  console.log(`\nInsider channel: npx github:Blacklite/crew#insider\n`);
   process.exit(0);
 }
 
@@ -246,11 +246,11 @@ function colorReworkRate(rate) {
 if (cmd === 'watch') {
   const { execSync } = require('child_process');
 
-  const squadDirInfo = detectSquadDir(dest);
-  if (squadDirInfo.isLegacy) showDeprecationWarning();
-  const teamMd = path.join(squadDirInfo.path, 'team.md');
+  const crewDirInfo = detectCrewDir(dest);
+  if (crewDirInfo.isLegacy) showDeprecationWarning();
+  const teamMd = path.join(crewDirInfo.path, 'team.md');
   if (!fs.existsSync(teamMd)) {
-    fatal('No squad found — run init first.');
+    fatal('No crew found — run init first.');
   }
 
   // Verify gh CLI is available
@@ -285,7 +285,7 @@ if (cmd === 'watch') {
       if (inMembersTable && line.startsWith('|') && !line.includes('---') && !line.includes('Name')) {
         const cells = line.split('|').map(c => c.trim()).filter(Boolean);
         if (cells.length >= 2 && !['Scribe', 'Ralph'].includes(cells[0])) {
-          members.push({ name: cells[0], role: cells[1], label: `squad:${slugify(cells[0])}` });
+          members.push({ name: cells[0], role: cells[1], label: `crew:${slugify(cells[0])}` });
         }
       }
     }
@@ -294,21 +294,21 @@ if (cmd === 'watch') {
 
   const members = parseMembers(content);
   if (members.length === 0) {
-    fatal('No squad members found in team.md');
+    fatal('No crew members found in team.md');
   }
 
   const hasCopilot = content.includes('🤖 Coding Agent') || content.includes('@copilot');
   const autoAssign = content.includes('<!-- copilot-auto-assign: true -->');
 
   console.log(`\n${BOLD}🔄 Ralph — Watch Mode${RESET}`);
-  console.log(`${DIM}Polling every ${intervalMin} minute(s) for squad work. Ctrl+C to stop.${RESET}\n`);
+  console.log(`${DIM}Polling every ${intervalMin} minute(s) for crew work. Ctrl+C to stop.${RESET}\n`);
 
   function runCheck() {
     const timestamp = new Date().toLocaleTimeString();
     try {
-      // Fetch open issues with squad label
+      // Fetch open issues with crew label
       const issuesJson = execSync(
-        'gh issue list --label "squad" --state open --json number,title,labels,assignees --limit 20',
+        'gh issue list --label "crew" --state open --json number,title,labels,assignees --limit 20',
         { stdio: 'pipe', encoding: 'utf8' }
       );
       const issues = JSON.parse(issuesJson || '[]');
@@ -319,12 +319,12 @@ if (cmd === 'watch') {
         return !memberLabels.some(ml => issueLabels.includes(ml));
       });
 
-      // Find unassigned squad:copilot issues
+      // Find unassigned crew:copilot issues
       let unassignedCopilot = [];
       if (hasCopilot && autoAssign) {
         try {
           const copilotJson = execSync(
-            'gh issue list --label "squad:copilot" --state open --json number,title,assignees --limit 10',
+            'gh issue list --label "crew:copilot" --state open --json number,title,assignees --limit 10',
             { stdio: 'pipe', encoding: 'utf8' }
           );
           const copilotIssues = JSON.parse(copilotJson || '[]');
@@ -408,7 +408,7 @@ if (cmd === 'watch') {
   return;
 }
 
-// Scrub email addresses from Squad state files
+// Scrub email addresses from Crew state files
 function scrubEmailsFromDirectory(dirPath) {
   const EMAIL_PATTERN = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
   const NAME_WITH_EMAIL_PATTERN = /([a-zA-Z0-9_-]+)\s*\(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\)/g;
@@ -529,8 +529,8 @@ function scrubEmailsFromDirectory(dirPath) {
 function replaceAiTeamReferences(dirPath) {
   const updatedFiles = [];
   const replacements = [
-    [/\.ai-team-templates\//g, '.squad/templates/'],
-    [/\.ai-team\//g, '.squad/']
+    [/\.ai-team-templates\//g, '.crew/templates/'],
+    [/\.ai-team\//g, '.crew/']
   ];
 
   function walk(dir) {
@@ -578,11 +578,11 @@ function detectProjectType(dir) {
 
 // Workflows that contain Node.js/npm-specific commands and need project-type adaptation
 const PROJECT_TYPE_SENSITIVE_WORKFLOWS = new Set([
-  'squad-ci.yml',
-  'squad-release.yml',
-  'squad-preview.yml',
-  'squad-insider-release.yml',
-  'squad-docs.yml',
+  'crew-ci.yml',
+  'crew-release.yml',
+  'crew-preview.yml',
+  'crew-insider-release.yml',
+  'crew-docs.yml',
 ]);
 
 // Generate a stub workflow for non-npm projects so no broken npm commands run
@@ -601,8 +601,8 @@ function generateProjectWorkflowStub(workflowFile, projectType) {
     '          # Java (Gradle): ./gradlew test',
   ].join('\n');
 
-  if (workflowFile === 'squad-ci.yml') {
-    return 'name: Squad CI\n' +
+  if (workflowFile === 'crew-ci.yml') {
+    return 'name: Crew CI\n' +
       '# ' + typeLabel + ' — configure build/test commands below\n\n' +
       'on:\n' +
       '  pull_request:\n' +
@@ -621,11 +621,11 @@ function generateProjectWorkflowStub(workflowFile, projectType) {
       '        run: |\n' +
       '          ' + todoBuildCmd + '\n' +
       buildHints + '\n' +
-      '          echo "No build commands configured — update squad-ci.yml"\n';
+      '          echo "No build commands configured — update crew-ci.yml"\n';
   }
 
-  if (workflowFile === 'squad-release.yml') {
-    return 'name: Squad Release\n' +
+  if (workflowFile === 'crew-release.yml') {
+    return 'name: Crew Release\n' +
       '# ' + typeLabel + ' — configure build, test, and release commands below\n\n' +
       'on:\n' +
       '  push:\n' +
@@ -643,17 +643,17 @@ function generateProjectWorkflowStub(workflowFile, projectType) {
       '        run: |\n' +
       '          ' + todoBuildCmd + '\n' +
       buildHints + '\n' +
-      '          echo "No build commands configured — update squad-release.yml"\n\n' +
+      '          echo "No build commands configured — update crew-release.yml"\n\n' +
       '      - name: Create release\n' +
       '        env:\n' +
       '          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n' +
       '        run: |\n' +
       '          # TODO: Add your release commands here (e.g., git tag, gh release create)\n' +
-      '          echo "No release commands configured — update squad-release.yml"\n';
+      '          echo "No release commands configured — update crew-release.yml"\n';
   }
 
-  if (workflowFile === 'squad-preview.yml') {
-    return 'name: Squad Preview Validation\n' +
+  if (workflowFile === 'crew-preview.yml') {
+    return 'name: Crew Preview Validation\n' +
       '# ' + typeLabel + ' — configure build, test, and validation commands below\n\n' +
       'on:\n' +
       '  push:\n' +
@@ -669,15 +669,15 @@ function generateProjectWorkflowStub(workflowFile, projectType) {
       '        run: |\n' +
       '          ' + todoBuildCmd + '\n' +
       buildHints + '\n' +
-      '          echo "No build commands configured — update squad-preview.yml"\n\n' +
+      '          echo "No build commands configured — update crew-preview.yml"\n\n' +
       '      - name: Validate\n' +
       '        run: |\n' +
       '          # TODO: Add pre-release validation commands here\n' +
-      '          echo "No validation commands configured — update squad-preview.yml"\n';
+      '          echo "No validation commands configured — update crew-preview.yml"\n';
   }
 
-  if (workflowFile === 'squad-insider-release.yml') {
-    return 'name: Squad Insider Release\n' +
+  if (workflowFile === 'crew-insider-release.yml') {
+    return 'name: Crew Insider Release\n' +
       '# ' + typeLabel + ' — configure build, test, and insider release commands below\n\n' +
       'on:\n' +
       '  push:\n' +
@@ -695,17 +695,17 @@ function generateProjectWorkflowStub(workflowFile, projectType) {
       '        run: |\n' +
       '          ' + todoBuildCmd + '\n' +
       buildHints + '\n' +
-      '          echo "No build commands configured — update squad-insider-release.yml"\n\n' +
+      '          echo "No build commands configured — update crew-insider-release.yml"\n\n' +
       '      - name: Create insider release\n' +
       '        env:\n' +
       '          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}\n' +
       '        run: |\n' +
       '          # TODO: Add your insider/pre-release commands here\n' +
-      '          echo "No release commands configured — update squad-insider-release.yml"\n';
+      '          echo "No release commands configured — update crew-insider-release.yml"\n';
   }
 
-  if (workflowFile === 'squad-docs.yml') {
-    return 'name: Squad Docs — Build & Deploy\n' +
+  if (workflowFile === 'crew-docs.yml') {
+    return 'name: Crew Docs — Build & Deploy\n' +
       '# ' + typeLabel + ' — configure documentation build commands below\n\n' +
       'on:\n' +
       '  workflow_dispatch:\n' +
@@ -713,7 +713,7 @@ function generateProjectWorkflowStub(workflowFile, projectType) {
       '    branches: [preview]\n' +
       '    paths:\n' +
       "      - 'docs/**'\n" +
-      "      - '.github/workflows/squad-docs.yml'\n\n" +
+      "      - '.github/workflows/crew-docs.yml'\n\n" +
       'permissions:\n' +
       '  contents: read\n' +
       '  pages: write\n' +
@@ -727,7 +727,7 @@ function generateProjectWorkflowStub(workflowFile, projectType) {
       '        run: |\n' +
       '          # TODO: Add your documentation build commands here\n' +
       '          # This workflow is optional — remove or customize it for your project\n' +
-      '          echo "No docs build commands configured — update or remove squad-docs.yml"\n';
+      '          echo "No docs build commands configured — update or remove crew-docs.yml"\n';
   }
 
   return null;
@@ -777,7 +777,7 @@ if (cmd === 'scrub-emails') {
 if (cmd === 'copilot') {
   const teamMd = path.join(dest, '.ai-team', 'team.md');
   if (!fs.existsSync(teamMd)) {
-    fatal('No squad found — run init first, then add the copilot agent.');
+    fatal('No crew found — run init first, then add the copilot agent.');
   }
 
   const isOff = process.argv.includes('--off');
@@ -839,13 +839,13 @@ if (cmd === 'copilot') {
 - Boilerplate/scaffolding generation
 - Documentation fixes and README updates
 
-**🟡 Needs review — route to @copilot but flag for squad member PR review:**
+**🟡 Needs review — route to @copilot but flag for crew member PR review:**
 - Medium features with clear specs and acceptance criteria
 - Refactoring with existing test coverage
 - API endpoint additions following established patterns
 - Migration scripts with well-defined schemas
 
-**🔴 Not suitable — route to squad member instead:**
+**🔴 Not suitable — route to crew member instead:**
 - Architecture decisions and system design
 - Multi-system integration requiring coordination
 - Ambiguous requirements needing clarification
@@ -865,7 +865,7 @@ if (cmd === 'copilot') {
   fs.writeFileSync(teamMd, content);
   console.log(`${GREEN}✓${RESET} Added @copilot (Coding Agent) to team roster`);
   if (autoAssign) {
-    console.log(`${GREEN}✓${RESET} Auto-assign enabled — squad-labeled issues will be assigned to @copilot`);
+    console.log(`${GREEN}✓${RESET} Auto-assign enabled — crew-labeled issues will be assigned to @copilot`);
   }
 
   // Copy copilot-instructions.md
@@ -881,7 +881,7 @@ if (cmd === 'copilot') {
   console.log(`${BOLD}@copilot is on the team.${RESET}`);
   console.log(`The coding agent will pick up issues matching its capability profile.`);
   if (!autoAssign) {
-    console.log(`Run with ${BOLD}--auto-assign${RESET} to auto-assign @copilot on squad-labeled issues.`);
+    console.log(`Run with ${BOLD}--auto-assign${RESET} to auto-assign @copilot on crew-labeled issues.`);
   }
   console.log();
   console.log(`${BOLD}Required:${RESET} Add a classic PAT (repo scope) as a repo secret for auto-assignment:`);
@@ -897,11 +897,11 @@ if (cmd === 'plugin') {
   const action = process.argv[4];
 
   if (subCmd !== 'marketplace' || !action) {
-    fatal('Usage: squad plugin marketplace add|remove|list|browse');
+    fatal('Usage: crew plugin marketplace add|remove|list|browse');
   }
 
-  const squadDirInfo = detectSquadDir(dest);
-  const pluginsDir = path.join(squadDirInfo.path, 'plugins');
+  const crewDirInfo = detectCrewDir(dest);
+  const pluginsDir = path.join(crewDirInfo.path, 'plugins');
   const marketplacesFile = path.join(pluginsDir, 'marketplaces.json');
 
   function readMarketplaces() {
@@ -921,7 +921,7 @@ if (cmd === 'plugin') {
   if (action === 'add') {
     const source = process.argv[5];
     if (!source || !source.includes('/')) {
-      fatal('Usage: squad plugin marketplace add <owner/repo>');
+      fatal('Usage: crew plugin marketplace add <owner/repo>');
     }
     const data = readMarketplaces();
     const name = source.split('/').pop();
@@ -942,7 +942,7 @@ if (cmd === 'plugin') {
   if (action === 'remove') {
     const name = process.argv[5];
     if (!name) {
-      fatal('Usage: squad plugin marketplace remove <name>');
+      fatal('Usage: crew plugin marketplace remove <name>');
     }
     const data = readMarketplaces();
     const before = data.marketplaces.length;
@@ -959,7 +959,7 @@ if (cmd === 'plugin') {
     const data = readMarketplaces();
     if (data.marketplaces.length === 0) {
       console.log(`${DIM}No marketplaces registered${RESET}`);
-      console.log(`\nAdd one with: ${BOLD}squad plugin marketplace add <owner/repo>${RESET}`);
+      console.log(`\nAdd one with: ${BOLD}crew plugin marketplace add <owner/repo>${RESET}`);
       process.exit(0);
     }
     console.log(`\n${BOLD}Registered marketplaces:${RESET}\n`);
@@ -974,12 +974,12 @@ if (cmd === 'plugin') {
   if (action === 'browse') {
     const name = process.argv[5];
     if (!name) {
-      fatal('Usage: squad plugin marketplace browse <name>');
+      fatal('Usage: crew plugin marketplace browse <name>');
     }
     const data = readMarketplaces();
     const marketplace = data.marketplaces.find(m => m.name === name);
     if (!marketplace) {
-      fatal(`Marketplace "${name}" not found. Run "squad plugin marketplace list" to see registered marketplaces.`);
+      fatal(`Marketplace "${name}" not found. Run "crew plugin marketplace list" to see registered marketplaces.`);
     }
 
     // Browse the marketplace repo for plugins using gh CLI
@@ -1008,26 +1008,26 @@ if (cmd === 'plugin') {
     process.exit(0);
   }
 
-  fatal(`Unknown action: ${action}. Usage: squad plugin marketplace add|remove|list|browse`);
+  fatal(`Unknown action: ${action}. Usage: crew plugin marketplace add|remove|list|browse`);
 }
 
 // --- Export subcommand ---
 if (cmd === 'export') {
   const teamMd = path.join(dest, '.ai-team', 'team.md');
   if (!fs.existsSync(teamMd)) {
-    fatal('No squad found — run init first');
+    fatal('No crew found — run init first');
   }
 
   const manifest = {
     version: '1.0',
     exported_at: new Date().toISOString(),
-    squad_version: pkg.version,
+    crew_version: pkg.version,
     casting: {},
     agents: {},
     skills: []
   };
 
-  // Read top-level squad files (decisions.md, team.md)
+  // Read top-level crew files (decisions.md, team.md)
   const decisionsMd = path.join(dest, '.ai-team', 'decisions.md');
   if (fs.existsSync(decisionsMd)) {
     manifest.decisions = fs.readFileSync(decisionsMd, 'utf8');
@@ -1089,7 +1089,7 @@ if (cmd === 'export') {
   const outIdx = process.argv.indexOf('--out');
   const outPath = (outIdx !== -1 && process.argv[outIdx + 1])
     ? path.resolve(process.argv[outIdx + 1])
-    : path.join(dest, 'squad-export.json');
+    : path.join(dest, 'crew-export.json');
 
   try {
     fs.writeFileSync(outPath, JSON.stringify(manifest, null, 2) + '\n');
@@ -1098,7 +1098,7 @@ if (cmd === 'export') {
   }
 
   const displayPath = path.relative(dest, outPath) || path.basename(outPath);
-  console.log(`${GREEN}✓${RESET} Exported squad to ${displayPath}`);
+  console.log(`${GREEN}✓${RESET} Exported crew to ${displayPath}`);
   console.log(`${DIM}⚠ Review agent histories, decisions, and team content before sharing — they may contain project-specific information${RESET}`);
   process.exit(0);
 }
@@ -1107,7 +1107,7 @@ if (cmd === 'export') {
 if (cmd === 'import') {
   const importFile = process.argv[3];
   if (!importFile) {
-    fatal('Usage: squad import <file> [--force]');
+    fatal('Usage: crew import <file> [--force]');
   }
 
   const importPath = path.resolve(importFile);
@@ -1141,9 +1141,9 @@ if (cmd === 'import') {
   // Collision detection
   if (fs.existsSync(aiTeamDir)) {
     if (!hasForce) {
-      fatal('A squad already exists here. Use --force to replace (current squad will be archived).');
+      fatal('A crew already exists here. Use --force to replace (current crew will be archived).');
     }
-    // Archive existing squad
+    // Archive existing crew
     const ts = new Date().toISOString().replace(/:/g, '-').replace(/\./g, '-');
     const archiveDir = path.join(dest, `.ai-team-archive-${ts}`);
     fs.renameSync(aiTeamDir, archiveDir);
@@ -1236,7 +1236,7 @@ if (cmd === 'import') {
   }
 
   // Output
-  console.log(`${GREEN}✓${RESET} Imported squad from ${path.basename(importPath)}`);
+  console.log(`${GREEN}✓${RESET} Imported crew from ${path.basename(importPath)}`);
   console.log(`  ${agentNames.length} agents: ${agentNames.join(', ')}`);
   console.log(`  ${manifest.skills.length} skills imported`);
   console.log(`  Casting: ${universe} universe preserved`);
@@ -1244,7 +1244,7 @@ if (cmd === 'import') {
   console.log(`${DIM}⚠ Project-specific learnings are marked in agent histories — review if needed${RESET}`);
   console.log();
   console.log(`Next steps:`);
-  console.log(`  1. Open Copilot and select Squad`);
+  console.log(`  1. Open Copilot and select Crew`);
   console.log(`  2. Tell the team about this project — they'll adapt`);
   console.log();
   process.exit(0);
@@ -1317,10 +1317,10 @@ function splitHistory(history, sourceProject) {
 }
 
 // Validate source files exist
-const agentSrcCheck = path.join(root, '.github', 'agents', 'squad.agent.md');
+const agentSrcCheck = path.join(root, '.github', 'agents', 'crew.agent.md');
 const templatesSrcCheck = path.join(root, 'templates');
 if (!fs.existsSync(agentSrcCheck)) {
-  fatal(`Source file missing: .github/agents/squad.agent.md — installation may be corrupted`);
+  fatal(`Source file missing: .github/agents/crew.agent.md — installation may be corrupted`);
 }
 if (!fs.existsSync(templatesSrcCheck) || !fs.statSync(templatesSrcCheck).isDirectory()) {
   fatal(`Source directory missing or corrupted: templates/ — installation may be corrupted`);
@@ -1337,17 +1337,17 @@ const isUpgrade = cmd === 'upgrade';
 const isSelfUpgrade = isUpgrade && process.argv.includes('--self');
 const isMigrateDirectory = isUpgrade && process.argv.includes('--migrate-directory');
 
-// Handle --migrate-directory flag: rename .ai-team/ to .squad/
+// Handle --migrate-directory flag: rename .ai-team/ to .crew/
 if (isMigrateDirectory) {
   const aiTeamDir = path.join(dest, '.ai-team');
-  const squadDir = path.join(dest, '.squad');
+  const crewDir = path.join(dest, '.crew');
 
   if (!fs.existsSync(aiTeamDir)) {
     fatal('No .ai-team/ directory found — nothing to migrate.');
   }
 
-  if (fs.existsSync(squadDir)) {
-    fatal('.squad/ directory already exists — migration appears to be complete.');
+  if (fs.existsSync(crewDir)) {
+    fatal('.crew/ directory already exists — migration appears to be complete.');
   }
 
   // Safe rename that falls back to copy+delete on Windows EPERM/EACCES
@@ -1364,18 +1364,18 @@ if (isMigrateDirectory) {
     }
   }
 
-  console.log(`${DIM}Migrating .ai-team/ → .squad/...${RESET}`);
+  console.log(`${DIM}Migrating .ai-team/ → .crew/...${RESET}`);
 
   try {
     // Rename directory
-    safeRename(aiTeamDir, squadDir);
-    console.log(`${GREEN}✓${RESET} Renamed .ai-team/ → .squad/`);
+    safeRename(aiTeamDir, crewDir);
+    console.log(`${GREEN}✓${RESET} Renamed .ai-team/ → .crew/`);
 
     // Update .gitattributes
     const gitattributes = path.join(dest, '.gitattributes');
     if (fs.existsSync(gitattributes)) {
       let content = fs.readFileSync(gitattributes, 'utf8');
-      const updated = content.replace(/\.ai-team\//g, '.squad/');
+      const updated = content.replace(/\.ai-team\//g, '.crew/');
       if (content !== updated) {
         fs.writeFileSync(gitattributes, updated);
         console.log(`${GREEN}✓${RESET} Updated .gitattributes`);
@@ -1386,7 +1386,7 @@ if (isMigrateDirectory) {
     const gitignore = path.join(dest, '.gitignore');
     if (fs.existsSync(gitignore)) {
       let content = fs.readFileSync(gitignore, 'utf8');
-      const updated = content.replace(/\.ai-team\//g, '.squad/');
+      const updated = content.replace(/\.ai-team\//g, '.crew/');
       if (content !== updated) {
         fs.writeFileSync(gitignore, updated);
         console.log(`${GREEN}✓${RESET} Updated .gitignore`);
@@ -1394,8 +1394,8 @@ if (isMigrateDirectory) {
     }
 
     // Scrub email addresses from migrated files
-    console.log(`${DIM}Scrubbing email addresses from .squad/ files...${RESET}`);
-    const scrubbedFiles = scrubEmailsFromDirectory(squadDir);
+    console.log(`${DIM}Scrubbing email addresses from .crew/ files...${RESET}`);
+    const scrubbedFiles = scrubEmailsFromDirectory(crewDir);
     if (scrubbedFiles.length > 0) {
       console.log(`${GREEN}✓${RESET} Scrubbed email addresses from ${scrubbedFiles.length} file(s)`);
     } else {
@@ -1403,27 +1403,27 @@ if (isMigrateDirectory) {
     }
 
     // Replace .ai-team/ path references inside migrated file content
-    console.log(`${DIM}Replacing .ai-team/ references in .squad/ files...${RESET}`);
-    const referencesUpdated = replaceAiTeamReferences(squadDir);
+    console.log(`${DIM}Replacing .ai-team/ references in .crew/ files...${RESET}`);
+    const referencesUpdated = replaceAiTeamReferences(crewDir);
     if (referencesUpdated.length > 0) {
       console.log(`${GREEN}✓${RESET} Updated .ai-team/ references in ${referencesUpdated.length} file(s)`);
     } else {
       console.log(`${GREEN}✓${RESET} No .ai-team/ references found`);
     }
 
-    // Rename .ai-team-templates/ → .squad/templates/ if it exists
+    // Rename .ai-team-templates/ → .crew/templates/ if it exists
     const aiTeamTemplatesDir = path.join(dest, '.ai-team-templates');
-    const squadTemplatesDir = path.join(dest, '.squad', 'templates');
+    const crewTemplatesDir = path.join(dest, '.crew', 'templates');
     if (fs.existsSync(aiTeamTemplatesDir)) {
-      safeRename(aiTeamTemplatesDir, squadTemplatesDir);
-      console.log(`${GREEN}✓${RESET} Renamed .ai-team-templates/ → .squad/templates/`);
+      safeRename(aiTeamTemplatesDir, crewTemplatesDir);
+      console.log(`${GREEN}✓${RESET} Renamed .ai-team-templates/ → .crew/templates/`);
     }
 
     console.log();
     console.log(`${BOLD}Migration complete.${RESET}`);
     console.log(`${DIM}Commit the change:${RESET}`);
     console.log(`  git add -A`);
-    console.log(`  git commit -m "chore: migrate .ai-team/ → .squad/"`);
+    console.log(`  git commit -m "chore: migrate .ai-team/ → .crew/"`);
     console.log();
 
   } catch (err) {
@@ -1433,7 +1433,7 @@ if (isMigrateDirectory) {
   // Migration complete — continue with upgrade below
 }
 
-// Stamp version into squad.agent.md after copying
+// Stamp version into crew.agent.md after copying
 function stampVersion(filePath) {
   let content = fs.readFileSync(filePath, 'utf8');
   // Replace version in HTML comment (must come immediately after frontmatter closing ---)
@@ -1441,11 +1441,11 @@ function stampVersion(filePath) {
   // Replace version in the Identity section's Version line
   content = content.replace(/- \*\*Version:\*\* [0-9.]+(?:-[a-z]+)?/m, `- **Version:** ${pkg.version}`);
   // Replace {version} placeholder in the greeting instruction so it's unambiguous
-  content = content.replace(/`Squad v\{version\}`/g, `\`Squad v${pkg.version}\``);
+  content = content.replace(/`Crew v\{version\}`/g, `\`Crew v${pkg.version}\``);
   fs.writeFileSync(filePath, content);
 }
 
-// Read version from squad.agent.md HTML comment
+// Read version from crew.agent.md HTML comment
 function readInstalledVersion(filePath) {
   try {
     if (!fs.existsSync(filePath)) return null;
@@ -1485,24 +1485,24 @@ const migrations = [
   {
     version: '0.2.0',
     description: 'Create skills/ directory',
-    run(dest, squadDir) {
-      const skillsDir = path.join(squadDir || path.join(dest, '.ai-team'), 'skills');
+    run(dest, crewDir) {
+      const skillsDir = path.join(crewDir || path.join(dest, '.ai-team'), 'skills');
       fs.mkdirSync(skillsDir, { recursive: true });
     }
   },
   {
     version: '0.4.0',
     description: 'Create plugins/ directory',
-    run(dest, squadDir) {
-      const pluginsDir = path.join(squadDir || path.join(dest, '.ai-team'), 'plugins');
+    run(dest, crewDir) {
+      const pluginsDir = path.join(crewDir || path.join(dest, '.ai-team'), 'plugins');
       fs.mkdirSync(pluginsDir, { recursive: true });
     }
   },
   {
     version: '0.5.0',
-    description: 'Scrub email addresses from Squad state files (privacy fix)',
-    run(dest, squadDir) {
-      const targetDir = squadDir || path.join(dest, '.ai-team');
+    description: 'Scrub email addresses from Crew state files (privacy fix)',
+    run(dest, crewDir) {
+      const targetDir = crewDir || path.join(dest, '.ai-team');
       if (fs.existsSync(targetDir)) {
         const scrubbedFiles = scrubEmailsFromDirectory(targetDir);
         if (scrubbedFiles.length > 0) {
@@ -1513,41 +1513,41 @@ const migrations = [
   },
   {
     version: '0.5.4',
-    description: 'Remove squad-main-guard.yml workflow',
+    description: 'Remove crew-main-guard.yml workflow',
     run(dest) {
-      const guardPath = path.join(dest, '.github', 'workflows', 'squad-main-guard.yml');
+      const guardPath = path.join(dest, '.github', 'workflows', 'crew-main-guard.yml');
       if (fs.existsSync(guardPath)) {
         fs.unlinkSync(guardPath);
-        console.log(`${GREEN}✓${RESET} Removed squad-main-guard.yml — .squad/ files can now flow freely to all branches`);
+        console.log(`${GREEN}✓${RESET} Removed crew-main-guard.yml — .crew/ files can now flow freely to all branches`);
       }
     }
   },
   {
     version: '0.5.5',
-    description: 'Move .squad-templates/ into .squad/templates/',
-    run(dest, squadDir) {
-      const oldPath = path.join(dest, '.squad-templates');
-      const newPath = path.join(squadDir || path.join(dest, '.squad'), 'templates');
+    description: 'Move .crew-templates/ into .crew/templates/',
+    run(dest, crewDir) {
+      const oldPath = path.join(dest, '.crew-templates');
+      const newPath = path.join(crewDir || path.join(dest, '.crew'), 'templates');
       if (fs.existsSync(oldPath) && !fs.existsSync(newPath)) {
         safeRename(oldPath, newPath);
-        console.log(`${GREEN}✓${RESET} Moved .squad-templates/ → .squad/templates/`);
+        console.log(`${GREEN}✓${RESET} Moved .crew-templates/ → .crew/templates/`);
       } else if (fs.existsSync(oldPath) && fs.existsSync(newPath)) {
         fs.rmSync(oldPath, { recursive: true });
-        console.log(`${GREEN}✓${RESET} Removed redundant .squad-templates/ (already have .squad/templates/)`);
+        console.log(`${GREEN}✓${RESET} Removed redundant .crew-templates/ (already have .crew/templates/)`);
       }
     }
   }
 ];
 
 // Run migrations applicable for upgrading from oldVersion to newVersion
-// squadDir: the actual squad directory path (.squad/ or .ai-team/) — migrations write here
-function runMigrations(dest, oldVersion, squadDir) {
+// crewDir: the actual crew directory path (.crew/ or .ai-team/) — migrations write here
+function runMigrations(dest, oldVersion, crewDir) {
   const applicable = migrations
     .filter(m => compareSemver(m.version, oldVersion) > 0)
     .sort((a, b) => compareSemver(a.version, b.version));
   for (const m of applicable) {
     try {
-      m.run(dest, squadDir);
+      m.run(dest, crewDir);
     } catch (err) {
       console.error(`${RED}✗${RESET} Migration failed (${m.version}: ${m.description}): ${err.message}`);
     }
@@ -1555,18 +1555,18 @@ function runMigrations(dest, oldVersion, squadDir) {
   return applicable.length;
 }
 
-// Copy agent file (Squad-owned — overwrite on upgrade)
-const agentSrc = path.join(root, '.github', 'agents', 'squad.agent.md');
-const agentDest = path.join(dest, '.github', 'agents', 'squad.agent.md');
+// Copy agent file (Crew-owned — overwrite on upgrade)
+const agentSrc = path.join(root, '.github', 'agents', 'crew.agent.md');
+const agentDest = path.join(dest, '.github', 'agents', 'crew.agent.md');
 
-// Handle --self flag: refresh .ai-team/ from templates (for squad repo itself)
+// Handle --self flag: refresh .ai-team/ from templates (for crew repo itself)
 if (isSelfUpgrade) {
   const aiTeamDir = path.join(dest, '.ai-team');
   if (!fs.existsSync(aiTeamDir)) {
     fatal('No .ai-team/ directory found. Run init first, or remove --self flag.');
   }
 
-  console.log(`${DIM}Refreshing .ai-team/ from templates (squad --self mode)...${RESET}`);
+  console.log(`${DIM}Refreshing .ai-team/ from templates (crew --self mode)...${RESET}`);
 
   // Refresh team-wide files from templates
   const filesToRefresh = [
@@ -1593,7 +1593,7 @@ if (isSelfUpgrade) {
   }
 
   console.log();
-  console.log(`${BOLD}Squad repo refreshed.${RESET}`);
+  console.log(`${BOLD}Crew repo refreshed.${RESET}`);
   console.log(`${DIM}Agent histories preserved — only templates and skills updated${RESET}`);
   console.log();
   showDeprecationWarning();
@@ -1611,14 +1611,14 @@ if (isUpgrade) {
 
   if (isAlreadyCurrent) {
     // Still run missing migrations in case a prior upgrade was interrupted
-    const currentSquadDir = fs.existsSync(path.join(dest, '.squad'))
-      ? path.join(dest, '.squad') : path.join(dest, '.ai-team');
-    runMigrations(dest, oldVersion, currentSquadDir);
+    const currentCrewDir = fs.existsSync(path.join(dest, '.crew'))
+      ? path.join(dest, '.crew') : path.join(dest, '.ai-team');
+    runMigrations(dest, oldVersion, currentCrewDir);
 
     // Even if already current, update copilot-instructions.md if @copilot is enabled
     const copilotInstructionsSrc = path.join(root, 'templates', 'copilot-instructions.md');
     const copilotInstructionsDest = path.join(dest, '.github', 'copilot-instructions.md');
-    const teamMd = path.join(currentSquadDir, 'team.md');
+    const teamMd = path.join(currentCrewDir, 'team.md');
     const copilotEnabled = fs.existsSync(teamMd)
       && fs.readFileSync(teamMd, 'utf8').includes('🤖 Coding Agent');
     if (copilotEnabled && fs.existsSync(copilotInstructionsSrc)) {
@@ -1627,7 +1627,7 @@ if (isUpgrade) {
       console.log(`${GREEN}✓${RESET} ${BOLD}upgraded${RESET} .github/copilot-instructions.md`);
     }
 
-    // Refresh squad-owned files even when version matches
+    // Refresh crew-owned files even when version matches
     const workflowsSrc = path.join(root, 'templates', 'workflows');
     const workflowsDest = path.join(dest, '.github', 'workflows');
     if (fs.existsSync(workflowsSrc) && fs.statSync(workflowsSrc).isDirectory()) {
@@ -1636,10 +1636,10 @@ if (isUpgrade) {
       for (const file of wfFiles) {
         writeWorkflowFile(file, path.join(workflowsSrc, file), path.join(workflowsDest, file), projectType);
       }
-      console.log(`${GREEN}✓${RESET} ${BOLD}upgraded${RESET} squad workflows (${wfFiles.length} files)`);
+      console.log(`${GREEN}✓${RESET} ${BOLD}upgraded${RESET} crew workflows (${wfFiles.length} files)`);
     }
 
-    // Refresh squad.agent.md
+    // Refresh crew.agent.md
     try {
       fs.mkdirSync(path.dirname(agentDest), { recursive: true });
       fs.copyFileSync(agentSrc, agentDest);
@@ -1657,52 +1657,52 @@ if (isUpgrade) {
     fs.copyFileSync(agentSrc, agentDest);
     stampVersion(agentDest);
   } catch (err) {
-    fatal(`Failed to upgrade squad.agent.md: ${err.message}`);
+    fatal(`Failed to upgrade crew.agent.md: ${err.message}`);
   }
 
   const fromLabel = oldVersion === '0.0.0' || !oldVersion ? 'unknown' : oldVersion;
   console.log(`${GREEN}✓${RESET} ${BOLD}upgraded${RESET} coordinator from ${fromLabel} to ${pkg.version}`);
 } else if (fs.existsSync(agentDest)) {
-  console.log(`${DIM}squad.agent.md already exists — skipping (run 'upgrade' to update)${RESET}`);
+  console.log(`${DIM}crew.agent.md already exists — skipping (run 'upgrade' to update)${RESET}`);
 } else {
   try {
     fs.mkdirSync(path.dirname(agentDest), { recursive: true });
     fs.copyFileSync(agentSrc, agentDest);
     stampVersion(agentDest);
   } catch (err) {
-    fatal(`Failed to create squad.agent.md: ${err.message}`);
+    fatal(`Failed to create crew.agent.md: ${err.message}`);
   }
-  console.log(`${GREEN}✓${RESET} .github/agents/squad.agent.md (v${pkg.version})`);
+  console.log(`${GREEN}✓${RESET} .github/agents/crew.agent.md (v${pkg.version})`);
 }
 
-// Detect or determine squad directory (.squad/ for new, detect for upgrades)
-// Detect squad directory for dual-path support (.squad/ or .ai-team/)
-const squadInfo = (() => {
-  const squadDir = path.join(dest, '.squad');
+// Detect or determine crew directory (.crew/ for new, detect for upgrades)
+// Detect crew directory for dual-path support (.crew/ or .ai-team/)
+const crewInfo = (() => {
+  const crewDir = path.join(dest, '.crew');
   const aiTeamDir = path.join(dest, '.ai-team');
 
-  if (fs.existsSync(squadDir)) {
-    return { path: squadDir, name: '.squad', isLegacy: false };
+  if (fs.existsSync(crewDir)) {
+    return { path: crewDir, name: '.crew', isLegacy: false };
   }
   if (fs.existsSync(aiTeamDir)) {
     return { path: aiTeamDir, name: '.ai-team', isLegacy: true };
   }
   // Default for new installations
-  return { path: squadDir, name: '.squad', isLegacy: false };
+  return { path: crewDir, name: '.crew', isLegacy: false };
 })();
 
 // Show deprecation warning if using .ai-team/ (but not on new installs)
-if (squadInfo.isLegacy) {
+if (crewInfo.isLegacy) {
   showDeprecationWarning();
 }
 
 // Pre-create drop-box, orchestration-log, casting, skills, plugins, and identity directories (additive-only)
-const inboxDir = path.join(squadInfo.path, 'decisions', 'inbox');
-const orchLogDir = path.join(squadInfo.path, 'orchestration-log');
-const castingDir = path.join(squadInfo.path, 'casting');
-const skillsDir = path.join(squadInfo.path, 'skills');
-const pluginsDir = path.join(squadInfo.path, 'plugins');
-const identityDir = path.join(squadInfo.path, 'identity');
+const inboxDir = path.join(crewInfo.path, 'decisions', 'inbox');
+const orchLogDir = path.join(crewInfo.path, 'orchestration-log');
+const castingDir = path.join(crewInfo.path, 'casting');
+const skillsDir = path.join(crewInfo.path, 'skills');
+const pluginsDir = path.join(crewInfo.path, 'plugins');
+const identityDir = path.join(crewInfo.path, 'identity');
 try {
   fs.mkdirSync(inboxDir, { recursive: true });
   fs.mkdirSync(orchLogDir, { recursive: true });
@@ -1711,7 +1711,7 @@ try {
   fs.mkdirSync(pluginsDir, { recursive: true });
   fs.mkdirSync(identityDir, { recursive: true });
 } catch (err) {
-  fatal(`Failed to create ${squadInfo.name}/ directories: ${err.message}`);
+  fatal(`Failed to create ${crewInfo.name}/ directories: ${err.message}`);
 }
 
 // Copy starter skills (skip if any skills already exist)
@@ -1719,7 +1719,7 @@ if (!isUpgrade) {
   const skillsSrc = path.join(root, 'templates', 'skills');
   if (fs.existsSync(skillsSrc) && fs.readdirSync(skillsDir).length === 0) {
     copyRecursive(skillsSrc, skillsDir);
-    console.log(`${GREEN}✓${RESET} ${squadInfo.name}/skills/ (starter skills)`);
+    console.log(`${GREEN}✓${RESET} ${crewInfo.name}/skills/ (starter skills)`);
   }
 }
 
@@ -1740,7 +1740,7 @@ Getting started. Updated by coordinator at session start.
 `;
   fs.mkdirSync(identityDir, { recursive: true });
   fs.writeFileSync(nowMdPath, nowTemplate);
-  console.log(`${GREEN}✓${RESET} ${squadInfo.name}/identity/now.md`);
+  console.log(`${GREEN}✓${RESET} ${crewInfo.name}/identity/now.md`);
 } else if (isUpgrade) {
   console.log(`${DIM}identity/now.md already exists — skipping${RESET}`);
 }
@@ -1764,7 +1764,7 @@ Reusable patterns and heuristics learned through work. NOT transcripts — each 
 `;
   fs.mkdirSync(identityDir, { recursive: true });
   fs.writeFileSync(wisdomMdPath, wisdomTemplate);
-  console.log(`${GREEN}✓${RESET} ${squadInfo.name}/identity/wisdom.md`);
+  console.log(`${GREEN}✓${RESET} ${crewInfo.name}/identity/wisdom.md`);
 } else if (isUpgrade) {
   console.log(`${DIM}identity/wisdom.md already exists — skipping${RESET}`);
 }
@@ -1799,21 +1799,21 @@ if (!isUpgrade) {
 }
 
 // Copy default ceremonies config
-const ceremoniesDest = path.join(squadInfo.path, 'ceremonies.md');
+const ceremoniesDest = path.join(crewInfo.path, 'ceremonies.md');
 if (!fs.existsSync(ceremoniesDest)) {
   const ceremoniesSrc = path.join(root, 'templates', 'ceremonies.md');
   fs.copyFileSync(ceremoniesSrc, ceremoniesDest);
-  console.log(`${GREEN}✓${RESET} ${squadInfo.name}/ceremonies.md`);
+  console.log(`${GREEN}✓${RESET} ${crewInfo.name}/ceremonies.md`);
 } else {
   console.log(`${DIM}ceremonies.md already exists — skipping${RESET}`);
 }
 
-// copilot-instructions.md — managed by `squad copilot` subcommand
+// copilot-instructions.md — managed by `crew copilot` subcommand
 // On upgrade, update if @copilot is enabled on the team
 const copilotInstructionsSrc = path.join(root, 'templates', 'copilot-instructions.md');
 const copilotInstructionsDest = path.join(dest, '.github', 'copilot-instructions.md');
 if (isUpgrade) {
-  const teamMd = path.join(squadInfo.path, 'team.md');
+  const teamMd = path.join(crewInfo.path, 'team.md');
   const copilotEnabled = fs.existsSync(teamMd)
     && fs.readFileSync(teamMd, 'utf8').includes('🤖 Coding Agent');
   if (copilotEnabled && fs.existsSync(copilotInstructionsSrc)) {
@@ -1823,19 +1823,19 @@ if (isUpgrade) {
   }
 }
 
-// Append merge=union rules for append-only squad state files
+// Append merge=union rules for append-only crew state files
 const gitattributes = path.join(dest, '.gitattributes');
 const unionRules = [
-  `${squadInfo.name}/decisions.md merge=union`,
-  `${squadInfo.name}/agents/*/history.md merge=union`,
-  `${squadInfo.name}/log/** merge=union`,
-  `${squadInfo.name}/orchestration-log/** merge=union`,
+  `${crewInfo.name}/decisions.md merge=union`,
+  `${crewInfo.name}/agents/*/history.md merge=union`,
+  `${crewInfo.name}/log/** merge=union`,
+  `${crewInfo.name}/orchestration-log/** merge=union`,
 ];
 const existing = fs.existsSync(gitattributes) ? fs.readFileSync(gitattributes, 'utf8') : '';
 const missing = unionRules.filter(rule => !existing.includes(rule));
 if (missing.length) {
   const block = (existing && !existing.endsWith('\n') ? '\n' : '')
-    + '# Squad: union merge for append-only team state files\n'
+    + '# Crew: union merge for append-only team state files\n'
     + missing.join('\n') + '\n';
   fs.appendFileSync(gitattributes, block);
   console.log(`${GREEN}✓${RESET} .gitattributes (merge=union rules)`);
@@ -1843,19 +1843,19 @@ if (missing.length) {
   console.log(`${DIM}.gitattributes merge rules already present — skipping${RESET}`);
 }
 
-// Copy templates (Squad-owned — overwrite on upgrade)
+// Copy templates (Crew-owned — overwrite on upgrade)
 const templatesSrc = path.join(root, 'templates');
-const templatesDest = squadInfo.isLegacy
+const templatesDest = crewInfo.isLegacy
   ? path.join(dest, '.ai-team-templates')
-  : path.join(dest, '.squad', 'templates');
-const templatesDestDisplay = squadInfo.isLegacy ? '.ai-team-templates/' : '.squad/templates/';
+  : path.join(dest, '.crew', 'templates');
+const templatesDestDisplay = crewInfo.isLegacy ? '.ai-team-templates/' : '.crew/templates/';
 
 if (isUpgrade) {
   copyRecursive(templatesSrc, templatesDest);
   console.log(`${GREEN}✓${RESET} ${BOLD}upgraded${RESET} ${templatesDestDisplay}`);
 
   // Run migrations applicable for this version jump
-  runMigrations(dest, oldVersion || '0.0.0', squadInfo.path);
+  runMigrations(dest, oldVersion || '0.0.0', crewInfo.path);
 } else if (fs.existsSync(templatesDest)) {
   console.log(`${DIM}${templatesDestDisplay} already exists — skipping (run 'upgrade' to update)${RESET}`);
 } else {
@@ -1863,7 +1863,7 @@ if (isUpgrade) {
   console.log(`${GREEN}✓${RESET} ${templatesDestDisplay}`);
 }
 
-// Copy workflow templates (Squad-owned — overwrite on upgrade)
+// Copy workflow templates (Crew-owned — overwrite on upgrade)
 const workflowsSrc = path.join(root, 'templates', 'workflows');
 const workflowsDest = path.join(dest, '.github', 'workflows');
 
@@ -1875,7 +1875,7 @@ if (fs.existsSync(workflowsSrc) && fs.statSync(workflowsSrc).isDirectory()) {
     for (const file of workflowFiles) {
       writeWorkflowFile(file, path.join(workflowsSrc, file), path.join(workflowsDest, file), projectType);
     }
-    console.log(`${GREEN}✓${RESET} ${BOLD}upgraded${RESET} squad workflow files (${workflowFiles.length} workflows)`);
+    console.log(`${GREEN}✓${RESET} ${BOLD}upgraded${RESET} crew workflow files (${workflowFiles.length} workflows)`);
   } else {
     // During init, only copy framework workflows — CI/CD workflows are installed by upgrade
     const initWorkflows = workflowFiles.filter(f => !PROJECT_TYPE_SENSITIVE_WORKFLOWS.has(f));
@@ -1892,15 +1892,15 @@ if (fs.existsSync(workflowsSrc) && fs.statSync(workflowsSrc).isDirectory()) {
       }
     }
     if (copied === 0 && workflowFiles.length > 0) {
-      console.log(`${DIM}all squad workflows already exist — skipping${RESET}`);
+      console.log(`${DIM}all crew workflows already exist — skipping${RESET}`);
     }
   }
 }
 
 if (isUpgrade) {
-  // Scrub email addresses from existing squad directory
-  console.log(`${DIM}Scrubbing email addresses from ${squadInfo.name}/ files...${RESET}`);
-  const scrubResult = scrubEmailsFromDirectory(squadInfo.path);
+  // Scrub email addresses from existing crew directory
+  console.log(`${DIM}Scrubbing email addresses from ${crewInfo.name}/ files...${RESET}`);
+  const scrubResult = scrubEmailsFromDirectory(crewInfo.path);
   const scrubbed = Array.isArray(scrubResult) ? scrubResult : [];
   if (scrubbed.length > 0) {
     console.log(`${GREEN}✓${RESET} Scrubbed email addresses from ${scrubbed.length} file(s)`);
@@ -1908,28 +1908,28 @@ if (isUpgrade) {
     console.log(`${GREEN}✓${RESET} No email addresses found`);
   }
 
-  console.log(`\n${DIM}${squadInfo.name}/ untouched — your team state is safe${RESET}`);
+  console.log(`\n${DIM}${crewInfo.name}/ untouched — your team state is safe${RESET}`);
 
   // Hint about new features available after upgrade
-  const teamMd = path.join(squadInfo.path, 'team.md');
+  const teamMd = path.join(crewInfo.path, 'team.md');
   const copilotEnabled = fs.existsSync(teamMd)
     && fs.readFileSync(teamMd, 'utf8').includes('🤖 Coding Agent');
   if (!copilotEnabled) {
     console.log(`\n${BOLD}New:${RESET} @copilot coding agent support is now available.`);
-    console.log(`  Run ${BOLD}npx github:bradygaster/squad copilot${RESET} to add it to your team.`);
+    console.log(`  Run ${BOLD}npx github:Blacklite/crew copilot${RESET} to add it to your team.`);
   }
 }
 
 console.log();
-console.log(`${BOLD}Squad is ${isUpgrade ? 'upgraded' : 'ready'}.${RESET}${isUpgrade ? ` (v${pkg.version})` : ''}`);
+console.log(`${BOLD}Crew is ${isUpgrade ? 'upgraded' : 'ready'}.${RESET}${isUpgrade ? ` (v${pkg.version})` : ''}`);
 console.log();
-if (squadInfo.isLegacy) {
+if (crewInfo.isLegacy) {
   showDeprecationWarning();
 }
 if (!isUpgrade) {
   console.log(`Next steps:`);
   console.log(`  1. Open Copilot:  ${DIM}copilot${RESET}`);
-  console.log(`  2. Type ${BOLD}/agent${RESET} (CLI) or ${BOLD}/agents${RESET} (VS Code) and select ${BOLD}Squad${RESET}`);
+  console.log(`  2. Type ${BOLD}/agent${RESET} (CLI) or ${BOLD}/agents${RESET} (VS Code) and select ${BOLD}Crew${RESET}`);
   console.log(`  3. Tell it what you're building`);
   console.log();
 } else {

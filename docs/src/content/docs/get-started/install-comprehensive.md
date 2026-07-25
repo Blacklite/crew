@@ -1,12 +1,12 @@
 # Installation
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Squad coordinates AI agents in your repository by providing a structured workspace, routing rules, and agent templates. This article walks you through installing the Squad command-line interface (CLI), initializing Squad in your project, and validating the setup.
+Crew coordinates AI agents in your repository by providing a structured workspace, routing rules, and agent templates. This article walks you through installing the Crew command-line interface (CLI), initializing Crew in your project, and validating the setup.
 
 ## Prerequisites
 
-Before you install Squad, confirm you have the following:
+Before you install Crew, confirm you have the following:
 
 - **[Node.js 20 or later](https://nodejs.org/en/download)** — verify by running `node --version`
 - **[A Git repository](https://git-scm.com/)** (new or existing)
@@ -14,79 +14,79 @@ Before you install Squad, confirm you have the following:
 
 ## Installation methods
 
-Squad provides three installation paths. Choose the one that matches your workflow.
+Crew provides three installation paths. Choose the one that matches your workflow.
 
 | Method | Best for | Command |
 | --- | --- | --- |
-| [CLI (recommended)](#install-the-cli) | All projects, cross-platform | `npm install -g @bradygaster/squad-cli` |
-| [VS Code](#use-squad-in-vs-code) | Already using Copilot in VS Code | No install needed — uses CLI init |
-| [SDK](#install-the-sdk) | Building tools on top of Squad | `npm install @bradygaster/squad-sdk` |
+| [CLI (recommended)](#install-the-cli) | All projects, cross-platform | `npm install -g @blacklite/crew-cli` |
+| [VS Code](#use-crew-in-vs-code) | Already using Copilot in VS Code | No install needed — uses CLI init |
+| [SDK](#install-the-sdk) | Building tools on top of Crew | `npm install @blacklite/crew-sdk` |
 
 ## Install the CLI
 
-To install the Squad CLI globally:
+To install the Crew CLI globally:
 
 1. Run the following command:
 
    ```bash
-   npm install -g @bradygaster/squad-cli
+   npm install -g @blacklite/crew-cli
    ```
 
 2. Verify the installation:
 
    ```bash
-   squad --version
+   crew --version
    ```
 
 ### Use npx (no install)
 
-For one-off use, run Squad without a global install:
+For one-off use, run Crew without a global install:
 
 ```bash
-npx @bradygaster/squad-cli init
+npx @blacklite/crew-cli init
 ```
 
-## Use Squad in VS Code
+## Use Crew in VS Code
 
-Squad integrates with GitHub Copilot in VS Code. The `.squad/` directory created by the CLI works identically in VS Code — same agents, same decisions, same memory.
+Crew integrates with GitHub Copilot in VS Code. The `.crew/` directory created by the CLI works identically in VS Code — same agents, same decisions, same memory.
 
-**Tip:** Initialize your team with the CLI (`squad init`), then open the project in VS Code to keep working with the same squad.
+**Tip:** Initialize your team with the CLI (`crew init`), then open the project in VS Code to keep working with the same crew.
 
 ## Install the SDK
 
-If you're building tools on top of Squad, install the SDK as a project dependency:
+If you're building tools on top of Crew, install the SDK as a project dependency:
 
 1. Run the following command:
 
    ```bash
-   npm install @bradygaster/squad-sdk
+   npm install @blacklite/crew-sdk
    ```
 
 2. Import what you need in your code:
 
    ```typescript
-   import { defineConfig, loadConfig, resolveSquad } from '@bradygaster/squad-sdk';
+   import { defineConfig, loadConfig, resolveCrew } from '@blacklite/crew-sdk';
    ```
 
-The SDK gives you typed configuration, routing, model selection, and the full agent lifecycle API. For details, see the [SDK Reference](https://bradygaster.github.io/squad/docs/reference/sdk/).
+The SDK gives you typed configuration, routing, model selection, and the full agent lifecycle API. For details, see the [SDK Reference](https://blacklite.github.io/crew/docs/reference/sdk/).
 
-## Update Squad
+## Update Crew
 
-To update the Squad CLI to the latest version:
+To update the Crew CLI to the latest version:
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest
+npm install -g @blacklite/crew-cli@latest
 ```
 
 If you also use the SDK, update it separately:
 
 ```bash
-npm install @bradygaster/squad-sdk@latest
+npm install @blacklite/crew-sdk@latest
 ```
 
-## Initialize Squad in your project
+## Initialize Crew in your project
 
-To initialize Squad in your repository:
+To initialize Crew in your repository:
 
 1. Navigate to your project root:
 
@@ -97,82 +97,82 @@ To initialize Squad in your repository:
 2. Run the init command:
 
    ```bash
-   squad init
+   crew init
    ```
 
-3. Confirm Squad created the following files and directories:
+3. Confirm Crew created the following files and directories:
 
-   - `.github/agents/squad.agent.md` — coordinator agent definition
-   - `.squad/` — Squad workspace directory
+   - `.github/agents/crew.agent.md` — coordinator agent definition
+   - `.crew/` — Crew workspace directory
 
 **Expected output:**
 
 ```
-✅ Squad installed.
-   .github/agents/squad.agent.md — coordinator agent
-   .squad/templates/ — 11 template files
+✅ Crew installed.
+   .github/agents/crew.agent.md — coordinator agent
+   .crew/templates/ — 11 template files
 
-Open GitHub Copilot and select Squad from the agent list.
+Open GitHub Copilot and select Crew from the agent list.
 ```
 
 ## Validate the installation
 
-To confirm Squad is working correctly:
+To confirm Crew is working correctly:
 
 1. Run the status command:
 
    ```bash
-   squad status
+   crew status
    ```
 
-   You can also use `npx squad status` if you skipped the global install.
+   You can also use `npx crew status` if you skipped the global install.
 
-2. Check that `.squad/` contains the expected files:
+2. Check that `.crew/` contains the expected files:
 
    ```bash
-   ls .squad/
+   ls .crew/
    ```
 
    The directory should include `team.md`, `routing.md`, `decisions.md`, and an `agents/` subdirectory.
 
-## Optional: Personal squad (cross-project)
+## Optional: Personal crew (cross-project)
 
-A personal squad lets any project on your machine inherit a shared agent configuration without running `squad init` in each repository.
+A personal crew lets any project on your machine inherit a shared agent configuration without running `crew init` in each repository.
 
-To create a personal squad:
+To create a personal crew:
 
 ```bash
-squad init --global
+crew init --global
 ```
 
-Squad writes the personal configuration to a platform-specific path:
+Crew writes the personal configuration to a platform-specific path:
 
 | Platform | Path |
 | --- | --- |
-| Linux | `~/.config/squad/` |
-| macOS | `~/Library/Application Support/squad/` |
-| Windows | `%APPDATA%\squad\` |
+| Linux | `~/.config/crew/` |
+| macOS | `~/Library/Application Support/crew/` |
+| Windows | `%APPDATA%\crew\` |
 
 ## Optional: Typed configuration
 
-You can create a `squad.config.ts` file at your project root to enable typed configuration. This step is optional — Squad works with sensible defaults without it.
+You can create a `crew.config.ts` file at your project root to enable typed configuration. This step is optional — Crew works with sensible defaults without it.
 
 ```typescript
-import { defineConfig } from '@bradygaster/squad-sdk';
+import { defineConfig } from '@blacklite/crew-sdk';
 
 export default defineConfig({
   agents: {
     dir: '.github/agents',
   },
-  squad: {
-    dir: '.squad',
+  crew: {
+    dir: '.crew',
   },
 });
 ```
 
 ## Troubleshoot
 
-### `squad: command not found`
+### `crew: command not found`
 
 The npm global binary directory is not in your `PATH`.
 
@@ -188,20 +188,20 @@ export PATH="$(npm bin -g):$PATH"
 $env:PATH += ";$(npm bin -g)"
 ```
 
-Then restart your terminal and re-run `squad --version`.
+Then restart your terminal and re-run `crew --version`.
 
-### `Cannot find .squad/ directory`
+### `Cannot find .crew/ directory`
 
-Squad was not initialized in the current directory. Run one of the following:
+Crew was not initialized in the current directory. Run one of the following:
 
-- For the current project: `squad init`
-- For a personal squad shared across projects: `squad init --global`
+- For the current project: `crew init`
+- For a personal crew shared across projects: `crew init --global`
 
 ### Version mismatch between CLI and SDK
 
-If Squad reports a version conflict between the CLI and the software development kit (SDK), update both packages:
+If Crew reports a version conflict between the CLI and the software development kit (SDK), update both packages:
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest
-npm install @bradygaster/squad-sdk@latest
+npm install -g @blacklite/crew-cli@latest
+npm install @blacklite/crew-sdk@latest
 ```

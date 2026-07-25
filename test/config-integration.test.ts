@@ -12,21 +12,21 @@ import {
   AgentRegistry,
   parseCharterMetadata,
   type AgentDefinition,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
   compileCharter,
   compileCharterFull,
   parseCharterMarkdown,
   type CharterCompileOptions,
   type CharterConfigOverrides,
-} from '@bradygaster/squad-sdk/agents';
-import { resolveModel } from '@bradygaster/squad-sdk/agents';
-import { HookPipeline } from '@bradygaster/squad-sdk/hooks';
-import { ToolRegistry } from '@bradygaster/squad-sdk/tools';
+} from '@blacklite/crew-sdk/agents';
+import { resolveModel } from '@blacklite/crew-sdk/agents';
+import { HookPipeline } from '@blacklite/crew-sdk/hooks';
+import { ToolRegistry } from '@blacklite/crew-sdk/tools';
 import {
   defineConfig,
   validateConfig as validateSchemaConfig,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
   validateConfig as validateRuntimeConfig,
   validateConfigDetailed,
@@ -34,16 +34,16 @@ import {
   discoverConfigFile,
   DEFAULT_CONFIG as RUNTIME_DEFAULT,
   ConfigValidationError,
-} from '@bradygaster/squad-sdk/runtime';
+} from '@blacklite/crew-sdk/runtime';
 import {
   ModelRegistry,
   MODEL_CATALOG,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
   parseRoutingMarkdown,
   compileRoutingRules,
   matchRoute,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // ---------------------------------------------------------------------------
 // Shared fixture helpers
@@ -114,9 +114,9 @@ describe('Integration: LocalAgentSource discovery', () => {
     rmSync(FIXTURES_ROOT, { recursive: true, force: true });
   });
 
-  it('discovers agents in .squad/agents/', async () => {
+  it('discovers agents in .crew/agents/', async () => {
     const base = fixture('project-a');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
     setupAgentDir(agentsDir, 'verbal', MINIMAL_CHARTER);
@@ -143,20 +143,20 @@ describe('Integration: LocalAgentSource discovery', () => {
     expect(manifests[0].source).toBe('local');
   });
 
-  it('prefers .squad/agents over .ai-team/agents', async () => {
+  it('prefers .crew/agents over .ai-team/agents', async () => {
     const base = fixture('project-dual');
     // Create both directories
-    const squadDir = join(base, '.squad', 'agents');
+    const crewDir = join(base, '.crew', 'agents');
     const aiTeamDir = join(base, '.ai-team', 'agents');
-    mkdirSync(squadDir, { recursive: true });
+    mkdirSync(crewDir, { recursive: true });
     mkdirSync(aiTeamDir, { recursive: true });
-    setupAgentDir(squadDir, 'fenster', SAMPLE_CHARTER);
+    setupAgentDir(crewDir, 'fenster', SAMPLE_CHARTER);
     setupAgentDir(aiTeamDir, 'legacy-agent', MINIMAL_CHARTER);
 
     const source = new LocalAgentSource(base);
     const manifests = await source.listAgents();
 
-    // Should find fenster from .squad, NOT legacy-agent from .ai-team
+    // Should find fenster from .crew, NOT legacy-agent from .ai-team
     expect(manifests.length).toBe(1);
     expect(manifests[0].name).toBe('Fenster');
   });
@@ -171,13 +171,13 @@ describe('Integration: LocalAgentSource discovery', () => {
     expect(manifests).toEqual([]);
   });
 
-  it('uses an explicit agentsDir override instead of probing .squad/agents (#1399)', async () => {
+  it('uses an explicit agentsDir override instead of probing .crew/agents (#1399)', async () => {
     const base = fixture('project-external');
     // Decoy in the probed location — must lose when the override is set
-    const probedDir = join(base, '.squad', 'agents');
+    const probedDir = join(base, '.crew', 'agents');
     mkdirSync(probedDir, { recursive: true });
     setupAgentDir(probedDir, 'decoy', MINIMAL_CHARTER);
-    // External-state layout: agents directly under the state dir, no .squad nesting
+    // External-state layout: agents directly under the state dir, no .crew nesting
     const externalAgents = join(base, 'external-state', 'agents');
     mkdirSync(externalAgents, { recursive: true });
     setupAgentDir(externalAgents, 'fenster', SAMPLE_CHARTER);
@@ -191,7 +191,7 @@ describe('Integration: LocalAgentSource discovery', () => {
 
   it('returns empty array when the agentsDir override does not exist', async () => {
     const base = fixture('project-external-missing');
-    const probedDir = join(base, '.squad', 'agents');
+    const probedDir = join(base, '.crew', 'agents');
     mkdirSync(probedDir, { recursive: true });
     setupAgentDir(probedDir, 'decoy', MINIMAL_CHARTER);
 
@@ -204,7 +204,7 @@ describe('Integration: LocalAgentSource discovery', () => {
 
   it('skips agents with missing charter.md', async () => {
     const base = fixture('project-missing-charter');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(join(agentsDir, 'no-charter'), { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
 
@@ -217,7 +217,7 @@ describe('Integration: LocalAgentSource discovery', () => {
 
   it('handles malformed charter gracefully in listAgents', async () => {
     const base = fixture('project-malformed');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'bad-agent', MALFORMED_CHARTER);
 
@@ -232,7 +232,7 @@ describe('Integration: LocalAgentSource discovery', () => {
 
   it('getAgent returns full AgentDefinition with metadata', async () => {
     const base = fixture('project-get-agent');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER, '# History\n\nSome history.');
 
@@ -250,7 +250,7 @@ describe('Integration: LocalAgentSource discovery', () => {
 
   it('getAgent returns null for non-existent agent', async () => {
     const base = fixture('project-no-agent');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
 
     const source = new LocalAgentSource(base);
@@ -261,7 +261,7 @@ describe('Integration: LocalAgentSource discovery', () => {
 
   it('getAgent works without history.md', async () => {
     const base = fixture('project-no-history');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
 
@@ -274,7 +274,7 @@ describe('Integration: LocalAgentSource discovery', () => {
 
   it('getCharter returns raw markdown', async () => {
     const base = fixture('project-get-charter');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
 
@@ -296,7 +296,7 @@ describe('Integration: LocalAgentSource discovery', () => {
 
   it('skips non-directory entries in agents folder', async () => {
     const base = fixture('project-files-in-agents');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     writeFileSync(join(agentsDir, 'README.md'), 'Not an agent', 'utf-8');
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
@@ -578,9 +578,9 @@ describe('Integration: Routing config → tool filtering', () => {
     const allTools = registry.getTools();
     expect(allTools.length).toBeGreaterThan(0);
 
-    const filteredTools = registry.getToolsForAgent(['squad_route', 'squad_status']);
+    const filteredTools = registry.getToolsForAgent(['crew_route', 'crew_status']);
     expect(filteredTools.length).toBe(2);
-    expect(filteredTools.map(t => t.name).sort()).toEqual(['squad_route', 'squad_status']);
+    expect(filteredTools.map(t => t.name).sort()).toEqual(['crew_route', 'crew_status']);
   });
 
   it('routing rules influence agent tool availability', () => {
@@ -589,14 +589,14 @@ describe('Integration: Routing config → tool filtering', () => {
       agentName: 'fenster',
       charterPath: '/fake/path',
       charterContent: SAMPLE_CHARTER,
-      configOverrides: { tools: ['squad_route', 'squad_decide'] },
+      configOverrides: { tools: ['crew_route', 'crew_decide'] },
     });
 
     const registry = new ToolRegistry();
     const agentTools = registry.getToolsForAgent(compiled.resolvedTools);
     expect(agentTools.length).toBe(2);
-    expect(agentTools.map(t => t.name)).toContain('squad_route');
-    expect(agentTools.map(t => t.name)).toContain('squad_decide');
+    expect(agentTools.map(t => t.name)).toContain('crew_route');
+    expect(agentTools.map(t => t.name)).toContain('crew_decide');
   });
 });
 
@@ -650,7 +650,7 @@ describe('Integration: AgentRegistry with LocalAgentSource', () => {
 
   it('registry discovers agents from registered local source', async () => {
     const base = fixture('project-registry');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
 
@@ -664,7 +664,7 @@ describe('Integration: AgentRegistry with LocalAgentSource', () => {
 
   it('registry findAgent returns definition', async () => {
     const base = fixture('project-find');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
 
@@ -678,7 +678,7 @@ describe('Integration: AgentRegistry with LocalAgentSource', () => {
 
   it('registry getCharter returns raw markdown', async () => {
     const base = fixture('project-charter');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
 
@@ -757,26 +757,26 @@ describe('Integration: Config file discovery', () => {
     rmSync(FIXTURES_ROOT, { recursive: true, force: true });
   });
 
-  it('discovers squad.config.json in current directory', () => {
-    writeFileSync(join(discoveryDir, 'squad.config.json'), '{}');
+  it('discovers crew.config.json in current directory', () => {
+    writeFileSync(join(discoveryDir, 'crew.config.json'), '{}');
     const found = discoverConfigFile(discoveryDir);
-    expect(found).toBe(join(discoveryDir, 'squad.config.json'));
+    expect(found).toBe(join(discoveryDir, 'crew.config.json'));
   });
 
-  it('discovers .squad/config.json', () => {
-    const squadDir = join(discoveryDir, '.squad');
-    mkdirSync(squadDir, { recursive: true });
-    writeFileSync(join(squadDir, 'config.json'), '{}');
+  it('discovers .crew/config.json', () => {
+    const crewDir = join(discoveryDir, '.crew');
+    mkdirSync(crewDir, { recursive: true });
+    writeFileSync(join(crewDir, 'config.json'), '{}');
     const found = discoverConfigFile(discoveryDir);
-    expect(found).toBe(join(squadDir, 'config.json'));
+    expect(found).toBe(join(crewDir, 'config.json'));
   });
 
   it('walks up to parent directory', () => {
-    writeFileSync(join(discoveryDir, 'squad.config.json'), '{}');
+    writeFileSync(join(discoveryDir, 'crew.config.json'), '{}');
     const childDir = join(discoveryDir, 'subdir');
     mkdirSync(childDir, { recursive: true });
     const found = discoverConfigFile(childDir);
-    expect(found).toBe(join(discoveryDir, 'squad.config.json'));
+    expect(found).toBe(join(discoveryDir, 'crew.config.json'));
   });
 
   it('returns undefined when nothing found', () => {
@@ -799,7 +799,7 @@ describe('Integration: Full pipeline — discover → compile → resolve → fi
   it('end-to-end: local source → charter compilation → model selection', async () => {
     // 1. Set up filesystem
     const base = fixture('e2e-project');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER, '# History\n\nBuilt config module.');
 
@@ -838,7 +838,7 @@ describe('Integration: Full pipeline — discover → compile → resolve → fi
 
   it('end-to-end with config overrides', async () => {
     const base = fixture('e2e-overrides');
-    const agentsDir = join(base, '.squad', 'agents');
+    const agentsDir = join(base, '.crew', 'agents');
     mkdirSync(agentsDir, { recursive: true });
     setupAgentDir(agentsDir, 'fenster', SAMPLE_CHARTER);
 
@@ -848,7 +848,7 @@ describe('Integration: Full pipeline — discover → compile → resolve → fi
     // Config specifies a different model and tools
     const overrides: CharterConfigOverrides = {
       model: 'gpt-5.2-codex',
-      tools: ['squad_route', 'squad_decide', 'squad_memory'],
+      tools: ['crew_route', 'crew_decide', 'crew_memory'],
       role: 'Senior Architect',
     };
 
@@ -860,7 +860,7 @@ describe('Integration: Full pipeline — discover → compile → resolve → fi
     });
 
     expect(compiled.resolvedModel).toBe('gpt-5.2-codex');
-    expect(compiled.resolvedTools).toEqual(['squad_route', 'squad_decide', 'squad_memory']);
+    expect(compiled.resolvedTools).toEqual(['crew_route', 'crew_decide', 'crew_memory']);
     expect(compiled.displayName).toContain('Senior Architect');
 
     // Model resolution picks up the override
@@ -885,7 +885,7 @@ describe('Integration: Full pipeline — discover → compile → resolve → fi
     // Compilation with empty charter content is still valid
     const compiled = compileCharter({
       agentName: 'phantom',
-      charterPath: join(base, '.squad', 'agents', 'phantom', 'charter.md'),
+      charterPath: join(base, '.crew', 'agents', 'phantom', 'charter.md'),
       charterContent: '',
       configOverrides: {
         role: 'Ghost Agent',
@@ -935,7 +935,7 @@ describe('Integration: Full pipeline — discover → compile → resolve → fi
       },
     };
 
-    writeFileSync(join(tmpDir, 'squad.config.json'), JSON.stringify(config), 'utf-8');
+    writeFileSync(join(tmpDir, 'crew.config.json'), JSON.stringify(config), 'utf-8');
 
     const result = loadConfigSync(tmpDir);
     expect(result.isDefault).toBe(false);
@@ -944,11 +944,11 @@ describe('Integration: Full pipeline — discover → compile → resolve → fi
 
   it('defineConfig merges with schema defaults', () => {
     const config = defineConfig({
-      team: { name: 'Integration Squad' },
+      team: { name: 'Integration Crew' },
       agents: [{ name: 'fenster', role: 'dev' }],
     });
 
-    expect(config.team.name).toBe('Integration Squad');
+    expect(config.team.name).toBe('Integration Crew');
     expect(config.agents.length).toBe(1);
     expect(config.models.default).toBe('claude-sonnet-4.6');
   });

@@ -24,7 +24,7 @@ npm start
 
 ### What to point out
 
-1. **Banner** — the demo prints a branded header. Look for "Squad SDK — Cost-Aware Router Demo."
+1. **Banner** — the demo prints a branded header. Look for "Crew SDK — Cost-Aware Router Demo."
 
 2. **Model catalogue** — three tiers (fast / standard / premium) with per-1k-token pricing. Note how `claude-haiku-4.5` is ~20× cheaper than `claude-opus-4.6`.
 
@@ -63,7 +63,7 @@ Aligned columns: Agent, Model, Tokens In/Out, Cost, Turns. Note that Fenster (se
 
 Open `index.ts` and highlight:
 
-1. **Lines 10–14** — imports from `@bradygaster/squad-sdk`
+1. **Lines 10–14** — imports from `@blacklite/crew-sdk`
 2. **Lines ~130–170** — task definitions with simulated token counts
 3. **The routing call** — `selectResponseTier(task.message, config)` — one line does all the work
 4. **CostTracker.recordUsage()** — accumulates per-agent data
@@ -75,7 +75,7 @@ Open `index.ts` and highlight:
 
 | Symptom | Fix |
 |---|---|
-| `Cannot find module '@bradygaster/squad-sdk'` | Run `npm install` from repo root first, or `npm link @bradygaster/squad-sdk` |
+| `Cannot find module '@blacklite/crew-sdk'` | Run `npm install` from repo root first, or `npm link @blacklite/crew-sdk` |
 | TypeScript errors | Ensure `typescript >= 5.7` and Node >= 20 |
 | No color output | Terminal must support ANSI escape codes (iTerm2, Windows Terminal, VS Code) |
 

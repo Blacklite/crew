@@ -1,11 +1,11 @@
 # Cleanup Watch
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to trigger a cleanup cycle:**
 ```
-squad watch --execute
+crew watch --execute
 ```
 
 **Try this to configure cleanup frequency:**
@@ -18,7 +18,7 @@ squad watch --execute
 }
 ```
 
-Ralph runs automated housekeeping during `squad watch` to keep `.squad/` clean — clearing temp files, archiving old logs, and flagging stale decisions.
+Ralph runs automated housekeeping during `crew watch` to keep `.crew/` clean — clearing temp files, archiving old logs, and flagging stale decisions.
 
 ---
 
@@ -26,7 +26,7 @@ Ralph runs automated housekeeping during `squad watch` to keep `.squad/` clean �
 
 ### Scratch Directory
 
-Clears all files in `.squad/.scratch/` — the ephemeral temp directory used for prompt files, commit drafts, and processing artifacts. These are temporary by design and safe to delete between sessions.
+Clears all files in `.crew/.scratch/` — the ephemeral temp directory used for prompt files, commit drafts, and processing artifacts. These are temporary by design and safe to delete between sessions.
 
 ### Log Archives
 
@@ -34,18 +34,18 @@ Archives orchestration-log and session-log entries older than the configured `ma
 - Orchestration logs (work dispatch, agent lifecycle)
 - Session logs (Copilot session metadata)
 
-Archived logs are moved to `.squad/logs/archive/{YYYY-MM}/` for long-term storage without cluttering active logs.
+Archived logs are moved to `.crew/logs/archive/{YYYY-MM}/` for long-term storage without cluttering active logs.
 
 ### Decision Inbox Warnings
 
-Scans `.squad/decisions/inbox/` for files older than 7 days and warns you. Decision inbox files represent unmerged decisions — leaving them stale means the team's decision log is out of sync with actual project state.
+Scans `.crew/decisions/inbox/` for files older than 7 days and warns you. Decision inbox files represent unmerged decisions — leaving them stale means the team's decision log is out of sync with actual project state.
 
 ```
 ⚠️  Stale decision inbox files detected:
     - inbox/auth-strategy-2025-01-15.md (12 days old)
     - inbox/api-versioning-2025-01-10.md (17 days old)
 
-    Run: squad decisions merge
+    Run: crew decisions merge
 ```
 
 Cleanup doesn't auto-merge — it just warns. You decide when to merge.
@@ -54,10 +54,10 @@ Cleanup doesn't auto-merge — it just warns. You decide when to merge.
 
 ## When Cleanup Runs
 
-Cleanup runs during the **housekeeping phase** of `squad watch` — after all work is processed for the round, before the next polling interval. This happens every `N` rounds based on your config.
+Cleanup runs during the **housekeeping phase** of `crew watch` — after all work is processed for the round, before the next polling interval. This happens every `N` rounds based on your config.
 
 **Default behavior:**
-- Cleanup runs every **10 rounds** of `squad watch`
+- Cleanup runs every **10 rounds** of `crew watch`
 - Archives logs older than **30 days**
 - Warns about decision inbox files older than **7 days**
 
@@ -65,7 +65,7 @@ Cleanup runs during the **housekeeping phase** of `squad watch` — after all wo
 
 ## Configuration
 
-Add a `cleanup` section to your `.squad/config.json`:
+Add a `cleanup` section to your `.crew/config.json`:
 
 ```json
 {
@@ -108,34 +108,34 @@ Run cleanup every round (aggressive), keep 14 days:
 ## What Cleanup Does NOT Touch
 
 - Earned skills in `.copilot/skills/` — never deleted
-- Decision log in `.squad/decisions/log.md` — never deleted
+- Decision log in `.crew/decisions/log.md` — never deleted
 - Active session data
-- Router state, team config, and other core Squad files
+- Router state, team config, and other core Crew files
 
-Cleanup is safe and conservative — it only removes temporary files and archives old logs. Core squad state is never touched.
+Cleanup is safe and conservative — it only removes temporary files and archives old logs. Core crew state is never touched.
 
 ---
 
 ## Manual Cleanup
 
-You can manually trigger cleanup without running `squad watch`:
+You can manually trigger cleanup without running `crew watch`:
 
 ```bash
 # Clean scratch dir only
-rm -rf .squad/.scratch/*
+rm -rf .crew/.scratch/*
 
 # Archive old logs manually
-squad logs archive --before 2025-01-01
+crew logs archive --before 2025-01-01
 
 # Merge stale decision inbox
-squad decisions merge
+crew decisions merge
 ```
 
 ---
 
 ## Notes
 
-- Cleanup is **opt-in** — it only runs during `squad watch`, not in standalone Copilot sessions
+- Cleanup is **opt-in** — it only runs during `crew watch`, not in standalone Copilot sessions
 - Cleanup logs are written to the orchestration log for audit trail
 - Archived logs are still accessible but separated from active logs
 - Decision inbox warnings are informational only — no auto-merge
@@ -148,7 +148,7 @@ squad decisions merge
 Ralph, run cleanup now
 ```
 
-Triggers a cleanup cycle immediately (if Ralph is active in `squad watch`).
+Triggers a cleanup cycle immediately (if Ralph is active in `crew watch`).
 
 ```
 Show me what cleanup will do

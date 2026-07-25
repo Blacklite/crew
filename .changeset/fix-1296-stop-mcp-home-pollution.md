@@ -1,16 +1,16 @@
 ---
-"@bradygaster/squad-cli": patch
+"@blacklite/crew-cli": patch
 ---
 
-Fix #1296: stop writing `squad_state_<hash>` to `~/.copilot/mcp-config.json` on every `squad init` / `squad upgrade`
+Fix #1296: stop writing `crew_state_<hash>` to `~/.copilot/mcp-config.json` on every `crew init` / `crew upgrade`
 
-`squad init` (line 408 of `packages/squad-cli/src/cli/core/init.ts`) and `squad upgrade` (line 738 of `upgrade.ts`) unconditionally called `ensureSquadStateMcpInUserConfig`, which wrote a `squad_state_<hash>` entry to `~/.copilot/mcp-config.json` keyed by a stable hash of the project path. Every new `squad init` accumulated another entry in HOME with no garbage collection.
+`crew init` (line 408 of `packages/crew-cli/src/cli/core/init.ts`) and `crew upgrade` (line 738 of `upgrade.ts`) unconditionally called `ensureCrewStateMcpInUserConfig`, which wrote a `crew_state_<hash>` entry to `~/.copilot/mcp-config.json` keyed by a stable hash of the project path. Every new `crew init` accumulated another entry in HOME with no garbage collection.
 
-This contradicted the explicit iter-8 design intent documented at `packages/squad-cli/src/cli/core/mcp-root.ts:1-27`:
+This contradicted the explicit iter-8 design intent documented at `packages/crew-cli/src/cli/core/mcp-root.ts:1-27`:
 
-> *iter-7: wrote `squad_state_<hash>` into the user's HOME `~/.copilot/mcp-config.json`. That polluted HOME with one entry per Squad project and required a stale-entry GC that we never built. It also touched a file outside the project, which is surprising for `squad init` / `squad upgrade`.*
+> *iter-7: wrote `crew_state_<hash>` into the user's HOME `~/.copilot/mcp-config.json`. That polluted HOME with one entry per Crew project and required a stale-entry GC that we never built. It also touched a file outside the project, which is surprising for `crew init` / `crew upgrade`.*
 >
-> *iter-8 flips it back inside the project: we write `squad_state` to a repo-root `.mcp.json` ... **No HOME modifications.***
+> *iter-8 flips it back inside the project: we write `crew_state` to a repo-root `.mcp.json` ... **No HOME modifications.***
 
 The repo-root `.mcp.json` writes (init.ts:403 / upgrade.ts:728) already cover all documented Copilot CLI launch modes:
 
@@ -21,20 +21,20 @@ For ``copilot -p`` invocations launched from **outside** the project root, the r
 
 **Changes**
 
-- Removed the unconditional `ensureSquadStateMcpInUserConfig` call from `init.ts:408` and `upgrade.ts:738`. Replaced both with comments explaining the iter-8 design and pointing at #1296.
+- Removed the unconditional `ensureCrewStateMcpInUserConfig` call from `init.ts:408` and `upgrade.ts:738`. Replaced both with comments explaining the iter-8 design and pointing at #1296.
 - Removed the now-unused import from both files.
-- The function definition itself (`mcp-root.ts:178-228`) is **kept** — a future `squad doctor --mcp-prune` cleanup helper may want to inspect HOME for orphan entries. It's just no longer called from the init/upgrade auto-flow.
+- The function definition itself (`mcp-root.ts:178-228`) is **kept** — a future `crew doctor --mcp-prune` cleanup helper may want to inspect HOME for orphan entries. It's just no longer called from the init/upgrade auto-flow.
 
 **Tests**
 
 New regression test in `test/cli/init.test.ts`:
 
-> `should NOT write any squad_state entries to ~/.copilot/mcp-config.json (regression: #1296)`
+> `should NOT write any crew_state entries to ~/.copilot/mcp-config.json (regression: #1296)`
 
-Isolates the developer's real HOME by setting `USERPROFILE`/`HOME` to a temp dir before init, then asserts no `squad_state*` keys appear under that temp HOME after init. The test passes only because the unconditional write is gone — previously this assertion would have failed.
+Isolates the developer's real HOME by setting `USERPROFILE`/`HOME` to a temp dir before init, then asserts no `crew_state*` keys appear under that temp HOME after init. The test passes only because the unconditional write is gone — previously this assertion would have failed.
 
 All 40 existing init tests still pass; `npm run lint` clean.
 
 **Cleanup**
 
-A follow-up could add `squad doctor --mcp-prune` to walk `~/.copilot/mcp-config.json`, find `squad_state_<hash>` entries whose target directory no longer exists, and remove them. Out of scope for this fix.
+A follow-up could add `crew doctor --mcp-prune` to walk `~/.copilot/mcp-config.json`, find `crew_state_<hash>` entries whose target directory no longer exists, and remove them. Out of scope for this fix.

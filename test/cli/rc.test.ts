@@ -1,5 +1,5 @@
 /**
- * RC Command Tests — squad rc / squad remote-control
+ * RC Command Tests — crew rc / crew remote-control
  *
  * Tests module exports, option handling, and error paths.
  * Does NOT create real WebSocket servers or spawn copilot (requires network + native deps).
@@ -13,18 +13,18 @@ import os from 'node:os';
 describe('CLI: rc command', () => {
   describe('Module exports', () => {
     it('module exports runRC function', async () => {
-      const mod = await import('@bradygaster/squad-cli/commands/rc');
+      const mod = await import('@blacklite/crew-cli/commands/rc');
       expect(typeof mod.runRC).toBe('function');
     });
 
     it('module exports RCOptions interface (verifiable via function arity)', async () => {
-      const mod = await import('@bradygaster/squad-cli/commands/rc');
+      const mod = await import('@blacklite/crew-cli/commands/rc');
       // runRC(cwd, options) — should accept 2 parameters
       expect(mod.runRC.length).toBe(2);
     });
 
     it('module has no unexpected default export', async () => {
-      const mod = await import('@bradygaster/squad-cli/commands/rc');
+      const mod = await import('@blacklite/crew-cli/commands/rc');
       // ESM module should have named exports, no default
       expect(mod.default).toBeUndefined();
     });
@@ -32,41 +32,41 @@ describe('CLI: rc command', () => {
 
   describe('RCOptions interface validation', () => {
     it('accepts tunnel option', async () => {
-      const { RCOptions } = await import('@bradygaster/squad-cli/commands/rc') as any;
+      const { RCOptions } = await import('@blacklite/crew-cli/commands/rc') as any;
       // TypeScript interface — verify shape through runRC signature
       // This is a compile-time check, but we can verify runtime behavior
-      const mod = await import('@bradygaster/squad-cli/commands/rc');
+      const mod = await import('@blacklite/crew-cli/commands/rc');
       expect(mod.runRC).toBeDefined();
     });
 
     it('accepts port option', async () => {
-      const mod = await import('@bradygaster/squad-cli/commands/rc');
+      const mod = await import('@blacklite/crew-cli/commands/rc');
       expect(mod.runRC).toBeDefined();
     });
 
     it('accepts optional path option', async () => {
-      const mod = await import('@bradygaster/squad-cli/commands/rc');
+      const mod = await import('@blacklite/crew-cli/commands/rc');
       expect(mod.runRC).toBeDefined();
     });
   });
 
-  describe('Squad directory detection', () => {
+  describe('Crew directory detection', () => {
     let tempDir: string;
 
     beforeEach(async () => {
-      tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'squad-rc-test-'));
+      tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'crew-rc-test-'));
     });
 
     afterEach(async () => {
       await fs.promises.rm(tempDir, { recursive: true, force: true });
     });
 
-    it('detects .squad directory', async () => {
-      const squadDir = path.join(tempDir, '.squad');
-      await fs.promises.mkdir(squadDir);
+    it('detects .crew directory', async () => {
+      const crewDir = path.join(tempDir, '.crew');
+      await fs.promises.mkdir(crewDir);
       
       // Verify directory exists
-      const exists = fs.existsSync(squadDir);
+      const exists = fs.existsSync(crewDir);
       expect(exists).toBe(true);
     });
 
@@ -79,24 +79,24 @@ describe('CLI: rc command', () => {
       expect(exists).toBe(true);
     });
 
-    it('handles missing squad directory gracefully', () => {
-      const squadDir = path.join(tempDir, '.squad');
+    it('handles missing crew directory gracefully', () => {
+      const crewDir = path.join(tempDir, '.crew');
       const aiTeamDir = path.join(tempDir, '.ai-team');
       
       // Verify both don't exist
-      expect(fs.existsSync(squadDir)).toBe(false);
+      expect(fs.existsSync(crewDir)).toBe(false);
       expect(fs.existsSync(aiTeamDir)).toBe(false);
     });
   });
 
   describe('Team roster parsing', () => {
     let tempDir: string;
-    let squadDir: string;
+    let crewDir: string;
 
     beforeEach(async () => {
-      tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'squad-rc-test-'));
-      squadDir = path.join(tempDir, '.squad');
-      await fs.promises.mkdir(squadDir);
+      tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'crew-rc-test-'));
+      crewDir = path.join(tempDir, '.crew');
+      await fs.promises.mkdir(crewDir);
     });
 
     afterEach(async () => {
@@ -105,18 +105,18 @@ describe('CLI: rc command', () => {
 
     it('parses valid team.md with agents', async () => {
       const teamMd = `# Team Roster\n\n| Name | Role | Status |\n|------|------|--------|\n| Keaton | Architect | Active |\n| Fenster | DevOps | Active |\n`;
-      await fs.promises.writeFile(path.join(squadDir, 'team.md'), teamMd);
+      await fs.promises.writeFile(path.join(crewDir, 'team.md'), teamMd);
       
-      const content = await fs.promises.readFile(path.join(squadDir, 'team.md'), 'utf-8');
+      const content = await fs.promises.readFile(path.join(crewDir, 'team.md'), 'utf-8');
       const lines = content.split('\n').filter(l => l.startsWith('|') && l.includes('Active'));
       
       expect(lines.length).toBeGreaterThan(0);
     });
 
     it('handles empty team.md', async () => {
-      await fs.promises.writeFile(path.join(squadDir, 'team.md'), '');
+      await fs.promises.writeFile(path.join(crewDir, 'team.md'), '');
       
-      const content = await fs.promises.readFile(path.join(squadDir, 'team.md'), 'utf-8');
+      const content = await fs.promises.readFile(path.join(crewDir, 'team.md'), 'utf-8');
       const lines = content.split('\n').filter(l => l.startsWith('|') && l.includes('Active'));
       
       expect(lines).toEqual([]);
@@ -124,16 +124,16 @@ describe('CLI: rc command', () => {
 
     it('handles malformed team.md table', async () => {
       const teamMd = `# Team\n\nNot a table\n`;
-      await fs.promises.writeFile(path.join(squadDir, 'team.md'), teamMd);
+      await fs.promises.writeFile(path.join(crewDir, 'team.md'), teamMd);
       
-      const content = await fs.promises.readFile(path.join(squadDir, 'team.md'), 'utf-8');
+      const content = await fs.promises.readFile(path.join(crewDir, 'team.md'), 'utf-8');
       const lines = content.split('\n').filter(l => l.startsWith('|') && l.includes('Active'));
       
       expect(lines).toEqual([]);
     });
 
     it('handles missing team.md gracefully', () => {
-      const teamPath = path.join(squadDir, 'team.md');
+      const teamPath = path.join(crewDir, 'team.md');
       expect(fs.existsSync(teamPath)).toBe(false);
     });
   });
@@ -142,7 +142,7 @@ describe('CLI: rc command', () => {
     it('validates directory traversal prevention pattern', () => {
       // This is a security regression test — verifies the pattern exists in source
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -153,7 +153,7 @@ describe('CLI: rc command', () => {
 
     it('validates security headers are set', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -166,7 +166,7 @@ describe('CLI: rc command', () => {
 
     it('validates EISDIR guard exists', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -176,7 +176,7 @@ describe('CLI: rc command', () => {
 
     it('validates malformed URI handling', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -189,7 +189,7 @@ describe('CLI: rc command', () => {
   describe('Copilot ACP path resolution', () => {
     it('validates Windows path pattern exists', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -200,7 +200,7 @@ describe('CLI: rc command', () => {
 
     it('validates fallback to PATH exists', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -213,7 +213,7 @@ describe('CLI: rc command', () => {
   describe('RemoteBridge callbacks', () => {
     it('validates onPrompt callback signature in source', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -223,7 +223,7 @@ describe('CLI: rc command', () => {
 
     it('validates onDirectMessage callback signature in source', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -233,7 +233,7 @@ describe('CLI: rc command', () => {
 
     it('validates onCommand callback signature in source', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -243,7 +243,7 @@ describe('CLI: rc command', () => {
 
     it('validates /status command implementation', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -252,7 +252,7 @@ describe('CLI: rc command', () => {
 
     it('validates /agents command implementation', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -263,7 +263,7 @@ describe('CLI: rc command', () => {
   describe('Connection monitoring', () => {
     it('validates 5-second interval exists', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -273,7 +273,7 @@ describe('CLI: rc command', () => {
 
     it('validates connection count tracking', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -284,7 +284,7 @@ describe('CLI: rc command', () => {
   describe('Cleanup and signal handling', () => {
     it('validates SIGINT handler exists', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -293,7 +293,7 @@ describe('CLI: rc command', () => {
 
     it('validates SIGTERM handler exists', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -302,7 +302,7 @@ describe('CLI: rc command', () => {
 
     it('validates cleanup function calls bridge.stop()', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -311,7 +311,7 @@ describe('CLI: rc command', () => {
 
     it('validates cleanup function calls destroyTunnel()', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -320,7 +320,7 @@ describe('CLI: rc command', () => {
 
     it('validates copilot process is killed on cleanup', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -331,7 +331,7 @@ describe('CLI: rc command', () => {
   describe('Copilot passthrough integration', () => {
     it('validates copilot spawn with --acp flag', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -341,7 +341,7 @@ describe('CLI: rc command', () => {
 
     it('validates stdio piping configuration', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -350,7 +350,7 @@ describe('CLI: rc command', () => {
 
     it('validates readline interface for copilot stdout', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -360,7 +360,7 @@ describe('CLI: rc command', () => {
 
     it('validates passthrough bidirectional flow', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -370,7 +370,7 @@ describe('CLI: rc command', () => {
 
     it('validates copilot error handling', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -382,7 +382,7 @@ describe('CLI: rc command', () => {
   describe('Tunnel integration', () => {
     it('validates tunnel flag check', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -391,7 +391,7 @@ describe('CLI: rc command', () => {
 
     it('validates devtunnel availability check', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -400,7 +400,7 @@ describe('CLI: rc command', () => {
 
     it('validates tunnel creation with metadata', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -409,7 +409,7 @@ describe('CLI: rc command', () => {
 
     it('validates QR code generation attempt', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -420,7 +420,7 @@ describe('CLI: rc command', () => {
   describe('Color constants', () => {
     it('validates ANSI color codes are defined', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -436,17 +436,17 @@ describe('CLI: rc command', () => {
   describe('Import statements', () => {
     it('imports RemoteBridge from SDK', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
       expect(rcSource).toContain('import { FSStorageProvider, RemoteBridge }');
-      expect(rcSource).toContain('@bradygaster/squad-sdk');
+      expect(rcSource).toContain('@blacklite/crew-sdk');
     });
 
     it('imports tunnel utilities', () => {
       const rcSource = fs.readFileSync(
-        path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'commands', 'rc.ts'),
+        path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'commands', 'rc.ts'),
         'utf-8'
       );
       
@@ -465,7 +465,7 @@ describe('loadRosterAgents — externalized state (#1398)', () => {
   const ROOT = path.join(os.tmpdir(), `.test-rc-roster-${suffix}`);
   const EXT_GLOBAL = path.join(os.tmpdir(), `.test-rc-roster-global-${suffix}`);
   const PROJECT_KEY = `test-rc-ext-${suffix}`;
-  const externalStateDir = path.join(EXT_GLOBAL, 'squad', 'projects', PROJECT_KEY);
+  const externalStateDir = path.join(EXT_GLOBAL, 'crew', 'projects', PROJECT_KEY);
   const origAppData = process.env['APPDATA'];
   const origXdgConfig = process.env['XDG_CONFIG_HOME'];
   const ROSTER_MD =
@@ -475,7 +475,7 @@ describe('loadRosterAgents — externalized state (#1398)', () => {
     for (const d of [ROOT, EXT_GLOBAL]) {
       if (fs.existsSync(d)) fs.rmSync(d, { recursive: true, force: true });
     }
-    fs.mkdirSync(path.join(ROOT, '.squad'), { recursive: true });
+    fs.mkdirSync(path.join(ROOT, '.crew'), { recursive: true });
   });
 
   afterEach(() => {
@@ -489,11 +489,11 @@ describe('loadRosterAgents — externalized state (#1398)', () => {
     }
   });
 
-  it('reads the roster from local .squad when state is not externalized', async () => {
-    const { loadRosterAgents } = await import('@bradygaster/squad-cli/commands/rc');
-    fs.writeFileSync(path.join(ROOT, '.squad', 'team.md'), ROSTER_MD);
+  it('reads the roster from local .crew when state is not externalized', async () => {
+    const { loadRosterAgents } = await import('@blacklite/crew-cli/commands/rc');
+    fs.writeFileSync(path.join(ROOT, '.crew', 'team.md'), ROSTER_MD);
 
-    const agents = loadRosterAgents(path.join(ROOT, '.squad'));
+    const agents = loadRosterAgents(path.join(ROOT, '.crew'));
 
     expect(agents).toEqual([
       { name: 'Kovash', role: 'Lead' },
@@ -502,9 +502,9 @@ describe('loadRosterAgents — externalized state (#1398)', () => {
   });
 
   it('follows the stateLocation marker to the external team.md', async () => {
-    const { loadRosterAgents } = await import('@bradygaster/squad-cli/commands/rc');
+    const { loadRosterAgents } = await import('@blacklite/crew-cli/commands/rc');
 
-    // Point resolveGlobalSquadPath() inside EXT_GLOBAL (not the real user dir)
+    // Point resolveGlobalCrewPath() inside EXT_GLOBAL (not the real user dir)
     if (process.platform === 'win32') {
       process.env['APPDATA'] = EXT_GLOBAL;
     } else {
@@ -512,15 +512,15 @@ describe('loadRosterAgents — externalized state (#1398)', () => {
     }
 
     fs.writeFileSync(
-      path.join(ROOT, '.squad', 'config.json'),
+      path.join(ROOT, '.crew', 'config.json'),
       JSON.stringify({ version: 1, teamRoot: '.', projectKey: PROJECT_KEY, stateLocation: 'external' })
     );
     // Stale local roster that must NOT win over the external one
-    fs.writeFileSync(path.join(ROOT, '.squad', 'team.md'), '# Team\n| Stale | Old | Active |\n');
+    fs.writeFileSync(path.join(ROOT, '.crew', 'team.md'), '# Team\n| Stale | Old | Active |\n');
     fs.mkdirSync(externalStateDir, { recursive: true });
     fs.writeFileSync(path.join(externalStateDir, 'team.md'), ROSTER_MD);
 
-    const agents = loadRosterAgents(path.join(ROOT, '.squad'));
+    const agents = loadRosterAgents(path.join(ROOT, '.crew'));
 
     expect(agents).toEqual([
       { name: 'Kovash', role: 'Lead' },

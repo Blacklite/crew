@@ -1,6 +1,6 @@
 # Tips & Tricks
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this:**
@@ -8,7 +8,7 @@
 Team, build the login feature — include UI, API endpoints, and tests
 ```
 
-Patterns that make Squad click. Skim the headers, steal what's useful.
+Patterns that make Crew click. Skim the headers, steal what's useful.
 
 ---
 
@@ -46,7 +46,7 @@ Be specific about scope. Tell the team what's in, what's out, what's next. Use b
 
 ## Parallel Work — Let It Cook
 
-Don't interrupt parallel work. Squad agents chain automatically — the tester catches failures, the backend fixes them, the tester re-runs. If you jump in after 2 minutes, you break the chain.
+Don't interrupt parallel work. Crew agents chain automatically — the tester catches failures, the backend fixes them, the tester re-runs. If you jump in after 2 minutes, you break the chain.
 
 When they're done, ask Scribe:
 ```
@@ -65,7 +65,7 @@ Ralph, start monitoring
 
 Ralph triages issues, assigns them, spawns agents, and reports every 3-5 rounds. Say `"Ralph, idle"` to stop.
 
-The `squad-heartbeat` workflow runs Ralph on event-based triggers (issue close, PR merge, manual dispatch).
+The `crew-heartbeat` workflow runs Ralph on event-based triggers (issue close, PR merge, manual dispatch).
 
 ---
 
@@ -74,7 +74,7 @@ The `squad-heartbeat` workflow runs Ralph on event-based triggers (issue close, 
 - **Set permanent rules:** `"Always use TypeScript strict mode"` → goes to `decisions.md`
 - **Capture lessons:** `"Never include passwords in API responses"` → agents remember forever
 - **Check alignment:** When agents disagree, the decision is probably missing. Add it.
-- **Commit `.squad/`** — it's your team's brain. Anyone who clones gets the full team.
+- **Commit `.crew/`** — it's your team's brain. Anyone who clones gets the full team.
 
 ---
 
@@ -87,5 +87,5 @@ The `squad-heartbeat` workflow runs Ralph on event-based triggers (issue close, 
 | Contradicting old decisions | Ask Scribe to remind you of rules |
 | Not using Ralph on a full backlog | `Ralph, go` — let the bot grind |
 | Too many agents | Start with 4-5, add specialists later |
-| Lost team knowledge | Commit `.squad/` to git |
+| Lost team knowledge | Commit `.crew/` to git |
 

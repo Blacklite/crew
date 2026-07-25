@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Crew.Agents.AI/Crew.Agents.AI.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Crew.Agents.AI.Tests/Crew.Agents.AI.Tests.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="src/Crew.Agents.AI/samples/Crew.Agents.AI.Sample/Crew.Agents.AI.Sample.csproj" />
+  </Folder>
+</Solution>

@@ -1,5 +1,5 @@
 /**
- * Tests for resolveSquad() and resolveGlobalSquadPath()
+ * Tests for resolveCrew() and resolveGlobalCrewPath()
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -7,7 +7,7 @@ import { mkdirSync, rmSync, existsSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
-import { resolveSquad, resolveGlobalSquadPath, ensureSquadPath, ensurePersonalSquadDir, clearResolveSquadCache } from '@bradygaster/squad-sdk/resolution';
+import { resolveCrew, resolveGlobalCrewPath, ensureCrewPath, ensurePersonalCrewDir, clearResolveCrewCache } from '@blacklite/crew-sdk/resolution';
 
 const TMP = join(process.cwd(), `.test-resolution-${randomBytes(4).toString('hex')}`);
 
@@ -17,37 +17,37 @@ function scaffold(...dirs: string[]): void {
   }
 }
 
-describe('resolveSquad()', () => {
+describe('resolveCrew()', () => {
   beforeEach(() => {
-    clearResolveSquadCache();
+    clearResolveCrewCache();
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
     mkdirSync(TMP, { recursive: true });
   });
 
   afterEach(() => {
-    clearResolveSquadCache();
+    clearResolveCrewCache();
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
   });
 
-  it('returns path when .squad/ exists at startDir', () => {
-    scaffold('.git', '.squad');
-    expect(resolveSquad(TMP)).toBe(join(TMP, '.squad'));
+  it('returns path when .crew/ exists at startDir', () => {
+    scaffold('.git', '.crew');
+    expect(resolveCrew(TMP)).toBe(join(TMP, '.crew'));
   });
 
-  it('returns null when no .squad/ exists and .git is at startDir', () => {
+  it('returns null when no .crew/ exists and .git is at startDir', () => {
     scaffold('.git');
-    expect(resolveSquad(TMP)).toBeNull();
+    expect(resolveCrew(TMP)).toBeNull();
   });
 
-  it('walks up and finds .squad/ in parent', () => {
-    scaffold('.git', '.squad', 'packages', 'packages/app');
-    expect(resolveSquad(join(TMP, 'packages', 'app'))).toBe(join(TMP, '.squad'));
+  it('walks up and finds .crew/ in parent', () => {
+    scaffold('.git', '.crew', 'packages', 'packages/app');
+    expect(resolveCrew(join(TMP, 'packages', 'app'))).toBe(join(TMP, '.crew'));
   });
 
   it('stops at .git boundary and does not walk above repo root', () => {
-    // outer has .squad, inner is its own repo without .squad
-    scaffold('outer/.squad', 'outer/inner/.git');
-    expect(resolveSquad(join(TMP, 'outer', 'inner'))).toBeNull();
+    // outer has .crew, inner is its own repo without .crew
+    scaffold('outer/.crew', 'outer/inner/.git');
+    expect(resolveCrew(join(TMP, 'outer', 'inner'))).toBeNull();
   });
 
   it('handles .git worktree file (not directory)', () => {
@@ -55,93 +55,93 @@ describe('resolveSquad()', () => {
     // .git as a file (worktree pointer)
     writeFileSync(join(TMP, 'repo', '.git'), 'gitdir: /somewhere/.git/worktrees/repo');
     mkdirSync(join(TMP, 'repo', 'src'), { recursive: true });
-    expect(resolveSquad(join(TMP, 'repo', 'src'))).toBeNull();
+    expect(resolveCrew(join(TMP, 'repo', 'src'))).toBeNull();
   });
 
-  it('finds .squad in worktree that has it', () => {
-    scaffold('repo/.squad', 'repo/src');
+  it('finds .crew in worktree that has it', () => {
+    scaffold('repo/.crew', 'repo/src');
     writeFileSync(join(TMP, 'repo', '.git'), 'gitdir: /somewhere/.git/worktrees/repo');
-    expect(resolveSquad(join(TMP, 'repo', 'src'))).toBe(join(TMP, 'repo', '.squad'));
+    expect(resolveCrew(join(TMP, 'repo', 'src'))).toBe(join(TMP, 'repo', '.crew'));
   });
 
-  it('falls back to main checkout .squad/ when worktree has none', () => {
-    // main checkout: TMP/main with .git dir + .squad dir
+  it('falls back to main checkout .crew/ when worktree has none', () => {
+    // main checkout: TMP/main with .git dir + .crew dir
     mkdirSync(join(TMP, 'main', '.git'), { recursive: true });
-    mkdirSync(join(TMP, 'main', '.squad'), { recursive: true });
+    mkdirSync(join(TMP, 'main', '.crew'), { recursive: true });
     // worktree: TMP/main/.worktrees/feature with .git FILE
     mkdirSync(join(TMP, 'main', '.worktrees', 'feature', 'src'), { recursive: true });
     writeFileSync(
       join(TMP, 'main', '.worktrees', 'feature', '.git'),
       'gitdir: ../../.git/worktrees/feature',
     );
-    // Starting from worktree src/, should find main checkout's .squad/
-    expect(resolveSquad(join(TMP, 'main', '.worktrees', 'feature', 'src')))
-      .toBe(join(TMP, 'main', '.squad'));
+    // Starting from worktree src/, should find main checkout's .crew/
+    expect(resolveCrew(join(TMP, 'main', '.worktrees', 'feature', 'src')))
+      .toBe(join(TMP, 'main', '.crew'));
   });
 
-  it('prefers worktree-local .squad/ over main checkout when both exist', () => {
-    // main checkout with .squad/
+  it('prefers worktree-local .crew/ over main checkout when both exist', () => {
+    // main checkout with .crew/
     mkdirSync(join(TMP, 'main', '.git'), { recursive: true });
-    mkdirSync(join(TMP, 'main', '.squad'), { recursive: true });
-    // worktree with its own .squad/
-    mkdirSync(join(TMP, 'main', '.worktrees', 'feature', '.squad'), { recursive: true });
+    mkdirSync(join(TMP, 'main', '.crew'), { recursive: true });
+    // worktree with its own .crew/
+    mkdirSync(join(TMP, 'main', '.worktrees', 'feature', '.crew'), { recursive: true });
     mkdirSync(join(TMP, 'main', '.worktrees', 'feature', 'src'), { recursive: true });
     writeFileSync(
       join(TMP, 'main', '.worktrees', 'feature', '.git'),
       'gitdir: ../../.git/worktrees/feature',
     );
-    // Worktree-local .squad/ wins
-    expect(resolveSquad(join(TMP, 'main', '.worktrees', 'feature', 'src')))
-      .toBe(join(TMP, 'main', '.worktrees', 'feature', '.squad'));
+    // Worktree-local .crew/ wins
+    expect(resolveCrew(join(TMP, 'main', '.worktrees', 'feature', 'src')))
+      .toBe(join(TMP, 'main', '.worktrees', 'feature', '.crew'));
   });
 
   it('defaults to cwd when no argument given', () => {
     // Just verify it doesn't throw
-    const result = resolveSquad();
+    const result = resolveCrew();
     expect(result === null || typeof result === 'string').toBe(true);
   });
 
-  it('finds .squad/ at root from a deeply nested directory (3+ levels)', () => {
-    scaffold('.git', '.squad', 'a/b/c/d');
-    expect(resolveSquad(join(TMP, 'a', 'b', 'c', 'd'))).toBe(join(TMP, '.squad'));
+  it('finds .crew/ at root from a deeply nested directory (3+ levels)', () => {
+    scaffold('.git', '.crew', 'a/b/c/d');
+    expect(resolveCrew(join(TMP, 'a', 'b', 'c', 'd'))).toBe(join(TMP, '.crew'));
   });
 
-  it('finds the nearest .squad/ when multiple exist', () => {
-    scaffold('.git', '.squad', 'packages/.squad', 'packages/app');
-    // Starting from packages/app, the nearest .squad/ is packages/.squad
-    expect(resolveSquad(join(TMP, 'packages', 'app'))).toBe(join(TMP, 'packages', '.squad'));
+  it('finds the nearest .crew/ when multiple exist', () => {
+    scaffold('.git', '.crew', 'packages/.crew', 'packages/app');
+    // Starting from packages/app, the nearest .crew/ is packages/.crew
+    expect(resolveCrew(join(TMP, 'packages', 'app'))).toBe(join(TMP, 'packages', '.crew'));
   });
 
-  it('finds root .squad/ when no closer one exists', () => {
-    scaffold('.git', '.squad', 'packages/app/src');
-    expect(resolveSquad(join(TMP, 'packages', 'app', 'src'))).toBe(join(TMP, '.squad'));
+  it('finds root .crew/ when no closer one exists', () => {
+    scaffold('.git', '.crew', 'packages/app/src');
+    expect(resolveCrew(join(TMP, 'packages', 'app', 'src'))).toBe(join(TMP, '.crew'));
   });
 
-  it('follows symlinked .squad/ directory', function () {
+  it('follows symlinked .crew/ directory', function () {
     if (process.platform === 'win32') {
       // Symlinks on Windows require elevated privileges
       return;
     }
     const { symlinkSync } = require('node:fs') as typeof import('node:fs');
-    scaffold('.git', 'real-squad', 'project/src');
-    symlinkSync(join(TMP, 'real-squad'), join(TMP, 'project', '.squad'));
-    expect(resolveSquad(join(TMP, 'project', 'src'))).toBe(join(TMP, 'project', '.squad'));
+    scaffold('.git', 'real-crew', 'project/src');
+    symlinkSync(join(TMP, 'real-crew'), join(TMP, 'project', '.crew'));
+    expect(resolveCrew(join(TMP, 'project', 'src'))).toBe(join(TMP, 'project', '.crew'));
   });
 });
 
-describe('resolveGlobalSquadPath()', () => {
+describe('resolveGlobalCrewPath()', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
   it('returns a string path', () => {
-    const result = resolveGlobalSquadPath();
+    const result = resolveGlobalCrewPath();
     expect(typeof result).toBe('string');
-    expect(result.endsWith('squad')).toBe(true);
+    expect(result.endsWith('crew')).toBe(true);
   });
 
   it('creates the directory if missing', () => {
-    const result = resolveGlobalSquadPath();
+    const result = resolveGlobalCrewPath();
     expect(existsSync(result)).toBe(true);
   });
 
@@ -152,8 +152,8 @@ describe('resolveGlobalSquadPath()', () => {
     mkdirSync(customXdg, { recursive: true });
 
     vi.stubEnv('XDG_CONFIG_HOME', customXdg);
-    const result = resolveGlobalSquadPath();
-    expect(result).toBe(join(customXdg, 'squad'));
+    const result = resolveGlobalCrewPath();
+    expect(result).toBe(join(customXdg, 'crew'));
     expect(existsSync(result)).toBe(true);
   });
 
@@ -162,51 +162,51 @@ describe('resolveGlobalSquadPath()', () => {
 
     const appdata = process.env['APPDATA'];
     if (!appdata) return; // APPDATA should always be set on Windows
-    const result = resolveGlobalSquadPath();
-    expect(result).toBe(join(appdata, 'squad'));
+    const result = resolveGlobalCrewPath();
+    expect(result).toBe(join(appdata, 'crew'));
   });
 });
 
-describe('ensureSquadPath()', () => {
-  const squadRoot = join(TMP, '.squad');
+describe('ensureCrewPath()', () => {
+  const crewRoot = join(TMP, '.crew');
 
-  it('allows a path inside .squad/', () => {
-    const p = join(squadRoot, 'agents', 'fenster', 'scratch.md');
-    expect(ensureSquadPath(p, squadRoot)).toBe(p);
+  it('allows a path inside .crew/', () => {
+    const p = join(crewRoot, 'agents', 'fenster', 'scratch.md');
+    expect(ensureCrewPath(p, crewRoot)).toBe(p);
   });
 
-  it('allows .squad/ root itself', () => {
-    expect(ensureSquadPath(squadRoot, squadRoot)).toBe(squadRoot);
+  it('allows .crew/ root itself', () => {
+    expect(ensureCrewPath(crewRoot, crewRoot)).toBe(crewRoot);
   });
 
   it('allows a path inside the system temp directory', () => {
-    const p = join(tmpdir(), 'squad-temp-file.txt');
-    expect(ensureSquadPath(p, squadRoot)).toBe(p);
+    const p = join(tmpdir(), 'crew-temp-file.txt');
+    expect(ensureCrewPath(p, crewRoot)).toBe(p);
   });
 
   it('rejects a path at the repo root', () => {
     const repoRoot = join(TMP, 'issue1.txt');
-    expect(() => ensureSquadPath(repoRoot, squadRoot)).toThrow(/outside the \.squad\/ directory/);
+    expect(() => ensureCrewPath(repoRoot, crewRoot)).toThrow(/outside the \.crew\/ directory/);
   });
 
   it('rejects an arbitrary absolute path', () => {
     const arbitrary = join(TMP, 'some', 'other', 'dir', 'file.txt');
-    expect(() => ensureSquadPath(arbitrary, squadRoot)).toThrow(/outside the \.squad\/ directory/);
+    expect(() => ensureCrewPath(arbitrary, crewRoot)).toThrow(/outside the \.crew\/ directory/);
   });
 
-  it('rejects path traversal that escapes .squad/ via ..', () => {
-    const traversal = join(squadRoot, '..', 'evil.txt');
-    expect(() => ensureSquadPath(traversal, squadRoot)).toThrow(/outside the \.squad\/ directory/);
+  it('rejects path traversal that escapes .crew/ via ..', () => {
+    const traversal = join(crewRoot, '..', 'evil.txt');
+    expect(() => ensureCrewPath(traversal, crewRoot)).toThrow(/outside the \.crew\/ directory/);
   });
 });
 
-describe('ensurePersonalSquadDir()', () => {
+describe('ensurePersonalCrewDir()', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it('creates personal-squad/agents/ and config.json', () => {
-    const dir = ensurePersonalSquadDir();
+  it('creates personal-crew/agents/ and config.json', () => {
+    const dir = ensurePersonalCrewDir();
     expect(existsSync(dir)).toBe(true);
     expect(existsSync(join(dir, 'agents'))).toBe(true);
     expect(existsSync(join(dir, 'config.json'))).toBe(true);
@@ -219,7 +219,7 @@ describe('ensurePersonalSquadDir()', () => {
   });
 
   it('is idempotent — does not overwrite existing config', () => {
-    const dir = ensurePersonalSquadDir();
+    const dir = ensurePersonalCrewDir();
     const configPath = join(dir, 'config.json');
 
     // Write custom config
@@ -227,7 +227,7 @@ describe('ensurePersonalSquadDir()', () => {
     require('node:fs').writeFileSync(configPath, JSON.stringify(custom), 'utf-8');
 
     // Call again — should not overwrite
-    ensurePersonalSquadDir();
+    ensurePersonalCrewDir();
     const config = JSON.parse(
       require('node:fs').readFileSync(configPath, 'utf-8'),
     );
@@ -235,9 +235,9 @@ describe('ensurePersonalSquadDir()', () => {
     expect(config.defaultModel).toBe('gpt-4');
   });
 
-  it('returns path inside resolveGlobalSquadPath()', () => {
-    const globalDir = resolveGlobalSquadPath();
-    const personalDir = ensurePersonalSquadDir();
-    expect(personalDir).toBe(join(globalDir, 'personal-squad'));
+  it('returns path inside resolveGlobalCrewPath()', () => {
+    const globalDir = resolveGlobalCrewPath();
+    const personalDir = ensurePersonalCrewDir();
+    expect(personalDir).toBe(join(globalDir, 'personal-crew'));
   });
 });

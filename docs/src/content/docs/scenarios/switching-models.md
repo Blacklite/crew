@@ -15,15 +15,15 @@ Use Opus for all agents — quality over cost for this session
 Reset to default model strategy
 ```
 
-Squad supports 16 models across three tiers. Switch the entire team, set per-agent preferences, or let Squad auto-route based on task type.
+Crew supports 16 models across three tiers. Switch the entire team, set per-agent preferences, or let Crew auto-route based on task type.
 
 ---
 
 ## 1. The Default: Cost-First Strategy
 
-Model selection strategies for different needs. Squad supports 16 models with fallback chains.
+Model selection strategies for different needs. Crew supports 16 models with fallback chains.
 
-Squad's default model configuration prioritizes cost-effectiveness:
+Crew's default model configuration prioritizes cost-effectiveness:
 
 - **Non-code tasks** (planning, triage, decisions) → `claude-haiku-4.5` (fast, cheap)
 - **Code tasks** (implementation, refactoring) → `claude-sonnet-4.5` (balanced quality/cost)
@@ -122,7 +122,7 @@ Tank doesn't need Opus to write tests. Neo does need it for code reviews. Balanc
 
 ## 5. The 16-Model Catalog
 
-Squad supports these models (as of v0.2.0):
+Crew supports these models (as of v0.2.0):
 
 **Premium tier** (highest quality, highest cost):
 - `claude-opus-4.6` — latest Opus, best reasoning
@@ -153,13 +153,13 @@ Squad supports these models (as of v0.2.0):
 
 ## 6. Fallback Chains
 
-If a model is unavailable, Squad falls back to the next tier:
+If a model is unavailable, Crew falls back to the next tier:
 
 ```
 claude-opus-4.6 → claude-sonnet-4.5 → claude-haiku-4.5
 ```
 
-If Opus is unavailable (rate limit, quota), Squad automatically uses Sonnet. If Sonnet is unavailable, it falls back to Haiku.
+If Opus is unavailable (rate limit, quota), Crew automatically uses Sonnet. If Sonnet is unavailable, it falls back to Haiku.
 
 You don't have to configure this — it's automatic.
 
@@ -219,7 +219,7 @@ You don't have to configure this — it's automatic.
 **Reset to defaults:**
 
 ```
-> Reset model configuration to Squad's defaults.
+> Reset model configuration to Crew's defaults.
 ```
 
 ---

@@ -1,21 +1,21 @@
 /**
- * Tests for SquadCoordinator (M3-1) + ModelFallbackExecutor (M3-5)
+ * Tests for CrewCoordinator (M3-1) + ModelFallbackExecutor (M3-5)
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
-  SquadCoordinator,
-  type SquadCoordinatorOptions,
+  CrewCoordinator,
+  type CrewCoordinatorOptions,
   type CoordinatorResult,
-} from '@bradygaster/squad-sdk/coordinator';
-import type { CoordinatorContext } from '@bradygaster/squad-sdk/coordinator';
-import { DirectResponseHandler } from '@bradygaster/squad-sdk/coordinator';
-import { EventBus } from '@bradygaster/squad-sdk/runtime/event-bus';
-import { DEFAULT_CONFIG, type SquadConfig } from '@bradygaster/squad-sdk/runtime';
+} from '@blacklite/crew-sdk/coordinator';
+import type { CoordinatorContext } from '@blacklite/crew-sdk/coordinator';
+import { DirectResponseHandler } from '@blacklite/crew-sdk/coordinator';
+import { EventBus } from '@blacklite/crew-sdk/runtime/event-bus';
+import { DEFAULT_CONFIG, type CrewConfig } from '@blacklite/crew-sdk/runtime';
 import {
   compileRoutingRules,
   type CompiledRouter,
-} from '@bradygaster/squad-sdk/config';
-import type { FanOutDependencies, SpawnResult } from '@bradygaster/squad-sdk/coordinator';
+} from '@blacklite/crew-sdk/config';
+import type { FanOutDependencies, SpawnResult } from '@blacklite/crew-sdk/coordinator';
 import {
   resolveModel,
   ModelFallbackExecutor,
@@ -23,7 +23,7 @@ import {
   isTierFallbackAllowed,
   type ResolvedModel,
   type ModelTier,
-} from '@bradygaster/squad-sdk/agents';
+} from '@blacklite/crew-sdk/agents';
 
 // --- Helpers ---
 
@@ -36,7 +36,7 @@ function makeContext(overrides: Partial<CoordinatorContext> = {}): CoordinatorCo
   };
 }
 
-function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
+function makeConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
   return {
     ...DEFAULT_CONFIG,
     ...overrides,
@@ -49,7 +49,7 @@ function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
         { workType: 'documentation', agents: ['verbal', 'scribe'], confidence: 'medium' },
       ],
     },
-  } as SquadConfig;
+  } as CrewConfig;
 }
 
 function makeRouter(): CompiledRouter {
@@ -92,10 +92,10 @@ function makeFanOutDeps(results?: SpawnResult[]): FanOutDependencies {
 }
 
 // =============================================================================
-// SquadCoordinator Tests
+// CrewCoordinator Tests
 // =============================================================================
 
-describe('SquadCoordinator', () => {
+describe('CrewCoordinator', () => {
   let eventBus: EventBus;
 
   beforeEach(() => {
@@ -104,25 +104,25 @@ describe('SquadCoordinator', () => {
 
   describe('constructor', () => {
     it('creates coordinator with default options', () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       expect(coord).toBeDefined();
       expect(coord.getDirectHandler()).toBeInstanceOf(DirectResponseHandler);
     });
 
     it('accepts custom DirectResponseHandler', () => {
       const custom = new DirectResponseHandler();
-      const coord = new SquadCoordinator({ config: makeConfig(), directHandler: custom });
+      const coord = new CrewCoordinator({ config: makeConfig(), directHandler: custom });
       expect(coord.getDirectHandler()).toBe(custom);
     });
 
     it('accepts custom compiled router', () => {
       const router = makeRouter();
-      const coord = new SquadCoordinator({ config: makeConfig(), compiledRouter: router });
+      const coord = new CrewCoordinator({ config: makeConfig(), compiledRouter: router });
       expect(coord.getRouter()).toBe(router);
     });
 
     it('compiles router from config when no router provided', () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       const router = coord.getRouter();
       expect(router.workTypeRules.length).toBeGreaterThan(0);
     });
@@ -130,7 +130,7 @@ describe('SquadCoordinator', () => {
 
   describe('handleMessage — direct responses', () => {
     it('returns direct strategy for "help"', async () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       const result = await coord.handleMessage('help', makeContext());
       expect(result.strategy).toBe('direct');
       expect(result.directResponse).toBeDefined();
@@ -138,35 +138,35 @@ describe('SquadCoordinator', () => {
     });
 
     it('returns direct strategy for "status"', async () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       const result = await coord.handleMessage('status', makeContext());
       expect(result.strategy).toBe('direct');
       expect(result.directResponse!.category).toBe('status');
     });
 
     it('returns direct strategy for greetings', async () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       const result = await coord.handleMessage('hello', makeContext());
       expect(result.strategy).toBe('direct');
       expect(result.directResponse!.category).toBe('greeting');
     });
 
     it('returns direct strategy for "show team"', async () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       const result = await coord.handleMessage('show team', makeContext());
       expect(result.strategy).toBe('direct');
       expect(result.directResponse!.category).toBe('roster');
     });
 
     it('returns direct strategy for config queries', async () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       const result = await coord.handleMessage('show config', makeContext());
       expect(result.strategy).toBe('direct');
       expect(result.directResponse!.category).toBe('config');
     });
 
     it('includes durationMs in result', async () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       const result = await coord.handleMessage('help', makeContext());
       expect(result.durationMs).toBeGreaterThanOrEqual(0);
     });
@@ -174,7 +174,7 @@ describe('SquadCoordinator', () => {
 
   describe('handleMessage — routing', () => {
     it('routes feature request to fenster (single agent)', async () => {
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         compiledRouter: makeRouter(),
       });
@@ -185,7 +185,7 @@ describe('SquadCoordinator', () => {
     });
 
     it('routes docs request to multiple agents (multi strategy)', async () => {
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         compiledRouter: makeRouter(),
       });
@@ -196,7 +196,7 @@ describe('SquadCoordinator', () => {
 
     it('falls back when no route matches', async () => {
       const router = compileRoutingRules({ rules: [] });
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         compiledRouter: router,
       });
@@ -206,7 +206,7 @@ describe('SquadCoordinator', () => {
     });
 
     it('routes test request to tester', async () => {
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         compiledRouter: makeRouter(),
       });
@@ -218,7 +218,7 @@ describe('SquadCoordinator', () => {
   describe('handleMessage — spawning with fanOutDeps', () => {
     it('spawns single agent when route matches one agent', async () => {
       const deps = makeFanOutDeps();
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         compiledRouter: makeRouter(),
         fanOutDeps: deps,
@@ -233,7 +233,7 @@ describe('SquadCoordinator', () => {
       const deps = makeFanOutDeps();
       // Make createSession fail
       (deps.createSession as any).mockRejectedValue(new Error('session creation failed'));
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         compiledRouter: makeRouter(),
         fanOutDeps: deps,
@@ -243,7 +243,7 @@ describe('SquadCoordinator', () => {
     });
 
     it('does not spawn when no fanOutDeps provided', async () => {
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         compiledRouter: makeRouter(),
       });
@@ -257,7 +257,7 @@ describe('SquadCoordinator', () => {
       const events: any[] = [];
       eventBus.subscribe('coordinator:routing', (e) => events.push(e));
 
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         eventBus,
         compiledRouter: makeRouter(),
@@ -272,7 +272,7 @@ describe('SquadCoordinator', () => {
       const events: any[] = [];
       eventBus.subscribe('coordinator:routing', (e) => events.push(e));
 
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         eventBus,
       });
@@ -285,7 +285,7 @@ describe('SquadCoordinator', () => {
       const events: any[] = [];
       eventBus.subscribe('coordinator:routing', (e) => events.push(e));
 
-      const coord = new SquadCoordinator({
+      const coord = new CrewCoordinator({
         config: makeConfig(),
         eventBus,
         compiledRouter: makeRouter(),
@@ -298,7 +298,7 @@ describe('SquadCoordinator', () => {
 
   describe('updateConfig', () => {
     it('updates config and recompiles router', () => {
-      const coord = new SquadCoordinator({ config: makeConfig() });
+      const coord = new CrewCoordinator({ config: makeConfig() });
       const routerBefore = coord.getRouter();
 
       const newConfig = makeConfig({

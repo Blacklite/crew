@@ -1,10 +1,10 @@
 /**
- * E2E integration tests for the Squad interactive shell.
+ * E2E integration tests for the Crew interactive shell.
  *
  * Renders the full App component with mocked registry/renderer/SDK,
  * then drives it via stdin like a real user would.
  *
- * @see https://github.com/bradygaster/squad-pr/issues/433
+ * @see https://github.com/Blacklite/crew-pr/issues/433
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -14,10 +14,10 @@ import { tmpdir } from 'node:os';
 import { rm } from 'node:fs/promises';
 import React from 'react';
 import { render, type RenderResponse } from 'ink-testing-library';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import { App, type ShellApi } from '../packages/squad-cli/src/cli/shell/components/App.js';
-import type { ParsedInput } from '../packages/squad-cli/src/cli/shell/router.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import { App, type ShellApi } from '../packages/crew-cli/src/cli/shell/components/App.js';
+import type { ParsedInput } from '../packages/crew-cli/src/cli/shell/router.js';
 
 const h = React.createElement;
 
@@ -35,15 +35,15 @@ function tick(ms = TICK): Promise<void> {
   return new Promise(r => setTimeout(r, ms));
 }
 
-/** Scaffold a minimal .squad/ directory so the App shows a welcome banner. */
-function scaffoldSquadDir(root: string): void {
-  const squadDir = join(root, '.squad');
-  const agentsDir = join(squadDir, 'agents');
-  const identityDir = join(squadDir, 'identity');
+/** Scaffold a minimal .crew/ directory so the App shows a welcome banner. */
+function scaffoldCrewDir(root: string): void {
+  const crewDir = join(root, '.crew');
+  const agentsDir = join(crewDir, 'agents');
+  const identityDir = join(crewDir, 'identity');
   mkdirSync(agentsDir, { recursive: true });
   mkdirSync(identityDir, { recursive: true });
 
-  writeFileSync(join(squadDir, 'team.md'), `# Squad Team — E2E Test Project
+  writeFileSync(join(crewDir, 'team.md'), `# Crew Team — E2E Test Project
 
 > An end-to-end test project for shell integration.
 
@@ -51,8 +51,8 @@ function scaffoldSquadDir(root: string): void {
 
 | Name | Role | Charter | Status |
 |------|------|---------|--------|
-| Keaton | Lead | \`.squad/agents/keaton/charter.md\` | ✅ Active |
-| Fenster | Core Dev | \`.squad/agents/fenster/charter.md\` | ✅ Active |
+| Keaton | Lead | \`.crew/agents/keaton/charter.md\` | ✅ Active |
+| Fenster | Core Dev | \`.crew/agents/fenster/charter.md\` | ✅ Active |
 `);
 
   writeFileSync(join(identityDir, 'now.md'), `---
@@ -98,12 +98,12 @@ interface ShellHarness {
  * Renders the App component with:
  * - A SessionRegistry pre-loaded with agents
  * - A ShellRenderer (no-op in tests)
- * - A temp directory with .squad/ scaffolding
+ * - A temp directory with .crew/ scaffolding
  * - Mocked onDispatch and onCancel callbacks
  */
 async function createShellHarness(opts?: {
   agents?: Array<{ name: string; role: string }>;
-  withSquadDir?: boolean;
+  withCrewDir?: boolean;
   version?: string;
 }): Promise<ShellHarness> {
   const {
@@ -111,12 +111,12 @@ async function createShellHarness(opts?: {
       { name: 'Keaton', role: 'Lead' },
       { name: 'Fenster', role: 'Core Dev' },
     ],
-    withSquadDir = true,
+    withCrewDir = true,
     version = '0.0.0-test',
   } = opts ?? {};
 
-  const tempDir = mkdtempSync(join(tmpdir(), 'squad-e2e-'));
-  if (withSquadDir) scaffoldSquadDir(tempDir);
+  const tempDir = mkdtempSync(join(tmpdir(), 'crew-e2e-'));
+  if (withCrewDir) scaffoldCrewDir(tempDir);
 
   const registry = new SessionRegistry();
   for (const a of agents) registry.register(a.name, a.role);
@@ -207,8 +207,8 @@ describe('E2E: Shell welcome', () => {
     await shell.cleanup();
   });
 
-  it('shows SQUAD title in the welcome banner', () => {
-    // Figlet banner renders SQUAD as ASCII art (not literal text)
+  it('shows CREW title in the welcome banner', () => {
+    // Figlet banner renders CREW as ASCII art (not literal text)
     expect(shell.hasText('___')).toBe(true);
   });
 
@@ -254,8 +254,8 @@ describe('E2E: User input and submission', () => {
   });
 
   it('typed text appears in the input area', async () => {
-    await shell.type('hello squad');
-    expect(shell.hasText('hello squad')).toBe(true);
+    await shell.type('hello crew');
+    expect(shell.hasText('hello crew')).toBe(true);
   });
 
   it('submitted message appears as user message with chevron', async () => {

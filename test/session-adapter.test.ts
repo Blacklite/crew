@@ -2,10 +2,10 @@ import { describe, it, expect, vi } from 'vitest';
 
 /**
  * Tests for CopilotSessionAdapter — the runtime bridge between
- * CopilotSession (send/on/destroy) and SquadSession (sendMessage/on/off/close).
+ * CopilotSession (send/on/destroy) and CrewSession (sendMessage/on/off/close).
  *
  * We can't import the adapter class directly (it's file-scoped in client.ts),
- * so we test it via SquadClient.createSession() with a mocked CopilotClient.
+ * so we test it via CrewClient.createSession() with a mocked CopilotClient.
  */
 
 // Build a minimal mock CopilotSession matching the real @github/copilot-sdk shape
@@ -43,14 +43,14 @@ function createMockCopilotSession(sessionId = 'test-session-42') {
   };
 }
 
-// We test the adapter indirectly by importing SquadClient and stubbing internals.
+// We test the adapter indirectly by importing CrewClient and stubbing internals.
 // The adapter is constructed inside createSession(), so we mock the CopilotClient.
-import { SquadClient } from '@bradygaster/squad-sdk/client';
+import { CrewClient } from '@blacklite/crew-sdk/client';
 
-describe('CopilotSessionAdapter (via SquadClient)', () => {
-  /** Helper: create a SquadClient wired to our mock */
+describe('CopilotSessionAdapter (via CrewClient)', () => {
+  /** Helper: create a CrewClient wired to our mock */
   async function createAdaptedSession() {
-    const client = new SquadClient({ autoStart: false });
+    const client = new CrewClient({ autoStart: false });
 
     // Force connected state
     (client as any).state = 'connected';
@@ -92,7 +92,7 @@ describe('CopilotSessionAdapter (via SquadClient)', () => {
 
   // --- Event name mapping ---
 
-  it('on() maps Squad short names to SDK dotted names', async () => {
+  it('on() maps Crew short names to SDK dotted names', async () => {
     const { session, mockSession } = await createAdaptedSession();
 
     const handler = vi.fn();
@@ -141,7 +141,7 @@ describe('CopilotSessionAdapter (via SquadClient)', () => {
 
     expect(handler).toHaveBeenCalledOnce();
     const received = handler.mock.calls[0][0];
-    // Type should be normalized back to Squad short name
+    // Type should be normalized back to Crew short name
     expect(received.type).toBe('message_delta');
     // Data fields should be flattened onto the event
     expect(received.messageId).toBe('msg-1');
@@ -282,7 +282,7 @@ describe('CopilotSessionAdapter (via SquadClient)', () => {
 
 describe('CopilotSessionAdapter via resumeSession', () => {
   it('resumeSession also wraps in adapter', async () => {
-    const client = new SquadClient({ autoStart: false });
+    const client = new CrewClient({ autoStart: false });
     (client as any).state = 'connected';
 
     const mockSession = createMockCopilotSession('resumed-session-99');
@@ -298,7 +298,7 @@ describe('CopilotSessionAdapter via resumeSession', () => {
 
 describe('CopilotSessionAdapter optional methods', () => {
   async function createAdaptedSession() {
-    const client = new SquadClient({ autoStart: false });
+    const client = new CrewClient({ autoStart: false });
     (client as any).state = 'connected';
     const mockSession = createMockCopilotSession();
     (client as any).client.createSession = vi.fn().mockResolvedValue(mockSession);

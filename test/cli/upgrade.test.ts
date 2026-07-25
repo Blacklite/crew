@@ -9,9 +9,9 @@ import { join } from 'path';
 import { existsSync, mkdirSync, writeFileSync, readFileSync, rmSync, chmodSync } from 'fs';
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
-import { runInit } from '@bradygaster/squad-cli/core/init';
-import { runUpgrade, ensureGitattributes, ensureGitignore, ensureDirectories, ensureCastingDefaults, selfUpgradeCli } from '@bradygaster/squad-cli/core/upgrade';
-import { getPackageVersion } from '@bradygaster/squad-cli/core/version';
+import { runInit } from '@blacklite/crew-cli/core/init';
+import { runUpgrade, ensureGitattributes, ensureGitignore, ensureDirectories, ensureCastingDefaults, selfUpgradeCli } from '@blacklite/crew-cli/core/upgrade';
+import { getPackageVersion } from '@blacklite/crew-cli/core/version';
 
 const TEST_ROOT = join(tmpdir(), `.test-cli-upgrade-${randomBytes(4).toString('hex')}`);
 const TEST_HOME = join(tmpdir(), `.test-cli-upgrade-home-${randomBytes(4).toString('hex')}`);
@@ -28,14 +28,14 @@ describe('CLI: upgrade command', () => {
     await mkdir(TEST_HOME, { recursive: true });
     // iter-7: redirect ~/.copilot/mcp-config.json writes to a temp dir so
     // tests don't pollute the developer's real HOME.
-    process.env.SQUAD_HOME_DIR_OVERRIDE = TEST_HOME;
+    process.env.CREW_HOME_DIR_OVERRIDE = TEST_HOME;
 
-    // Initialize a squad
+    // Initialize a crew
     await runInit(TEST_ROOT);
   });
 
   afterEach(async () => {
-    delete process.env.SQUAD_HOME_DIR_OVERRIDE;
+    delete process.env.CREW_HOME_DIR_OVERRIDE;
     if (existsSync(TEST_ROOT)) {
       await rm(TEST_ROOT, { recursive: true, force: true });
     }
@@ -44,8 +44,8 @@ describe('CLI: upgrade command', () => {
     }
   });
 
-  it('should upgrade squad.agent.md to current version', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+  it('should upgrade crew.agent.md to current version', async () => {
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     
     // Modify version to simulate old version
     let content = await readFile(agentPath, 'utf-8');
@@ -63,18 +63,18 @@ describe('CLI: upgrade command', () => {
     // Verify upgrade result indicates change
     expect(result.fromVersion).toBe('0.1.0');
     expect(result.toVersion).toBe(getPackageVersion());
-    expect(result.filesUpdated).toContain('squad.agent.md');
+    expect(result.filesUpdated).toContain('crew.agent.md');
     
     // Verify the file was updated (version should be different from 0.1.0)
     const upgraded = await readFile(agentPath, 'utf-8');
     expect(upgraded).not.toContain('<!-- version: 0.1.0 -->');
     // Identity section and greeting placeholder must also be stamped
     expect(upgraded).toContain(`- **Version:** ${getPackageVersion()}`);
-    expect(upgraded).not.toContain('`Squad v{version}`');
+    expect(upgraded).not.toContain('`Crew v{version}`');
   });
 
   it('should return upgrade info with updated files', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     
     // Simulate old version
     let content = await readFile(agentPath, 'utf-8');
@@ -85,14 +85,14 @@ describe('CLI: upgrade command', () => {
     
     expect(result.fromVersion).toBe('0.1.0');
     expect(result.toVersion).toBe(getPackageVersion());
-    expect(result.filesUpdated).toContain('squad.agent.md');
+    expect(result.filesUpdated).toContain('crew.agent.md');
     expect(Array.isArray(result.migrationsRun)).toBe(true);
   });
 
-  it('should overwrite squad-owned template files', async () => {
-    const ceremoniePath = join(TEST_ROOT, '.squad', 'ceremonies.md');
+  it('should overwrite crew-owned template files', async () => {
+    const ceremoniePath = join(TEST_ROOT, '.crew', 'ceremonies.md');
     
-    // Modify a squad-owned file
+    // Modify a crew-owned file
     const original = await readFile(ceremoniePath, 'utf-8');
     await writeFile(ceremoniePath, '<!-- MODIFIED -->\n' + original);
     
@@ -128,8 +128,8 @@ describe('CLI: upgrade command', () => {
     expect(result.toVersion).toBe(currentVersion);
   });
 
-  it('refreshes squad.agent.md when already at current version (happy-path regression)', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+  it('refreshes crew.agent.md when already at current version (happy-path regression)', async () => {
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     const currentVersion = getPackageVersion();
 
     // Verify initial state — already at current version
@@ -141,8 +141,8 @@ describe('CLI: upgrade command', () => {
 
     expect(result.fromVersion).toBe(currentVersion);
     expect(result.toVersion).toBe(currentVersion);
-    // squad.agent.md should still be refreshed in the version-current path
-    expect(result.filesUpdated).toContain('squad.agent.md');
+    // crew.agent.md should still be refreshed in the version-current path
+    expect(result.filesUpdated).toContain('crew.agent.md');
 
     // File should still have the correct version stamp
     const after = await readFile(agentPath, 'utf-8');
@@ -154,7 +154,7 @@ describe('CLI: upgrade command', () => {
     await mkdir(TEST_ROOT, { recursive: true });
     await runInit(TEST_ROOT, { mcpFrontmatter: true });
 
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     let content = await readFile(agentPath, 'utf-8');
     expect(content).toContain('mcp-servers:');
 
@@ -167,11 +167,11 @@ describe('CLI: upgrade command', () => {
 
     const upgraded = await readFile(agentPath, 'utf-8');
     expect(upgraded).toContain('mcp-servers:');
-    expect(upgraded).toContain('  squad_state:');
+    expect(upgraded).toContain('  crew_state:');
     // After MCP-BRIDGE-BROKEN fix the args MUST pin the CLI version so npx
     // does not silently resolve to the npm `latest` dist-tag (which lacks the
     // state-mcp command). Match a regex rather than literal version.
-    expect(upgraded).toMatch(/args: \['-y', '@bradygaster\/squad-cli@[^']+', 'state-mcp'\]/);
+    expect(upgraded).toMatch(/args: \['-y', '@blacklite\/crew-cli@[^']+', 'state-mcp'\]/);
     expect(upgraded).toContain('  EXAMPLE-github:');
     expect(upgraded).toContain("    args: ['-y', '@anthropic/github-mcp-server']");
     expect(upgraded).toContain('      GITHUB_TOKEN: ${GITHUB_TOKEN}');
@@ -179,7 +179,7 @@ describe('CLI: upgrade command', () => {
     const frontmatterEnd = upgraded.indexOf('\n---', 4);
     expect(frontmatterEnd).toBeGreaterThan(0);
     const frontmatter = upgraded.slice(0, frontmatterEnd);
-    expect(frontmatter).not.toContain('SQUAD_TEAM_ROOT');
+    expect(frontmatter).not.toContain('CREW_TEAM_ROOT');
     expect(frontmatter).not.toContain(TEST_ROOT);
   });
 
@@ -188,10 +188,10 @@ describe('CLI: upgrade command', () => {
     await mkdir(TEST_ROOT, { recursive: true });
     await runInit(TEST_ROOT, { mcpFrontmatter: true });
 
-    const configPath = join(TEST_ROOT, '.squad', 'config.json');
+    const configPath = join(TEST_ROOT, '.crew', 'config.json');
     await writeFile(configPath, JSON.stringify({ version: 1 }, null, 2) + '\n');
 
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     let content = await readFile(agentPath, 'utf-8');
     content = content.replace(/<!-- version: [^>]+ -->/m, '<!-- version: 0.1.0 -->');
     await writeFile(agentPath, content);
@@ -200,7 +200,7 @@ describe('CLI: upgrade command', () => {
 
     const upgraded = await readFile(agentPath, 'utf-8');
     expect(upgraded).toContain('mcp-servers:');
-    expect(upgraded).toContain('  squad_state:');
+    expect(upgraded).toContain('  crew_state:');
     expect(upgraded).toContain('  EXAMPLE-github:');
   });
 
@@ -209,14 +209,14 @@ describe('CLI: upgrade command', () => {
     await mkdir(TEST_ROOT, { recursive: true });
     await runInit(TEST_ROOT, { mcpFrontmatter: true });
 
-    const configPath = join(TEST_ROOT, '.squad', 'config.json');
+    const configPath = join(TEST_ROOT, '.crew', 'config.json');
     await writeFile(configPath, JSON.stringify({
       version: 1,
       platform: 'azure-devops',
       mcpConfigMode: 'agent-frontmatter',
     }, null, 2) + '\n');
 
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     let content = await readFile(agentPath, 'utf-8');
     content = content
       .replace(/<!-- version: [^>]+ -->/m, '<!-- version: 0.1.0 -->')
@@ -235,7 +235,7 @@ describe('CLI: upgrade command', () => {
   });
 
   it('should preserve version stamp after manifest loop (issue #195)', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     const currentVersion = getPackageVersion();
 
     // Simulate old version so upgrade proceeds through the full code path
@@ -257,11 +257,11 @@ describe('CLI: upgrade command', () => {
   });
 
   it('should preserve user state files (team.md, decisions/)', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
-    const decisionPath = join(TEST_ROOT, '.squad', 'decisions', 'inbox', 'test.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
+    const decisionPath = join(TEST_ROOT, '.crew', 'decisions', 'inbox', 'test.md');
     
     // Create user files
-    await mkdir(join(TEST_ROOT, '.squad', 'decisions', 'inbox'), { recursive: true });
+    await mkdir(join(TEST_ROOT, '.crew', 'decisions', 'inbox'), { recursive: true });
     await writeFile(teamPath, '# My Team\n');
     await writeFile(decisionPath, '# Decision\n');
     
@@ -279,7 +279,7 @@ describe('CLI: upgrade command', () => {
   });
 
   it('should run migrations from old to new version', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
     
     // Simulate very old version
     let content = await readFile(agentPath, 'utf-8');
@@ -293,29 +293,29 @@ describe('CLI: upgrade command', () => {
   });
 
   it('should migrate manifest skills from .copilot/skills/ to .github/skills/ (regression: #1126)', async () => {
-    // Pre-#1126 squads have skills at .copilot/skills/. Upgrade must move
+    // Pre-#1126 crews have skills at .copilot/skills/. Upgrade must move
     // manifest-curated skills to .github/skills/ (Copilot CLI's canonical
     // custom-skills location) without touching user-added skills.
     //
-    // Setup: simulate a pre-#1126 squad with two skills in the legacy path —
+    // Setup: simulate a pre-#1126 crew with two skills in the legacy path —
     // one that's in the manifest (should migrate) and one that's user-added
     // (should be left alone).
     const legacyDir = join(TEST_ROOT, '.copilot', 'skills');
-    const legacyManifestSkill = join(legacyDir, 'squad-conventions');
+    const legacyManifestSkill = join(legacyDir, 'crew-conventions');
     const legacyUserSkill = join(legacyDir, 'my-custom-skill');
     await mkdir(legacyManifestSkill, { recursive: true });
     await mkdir(legacyUserSkill, { recursive: true });
-    await writeFile(join(legacyManifestSkill, 'SKILL.md'), '---\nname: squad-conventions\n---\n# Legacy location content\n');
+    await writeFile(join(legacyManifestSkill, 'SKILL.md'), '---\nname: crew-conventions\n---\n# Legacy location content\n');
     await writeFile(join(legacyUserSkill, 'SKILL.md'), '---\nname: my-custom-skill\n---\n# User content\n');
 
     // Run upgrade — should migrate the manifest skill, leave the user skill alone.
     await runUpgrade(TEST_ROOT);
 
-    const newManifestSkill = join(TEST_ROOT, '.github', 'skills', 'squad-conventions', 'SKILL.md');
-    expect(existsSync(newManifestSkill), 'expected squad-conventions to be migrated to .github/skills/').toBe(true);
+    const newManifestSkill = join(TEST_ROOT, '.github', 'skills', 'crew-conventions', 'SKILL.md');
+    expect(existsSync(newManifestSkill), 'expected crew-conventions to be migrated to .github/skills/').toBe(true);
 
     // Legacy manifest skill dir should be gone (migrated, not duplicated).
-    expect(existsSync(legacyManifestSkill), 'expected legacy .copilot/skills/squad-conventions to be removed after migration').toBe(false);
+    expect(existsSync(legacyManifestSkill), 'expected legacy .copilot/skills/crew-conventions to be removed after migration').toBe(false);
 
     // User-added skill at the legacy path should be PRESERVED.
     expect(existsSync(legacyUserSkill), 'user-added .copilot/skills/my-custom-skill must NOT be moved or removed').toBe(true);
@@ -329,14 +329,14 @@ describe('CLI: upgrade command', () => {
     // location.
     //
     // NOTE: A separate concern is that syncAllSkills will then overwrite
-    // .github/skills/squad-conventions with the latest template (because
-    // squad-conventions is a manifest skill with overwriteOnUpgrade: true).
-    // That's expected — manifest skills are squad-owned. This test isolates
+    // .github/skills/crew-conventions with the latest template (because
+    // crew-conventions is a manifest skill with overwriteOnUpgrade: true).
+    // That's expected — manifest skills are crew-owned. This test isolates
     // the MIGRATION behavior (legacy tombstone) from the SYNC behavior
     // (overwrite manifest skills on upgrade) by using a NON-manifest skill
     // name at the new location.
-    const legacyDir = join(TEST_ROOT, '.copilot', 'skills', 'squad-conventions');
-    const newDir = join(TEST_ROOT, '.github', 'skills', 'squad-conventions');
+    const legacyDir = join(TEST_ROOT, '.copilot', 'skills', 'crew-conventions');
+    const newDir = join(TEST_ROOT, '.github', 'skills', 'crew-conventions');
     await mkdir(legacyDir, { recursive: true });
     await mkdir(newDir, { recursive: true });
     await writeFile(join(legacyDir, 'SKILL.md'), '# LEGACY content (should not survive migration)\n');
@@ -345,9 +345,9 @@ describe('CLI: upgrade command', () => {
     await runUpgrade(TEST_ROOT);
 
     // Legacy copy must be tombstoned regardless of new-location content.
-    expect(existsSync(legacyDir), 'legacy .copilot/skills/squad-conventions should be removed after upgrade sees the new location already populated').toBe(false);
+    expect(existsSync(legacyDir), 'legacy .copilot/skills/crew-conventions should be removed after upgrade sees the new location already populated').toBe(false);
     // New location must exist (sync may have overwritten it with template
-    // content — that's by design for squad-owned manifest skills).
+    // content — that's by design for crew-owned manifest skills).
     expect(existsSync(join(newDir, 'SKILL.md'))).toBe(true);
   });
 
@@ -357,9 +357,9 @@ describe('CLI: upgrade command', () => {
     await mkdir(legacyDir, { recursive: true });
     await mkdir(join(legacyDir, 'decisions', 'inbox'), { recursive: true });
     
-    // Remove .squad if it exists
-    if (existsSync(join(TEST_ROOT, '.squad'))) {
-      await rm(join(TEST_ROOT, '.squad'), { recursive: true, force: true });
+    // Remove .crew if it exists
+    if (existsSync(join(TEST_ROOT, '.crew'))) {
+      await rm(join(TEST_ROOT, '.crew'), { recursive: true, force: true });
     }
     
     // Run upgrade (should detect legacy)
@@ -377,21 +377,21 @@ describe('CLI: upgrade command', () => {
     const added = ensureGitattributes(dir);
     expect(added.length).toBeGreaterThanOrEqual(4);
     const content = readFileSync(join(dir, '.gitattributes'), 'utf8');
-    expect(content).toContain('.squad/decisions.md merge=union');
-    expect(content).toContain('.squad/log/** merge=union');
+    expect(content).toContain('.crew/decisions.md merge=union');
+    expect(content).toContain('.crew/log/** merge=union');
     rmSync(dir, { recursive: true, force: true });
   });
 
   it('ensureGitattributes adds missing rules to existing file', () => {
     const dir = join(TEST_ROOT, 'gitattr-test-partial');
     mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, '.gitattributes'), '.squad/decisions.md merge=union\n');
+    writeFileSync(join(dir, '.gitattributes'), '.crew/decisions.md merge=union\n');
     const added = ensureGitattributes(dir);
     // Should add the ones not already present
-    expect(added).not.toContain('.squad/decisions.md merge=union');
+    expect(added).not.toContain('.crew/decisions.md merge=union');
     expect(added.length).toBeGreaterThanOrEqual(3);
     const content = readFileSync(join(dir, '.gitattributes'), 'utf8');
-    expect(content).toContain('.squad/orchestration-log/** merge=union');
+    expect(content).toContain('.crew/orchestration-log/** merge=union');
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -432,8 +432,8 @@ describe('CLI: upgrade command', () => {
     const added = ensureGitignore(dir);
     expect(added.length).toBeGreaterThanOrEqual(5);
     const content = readFileSync(join(dir, '.gitignore'), 'utf8');
-    expect(content).toContain('.squad/orchestration-log/');
-    expect(content).toContain('.squad-workstream');
+    expect(content).toContain('.crew/orchestration-log/');
+    expect(content).toContain('.crew-workstream');
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -455,8 +455,8 @@ describe('CLI: upgrade command', () => {
     mkdirSync(dir, { recursive: true });
     const created = ensureDirectories(dir);
     expect(created.length).toBeGreaterThanOrEqual(5);
-    expect(existsSync(join(dir, '.squad', 'identity'))).toBe(true);
-    expect(existsSync(join(dir, '.squad', 'sessions'))).toBe(true);
+    expect(existsSync(join(dir, '.crew', 'identity'))).toBe(true);
+    expect(existsSync(join(dir, '.crew', 'sessions'))).toBe(true);
     expect(existsSync(join(dir, '.github', 'skills'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   });
@@ -474,7 +474,7 @@ describe('CLI: upgrade command', () => {
 
   it('already-current path runs ensure checks', async () => {
     // After init, version is already current — delete dirs to prove ensure recreates
-    const sessionsDir = join(TEST_ROOT, '.squad', 'sessions');
+    const sessionsDir = join(TEST_ROOT, '.crew', 'sessions');
     if (existsSync(sessionsDir)) {
       await rm(sessionsDir, { recursive: true, force: true });
     }
@@ -508,21 +508,21 @@ describe('CLI: upgrade command', () => {
     // Force upgrade treats it as a real upgrade (fromVersion != toVersion possible,
     // or it processes the full manifest)
     expect(forceResult.filesUpdated.length).toBeGreaterThan(0);
-    expect(forceResult.filesUpdated).toContain('squad.agent.md');
+    expect(forceResult.filesUpdated).toContain('crew.agent.md');
   });
 
   /* ── --self flag (selfUpgradeCli) ──────────────────────────── */
 
   it.todo('selfUpgradeCli shells out with correct package tag (ESM spy limitation)');
 
-  /* ── ensureDirectories includes .squad/casting ──────────────── */
+  /* ── ensureDirectories includes .crew/casting ──────────────── */
 
-  it('ensureDirectories creates .squad/casting/', () => {
+  it('ensureDirectories creates .crew/casting/', () => {
     const dir = join(TEST_ROOT, 'dirs-test-casting');
     mkdirSync(dir, { recursive: true });
     const created = ensureDirectories(dir);
-    expect(created).toContain('.squad/casting');
-    expect(existsSync(join(dir, '.squad', 'casting'))).toBe(true);
+    expect(created).toContain('.crew/casting');
+    expect(existsSync(join(dir, '.crew', 'casting'))).toBe(true);
     rmSync(dir, { recursive: true, force: true });
   });
 
@@ -530,32 +530,32 @@ describe('CLI: upgrade command', () => {
 
   it('ensureCastingDefaults scaffolds registry.json, policy.json, history.json', () => {
     const dir = join(TEST_ROOT, 'casting-defaults-test');
-    mkdirSync(join(dir, '.squad', 'casting'), { recursive: true });
+    mkdirSync(join(dir, '.crew', 'casting'), { recursive: true });
     const created = ensureCastingDefaults(dir);
-    expect(created).toContain('.squad/casting/registry.json');
-    expect(created).toContain('.squad/casting/policy.json');
-    expect(created).toContain('.squad/casting/history.json');
+    expect(created).toContain('.crew/casting/registry.json');
+    expect(created).toContain('.crew/casting/policy.json');
+    expect(created).toContain('.crew/casting/history.json');
     // Verify valid JSON
-    const registry = JSON.parse(readFileSync(join(dir, '.squad', 'casting', 'registry.json'), 'utf8'));
+    const registry = JSON.parse(readFileSync(join(dir, '.crew', 'casting', 'registry.json'), 'utf8'));
     expect(registry).toHaveProperty('agents');
-    const policy = JSON.parse(readFileSync(join(dir, '.squad', 'casting', 'policy.json'), 'utf8'));
+    const policy = JSON.parse(readFileSync(join(dir, '.crew', 'casting', 'policy.json'), 'utf8'));
     expect(policy).toHaveProperty('casting_policy_version', '1.1');
-    const history = JSON.parse(readFileSync(join(dir, '.squad', 'casting', 'history.json'), 'utf8'));
+    const history = JSON.parse(readFileSync(join(dir, '.crew', 'casting', 'history.json'), 'utf8'));
     expect(history).toHaveProperty('universe_usage_history');
     rmSync(dir, { recursive: true, force: true });
   });
 
   it('ensureCastingDefaults does not overwrite existing files', () => {
     const dir = join(TEST_ROOT, 'casting-defaults-existing');
-    const castingDir = join(dir, '.squad', 'casting');
+    const castingDir = join(dir, '.crew', 'casting');
     mkdirSync(castingDir, { recursive: true });
     writeFileSync(join(castingDir, 'registry.json'), '{"agents":{"custom":true}}');
     const created = ensureCastingDefaults(dir);
     // registry.json should NOT be in created (already exists)
-    expect(created).not.toContain('.squad/casting/registry.json');
+    expect(created).not.toContain('.crew/casting/registry.json');
     // policy.json and history.json should be created
-    expect(created).toContain('.squad/casting/policy.json');
-    expect(created).toContain('.squad/casting/history.json');
+    expect(created).toContain('.crew/casting/policy.json');
+    expect(created).toContain('.crew/casting/history.json');
     // Existing file should be preserved
     const registry = JSON.parse(readFileSync(join(castingDir, 'registry.json'), 'utf8'));
     expect(registry.agents.custom).toBe(true);
@@ -564,7 +564,7 @@ describe('CLI: upgrade command', () => {
 
   it('upgrade scaffolds casting defaults for repos init before casting existed', async () => {
     // Remove casting directory to simulate pre-casting init
-    const castingDir = join(TEST_ROOT, '.squad', 'casting');
+    const castingDir = join(TEST_ROOT, '.crew', 'casting');
     if (existsSync(castingDir)) {
       await rm(castingDir, { recursive: true, force: true });
     }
@@ -578,8 +578,8 @@ describe('CLI: upgrade command', () => {
   /* ── warnIfSkillCustomized ──────────────────────────────────── */
 
   it('warnIfSkillCustomized warns when a skill has been modified', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
-    const skillPath = join(TEST_ROOT, '.github', 'skills', 'squad-conventions', 'SKILL.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
+    const skillPath = join(TEST_ROOT, '.github', 'skills', 'crew-conventions', 'SKILL.md');
     expect(existsSync(skillPath)).toBe(true);
 
     // Simulate old version so upgrade goes through the full manifest path
@@ -602,8 +602,8 @@ describe('CLI: upgrade command', () => {
   });
 
   it('warnIfSkillCustomized does NOT warn for CRLF-only differences', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
-    const skillPath = join(TEST_ROOT, '.github', 'skills', 'squad-conventions', 'SKILL.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
+    const skillPath = join(TEST_ROOT, '.github', 'skills', 'crew-conventions', 'SKILL.md');
     if (!existsSync(skillPath)) {
       await runUpgrade(TEST_ROOT);
     }
@@ -629,7 +629,7 @@ describe('CLI: upgrade command', () => {
   });
 
   it('warnIfSkillCustomized does NOT warn for identical content', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
 
     // Simulate old version to go through full manifest path
     let agentContent = readFileSync(agentPath, 'utf8');
@@ -648,8 +648,8 @@ describe('CLI: upgrade command', () => {
   });
 
   it('warnIfSkillCustomized warns during full version upgrade path', async () => {
-    const agentPath = join(TEST_ROOT, '.github', 'agents', 'squad.agent.md');
-    const skillPath = join(TEST_ROOT, '.github', 'skills', 'squad-conventions', 'SKILL.md');
+    const agentPath = join(TEST_ROOT, '.github', 'agents', 'crew.agent.md');
+    const skillPath = join(TEST_ROOT, '.github', 'skills', 'crew-conventions', 'SKILL.md');
     if (!existsSync(skillPath)) {
       await runUpgrade(TEST_ROOT);
     }

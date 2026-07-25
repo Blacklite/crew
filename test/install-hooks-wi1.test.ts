@@ -3,7 +3,7 @@
  * pre-commit + post-commit hooks (plus the existing sync hooks) and that
  * ensureHooksForBackend re-installs hooks if any required one is missing.
  *
- * Bug evidence: .squad/files/validation/TWOLAYER-BASELINE-INSIDER3-CONSOLIDATED.md
+ * Bug evidence: .crew/files/validation/TWOLAYER-BASELINE-INSIDER3-CONSOLIDATED.md
  * - Fresh init two-layer installed pre-push / post-merge / post-rewrite / post-checkout
  *   but NOT pre-commit / post-commit.
  * - Upgrade --state-backend two-layer installed zero hooks.
@@ -17,21 +17,21 @@ import { execFileSync } from 'node:child_process';
 import {
   installGitHooks,
   ensureHooksForBackend,
-} from '../packages/squad-cli/src/cli/commands/install-hooks.js';
+} from '../packages/crew-cli/src/cli/commands/install-hooks.js';
 
 function mkTempRepo(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'squad-wi1-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-wi1-'));
   execFileSync('git', ['init', '--quiet', '-b', 'main'], { cwd: dir });
   // Required minimum git config for commits / hook installs.
   execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir });
-  execFileSync('git', ['config', 'user.name', 'Squad WI-1 Test'], { cwd: dir });
-  fs.mkdirSync(path.join(dir, '.squad'), { recursive: true });
+  execFileSync('git', ['config', 'user.name', 'Crew WI-1 Test'], { cwd: dir });
+  fs.mkdirSync(path.join(dir, '.crew'), { recursive: true });
   return dir;
 }
 
 function writeConfig(dir: string, backend: string): void {
   fs.writeFileSync(
-    path.join(dir, '.squad', 'config.json'),
+    path.join(dir, '.crew', 'config.json'),
     JSON.stringify({ stateBackend: backend }, null, 2),
   );
 }
@@ -64,7 +64,7 @@ describe('WI-1: install-hooks installs commit hooks on two-layer / orphan', () =
       const p = path.join(dir, '.git', 'hooks', hook);
       expect(fs.existsSync(p), `hook ${hook} should exist`).toBe(true);
       const content = fs.readFileSync(p, 'utf-8');
-      expect(content).toContain('squad-sync-hook');
+      expect(content).toContain('crew-sync-hook');
     }
   });
 
@@ -94,7 +94,7 @@ describe('WI-1: install-hooks installs commit hooks on two-layer / orphan', () =
     for (const h of ['pre-push', 'post-merge', 'post-rewrite', 'post-checkout']) {
       fs.writeFileSync(
         path.join(hooksDir, h),
-        '#!/bin/sh\n# --- squad-sync-hook ---\nexit 0\n',
+        '#!/bin/sh\n# --- crew-sync-hook ---\nexit 0\n',
         { mode: 0o755 },
       );
     }

@@ -1,52 +1,52 @@
 ---
-title: "Persistent Ralph: Monitor Squad Health 24/7"
+title: "Persistent Ralph: Monitor Crew Health 24/7"
 date: 2026-03-17
-author: "Squad (Copilot)"
+author: "Crew (Copilot)"
 wave: null
-tags: [squad, ralph, monitoring, health, state, persistence]
+tags: [crew, ralph, monitoring, health, state, persistence]
 status: published
-hero: "Ralph evolved from ephemeral monitor to persistent guardian. Track agent activity 24/7, detect stale sessions, and maintain squad health with continuous state tracking."
+hero: "Ralph evolved from ephemeral monitor to persistent guardian. Track agent activity 24/7, detect stale sessions, and maintain crew health with continuous state tracking."
 ---
 
-# Persistent Ralph: Monitor Squad Health 24/7
+# Persistent Ralph: Monitor Crew Health 24/7
 
-> _Ralph now runs continuously with persistent state. Know what your agents are doing, detect problems early, and analyze squad productivity over time._
+> _Ralph now runs continuously with persistent state. Know what your agents are doing, detect problems early, and analyze crew productivity over time._
 
 ## The Problem
 
 Ralph was great at snapshots: "Tell me what everyone's working on right now." But what about deeper questions?
 
 - Which agents go idle the longest before restarting?
-- What was the squad's productivity trend this week?
+- What was the crew's productivity trend this week?
 - Did an agent crash or intentionally stop?
 - What do we spend most time on: features, bugs, or maintenance?
 
 Ralph's ephemeral nature made these impossible. Each session died when Ralph stopped, erasing the history.
 
-The squad needed a **persistent Ralph** that accumulates knowledge across cycles.
+The crew needed a **persistent Ralph** that accumulates knowledge across cycles.
 
 ## How It Works
 
 ### Continuous Heartbeat
 
-Ralph runs on a timer (default: every 5 minutes) via `.squad/schedule.json`:
+Ralph runs on a timer (default: every 5 minutes) via `.crew/schedule.json`:
 
 ```json
 {
   "id": "ralph-heartbeat",
   "trigger": { "type": "interval", "intervalSeconds": 300 },
-  "task": { "type": "script", "command": "squad ralph watch --duration 25s" },
+  "task": { "type": "script", "command": "crew ralph watch --duration 25s" },
   "providers": ["local-polling", "github-actions"]
 }
 ```
 
 This setup ensures:
-- **Local development**: Ralph checks work when you run `squad schedule watch`
+- **Local development**: Ralph checks work when you run `crew schedule watch`
 - **Production**: Ralph runs 24/7 via GitHub Actions cron job
 
 ### Persistent State
 
-Ralph saves session data to `.squad/.ralph-state.json`:
+Ralph saves session data to `.crew/.ralph-state.json`:
 
 ```json
 {
@@ -90,12 +90,12 @@ These events accumulate into a permanent record.
 ### Day 1: Enable Persistent Ralph
 
 ```bash
-squad schedule init ralph-heartbeat --trigger interval:300
+crew schedule init ralph-heartbeat --trigger interval:300
 git commit -m "Enable Ralph persistent monitoring"
 git push
 ```
 
-Ralph's heartbeat deploys. Every 5 minutes, GitHub Actions runs `squad ralph watch`.
+Ralph's heartbeat deploys. Every 5 minutes, GitHub Actions runs `crew ralph watch`.
 
 ### Day 2: Monitor Work
 
@@ -105,7 +105,7 @@ Ralph observes:
 - Agent 3: 60 min session, refactored tests
 - Agent 4: 5 min session, updated docs
 
-State saved to `.squad/.ralph-state.json`.
+State saved to `.crew/.ralph-state.json`.
 
 ### Day 5: Ask Historical Questions
 
@@ -145,7 +145,7 @@ Ralph now operates at three layers:
 **Layer 1: Event Listener** (always on)
 - Subscribes to agent lifecycle events
 - Records start, milestones, stop
-- Writes to `.squad/.ralph-state.json`
+- Writes to `.crew/.ralph-state.json`
 
 **Layer 2: Health Monitor** (periodic)
 - Runs every 30 seconds
@@ -162,7 +162,7 @@ All three layers are now fully operational.
 
 ## Configuration
 
-Customize Ralph in `.squad/config.json`:
+Customize Ralph in `.crew/config.json`:
 
 ```json
 {
@@ -329,7 +329,7 @@ Historical data structure:
 By default, Ralph archives weekly:
 
 ```
-.squad/.ralph-archive/
+.crew/.ralph-archive/
 ├─ 2026-03-10-archive.json  (week of Mar 3-9)
 ├─ 2026-03-17-archive.json  (week of Mar 10-16)
 └─ 2026-03-24-archive.json  (week of Mar 17-23)
@@ -345,4 +345,4 @@ Ralph, show me productivity for week of March 10
 
 - [Generic Scheduler](/features/generic-scheduler) — Schedule Ralph's heartbeat
 - [Upstream Auto-Sync](/features/upstream-sync) — Ralph monitors sync status
-- [Cross-Squad Orchestration](/features/cross-squad-orchestration) — Ralph tracks delegation
+- [Cross-Crew Orchestration](/features/cross-crew-orchestration) — Ralph tracks delegation

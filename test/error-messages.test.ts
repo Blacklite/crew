@@ -13,7 +13,7 @@ import {
   rateLimitGuidance,
   extractRetryAfter,
   formatGuidance,
-} from '@bradygaster/squad-cli/shell/error-messages';
+} from '@blacklite/crew-cli/shell/error-messages';
 
 describe('error-messages', () => {
   // ---------- sdkDisconnectGuidance ----------
@@ -29,9 +29,9 @@ describe('error-messages', () => {
       expect(g.message).toBe('SDK disconnected: timeout after 30s');
     });
 
-    it('suggests squad doctor', () => {
+    it('suggests crew doctor', () => {
       const g = sdkDisconnectGuidance();
-      expect(g.recovery.some(r => r.includes('squad doctor'))).toBe(true);
+      expect(g.recovery.some(r => r.includes('crew doctor'))).toBe(true);
     });
   });
 
@@ -42,9 +42,9 @@ describe('error-messages', () => {
       expect(g.message).toBe('Team configuration issue: team.md not found');
     });
 
-    it('suggests squad init as recovery', () => {
+    it('suggests crew init as recovery', () => {
       const g = teamConfigGuidance('invalid YAML');
-      expect(g.recovery.some(r => r.includes('squad init'))).toBe(true);
+      expect(g.recovery.some(r => r.includes('crew init'))).toBe(true);
     });
   });
 
@@ -78,9 +78,9 @@ describe('error-messages', () => {
       expect(g.message).toBe('something broke');
     });
 
-    it('suggests squad doctor', () => {
+    it('suggests crew doctor', () => {
       const g = genericGuidance('oops');
-      expect(g.recovery.some(r => r.includes('squad doctor'))).toBe(true);
+      expect(g.recovery.some(r => r.includes('crew doctor'))).toBe(true);
     });
   });
 
@@ -140,7 +140,7 @@ describe('error-messages', () => {
 
     it('suggests economy mode as recovery', () => {
       const g = rateLimitGuidance();
-      expect(g.recovery.some(r => r.includes('squad economy on'))).toBe(true);
+      expect(g.recovery.some(r => r.includes('crew economy on'))).toBe(true);
     });
   });
 

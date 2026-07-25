@@ -1,18 +1,18 @@
-# Scaling with SubSquads
+# Scaling with SubCrews
 
-> Partition your repo's work across multiple Squad instances for horizontal scaling.
+> Partition your repo's work across multiple Crew instances for horizontal scaling.
 
 ## The Problem
 
-A single Squad instance handles all issues in a repo. For large projects, this creates bottlenecks:
+A single Crew instance handles all issues in a repo. For large projects, this creates bottlenecks:
 - Too many issues overwhelm a single team
 - Agents step on each other's toes in shared code
 - No workflow enforcement (agents commit directly to main)
 - No way to monitor multiple teams centrally
 
-## The Solution: SubSquads
+## The Solution: SubCrews
 
-SubSquads partition a repo's issues into labeled subsets. Each Codespace (or machine) runs one SubSquad, scoped to its slice of work.
+SubCrews partition a repo's issues into labeled subsets. Each Codespace (or machine) runs one SubCrew, scoped to its slice of work.
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -25,16 +25,16 @@ SubSquads partition a repo's issues into labeled subsets. Each Codespace (or mac
 │  │ UI + API    │ │ Core engine │ │ Infra + CI │ │
 │  └─────────────┘ └─────────────┘ └───────────┘ │
 │                                                 │
-│  Each Squad instance only picks up issues       │
-│  matching its SubSquad label.                 │
+│  Each Crew instance only picks up issues       │
+│  matching its SubCrew label.                 │
 └─────────────────────────────────────────────────┘
 ```
 
 ## Quick Start
 
-### 1. Define SubSquads
+### 1. Define SubCrews
 
-Create `.squad/streams.json`:
+Create `.crew/streams.json`:
 
 ```json
 {
@@ -64,26 +64,26 @@ Create `.squad/streams.json`:
 
 ### 2. Label your issues
 
-Each issue gets a `team:*` label matching a SubSquad. Ralph will only pick up issues matching the active SubSquad's label.
+Each issue gets a `team:*` label matching a SubCrew. Ralph will only pick up issues matching the active SubCrew's label.
 
-### 3. Activate a SubSquad
+### 3. Activate a SubCrew
 
 **Option A — Environment variable (Codespaces):**
-Set `SQUAD_TEAM=bridge` in the Codespace's environment. Squad auto-detects it on session start.
+Set `CREW_TEAM=bridge` in the Codespace's environment. Crew auto-detects it on session start.
 
 **Option B — CLI activation (local):**
 ```bash
-squad subsquads activate bridge
+crew subcrews activate bridge
 ```
-This writes a `.squad-workstream` file (gitignored — local to your machine).
+This writes a `.crew-workstream` file (gitignored — local to your machine).
 
-**Option C — Single SubSquad auto-select:**
-If `streams.json` defines only one SubSquad, it's auto-selected.
+**Option C — Single SubCrew auto-select:**
+If `streams.json` defines only one SubCrew, it's auto-selected.
 
-### 4. Run Squad normally
+### 4. Run Crew normally
 
 ```bash
-squad start
+crew start
 # or: "Ralph, go" in the session
 ```
 
@@ -92,21 +92,21 @@ Ralph will only scan for issues with the `team:bridge` label. Agents will only p
 ## CLI Commands
 
 ```bash
-# List configured SubSquads
-squad subsquads list
+# List configured SubCrews
+crew subcrews list
 
-# Show activity per SubSquad (branches, PRs)
-squad subsquads status
+# Show activity per SubCrew (branches, PRs)
+crew subcrews status
 
-# Activate a SubSquad for this machine
-squad subsquads activate engine
+# Activate a SubCrew for this machine
+crew subcrews activate engine
 
 # Deprecated aliases (still work)
-squad workstreams list
-squad streams list
+crew workstreams list
+crew streams list
 ```
 
-> **Note:** `squad workstreams` and `squad streams` are deprecated aliases for `squad subsquads`.
+> **Note:** `crew workstreams` and `crew streams` are deprecated aliases for `crew subcrews`.
 
 ## Key Design Decisions
 
@@ -116,30 +116,30 @@ squad streams list
 
 ### Workflow Enforcement
 
-Each SubSquad specifies a `workflow` (default: `branch-per-issue`). When active, agents:
-- Create a branch for every issue (`squad/{issue-number}-{slug}`)
+Each SubCrew specifies a `workflow` (default: `branch-per-issue`). When active, agents:
+- Create a branch for every issue (`crew/{issue-number}-{slug}`)
 - Open a PR when work is ready
 - Never commit directly to main
 
-### Single-Machine Multi-SubSquad
+### Single-Machine Multi-SubCrew
 
-You don't need multiple Codespaces to test. Use `squad subsquads activate` to switch between SubSquads sequentially on a single machine.
+You don't need multiple Codespaces to test. Use `crew subcrews activate` to switch between SubCrews sequentially on a single machine.
 
 ## Resolution Chain
 
-Squad resolves the active SubSquad in this order:
+Crew resolves the active SubCrew in this order:
 
-1. `SQUAD_TEAM` environment variable
-2. `.squad-workstream` file (written by `squad subsquads activate`)
-3. Auto-select if exactly one SubSquad is defined
-4. No SubSquad → single-squad mode (backward compatible)
+1. `CREW_TEAM` environment variable
+2. `.crew-workstream` file (written by `crew subcrews activate`)
+3. Auto-select if exactly one SubCrew is defined
+4. No SubCrew → single-crew mode (backward compatible)
 
 ## Monitoring
 
-Use `squad subsquads status` to see all SubSquads' activity:
+Use `crew subcrews status` to see all SubCrews' activity:
 
 ```
-Configured SubSquads
+Configured SubCrews
 
   Default workflow: branch-per-issue
 
@@ -158,11 +158,11 @@ Configured SubSquads
        Workflow: branch-per-issue
        Folders: infra/, scripts/, .github/
 
-  Active SubSquad resolved via: env
+  Active SubCrew resolved via: env
 ```
 
 ## See Also
 
 - [Multi-Codespace Setup](multi-codespace.md) — Walkthrough of the Tetris experiment
-- [SubSquads PRD](https://github.com/bradygaster/squad/blob/main/docs/_internal/specs/streams-prd.md) — Full specification
-- [SubSquads Feature Guide](../features/streams.md) — API reference
+- [SubCrews PRD](https://github.com/Blacklite/crew/blob/main/docs/_internal/specs/streams-prd.md) — Full specification
+- [SubCrews Feature Guide](../features/streams.md) — API reference

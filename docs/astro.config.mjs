@@ -9,12 +9,12 @@ const require = createRequire(import.meta.url);
 
 export default defineConfig({
   site: 'https://bradygaster.github.io',
-  base: '/squad/',
+  base: '/crew/',
   integrations: [sitemap()],
   vite: {
     plugins: [tailwindcss()],
     define: {
-      __VERSION__: JSON.stringify(process.env.SQUAD_VERSION || require('../package.json').version),
+      __VERSION__: JSON.stringify(process.env.CREW_VERSION || require('../package.json').version),
       __COMMIT_SHA__: JSON.stringify(process.env.GITHUB_SHA || 'local'),
       __BUILD_DATE__: JSON.stringify(new Date().toISOString().split('T')[0]),
     },

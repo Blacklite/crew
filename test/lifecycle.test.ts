@@ -15,18 +15,18 @@ import {
   readHistory,
   shadowExists,
   deleteHistoryShadow,
-} from '@bradygaster/squad-sdk/agents';
-import { SquadClientWithPool } from '@bradygaster/squad-sdk/client';
+} from '@blacklite/crew-sdk/agents';
+import { CrewClientWithPool } from '@blacklite/crew-sdk/client';
 
 describe('Agent Lifecycle Manager', () => {
   let tempDir: string;
   let teamRoot: string;
-  let mockClient: SquadClientWithPool;
+  let mockClient: CrewClientWithPool;
   let lifecycleManager: AgentLifecycleManager;
   
   beforeEach(async () => {
     // Create temporary team root
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'squad-lifecycle-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'crew-lifecycle-test-'));
     teamRoot = tempDir;
     
     // Create team structure
@@ -206,7 +206,7 @@ describe('History Shadows', () => {
   let teamRoot: string;
   
   beforeEach(async () => {
-    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'squad-history-test-'));
+    tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'crew-history-test-'));
     teamRoot = tempDir;
   });
   
@@ -338,7 +338,7 @@ describe('History Shadows', () => {
 
 // --- Mock Client ---
 
-function createMockClient(): SquadClientWithPool {
+function createMockClient(): CrewClientWithPool {
   let sessionCounter = 0;
   const sessions = new Map<string, any>();
   

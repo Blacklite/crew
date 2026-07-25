@@ -22,15 +22,15 @@ Use this skill when a PR includes any of:
 
 ### 1. Module Boundary Enforcement
 
-The Squad codebase has two core packages with a strict dependency direction:
+The Crew codebase has two core packages with a strict dependency direction:
 
 ```
-squad-cli → depends on → squad-sdk
-squad-sdk → NEVER depends on → squad-cli
+crew-cli → depends on → crew-sdk
+crew-sdk → NEVER depends on → crew-cli
 ```
 
 **Check every new `import` statement in the PR:**
-- CLI files may import from SDK (`@bradygaster/squad-sdk`)
+- CLI files may import from SDK (`@blacklite/crew-sdk`)
 - SDK files must NEVER import from CLI
 - If a PR adds an SDK import that pulls in CLI code, reject it
 
@@ -42,11 +42,11 @@ The CLI has **protected bootstrap files** that must use ONLY Node.js built-in mo
 
 | File | Purpose |
 |------|---------|
-| `packages/squad-cli/src/cli/core/detect-squad-dir.ts` | Finds `.squad/` at startup |
-| `packages/squad-cli/src/cli/core/errors.ts` | Error classes (`SquadError`, `fatal()`) |
-| `packages/squad-cli/src/cli/core/gh-cli.ts` | GitHub CLI wrapper |
-| `packages/squad-cli/src/cli/core/output.ts` | Color/emoji console output |
-| `packages/squad-cli/src/cli/core/history-split.ts` | Portable knowledge separator |
+| `packages/crew-cli/src/cli/core/detect-crew-dir.ts` | Finds `.crew/` at startup |
+| `packages/crew-cli/src/cli/core/errors.ts` | Error classes (`CrewError`, `fatal()`) |
+| `packages/crew-cli/src/cli/core/gh-cli.ts` | GitHub CLI wrapper |
+| `packages/crew-cli/src/cli/core/output.ts` | Color/emoji console output |
+| `packages/crew-cli/src/cli/core/history-split.ts` | Portable knowledge separator |
 
 **Review checklist for bootstrap files:**
 - ❌ No new `import` or `require` of anything outside `node:*`
@@ -70,7 +70,7 @@ When a PR applies a codebase-wide pattern change (e.g., "convert all `fs` calls 
 
 1. **Protected Files checked** — None of the protected bootstrap files were converted
 2. **Zero-dependency markers scanned** — Files with `— zero dependencies` headers were skipped
-3. **Imports resolve** — Every `import { X } from '@bradygaster/squad-sdk'` references an export that actually exists in the SDK barrel file
+3. **Imports resolve** — Every `import { X } from '@blacklite/crew-sdk'` references an export that actually exists in the SDK barrel file
 4. **Not blindly applied** — File-specific constraints were respected
 5. **Batched testing** — Changes were tested in logical groups, not all 30 files at once
 
@@ -80,8 +80,8 @@ Template files exist in **four locations** and must stay consistent:
 
 ```
 templates/                          # Source of truth
-.squad-templates/                   # Local project templates
-packages/squad-cli/templates/       # CLI-bundled templates
+.crew-templates/                   # Local project templates
+packages/crew-cli/templates/       # CLI-bundled templates
 .github/workflows/                  # Workflow templates
 ```
 
@@ -90,26 +90,26 @@ If a PR modifies a template in one location, check:
 - Does `TEMPLATE_MANIFEST` in `templates.ts` still correctly map files to agents?
 - Were any new templates added to the manifest?
 
-### 6. `.squad/` Leakage Check
+### 6. `.crew/` Leakage Check
 
-`.squad/` files (team config, decisions, agent charters) must NOT leak into feature PRs that are about code changes.
+`.crew/` files (team config, decisions, agent charters) must NOT leak into feature PRs that are about code changes.
 
 **Check:**
-- If the PR is labeled as a feature or bugfix, it should not modify `.squad/team.md`, `.squad/decisions.md`, `.squad/routing.md`, or agent charters — unless the issue specifically calls for it
-- `.squad/decisions/inbox/` files are acceptable if the PR documents a decision made during implementation
-- `.squad-templates/` changes are acceptable only if the PR is about template functionality
+- If the PR is labeled as a feature or bugfix, it should not modify `.crew/team.md`, `.crew/decisions.md`, `.crew/routing.md`, or agent charters — unless the issue specifically calls for it
+- `.crew/decisions/inbox/` files are acceptable if the PR documents a decision made during implementation
+- `.crew-templates/` changes are acceptable only if the PR is about template functionality
 
 ### 7. Pattern Consistency
 
 New code should follow established patterns in the codebase. Look for:
 - **Naming conventions:** Does the new module follow existing naming? (e.g., `kebab-case` file names, `PascalCase` classes)
-- **Error handling:** Does the new code use `SquadError` and `fatal()` from `errors.ts`, or does it invent its own error patterns?
+- **Error handling:** Does the new code use `CrewError` and `fatal()` from `errors.ts`, or does it invent its own error patterns?
 - **Storage abstraction:** Does the new code use `StorageProvider` for file I/O (except in protected bootstrap files)?
 - **Test patterns:** Does the PR include tests that follow the existing test structure?
 
 ### 8. Dependency Direction in `core/`
 
-The `packages/squad-cli/src/cli/core/` directory contains a **mix** of:
+The `packages/crew-cli/src/cli/core/` directory contains a **mix** of:
 - Early-startup bootstrap utilities (zero external deps — protected)
 - Later SDK-dependent modules (may import from SDK)
 
@@ -122,18 +122,18 @@ When reviewing changes to `core/` files:
 
 **Example 1: Reject — SDK import in bootstrap file**
 ```
-PR adds to detect-squad-dir.ts:
-  import { FSStorageProvider } from '@bradygaster/squad-sdk';
+PR adds to detect-crew-dir.ts:
+  import { FSStorageProvider } from '@blacklite/crew-sdk';
 
-Finding: REJECT — detect-squad-dir.ts is a protected bootstrap file.
+Finding: REJECT — detect-crew-dir.ts is a protected bootstrap file.
 It runs before the SDK is loaded. This import will crash the CLI at startup.
 Recommendation: Use node:fs directly. See Protected Files table.
 ```
 
 **Example 2: Reject — Reverse dependency**
 ```
-PR adds to packages/squad-sdk/src/storage.ts:
-  import { detectSquadDir } from '@bradygaster/squad-cli';
+PR adds to packages/crew-sdk/src/storage.ts:
+  import { detectCrewDir } from '@blacklite/crew-cli';
 
 Finding: REJECT — SDK must never depend on CLI. Dependency direction is
 CLI → SDK, not reverse. Move the shared logic to SDK or extract to a
@@ -142,17 +142,17 @@ shared utility within the SDK package.
 
 **Example 3: Approve with note — Template change in one location**
 ```
-PR modifies templates/squad.agent.md but not .squad-templates/squad.agent.md
+PR modifies templates/crew.agent.md but not .crew-templates/crew.agent.md
 
 Finding: APPROVE with note — Template was updated in templates/ but the
-same file in .squad-templates/ was not synced. Verify whether .squad-templates/
+same file in .crew-templates/ was not synced. Verify whether .crew-templates/
 should match or if it intentionally diverges.
 ```
 
 **Example 4: Reject — Sweeping refactor hits protected file**
 ```
 PR titled "Convert all fs calls to StorageProvider" modifies 15 files,
-including packages/squad-cli/src/cli/core/output.ts
+including packages/crew-cli/src/cli/core/output.ts
 
 Finding: REJECT — output.ts is a protected zero-dependency bootstrap file.
 The PR must skip this file. See Sweeping Refactor Rules step 1.
@@ -194,7 +194,7 @@ Brief explanation of architectural impact and any required follow-ups.
 - ❌ Ignoring barrel file changes ("it's just adding an export")
 - ❌ Skipping template sync check ("they probably know about the other locations")
 - ❌ Accepting sweeping refactors without verifying the 5-step checklist
-- ❌ Allowing `.squad/` config changes in feature PRs without justification
+- ❌ Allowing `.crew/` config changes in feature PRs without justification
 - ❌ Approving reverse dependencies (SDK importing from CLI) for "convenience"
 - ❌ Letting new `core/` files slip in without classifying them as bootstrap vs. post-SDK
 - ❌ Rubber-stamping PRs that delete >20 files without line-by-line deletion review

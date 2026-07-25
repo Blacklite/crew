@@ -1,19 +1,21 @@
-# Squad: union merge for append-only team state files
-.squad/decisions.md merge=union
-.squad/agents/*/history.md merge=union
-.squad/log/** merge=union
-.squad/orchestration-log/** merge=union
+# Crew: union merge for append-only team state files
+.crew/decisions.md merge=union
+.crew/agents/*/history.md merge=union
+.crew/log/** merge=union
+.crew/orchestration-log/** merge=union
 
-# NOTE: .squad/casting/* files are AUTHORITATIVE IDENTITY (team-defined agent
+# NOTE: .crew/casting/* files are AUTHORITATIVE IDENTITY (team-defined agent
 # universe/roles, persistent name registry, universe assignment history).
-# They are committed to 'main' like team.md and routing.md, not to squad-state.
+# They are committed to 'main' like team.md and routing.md, not to crew-state.
 # They do NOT need union merge and are intentionally NOT listed above.
 
-# Squad: union merge for append-only team state files
-.squad/decisions/decisions.md merge=union
-# Squad: union merge for append-only team state files
-.squad/rai/audit-trail.md merge=union
+# Crew: union merge for append-only team state files
+.crew/decisions/decisions.md merge=union
+# Crew: union merge for append-only team state files
+.crew/rai/audit-trail.md merge=union
 
-# Squad: pin LF for YAML to prevent CRLF<->LF flip on Windows checkouts (PR #1200 concern G)
+# Crew: pin LF for YAML to prevent CRLF<->LF flip on Windows checkouts (PR #1200 concern G)
 *.yml text eol=lf
 *.yaml text eol=lf
+# Crew: union merge for append-only team state files
+.crew/fact-checker/audit-trail.md merge=union

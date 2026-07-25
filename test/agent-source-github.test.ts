@@ -9,7 +9,7 @@ import {
   type AgentManifest,
   type AgentDefinition,
   parseCharterMetadata,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 
 // --- Mock fetcher helper ---
 
@@ -45,7 +45,7 @@ const CHARTER_AGENT2 = `## Identity
 describe('GitHubAgentSource', () => {
   describe('constructor', () => {
     it('should parse owner/repo format', () => {
-      const source = new GitHubAgentSource('acme/squad-team');
+      const source = new GitHubAgentSource('acme/crew-team');
       expect(source.name).toBe('github');
       expect(source.type).toBe('github');
     });
@@ -75,8 +75,8 @@ describe('GitHubAgentSource', () => {
           { name: 'agent2', type: 'dir' },
         ],
         {
-          '.squad/agents/agent1/charter.md': CHARTER_AGENT1,
-          '.squad/agents/agent2/charter.md': CHARTER_AGENT2,
+          '.crew/agents/agent1/charter.md': CHARTER_AGENT1,
+          '.crew/agents/agent2/charter.md': CHARTER_AGENT2,
         },
       );
       const source = new GitHubAgentSource('acme/repo', { fetcher });
@@ -96,7 +96,7 @@ describe('GitHubAgentSource', () => {
           { name: 'agent1', type: 'dir' },
           { name: 'README.md', type: 'file' },
         ],
-        { '.squad/agents/agent1/charter.md': CHARTER_AGENT1 },
+        { '.crew/agents/agent1/charter.md': CHARTER_AGENT1 },
       );
       const source = new GitHubAgentSource('acme/repo', { fetcher });
 
@@ -141,7 +141,7 @@ describe('GitHubAgentSource', () => {
       const source = new GitHubAgentSource('acme/repo', { ref: 'develop', fetcher });
 
       await source.listAgents();
-      expect(fetcher.listDirectory).toHaveBeenCalledWith('acme', 'repo', '.squad/agents', 'develop');
+      expect(fetcher.listDirectory).toHaveBeenCalledWith('acme', 'repo', '.crew/agents', 'develop');
     });
 
     // Regression test: when parallel charter fetching was introduced, the
@@ -175,7 +175,7 @@ describe('GitHubAgentSource', () => {
           { name: 'agent1', type: 'dir' },
           { name: 'agent-no-charter', type: 'dir' },
         ],
-        { '.squad/agents/agent1/charter.md': CHARTER_AGENT1 },
+        { '.crew/agents/agent1/charter.md': CHARTER_AGENT1 },
       );
       const source = new GitHubAgentSource('acme/repo', { fetcher });
       const agents = await source.listAgents();
@@ -187,7 +187,7 @@ describe('GitHubAgentSource', () => {
   describe('getAgent', () => {
     it('should return full agent definition', async () => {
       const fetcher = makeFetcher([], {
-        '.squad/agents/agent1/charter.md': CHARTER_AGENT1,
+        '.crew/agents/agent1/charter.md': CHARTER_AGENT1,
       });
       const source = new GitHubAgentSource('acme/repo', { fetcher });
 
@@ -204,8 +204,8 @@ describe('GitHubAgentSource', () => {
 
     it('should include history when available', async () => {
       const fetcher = makeFetcher([], {
-        '.squad/agents/agent1/charter.md': CHARTER_AGENT1,
-        '.squad/agents/agent1/history.md': '# History\n- Created team',
+        '.crew/agents/agent1/charter.md': CHARTER_AGENT1,
+        '.crew/agents/agent1/history.md': '# History\n- Created team',
       });
       const source = new GitHubAgentSource('acme/repo', { fetcher });
 
@@ -223,7 +223,7 @@ describe('GitHubAgentSource', () => {
 
     it('should use directory name when charter has no name', async () => {
       const fetcher = makeFetcher([], {
-        '.squad/agents/my-agent/charter.md': '# Just a charter\nSome content.',
+        '.crew/agents/my-agent/charter.md': '# Just a charter\nSome content.',
       });
       const source = new GitHubAgentSource('acme/repo', { fetcher });
 
@@ -237,7 +237,7 @@ describe('GitHubAgentSource', () => {
   describe('getCharter', () => {
     it('should return raw charter content', async () => {
       const fetcher = makeFetcher([], {
-        '.squad/agents/agent1/charter.md': CHARTER_AGENT1,
+        '.crew/agents/agent1/charter.md': CHARTER_AGENT1,
       });
       const source = new GitHubAgentSource('acme/repo', { fetcher });
 

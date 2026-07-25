@@ -1,6 +1,6 @@
 # Skills System
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to see what your team learned:**
@@ -30,7 +30,7 @@ Agents learn from real work and write skill files — reusable patterns, convent
 
 Each skill is a directory containing a `SKILL.md` file. Skills are **team-wide knowledge** — not tied to individual agents. All agents can read and use any skill.
 
-> **Legacy path**: Skills are also discovered at `.squad/skills/` for backward compatibility. If both paths contain a skill with the same name, the `.squad/skills/` version takes precedence. New skills are always written to `.copilot/skills/`.
+> **Legacy path**: Skills are also discovered at `.crew/skills/` for backward compatibility. If both paths contain a skill with the same name, the `.crew/skills/` version takes precedence. New skills are always written to `.copilot/skills/`.
 
 > **Portable across projects**: Skills export and import with your team. When you move a trained team to a new repo, all their earned knowledge comes with them.
 
@@ -40,9 +40,9 @@ Each skill is a directory containing a `SKILL.md` file. Skills are **team-wide k
 
 ### Built-in Skills
 
-Squad ships with **8 built-in skills** that provide foundational patterns for every squad. These are automatically installed during `squad init` and refreshed during `squad upgrade`:
+Crew ships with **8 built-in skills** that provide foundational patterns for every crew. These are automatically installed during `crew init` and refreshed during `crew upgrade`:
 
-1. **squad-conventions** — Core squad patterns and file layout
+1. **crew-conventions** — Core crew patterns and file layout
 2. **error-recovery** — Graceful failure handling and retry patterns
 3. **secret-handling** — Credential safety and secrets management
 4. **git-workflow** — Branch naming, commit conventions, PR flow
@@ -55,11 +55,11 @@ Built-in skills are prefixed with their domain (e.g., `github-`, `secrets-`, `se
 
 ### Starter skills
 
-Legacy term for built-in skills. Previously called "starter skills" and prefixed with `squad-` (e.g., `squad-conventions`). Now standardized as domain-prefixed built-in skills.
+Legacy term for built-in skills. Previously called "starter skills" and prefixed with `crew-` (e.g., `crew-conventions`). Now standardized as domain-prefixed built-in skills.
 
 ### Session Recovery
 
-The `session-recovery` skill teaches agents to find and resume interrupted Copilot CLI sessions. When a session is interrupted (terminal crash, network drop, machine restart), in-progress work may be left incomplete. This skill uses `session_store` SQL queries to detect abandoned sessions, inspect checkpoint progress, and resume work. See [`.copilot/skills/session-recovery/SKILL.md`](https://github.com/bradygaster/squad/blob/dev/.copilot/skills/session-recovery/SKILL.md) for query patterns and examples.
+The `session-recovery` skill teaches agents to find and resume interrupted Copilot CLI sessions. When a session is interrupted (terminal crash, network drop, machine restart), in-progress work may be left incomplete. This skill uses `session_store` SQL queries to detect abandoned sessions, inspect checkpoint progress, and resume work. See [`.copilot/skills/session-recovery/SKILL.md`](https://github.com/Blacklite/crew/blob/dev/.copilot/skills/session-recovery/SKILL.md) for query patterns and examples.
 
 ### Earned skills
 

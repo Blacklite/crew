@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 /**
- * sync-templates.mjs — Copy canonical templates from .squad-templates/
+ * sync-templates.mjs — Copy canonical templates from .crew-templates/
  * to every target directory that needs them.
  *
  * Targets:
  *   templates/                        (root mirror)
- *   packages/squad-cli/templates/     (CLI package)
- *   packages/squad-sdk/templates/     (SDK package)
- *   .github/agents/squad.agent.md     (GitHub agent — squad.agent.md only)
+ *   packages/crew-cli/templates/     (CLI package)
+ *   packages/crew-sdk/templates/     (SDK package)
+ *   .github/agents/crew.agent.md     (GitHub agent — crew.agent.md only)
  *
- * Only copies files that exist in .squad-templates/. Target directories
+ * Only copies files that exist in .crew-templates/. Target directories
  * that don't exist are skipped with a warning.
  */
 
@@ -23,29 +23,29 @@ const ROOT = join(__dirname, '..');
 // ---------------------------------------------------------------------------
 // Guard: require explicit invocation to prevent accidental auto-triggering
 // during agent work (e.g., file watchers, git hooks).
-// Pass --sync flag or set SQUAD_SYNC_TEMPLATES=1 env var.
+// Pass --sync flag or set CREW_SYNC_TEMPLATES=1 env var.
 // ---------------------------------------------------------------------------
 const explicitFlag = process.argv.includes('--sync');
-const envFlag = process.env.SQUAD_SYNC_TEMPLATES === '1';
+const envFlag = process.env.CREW_SYNC_TEMPLATES === '1';
 const directInvocation = process.argv.length <= 2;
 if (!directInvocation && !explicitFlag && !envFlag) {
   console.log('⛔ sync-templates requires explicit invocation.');
   console.log('   Use: node scripts/sync-templates.mjs --sync');
-  console.log('   Or:  SQUAD_SYNC_TEMPLATES=1 node scripts/sync-templates.mjs');
+  console.log('   Or:  CREW_SYNC_TEMPLATES=1 node scripts/sync-templates.mjs');
   process.exit(0);
 }
 
-const SOURCE = join(ROOT, '.squad-templates');
+const SOURCE = join(ROOT, '.crew-templates');
 
 const MIRROR_TARGETS = [
   join(ROOT, 'templates'),
-  join(ROOT, 'packages', 'squad-cli', 'templates'),
-  join(ROOT, 'packages', 'squad-sdk', 'templates'),
+  join(ROOT, 'packages', 'crew-cli', 'templates'),
+  join(ROOT, 'packages', 'crew-sdk', 'templates'),
 ];
 
-// squad.agent.md also goes to .github/agents/
+// crew.agent.md also goes to .github/agents/
 const AGENT_MD_TARGET = join(ROOT, '.github', 'agents');
-const AGENT_MD_FILE = 'squad.agent.md';
+const AGENT_MD_FILE = 'crew.agent.md';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -82,7 +82,7 @@ function copyFile(src, dest) {
 // ---------------------------------------------------------------------------
 
 if (!existsSync(SOURCE)) {
-  console.log('⏭️  .squad-templates/ not found — nothing to sync');
+  console.log('⏭️  .crew-templates/ not found — nothing to sync');
   process.exit(0);
 }
 
@@ -94,7 +94,7 @@ for (const relFile of sourceFiles) {
   const targets = [];
 
   // Mirror to each target directory
-  // Rename squad.agent.md → squad.agent.md.template in mirror targets
+  // Rename crew.agent.md → crew.agent.md.template in mirror targets
   // so Copilot CLI 1.0.11 doesn't discover template copies as *.agent.md
   for (const targetDir of MIRROR_TARGETS) {
     if (!existsSync(targetDir)) {
@@ -105,7 +105,7 @@ for (const relFile of sourceFiles) {
     targets.push(join(targetDir, destName));
   }
 
-  // Special case: squad.agent.md also goes to .github/agents/
+  // Special case: crew.agent.md also goes to .github/agents/
   if (relFile === AGENT_MD_FILE && existsSync(AGENT_MD_TARGET)) {
     targets.push(join(AGENT_MD_TARGET, AGENT_MD_FILE));
   }
@@ -123,4 +123,4 @@ for (const relFile of sourceFiles) {
   console.log(`  ✅ ${relFile} → ${label}`);
 }
 
-console.log(`\n📋 Synced ${totalCopied} file(s) from .squad-templates/`);
+console.log(`\n📋 Synced ${totalCopied} file(s) from .crew-templates/`);

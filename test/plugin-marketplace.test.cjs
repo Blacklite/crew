@@ -7,7 +7,7 @@ const os = require('os');
 
 const CLI = path.join(__dirname, '..', 'index.cjs');
 
-function runSquad(args, cwd) {
+function runCrew(args, cwd) {
   try {
     const result = execFileSync(process.execPath, [CLI, ...args], {
       cwd,
@@ -25,7 +25,7 @@ function runSquad(args, cwd) {
 }
 
 function makeTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'squad-plugin-test-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'crew-plugin-test-'));
 }
 
 function cleanDir(dir) {
@@ -34,15 +34,15 @@ function cleanDir(dir) {
   } catch {}
 }
 
-function initSquad(dir) {
-  const result = runSquad([], dir);
+function initCrew(dir) {
+  const result = runCrew([], dir);
   assert.equal(result.exitCode, 0, `init should succeed: ${result.stdout}`);
 }
 
 // Detect if the plugin subcommand falls through to default init (not implemented)
 function isNotImplemented(result) {
-  return result.stdout.includes('Squad is ready') ||
-    result.stdout.includes('Squad is upgraded') ||
+  return result.stdout.includes('Crew is ready') ||
+    result.stdout.includes('Crew is upgraded') ||
     result.stdout.includes('already exists');
 }
 
@@ -59,16 +59,16 @@ describe('Plugin marketplace subcommands (#29)', () => {
 
   beforeEach(() => {
     tmpDir = makeTempDir();
-    initSquad(tmpDir);
+    initCrew(tmpDir);
   });
 
   afterEach(() => {
     cleanDir(tmpDir);
   });
 
-  describe('squad plugin marketplace list', () => {
+  describe('crew plugin marketplace list', () => {
     it('returns empty when no marketplaces configured', (t) => {
-      const result = runSquad(['plugin', 'marketplace', 'list'], tmpDir);
+      const result = runCrew(['plugin', 'marketplace', 'list'], tmpDir);
       if (skipIfNotImplemented(t, result)) return;
       assert.equal(result.exitCode, 0, `list should exit 0: ${result.stdout}`);
       assert.ok(
@@ -82,15 +82,15 @@ describe('Plugin marketplace subcommands (#29)', () => {
     });
   });
 
-  describe('squad plugin marketplace add', () => {
+  describe('crew plugin marketplace add', () => {
     it('registers a marketplace from github source', (t) => {
-      const result = runSquad(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
+      const result = runCrew(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
       if (skipIfNotImplemented(t, result)) return;
       assert.equal(result.exitCode, 0, `add should succeed: ${result.stdout}`);
     });
 
     it('fails with error on invalid source (no slash)', (t) => {
-      const result = runSquad(['plugin', 'marketplace', 'add', 'invalid-source'], tmpDir);
+      const result = runCrew(['plugin', 'marketplace', 'add', 'invalid-source'], tmpDir);
       if (skipIfNotImplemented(t, result)) return;
       assert.ok(
         result.exitCode !== 0 || result.stdout.toLowerCase().includes('invalid') || result.stdout.toLowerCase().includes('error'),
@@ -99,7 +99,7 @@ describe('Plugin marketplace subcommands (#29)', () => {
     });
 
     it('fails with error when no source argument provided', (t) => {
-      const result = runSquad(['plugin', 'marketplace', 'add'], tmpDir);
+      const result = runCrew(['plugin', 'marketplace', 'add'], tmpDir);
       if (skipIfNotImplemented(t, result)) return;
       assert.notEqual(result.exitCode, 0, 'add with no source should fail');
     });
@@ -107,21 +107,21 @@ describe('Plugin marketplace subcommands (#29)', () => {
 
   describe('full marketplace lifecycle: add, list, remove, list', () => {
     it('add, list, remove, list lifecycle works end-to-end', (t) => {
-      const addResult = runSquad(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
+      const addResult = runCrew(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
       if (skipIfNotImplemented(t, addResult)) return;
       assert.equal(addResult.exitCode, 0, `add should succeed: ${addResult.stdout}`);
 
-      const listResult = runSquad(['plugin', 'marketplace', 'list'], tmpDir);
+      const listResult = runCrew(['plugin', 'marketplace', 'list'], tmpDir);
       assert.equal(listResult.exitCode, 0, `list should succeed: ${listResult.stdout}`);
       assert.ok(
         listResult.stdout.includes('awesome-copilot'),
         `list should show registered marketplace: "${listResult.stdout.trim()}"`
       );
 
-      const removeResult = runSquad(['plugin', 'marketplace', 'remove', 'awesome-copilot'], tmpDir);
+      const removeResult = runCrew(['plugin', 'marketplace', 'remove', 'awesome-copilot'], tmpDir);
       assert.equal(removeResult.exitCode, 0, `remove should succeed: ${removeResult.stdout}`);
 
-      const listAfterRemove = runSquad(['plugin', 'marketplace', 'list'], tmpDir);
+      const listAfterRemove = runCrew(['plugin', 'marketplace', 'list'], tmpDir);
       assert.equal(listAfterRemove.exitCode, 0, `list should succeed: ${listAfterRemove.stdout}`);
       assert.ok(
         !listAfterRemove.stdout.includes('awesome-copilot'),
@@ -130,9 +130,9 @@ describe('Plugin marketplace subcommands (#29)', () => {
     });
   });
 
-  describe('squad plugin marketplace remove', () => {
+  describe('crew plugin marketplace remove', () => {
     it('fails when removing nonexistent marketplace', (t) => {
-      const result = runSquad(['plugin', 'marketplace', 'remove', 'nonexistent'], tmpDir);
+      const result = runCrew(['plugin', 'marketplace', 'remove', 'nonexistent'], tmpDir);
       if (skipIfNotImplemented(t, result)) return;
       assert.ok(
         result.exitCode !== 0 ||
@@ -144,19 +144,19 @@ describe('Plugin marketplace subcommands (#29)', () => {
     });
 
     it('fails when no marketplace name provided', (t) => {
-      const result = runSquad(['plugin', 'marketplace', 'remove'], tmpDir);
+      const result = runCrew(['plugin', 'marketplace', 'remove'], tmpDir);
       if (skipIfNotImplemented(t, result)) return;
       assert.notEqual(result.exitCode, 0, 'remove with no name should fail');
     });
   });
 
   describe('marketplace state persistence', () => {
-    it('marketplace state persists in .squad/plugins/marketplaces.json', (t) => {
-      const addResult = runSquad(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
+    it('marketplace state persists in .crew/plugins/marketplaces.json', (t) => {
+      const addResult = runCrew(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
       if (skipIfNotImplemented(t, addResult)) return;
       assert.equal(addResult.exitCode, 0);
 
-      const stateFile = path.join(tmpDir, '.squad', 'plugins', 'marketplaces.json');
+      const stateFile = path.join(tmpDir, '.crew', 'plugins', 'marketplaces.json');
       assert.ok(fs.existsSync(stateFile), 'marketplaces.json should be created after add');
 
       const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
@@ -170,12 +170,12 @@ describe('Plugin marketplace subcommands (#29)', () => {
     });
 
     it('marketplace state file is valid JSON after add and remove', (t) => {
-      const addResult = runSquad(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
+      const addResult = runCrew(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
       if (skipIfNotImplemented(t, addResult)) return;
 
-      runSquad(['plugin', 'marketplace', 'remove', 'awesome-copilot'], tmpDir);
+      runCrew(['plugin', 'marketplace', 'remove', 'awesome-copilot'], tmpDir);
 
-      const stateFile = path.join(tmpDir, '.squad', 'plugins', 'marketplaces.json');
+      const stateFile = path.join(tmpDir, '.crew', 'plugins', 'marketplaces.json');
       if (fs.existsSync(stateFile)) {
         assert.doesNotThrow(() => {
           JSON.parse(fs.readFileSync(stateFile, 'utf8'));
@@ -186,7 +186,7 @@ describe('Plugin marketplace subcommands (#29)', () => {
 
   describe('marketplace browse', () => {
     it('fails when browsing nonexistent marketplace', (t) => {
-      const result = runSquad(['plugin', 'marketplace', 'browse', 'nonexistent'], tmpDir);
+      const result = runCrew(['plugin', 'marketplace', 'browse', 'nonexistent'], tmpDir);
       if (skipIfNotImplemented(t, result)) return;
       assert.ok(
         result.exitCode !== 0 ||
@@ -198,8 +198,8 @@ describe('Plugin marketplace subcommands (#29)', () => {
   });
 
   describe('plugin subcommand without marketplace', () => {
-    it('squad plugin with no subcommand shows help or usage', (t) => {
-      const result = runSquad(['plugin'], tmpDir);
+    it('crew plugin with no subcommand shows help or usage', (t) => {
+      const result = runCrew(['plugin'], tmpDir);
       if (isNotImplemented(result)) {
         t.skip('plugin subcommand not yet implemented');
         return;
@@ -217,24 +217,24 @@ describe('Plugin marketplace subcommands (#29)', () => {
 
   describe('multiple marketplace management', () => {
     it('can add multiple marketplaces', (t) => {
-      const add1 = runSquad(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
+      const add1 = runCrew(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
       if (skipIfNotImplemented(t, add1)) return;
       assert.equal(add1.exitCode, 0);
 
-      const add2 = runSquad(['plugin', 'marketplace', 'add', 'anthropics/skills'], tmpDir);
+      const add2 = runCrew(['plugin', 'marketplace', 'add', 'anthropics/skills'], tmpDir);
       assert.equal(add2.exitCode, 0, `second add should succeed: ${add2.stdout}`);
 
-      const listResult = runSquad(['plugin', 'marketplace', 'list'], tmpDir);
+      const listResult = runCrew(['plugin', 'marketplace', 'list'], tmpDir);
       assert.equal(listResult.exitCode, 0);
       assert.ok(listResult.stdout.includes('awesome-copilot'), 'should show first marketplace');
       assert.ok(listResult.stdout.includes('anthropic'), 'should show second marketplace');
     });
 
     it('adding duplicate marketplace is handled gracefully', (t) => {
-      const add1 = runSquad(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
+      const add1 = runCrew(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
       if (skipIfNotImplemented(t, add1)) return;
 
-      const add2 = runSquad(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
+      const add2 = runCrew(['plugin', 'marketplace', 'add', 'github/awesome-copilot'], tmpDir);
       assert.ok(
         add2.exitCode === 0 ||
         add2.stdout.toLowerCase().includes('already') ||

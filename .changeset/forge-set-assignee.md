@@ -1,6 +1,6 @@
 ---
-"@bradygaster/squad-sdk": minor
-"@bradygaster/squad-cli": patch
+"@blacklite/crew-sdk": minor
+"@blacklite/crew-cli": patch
 ---
 
 feat(platform): add `setAssignee()` to PlatformAdapter so assignee changes route through the platform abstraction (GitHub + ADO) instead of inline `gh`/`az` calls

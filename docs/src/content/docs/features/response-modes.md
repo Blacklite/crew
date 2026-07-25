@@ -1,6 +1,6 @@
 # Response Modes
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to get concise answers:**
@@ -13,13 +13,13 @@ Respond in terse mode — just the facts
 Use lightweight mode for quick fixes
 ```
 
-Squad automatically picks the right response mode based on complexity — from instant direct answers (2s) to full multi-agent parallel work (60s). You can override anytime.
+Crew automatically picks the right response mode based on complexity — from instant direct answers (2s) to full multi-agent parallel work (60s). You can override anytime.
 
 ---
 
 ## The Four Modes
 
-Not every request needs the full agent machinery. Squad automatically selects a response mode based on the complexity of your message.
+Not every request needs the full agent machinery. Crew automatically selects a response mode based on the complexity of your message.
 
 | Mode | Time | What Happens | When Used |
 |------|------|-------------|-----------|

@@ -9,7 +9,7 @@ import { mkdtemp, rm, readFile, writeFile, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { parseCastResponse, createTeam, type CastProposal } from '../packages/squad-cli/src/cli/core/cast.js';
+import { parseCastResponse, createTeam, type CastProposal } from '../packages/crew-cli/src/cli/core/cast.js';
 
 describe('parseCastResponse', () => {
   it('parses strict INIT_TEAM format', () => {
@@ -182,18 +182,18 @@ describe('createTeam', () => {
   let tempDir: string;
 
   beforeEach(async () => {
-    tempDir = await mkdtemp(join(tmpdir(), 'squad-test-'));
+    tempDir = await mkdtemp(join(tmpdir(), 'crew-test-'));
   });
 
   afterEach(async () => {
     await rm(tempDir, { recursive: true, force: true });
   });
 
-  describe('fresh project — no .squad/ directory', () => {
+  describe('fresh project — no .crew/ directory', () => {
     it('creates team.md with ## Members section and data rows', async () => {
       await createTeam(tempDir, minimalProposal);
 
-      const teamPath = join(tempDir, '.squad', 'team.md');
+      const teamPath = join(tempDir, '.crew', 'team.md');
       expect(existsSync(teamPath)).toBe(true);
 
       const content = await readFile(teamPath, 'utf-8');
@@ -206,26 +206,26 @@ describe('createTeam', () => {
     it('creates routing.md from scratch', async () => {
       await createTeam(tempDir, minimalProposal);
 
-      const routingPath = join(tempDir, '.squad', 'routing.md');
+      const routingPath = join(tempDir, '.crew', 'routing.md');
       expect(existsSync(routingPath)).toBe(true);
 
       const content = await readFile(routingPath, 'utf-8');
-      expect(content).toContain('# Squad Routing');
+      expect(content).toContain('# Crew Routing');
     });
 
     it('includes project description in team.md header', async () => {
       await createTeam(tempDir, minimalProposal);
 
-      const content = await readFile(join(tempDir, '.squad', 'team.md'), 'utf-8');
+      const content = await readFile(join(tempDir, '.crew', 'team.md'), 'utf-8');
       expect(content).toContain('A React and Node.js web application');
     });
 
     it('team.md passes hasRosterEntries check (coordinator can read it)', async () => {
       // Import hasRosterEntries to verify the coordinator will recognise the team
-      const { hasRosterEntries } = await import('../packages/squad-cli/src/cli/shell/coordinator.js');
+      const { hasRosterEntries } = await import('../packages/crew-cli/src/cli/shell/coordinator.js');
 
       await createTeam(tempDir, minimalProposal);
-      const content = await readFile(join(tempDir, '.squad', 'team.md'), 'utf-8');
+      const content = await readFile(join(tempDir, '.crew', 'team.md'), 'utf-8');
       expect(hasRosterEntries(content)).toBe(true);
     });
 
@@ -238,19 +238,19 @@ describe('createTeam', () => {
     it('creates agent charter and history files for each member', async () => {
       const result = await createTeam(tempDir, minimalProposal);
       for (const name of result.membersCreated) {
-        const base = join(tempDir, '.squad', 'agents', name.toLowerCase());
+        const base = join(tempDir, '.crew', 'agents', name.toLowerCase());
         expect(existsSync(join(base, 'charter.md'))).toBe(true);
         expect(existsSync(join(base, 'history.md'))).toBe(true);
       }
     });
   });
 
-  describe('existing project — .squad/ with empty team.md', () => {
+  describe('existing project — .crew/ with empty team.md', () => {
     beforeEach(async () => {
-      const squadDir = join(tempDir, '.squad');
-      await mkdir(squadDir, { recursive: true });
-      await writeFile(join(squadDir, 'team.md'), [
-        '# Squad Team',
+      const crewDir = join(tempDir, '.crew');
+      await mkdir(crewDir, { recursive: true });
+      await writeFile(join(crewDir, 'team.md'), [
+        '# Crew Team',
         '',
         '> Pre-existing project',
         '',
@@ -269,17 +269,17 @@ describe('createTeam', () => {
     it('updates the Members section without clobbering surrounding content', async () => {
       await createTeam(tempDir, minimalProposal);
 
-      const content = await readFile(join(tempDir, '.squad', 'team.md'), 'utf-8');
+      const content = await readFile(join(tempDir, '.crew', 'team.md'), 'utf-8');
       expect(content).toContain('Pre-existing project');
       expect(content).toContain('## Project Context');
       expect(content).toContain('| Ripley |');
     });
 
     it('team.md passes hasRosterEntries after update', async () => {
-      const { hasRosterEntries } = await import('../packages/squad-cli/src/cli/shell/coordinator.js');
+      const { hasRosterEntries } = await import('../packages/crew-cli/src/cli/shell/coordinator.js');
 
       await createTeam(tempDir, minimalProposal);
-      const content = await readFile(join(tempDir, '.squad', 'team.md'), 'utf-8');
+      const content = await readFile(join(tempDir, '.crew', 'team.md'), 'utf-8');
       expect(hasRosterEntries(content)).toBe(true);
     });
   });

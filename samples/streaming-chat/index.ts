@@ -1,22 +1,22 @@
 /**
  * streaming-chat — Interactive Multi-Agent Streaming Chat
  *
- * Squad SDK sample for MVP Summit.
- * Demonstrates: SquadClientWithPool, CastingEngine, SessionPool,
+ * Crew SDK sample for MVP Summit.
+ * Demonstrates: CrewClientWithPool, CastingEngine, SessionPool,
  * EventBus, StreamingPipeline, and readline-based interactive chat.
  *
- * Run with `npx tsx index.ts` (live Copilot) or set SQUAD_DEMO_MODE=true
+ * Run with `npx tsx index.ts` (live Copilot) or set CREW_DEMO_MODE=true
  * for a self-contained demo that simulates streaming without auth.
  */
 
 import * as readline from 'node:readline';
 
 // SDK barrel exports: CastingEngine, StreamingPipeline
-import { CastingEngine, StreamingPipeline } from '@bradygaster/squad-sdk';
-import type { StreamDelta } from '@bradygaster/squad-sdk';
+import { CastingEngine, StreamingPipeline } from '@blacklite/crew-sdk';
+import type { StreamDelta } from '@blacklite/crew-sdk';
 
-// Client sub-path exports: SquadClientWithPool, EventBus
-import { SquadClientWithPool, EventBus } from '@bradygaster/squad-sdk/client';
+// Client sub-path exports: CrewClientWithPool, EventBus
+import { CrewClientWithPool, EventBus } from '@blacklite/crew-sdk/client';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Agent definitions
@@ -133,7 +133,7 @@ async function simulateStreaming(
 // ────────────────────────────────────────────────────────────────────────────
 
 async function sendLiveMessage(
-  client: SquadClientWithPool,
+  client: CrewClientWithPool,
   pipeline: StreamingPipeline,
   agent: AgentInfo,
   message: string,
@@ -154,7 +154,7 @@ async function sendLiveMessage(
     return;
   }
 
-  // Resume the session to get a SquadSession handle, then send
+  // Resume the session to get a CrewSession handle, then send
   const session = await client.resumeSession(sessionId);
 
   // Register delta listener to feed the pipeline
@@ -195,12 +195,12 @@ async function sendLiveMessage(
 // ────────────────────────────────────────────────────────────────────────────
 
 export async function main(): Promise<void> {
-  const demoMode = process.env['SQUAD_DEMO_MODE'] === 'true';
+  const demoMode = process.env['CREW_DEMO_MODE'] === 'true';
 
   // ── Banner ──
   console.log();
   console.log(`${BOLD}  ╔═══════════════════════════════════════════════╗${RESET}`);
-  console.log(`${BOLD}  ║   🎬  Squad Streaming Chat  ·  MVP Summit    ║${RESET}`);
+  console.log(`${BOLD}  ║   🎬  Crew Streaming Chat  ·  MVP Summit    ║${RESET}`);
   console.log(`${BOLD}  ╚═══════════════════════════════════════════════╝${RESET}`);
   console.log();
 
@@ -229,12 +229,12 @@ export async function main(): Promise<void> {
   });
 
   // ── Client + sessions ──
-  let client: SquadClientWithPool | null = null;
+  let client: CrewClientWithPool | null = null;
   const eventBus = new EventBus();
 
   if (!demoMode) {
     try {
-      client = new SquadClientWithPool({ pool: { maxConcurrent: 5 } });
+      client = new CrewClientWithPool({ pool: { maxConcurrent: 5 } });
       await client.connect();
 
       // Create a session per agent

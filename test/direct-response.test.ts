@@ -6,9 +6,9 @@ import {
   DirectResponseHandler,
   type CoordinatorContext,
   type DirectResponsePattern,
-} from '@bradygaster/squad-sdk/coordinator';
-import { DEFAULT_CONFIG, type SquadConfig } from '@bradygaster/squad-sdk/runtime';
-import { EventBus } from '@bradygaster/squad-sdk/runtime/event-bus';
+} from '@blacklite/crew-sdk/coordinator';
+import { DEFAULT_CONFIG, type CrewConfig } from '@blacklite/crew-sdk/runtime';
+import { EventBus } from '@blacklite/crew-sdk/runtime/event-bus';
 
 // --- Helpers ---
 
@@ -83,8 +83,8 @@ describe('DirectResponseHandler', () => {
       expect(handler.shouldHandleDirectly('which model')).toBe(true);
     });
 
-    it('returns true for "squad status"', () => {
-      expect(handler.shouldHandleDirectly('squad status')).toBe(true);
+    it('returns true for "crew status"', () => {
+      expect(handler.shouldHandleDirectly('crew status')).toBe(true);
     });
   });
 
@@ -119,7 +119,7 @@ describe('DirectResponseHandler', () => {
     it('returns help text', () => {
       const result = handler.handleDirect('help', makeContext());
       expect(result.category).toBe('help');
-      expect(result.response).toContain('Squad Coordinator');
+      expect(result.response).toContain('Crew Coordinator');
     });
 
     it('matches "what can you do"', () => {
@@ -279,7 +279,7 @@ describe('DirectResponseHandler', () => {
   // --- Config-aware matching ---
 
   describe('config-aware matching', () => {
-    it('accepts SquadConfig in shouldHandleDirectly', () => {
+    it('accepts CrewConfig in shouldHandleDirectly', () => {
       // Passing config should not break anything
       expect(handler.shouldHandleDirectly('help', DEFAULT_CONFIG)).toBe(true);
       expect(handler.shouldHandleDirectly('xyz random', DEFAULT_CONFIG)).toBe(false);

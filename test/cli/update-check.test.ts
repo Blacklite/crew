@@ -1,10 +1,10 @@
 /**
- * `squad update-check` — cached update status for tooling (#1170)
+ * `crew update-check` — cached update status for tooling (#1170)
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-vi.mock('../../packages/squad-cli/src/cli/self-update.js', () => ({
+vi.mock('../../packages/crew-cli/src/cli/self-update.js', () => ({
   getCachePath: vi.fn(),
   fetchLatestVersion: vi.fn(),
   writeCache: vi.fn(),
@@ -13,13 +13,13 @@ vi.mock('../../packages/squad-cli/src/cli/self-update.js', () => ({
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import * as selfUpdate from '../../packages/squad-cli/src/cli/self-update.js';
+import * as selfUpdate from '../../packages/crew-cli/src/cli/self-update.js';
 import {
   detectChannel,
   formatCacheAge,
   runUpdateCheck,
   runUpdateCheckCommand,
-} from '../../packages/squad-cli/src/cli/commands/update-check.js';
+} from '../../packages/crew-cli/src/cli/commands/update-check.js';
 
 describe('detectChannel()', () => {
   it('returns stable for a clean release version', () => {
@@ -66,7 +66,7 @@ describe('formatCacheAge()', () => {
 });
 
 describe('runUpdateCheck()', () => {
-  const cacheDir = mkdtempSync(join(tmpdir(), 'squad-update-check-'));
+  const cacheDir = mkdtempSync(join(tmpdir(), 'crew-update-check-'));
   const cachePath = join(cacheDir, 'update-check.json');
 
   beforeEach(() => {
@@ -140,9 +140,9 @@ describe('runUpdateCheck()', () => {
 });
 
 describe('runUpdateCheckCommand()', () => {
-  const cacheDir = mkdtempSync(join(tmpdir(), 'squad-update-check-cmd-'));
+  const cacheDir = mkdtempSync(join(tmpdir(), 'crew-update-check-cmd-'));
   const cachePath = join(cacheDir, 'update-check.json');
-  const originalEnv = process.env.SQUAD_NO_UPDATE_CHECK;
+  const originalEnv = process.env.CREW_NO_UPDATE_CHECK;
 
   beforeEach(() => {
     vi.mocked(selfUpdate.getCachePath).mockReturnValue(cachePath);
@@ -152,12 +152,12 @@ describe('runUpdateCheckCommand()', () => {
 
   afterEach(() => {
     try { rmSync(cachePath); } catch { /* no cache file written this test */ }
-    if (originalEnv === undefined) delete process.env.SQUAD_NO_UPDATE_CHECK;
-    else process.env.SQUAD_NO_UPDATE_CHECK = originalEnv;
+    if (originalEnv === undefined) delete process.env.CREW_NO_UPDATE_CHECK;
+    else process.env.CREW_NO_UPDATE_CHECK = originalEnv;
   });
 
-  it('exits 0 and prints nothing when SQUAD_NO_UPDATE_CHECK=1 (text mode)', async () => {
-    process.env.SQUAD_NO_UPDATE_CHECK = '1';
+  it('exits 0 and prints nothing when CREW_NO_UPDATE_CHECK=1 (text mode)', async () => {
+    process.env.CREW_NO_UPDATE_CHECK = '1';
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const exitCode = await runUpdateCheckCommand([]);
@@ -168,8 +168,8 @@ describe('runUpdateCheckCommand()', () => {
     logSpy.mockRestore();
   });
 
-  it('exits 0 and prints an empty JSON object when SQUAD_NO_UPDATE_CHECK=1 (--json)', async () => {
-    process.env.SQUAD_NO_UPDATE_CHECK = '1';
+  it('exits 0 and prints an empty JSON object when CREW_NO_UPDATE_CHECK=1 (--json)', async () => {
+    process.env.CREW_NO_UPDATE_CHECK = '1';
     const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
     const exitCode = await runUpdateCheckCommand(['--json']);

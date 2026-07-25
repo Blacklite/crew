@@ -35,10 +35,10 @@ export function registerHostileSteps(registry: StepDefinitions): void {
 
   registerStep(
     'Given',
-    /a temp directory with an empty "\.squad" directory/,
+    /a temp directory with an empty "\.crew" directory/,
     async (_stepText, context) => {
-      const tempDir = mkdtempSync(join(tmpdir(), 'squad-hostile-'));
-      mkdirSync(join(tempDir, '.squad'), { recursive: true });
+      const tempDir = mkdtempSync(join(tmpdir(), 'crew-hostile-'));
+      mkdirSync(join(tempDir, '.crew'), { recursive: true });
       context.tempDir = tempDir;
     },
     registry
@@ -46,11 +46,11 @@ export function registerHostileSteps(registry: StepDefinitions): void {
 
   registerStep(
     'Given',
-    /a temp directory with an empty "\.squad\/team\.md"/,
+    /a temp directory with an empty "\.crew\/team\.md"/,
     async (_stepText, context) => {
-      const tempDir = mkdtempSync(join(tmpdir(), 'squad-hostile-'));
-      mkdirSync(join(tempDir, '.squad'), { recursive: true });
-      writeFileSync(join(tempDir, '.squad', 'team.md'), '');
+      const tempDir = mkdtempSync(join(tmpdir(), 'crew-hostile-'));
+      mkdirSync(join(tempDir, '.crew'), { recursive: true });
+      writeFileSync(join(tempDir, '.crew', 'team.md'), '');
       context.tempDir = tempDir;
     },
     registry
@@ -58,13 +58,13 @@ export function registerHostileSteps(registry: StepDefinitions): void {
 
   registerStep(
     'Given',
-    /a temp directory with "\.squad\/team\.md" containing "(.+)"/,
+    /a temp directory with "\.crew\/team\.md" containing "(.+)"/,
     async (stepText, context) => {
-      const match = stepText.match(/a temp directory with "\.squad\/team\.md" containing "(.+)"/);
+      const match = stepText.match(/a temp directory with "\.crew\/team\.md" containing "(.+)"/);
       if (!match) throw new Error('Pattern match failed');
-      const tempDir = mkdtempSync(join(tmpdir(), 'squad-hostile-'));
-      mkdirSync(join(tempDir, '.squad'), { recursive: true });
-      writeFileSync(join(tempDir, '.squad', 'team.md'), match[1]);
+      const tempDir = mkdtempSync(join(tmpdir(), 'crew-hostile-'));
+      mkdirSync(join(tempDir, '.crew'), { recursive: true });
+      writeFileSync(join(tempDir, '.crew', 'team.md'), match[1]);
       context.tempDir = tempDir;
     },
     registry
@@ -72,10 +72,10 @@ export function registerHostileSteps(registry: StepDefinitions): void {
 
   registerStep(
     'Given',
-    /a temp directory where "\.squad" is a regular file/,
+    /a temp directory where "\.crew" is a regular file/,
     async (_stepText, context) => {
-      const tempDir = mkdtempSync(join(tmpdir(), 'squad-hostile-'));
-      writeFileSync(join(tempDir, '.squad'), 'this is a file not a directory');
+      const tempDir = mkdtempSync(join(tmpdir(), 'crew-hostile-'));
+      writeFileSync(join(tempDir, '.crew'), 'this is a file not a directory');
       context.tempDir = tempDir;
     },
     registry
@@ -90,7 +90,7 @@ export function registerHostileSteps(registry: StepDefinitions): void {
       const match = stepText.match(/I run "(.+)" with that terminal size/);
       if (!match) throw new Error('Pattern match failed');
       const command = match[1];
-      const args = command.replace(/^squad\s*/, '').split(/\s+/).filter(Boolean);
+      const args = command.replace(/^crew\s*/, '').split(/\s+/).filter(Boolean);
       const cols = context.terminalCols as number;
       const rows = context.terminalRows as number;
 
@@ -110,7 +110,7 @@ export function registerHostileSteps(registry: StepDefinitions): void {
       const match = stepText.match(/I run "(.+)" in non-TTY mode/);
       if (!match) throw new Error('Pattern match failed');
       const command = match[1];
-      const args = command.replace(/^squad\s*/, '').split(/\s+/).filter(Boolean);
+      const args = command.replace(/^crew\s*/, '').split(/\s+/).filter(Boolean);
 
       // Force non-TTY via env
       const harness = await TerminalHarness.spawnWithArgs(args, {
@@ -271,7 +271,7 @@ export function registerHostileSteps(registry: StepDefinitions): void {
       if (!match) throw new Error('Pattern match failed');
       const count = parseInt(match[1], 10);
       const command = match[2];
-      const args = command.replace(/^squad\s*/, '').split(/\s+/).filter(Boolean);
+      const args = command.replace(/^crew\s*/, '').split(/\s+/).filter(Boolean);
 
       // Fire all simultaneously
       const promises = Array.from({ length: count }, () =>
@@ -314,8 +314,8 @@ export function registerHostileSteps(registry: StepDefinitions): void {
     async (stepText, context) => {
       const match = stepText.match(/I run "(.+)" and "(.+)" concurrently/);
       if (!match) throw new Error('Pattern match failed');
-      const args1 = match[1].replace(/^squad\s*/, '').split(/\s+/).filter(Boolean);
-      const args2 = match[2].replace(/^squad\s*/, '').split(/\s+/).filter(Boolean);
+      const args1 = match[1].replace(/^crew\s*/, '').split(/\s+/).filter(Boolean);
+      const args2 = match[2].replace(/^crew\s*/, '').split(/\s+/).filter(Boolean);
 
       const [h1, h2] = await Promise.all([
         TerminalHarness.spawnWithArgs(args1),

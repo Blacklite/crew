@@ -1,6 +1,6 @@
 # Project Boards
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to visualize workflow tracking:**
@@ -13,7 +13,7 @@ Create a project board for v0.5.0 with columns for each workflow stage
 Sync issue #42 to the project board
 ```
 
-Squad integrates with GitHub Projects V2 for visual workflow tracking. Labels are the source of truth, boards are one-way projections that visualize the state machine.
+Crew integrates with GitHub Projects V2 for visual workflow tracking. Labels are the source of truth, boards are one-way projections that visualize the state machine.
 
 ---
 
@@ -35,41 +35,41 @@ You should see `✓ Token scopes: repo, project, workflow` (or similar).
 
 ## How It Works
 
-Squad treats labels as the state machine and boards as a **read-mostly visualization**:
+Crew treats labels as the state machine and boards as a **read-mostly visualization**:
 
-1. **Labels drive state** — Issue gets `go:yes` + `squad:fenster` → state changes to "In Progress".
-2. **Board updates** — Squad syncs label changes to the project board automatically.
-3. **Board changes propagate** — If you drag an issue to "Done" on the board, Squad applies the corresponding label (`status:done`).
+1. **Labels drive state** — Issue gets `go:yes` + `crew:fenster` → state changes to "In Progress".
+2. **Board updates** — Crew syncs label changes to the project board automatically.
+3. **Board changes propagate** — If you drag an issue to "Done" on the board, Crew applies the corresponding label (`status:done`).
 
 Labels are authoritative. Boards reflect labels, not the other way around.
 
 ## Board Structure
 
-Squad's default board has 5 columns matching issue lifecycle:
+Crew's default board has 5 columns matching issue lifecycle:
 
 | Column | Label State | Description |
 |--------|-------------|-------------|
 | **Backlog** | `go:no` or `release:backlog` | Not approved or deferred |
 | **Needs Research** | `go:needs-research` | Lead is investigating feasibility |
-| **Ready** | `go:yes`, no `squad:*` | Approved, awaiting assignment |
-| **In Progress** | `go:yes` + `squad:{member}` | Agent actively working |
+| **Ready** | `go:yes`, no `crew:*` | Approved, awaiting assignment |
+| **In Progress** | `go:yes` + `crew:{member}` | Agent actively working |
 | **Done** | Issue closed | Completed and merged |
 
 ## Creating a Board
 
 > "Create a project board for this repository"
 
-Squad runs:
+Crew runs:
 
 ```bash
-gh project create --owner {org} --title "Squad Board" --format "Board"
+gh project create --owner {org} --title "Crew Board" --format "Board"
 ```
 
 Then adds the 5 default columns and syncs all existing issues based on their labels.
 
 ## Syncing Labels to Board
 
-Squad's `sync-board.yml` workflow runs:
+Crew's `sync-board.yml` workflow runs:
 - **On label change** — Issue labeled `go:yes` → moves to "Ready" column
 - **On issue close** → moves to "Done" column
 - **On PR merge** → linked issue moves to "Done"
@@ -86,12 +86,12 @@ gh project item-list --owner {org} --project {project-id}
 When you manually move an issue on the board:
 
 1. **Board webhook triggers** — GitHub sends `projects_v2_item.moved` event
-2. **Squad workflow runs** — Reads new column, infers label change
-3. **Labels update** — Applies appropriate `go:*`, `squad:*`, or `status:*` label
+2. **Crew workflow runs** — Reads new column, infers label change
+3. **Labels update** — Applies appropriate `go:*`, `crew:*`, or `status:*` label
 
 Example:
-- Drag issue from "Backlog" to "Ready" → Squad applies `go:yes`
-- Drag issue from "Ready" to "In Progress" → Squad prompts: "Assign to which member?" then applies `squad:{member}`
+- Drag issue from "Backlog" to "Ready" → Crew applies `go:yes`
+- Drag issue from "Ready" to "In Progress" → Crew prompts: "Assign to which member?" then applies `crew:{member}`
 
 ## Board CLI Commands
 
@@ -113,7 +113,7 @@ You can add custom fields to the board (Assignee, Priority, Release):
 gh project field-create {id} --name "Priority" --data-type "SINGLE_SELECT" --options "P0,P1,P2"
 ```
 
-Squad syncs these from labels:
+Crew syncs these from labels:
 - `priority:p0` → Board "Priority" field = "P0"
 - `release:v0.4.0` → Board "Release" field = "v0.4.0"
 
@@ -132,14 +132,14 @@ You can manually use `gh project` commands now. Full automation arrives in v0.4.
 ## Sample Prompts
 
 ```
-Create a project board for Squad work
+Create a project board for Crew work
 ```
 Initializes a new GitHub Projects V2 board with default columns and syncs existing issues.
 
 ```
 Move issue #42 to In Progress
 ```
-Updates board column and applies `squad:{member}` label (prompts for member if not set).
+Updates board column and applies `crew:{member}` label (prompts for member if not set).
 
 ```
 Sync all issues to the project board

@@ -2,26 +2,26 @@
 
 **Try this to see available work item types:**
 ```
-squad init --introspect
+crew init --introspect
 ```
 
 **Try this to configure your work items:**
 ```
-squad config set workItemType "Scenario" areaPath "MyProject\\Team A"
+crew config set workItemType "Scenario" areaPath "MyProject\\Team A"
 ```
 
 **Try this to create a work item in a specific area:**
 ```
-squad create issue "Add feature X" --areaPath "MyProject\\Frontend"
+crew create issue "Add feature X" --areaPath "MyProject\\Frontend"
 ```
 
-Work with any Azure DevOps process template. Squad automatically detects available work item types, area paths, and iterations—no more hardcoded User Stories.
+Work with any Azure DevOps process template. Crew automatically detects available work item types, area paths, and iterations—no more hardcoded User Stories.
 
 ---
 
 ## What ADO Configurable Work Items Does
 
-Work item creation was hardcoded: Squad always created User Stories in a default area. This breaks with custom ADO process templates. Now Squad adapts to your ADO setup:
+Work item creation was hardcoded: Crew always created User Stories in a default area. This breaks with custom ADO process templates. Now Crew adapts to your ADO setup:
 
 1. **Introspect** — Auto-discover available work item types in your project
 2. **Configure** — Set default type, area path, and iteration
@@ -32,12 +32,12 @@ Work item creation was hardcoded: Squad always created User Stories in a default
 
 ### Initialize and Introspect
 
-When setting up a new squad in Azure DevOps:
+When setting up a new crew in Azure DevOps:
 ```bash
-squad init --org contoso --project "My Project" --introspect
+crew init --org contoso --project "My Project" --introspect
 ```
 
-Squad queries the ADO API to find:
+Crew queries the ADO API to find:
 - Available work item types (User Story, Bug, Task, Scenario, etc.)
 - Area paths in the project
 - Iterations/sprints
@@ -67,13 +67,13 @@ Available Iterations:
 
 ### Configure Defaults
 
-Store your preferences in `.squad/config.json`:
+Store your preferences in `.crew/config.json`:
 
 ```bash
-squad config set workItemType "Bug" areaPath "My Project\Backend Team"
+crew config set workItemType "Bug" areaPath "My Project\Backend Team"
 ```
 
-Or edit `.squad/config.json` directly:
+Or edit `.crew/config.json` directly:
 
 ```json
 {
@@ -92,7 +92,7 @@ Or edit `.squad/config.json` directly:
 Ralph (work monitor) now uses your config:
 
 ```bash
-squad ralph scan
+crew ralph scan
 ```
 
 Creates work items with:
@@ -102,12 +102,12 @@ Creates work items with:
 
 Override per-item:
 ```bash
-squad create issue "Critical bug" --type Bug --areaPath "My Project\Backend Team"
+crew create issue "Critical bug" --type Bug --areaPath "My Project\Backend Team"
 ```
 
 ## Configuration Reference
 
-Add to `.squad/config.json`:
+Add to `.crew/config.json`:
 
 ```json
 {
@@ -131,7 +131,7 @@ All fields are optional. Defaults:
 Before using a config, validate it:
 
 ```bash
-squad config validate
+crew config validate
 ```
 
 Output:
@@ -149,20 +149,20 @@ Config is valid. Ready to use.
 
 ### Introspection
 
-When you run `squad init --introspect`:
+When you run `crew init --introspect`:
 
 1. Connect to ADO using `az cli` credentials
 2. Query the project's process template
 3. List available work item types
 4. Enumerate area paths
 5. List iterations/sprints
-6. Save suggestions to `.squad/config.json`
+6. Save suggestions to `.crew/config.json`
 
 ### Creation
 
 When creating a work item:
 
-1. Load config from `.squad/config.json`
+1. Load config from `.crew/config.json`
 2. Resolve `areaPath` to ADO internal ID
 3. Resolve `iterationPath` to ADO internal ID
 4. Call `az boards work-item create` with all parameters
@@ -179,7 +179,7 @@ Before attempting creation:
 
 ## Process Template Support
 
-Squad works with all ADO process templates:
+Crew works with all ADO process templates:
 
 ### Scrum
 - Work item types: Epic, Feature, User Story, Task, Bug, Impediment
@@ -198,15 +198,15 @@ Squad works with all ADO process templates:
 
 ### Custom Templates
 - Introspect to see what's available
-- Configure Squad to match your template
+- Configure Crew to match your template
 
 ## Real-World Example
 
 ### Multi-Team Setup
 
-Your org has three teams, each with their own squad:
+Your org has three teams, each with their own crew:
 
-**Backend Squad** (Scrum process):
+**Backend Crew** (Scrum process):
 ```json
 {
   "ado": {
@@ -219,7 +219,7 @@ Your org has three teams, each with their own squad:
 }
 ```
 
-**Frontend Squad** (Agile process, custom):
+**Frontend Crew** (Agile process, custom):
 ```json
 {
   "ado": {
@@ -231,7 +231,7 @@ Your org has three teams, each with their own squad:
 }
 ```
 
-**QA Squad** (Bug-focused):
+**QA Crew** (Bug-focused):
 ```json
 {
   "ado": {
@@ -243,14 +243,14 @@ Your org has three teams, each with their own squad:
 }
 ```
 
-Each squad creates work items in their native format and area.
+Each crew creates work items in their native format and area.
 
 ## Ralph Integration
 
 Ralph (work monitor) uses your ADO config to create and track work:
 
 ```bash
-squad ralph scan --ado
+crew ralph scan --ado
 ```
 
 Ralph now creates work items using:
@@ -258,7 +258,7 @@ Ralph now creates work items using:
 - Your configured `areaPath`
 - Your configured `iterationPath` (if set)
 
-Example: Backend squad finds an issue → creates Bug in "Platform\Backend" area
+Example: Backend crew finds an issue → creates Bug in "Platform\Backend" area
 
 ## Fallback Behavior
 
@@ -274,5 +274,5 @@ If config is not set or validation fails:
 ## See Also
 
 - [Persistent Ralph](/features/persistent-ralph) — Monitor work with your ADO config
-- [Cross-Squad Orchestration](/features/cross-squad-orchestration) — Delegate work across squads
+- [Cross-Crew Orchestration](/features/cross-crew-orchestration) — Delegate work across crews
 - [Generic Scheduler](/features/generic-scheduler) — Run ADO operations on schedule

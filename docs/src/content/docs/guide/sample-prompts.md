@@ -1,9 +1,9 @@
 # Sample Prompts
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-**Copy any of these, open Copilot, select Squad, and paste.** Each one is a ready-to-go project that shows a different Squad capability.
+**Copy any of these, open Copilot, select Crew, and paste.** Each one is a ready-to-go project that shows a different Crew capability.
 
 ---
 
@@ -85,14 +85,14 @@ Use the latest .NET 9 templates as a starting point.
 
 ## Feature Showcases
 
-Prompts designed to exercise specific Squad features.
+Prompts designed to exercise specific Crew features.
 
-### Portable Squad — Cross-Platform Habit Tracker
+### Portable Crew — Cross-Platform Habit Tracker
 
 ```
-Build a cross-platform habit tracker with a shared Squad config. I want to:
+Build a cross-platform habit tracker with a shared Crew config. I want to:
 1. Build the backend API first (Node.js + SQLite)
-2. Export the squad
+2. Export the crew
 3. Import it into a new React Native project for the mobile app
 4. Have both projects share the same team memory and decisions
 
@@ -150,4 +150,4 @@ Key requirements:
 Set up the team and start building.
 ```
 
-That's it. Squad figures out the team composition, casts names from a universe, and gets to work. After a few sessions, agents know your conventions and stop asking questions they've already answered.
+That's it. Crew figures out the team composition, casts names from a universe, and gets to work. After a few sessions, agents know your conventions and stop asking questions they've already answered.

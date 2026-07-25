@@ -16,11 +16,11 @@ import { describe, it, expect, vi } from 'vitest';
 import React from 'react';
 import { render } from 'ink-testing-library';
 import { Text } from 'ink';
-import { MessageStream } from '../packages/squad-cli/src/cli/shell/components/MessageStream.js';
-import { AgentPanel } from '../packages/squad-cli/src/cli/shell/components/AgentPanel.js';
-import { InputPrompt } from '../packages/squad-cli/src/cli/shell/components/InputPrompt.js';
-import { ThinkingIndicator, THINKING_PHRASES } from '../packages/squad-cli/src/cli/shell/components/ThinkingIndicator.js';
-import type { ShellMessage, AgentSession } from '../packages/squad-cli/src/cli/shell/types.js';
+import { MessageStream } from '../packages/crew-cli/src/cli/shell/components/MessageStream.js';
+import { AgentPanel } from '../packages/crew-cli/src/cli/shell/components/AgentPanel.js';
+import { InputPrompt } from '../packages/crew-cli/src/cli/shell/components/InputPrompt.js';
+import { ThinkingIndicator, THINKING_PHRASES } from '../packages/crew-cli/src/cli/shell/components/ThinkingIndicator.js';
+import type { ShellMessage, AgentSession } from '../packages/crew-cli/src/cli/shell/types.js';
 
 // ============================================================================
 // Test helpers
@@ -341,9 +341,9 @@ describe('InputPrompt behavior', () => {
 
   it('shows custom prompt text', () => {
     const { lastFrame } = render(
-      h(InputPrompt, { onSubmit: vi.fn(), prompt: 'squad> ' })
+      h(InputPrompt, { onSubmit: vi.fn(), prompt: 'crew> ' })
     );
-    expect(lastFrame()!).toContain('squad>');
+    expect(lastFrame()!).toContain('crew>');
   });
 
   it('shows tab/history hint when messageCount < 10', () => {
@@ -387,8 +387,8 @@ describe('InputPrompt behavior', () => {
       })
     );
     const frame = lastFrame()!;
-    // Kovash's refactored InputPrompt shows ◆ squad + spinner when disabled
-    expect(frame).toContain('squad');
+    // Kovash's refactored InputPrompt shows ◆ crew + spinner when disabled
+    expect(frame).toContain('crew');
     expect(frame).toMatch(/[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/);
   });
 
@@ -603,7 +603,7 @@ describe('Never feels dead', () => {
     const frame = lastFrame()!;
     // Re-enabled: text cursor visible, no spinner
     expect(frame).toContain('▌');
-    expect(frame).toContain('squad');
+    expect(frame).toContain('crew');
     expect(frame).not.toMatch(/[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/);
   });
 
@@ -1041,7 +1041,7 @@ describe('Animations and transitions', () => {
   // -- Animation hooks export --
 
   it('useAnimation hooks are importable', async () => {
-    const mod = await import('../packages/squad-cli/src/cli/shell/useAnimation.js');
+    const mod = await import('../packages/crew-cli/src/cli/shell/useAnimation.js');
     expect(typeof mod.useTypewriter).toBe('function');
     expect(typeof mod.useFadeIn).toBe('function');
     expect(typeof mod.useCompletionFlash).toBe('function');
@@ -1055,7 +1055,7 @@ describe('Animations and transitions', () => {
 
 describe('Init ceremony', { timeout: 15_000 }, () => {
   it('isInitNoColor returns true when NO_COLOR is set', async () => {
-    const { isInitNoColor } = await import('../packages/squad-cli/src/cli/core/init.js');
+    const { isInitNoColor } = await import('../packages/crew-cli/src/cli/core/init.js');
     const orig = process.env['NO_COLOR'];
     process.env['NO_COLOR'] = '1';
     try {
@@ -1067,7 +1067,7 @@ describe('Init ceremony', { timeout: 15_000 }, () => {
   });
 
   it('typewrite outputs text immediately when NO_COLOR is set', async () => {
-    const { typewrite } = await import('../packages/squad-cli/src/cli/core/init.js');
+    const { typewrite } = await import('../packages/crew-cli/src/cli/core/init.js');
     const orig = process.env['NO_COLOR'];
     process.env['NO_COLOR'] = '1';
     const chunks: string[] = [];
@@ -1086,7 +1086,7 @@ describe('Init ceremony', { timeout: 15_000 }, () => {
 
   it('INIT_LANDMARKS are exported for ceremony rendering', async () => {
     // Verify the ceremony structure list is accessible (used in init.ts final output)
-    const mod = await import('../packages/squad-cli/src/cli/core/init.js');
+    const mod = await import('../packages/crew-cli/src/cli/core/init.js');
     expect(typeof mod.typewrite).toBe('function');
     expect(typeof mod.isInitNoColor).toBe('function');
   });
@@ -1096,11 +1096,11 @@ describe('First-launch experience', () => {
   it('loadWelcomeData detects first-run marker', async () => {
     const fsSync = await import('node:fs');
     const path = await import('node:path');
-    const { loadWelcomeData } = await import('../packages/squad-cli/src/cli/shell/lifecycle.js');
+    const { loadWelcomeData } = await import('../packages/crew-cli/src/cli/shell/lifecycle.js');
 
-    // test-fixtures has a .squad/team.md — add first-run marker
+    // test-fixtures has a .crew/team.md — add first-run marker
     const fixtureRoot = path.join(process.cwd(), 'test-fixtures');
-    const markerPath = path.join(fixtureRoot, '.squad', '.first-run');
+    const markerPath = path.join(fixtureRoot, '.crew', '.first-run');
     fsSync.writeFileSync(markerPath, 'test');
     try {
       const data = loadWelcomeData(fixtureRoot);
@@ -1116,7 +1116,7 @@ describe('First-launch experience', () => {
 
   it('loadWelcomeData returns isFirstRun=false on subsequent launches', async () => {
     const path = await import('node:path');
-    const { loadWelcomeData } = await import('../packages/squad-cli/src/cli/shell/lifecycle.js');
+    const { loadWelcomeData } = await import('../packages/crew-cli/src/cli/shell/lifecycle.js');
     const fixtureRoot = path.join(process.cwd(), 'test-fixtures');
     const data = loadWelcomeData(fixtureRoot);
     expect(data).not.toBeNull();
@@ -1127,9 +1127,9 @@ describe('First-launch experience', () => {
     const orig = process.env['NO_COLOR'];
     process.env['NO_COLOR'] = '1';
     try {
-      const { App } = await import('../packages/squad-cli/src/cli/shell/components/App.js');
-      const { SessionRegistry } = await import('../packages/squad-cli/src/cli/shell/sessions.js');
-      const { ShellRenderer } = await import('../packages/squad-cli/src/cli/shell/render.js');
+      const { App } = await import('../packages/crew-cli/src/cli/shell/components/App.js');
+      const { SessionRegistry } = await import('../packages/crew-cli/src/cli/shell/sessions.js');
+      const { ShellRenderer } = await import('../packages/crew-cli/src/cli/shell/render.js');
       const registry = new SessionRegistry();
       const renderer = new ShellRenderer();
 
@@ -1154,9 +1154,9 @@ describe('First-launch experience', () => {
     const orig = process.env['NO_COLOR'];
     process.env['NO_COLOR'] = '1';
     try {
-      const { App } = await import('../packages/squad-cli/src/cli/shell/components/App.js');
-      const { SessionRegistry } = await import('../packages/squad-cli/src/cli/shell/sessions.js');
-      const { ShellRenderer } = await import('../packages/squad-cli/src/cli/shell/render.js');
+      const { App } = await import('../packages/crew-cli/src/cli/shell/components/App.js');
+      const { SessionRegistry } = await import('../packages/crew-cli/src/cli/shell/sessions.js');
+      const { ShellRenderer } = await import('../packages/crew-cli/src/cli/shell/render.js');
       const registry = new SessionRegistry();
       const renderer = new ShellRenderer();
       const { lastFrame } = render(
@@ -1183,7 +1183,7 @@ describe('First-launch experience', () => {
 
 describe('ErrorBoundary', () => {
   it('renders children when no error', async () => {
-    const { ErrorBoundary } = await import('../packages/squad-cli/src/cli/shell/components/ErrorBoundary.js');
+    const { ErrorBoundary } = await import('../packages/crew-cli/src/cli/shell/components/ErrorBoundary.js');
     const { lastFrame } = render(
       h(ErrorBoundary, null, h(Text, null, 'Hello World'))
     );
@@ -1191,7 +1191,7 @@ describe('ErrorBoundary', () => {
   });
 
   it('shows friendly message on error', async () => {
-    const { ErrorBoundary } = await import('../packages/squad-cli/src/cli/shell/components/ErrorBoundary.js');
+    const { ErrorBoundary } = await import('../packages/crew-cli/src/cli/shell/components/ErrorBoundary.js');
     const Bomb: React.FC = () => { throw new Error('kaboom'); };
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {
@@ -1207,7 +1207,7 @@ describe('ErrorBoundary', () => {
   });
 
   it('logs error to stderr', async () => {
-    const { ErrorBoundary } = await import('../packages/squad-cli/src/cli/shell/components/ErrorBoundary.js');
+    const { ErrorBoundary } = await import('../packages/crew-cli/src/cli/shell/components/ErrorBoundary.js');
     const Bomb: React.FC = () => { throw new Error('kaboom'); };
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     try {

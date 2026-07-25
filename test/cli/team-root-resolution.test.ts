@@ -1,20 +1,20 @@
 /**
- * SQUAD_TEAM_ROOT resolution tests (#836)
+ * CREW_TEAM_ROOT resolution tests (#836)
  *
- * Verifies that the SQUAD_TEAM_ROOT env var correctly controls squad
+ * Verifies that the CREW_TEAM_ROOT env var correctly controls crew
  * directory resolution across all scenarios:
  *   - env var set → uses that path
  *   - env var unset → falls back to process.cwd()
  *   - env var empty string → falls back to process.cwd()
- *   - resolveSquad honours the resolved start directory
- *   - invalid SQUAD_TEAM_ROOT produces a null result (no crash)
+ *   - resolveCrew honours the resolved start directory
+ *   - invalid CREW_TEAM_ROOT produces a null result (no crash)
  *
  * These tests simulate the Copilot CLI bang-command scenario where
  * the subprocess working directory differs from the interactive shell.
  *
- * @see packages/squad-cli/src/cli-entry.ts — getSquadStartDir()
- * @see packages/squad-sdk/src/resolution.ts  — resolveSquad()
- * @see https://github.com/bradygaster/squad/issues/836
+ * @see packages/crew-cli/src/cli-entry.ts — getCrewStartDir()
+ * @see packages/crew-sdk/src/resolution.ts  — resolveCrew()
+ * @see https://github.com/Blacklite/crew/issues/836
  */
 
 import { describe, it, expect, afterEach, beforeEach } from 'vitest';
@@ -27,7 +27,7 @@ import {
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-import { resolveSquad } from '../../packages/squad-sdk/src/resolution.js';
+import { resolveCrew } from '../../packages/crew-sdk/src/resolution.js';
 
 // ============================================================================
 // Helpers
@@ -36,51 +36,51 @@ import { resolveSquad } from '../../packages/squad-sdk/src/resolution.js';
 const tmpDirs: string[] = [];
 
 /**
- * Reproduce the private getSquadStartDir() logic from cli-entry.ts so we
+ * Reproduce the private getCrewStartDir() logic from cli-entry.ts so we
  * can unit-test the env-var resolution without depending on the private fn.
  *
  * The real implementation is:
- *   function getSquadStartDir(): string {
- *     return process.env['SQUAD_TEAM_ROOT'] || process.cwd();
+ *   function getCrewStartDir(): string {
+ *     return process.env['CREW_TEAM_ROOT'] || process.cwd();
  *   }
  */
-function getSquadStartDir(): string {
-  return process.env['SQUAD_TEAM_ROOT'] || process.cwd();
+function getCrewStartDir(): string {
+  return process.env['CREW_TEAM_ROOT'] || process.cwd();
 }
 
-/** Create a minimal valid .squad directory tree inside a temp folder. */
-function createSquadProject(): { root: string; squadDir: string } {
-  const root = mkdtempSync(join(tmpdir(), 'squad-team-root-'));
+/** Create a minimal valid .crew directory tree inside a temp folder. */
+function createCrewProject(): { root: string; crewDir: string } {
+  const root = mkdtempSync(join(tmpdir(), 'crew-team-root-'));
   tmpDirs.push(root);
 
-  const squadDir = join(root, '.squad');
-  mkdirSync(join(squadDir, 'agents', 'edie'), { recursive: true });
-  mkdirSync(join(squadDir, 'decisions', 'inbox'), { recursive: true });
-  mkdirSync(join(squadDir, 'orchestration-log'), { recursive: true });
-  writeFileSync(join(squadDir, 'team.md'), '# Team\n');
-  writeFileSync(join(squadDir, 'routing.md'), '# Routing\n');
-  writeFileSync(join(squadDir, 'decisions.md'), '# Decisions\n');
+  const crewDir = join(root, '.crew');
+  mkdirSync(join(crewDir, 'agents', 'edie'), { recursive: true });
+  mkdirSync(join(crewDir, 'decisions', 'inbox'), { recursive: true });
+  mkdirSync(join(crewDir, 'orchestration-log'), { recursive: true });
+  writeFileSync(join(crewDir, 'team.md'), '# Team\n');
+  writeFileSync(join(crewDir, 'routing.md'), '# Routing\n');
+  writeFileSync(join(crewDir, 'decisions.md'), '# Decisions\n');
   writeFileSync(
-    join(squadDir, 'agents', 'edie', 'history.md'),
+    join(crewDir, 'agents', 'edie', 'history.md'),
     '## Core Context\n\nTest agent.\n',
   );
 
-  // Add a .git directory so resolveSquad stops walking at this level
+  // Add a .git directory so resolveCrew stops walking at this level
   mkdirSync(join(root, '.git'), { recursive: true });
 
-  return { root, squadDir };
+  return { root, crewDir };
 }
 
 // ============================================================================
-// Tests — getSquadStartDir() resolution logic
+// Tests — getCrewStartDir() resolution logic
 // ============================================================================
 
-describe('SQUAD_TEAM_ROOT resolution (#836)', () => {
-  const savedTeamRoot = process.env['SQUAD_TEAM_ROOT'];
+describe('CREW_TEAM_ROOT resolution (#836)', () => {
+  const savedTeamRoot = process.env['CREW_TEAM_ROOT'];
   const originalCwd = process.cwd();
 
   beforeEach(() => {
-    delete process.env['SQUAD_TEAM_ROOT'];
+    delete process.env['CREW_TEAM_ROOT'];
   });
 
   afterEach(() => {
@@ -88,9 +88,9 @@ describe('SQUAD_TEAM_ROOT resolution (#836)', () => {
     process.chdir(originalCwd);
     // Restore env
     if (savedTeamRoot !== undefined) {
-      process.env['SQUAD_TEAM_ROOT'] = savedTeamRoot;
+      process.env['CREW_TEAM_ROOT'] = savedTeamRoot;
     } else {
-      delete process.env['SQUAD_TEAM_ROOT'];
+      delete process.env['CREW_TEAM_ROOT'];
     }
     // Clean up temp dirs
     for (const dir of tmpDirs) {
@@ -100,104 +100,104 @@ describe('SQUAD_TEAM_ROOT resolution (#836)', () => {
   });
 
   // --------------------------------------------------------------------------
-  // getSquadStartDir() env-var scenarios
+  // getCrewStartDir() env-var scenarios
   // --------------------------------------------------------------------------
 
-  describe('getSquadStartDir() env-var handling', () => {
-    it('returns SQUAD_TEAM_ROOT when the env var is set', () => {
-      const { root } = createSquadProject();
-      process.env['SQUAD_TEAM_ROOT'] = root;
+  describe('getCrewStartDir() env-var handling', () => {
+    it('returns CREW_TEAM_ROOT when the env var is set', () => {
+      const { root } = createCrewProject();
+      process.env['CREW_TEAM_ROOT'] = root;
 
-      expect(getSquadStartDir()).toBe(root);
+      expect(getCrewStartDir()).toBe(root);
     });
 
-    it('falls back to process.cwd() when SQUAD_TEAM_ROOT is unset', () => {
-      delete process.env['SQUAD_TEAM_ROOT'];
+    it('falls back to process.cwd() when CREW_TEAM_ROOT is unset', () => {
+      delete process.env['CREW_TEAM_ROOT'];
 
-      expect(getSquadStartDir()).toBe(process.cwd());
+      expect(getCrewStartDir()).toBe(process.cwd());
     });
 
-    it('falls back to process.cwd() when SQUAD_TEAM_ROOT is empty string', () => {
-      process.env['SQUAD_TEAM_ROOT'] = '';
+    it('falls back to process.cwd() when CREW_TEAM_ROOT is empty string', () => {
+      process.env['CREW_TEAM_ROOT'] = '';
 
       // Empty string is falsy → || falls through to process.cwd()
-      expect(getSquadStartDir()).toBe(process.cwd());
+      expect(getCrewStartDir()).toBe(process.cwd());
     });
   });
 
   // --------------------------------------------------------------------------
-  // resolveSquad integration with SQUAD_TEAM_ROOT
+  // resolveCrew integration with CREW_TEAM_ROOT
   // --------------------------------------------------------------------------
 
-  describe('resolveSquad() uses getSquadStartDir result', () => {
-    it('resolveSquad finds .squad/ when SQUAD_TEAM_ROOT points to a valid project', () => {
-      const { root, squadDir } = createSquadProject();
-      process.env['SQUAD_TEAM_ROOT'] = root;
+  describe('resolveCrew() uses getCrewStartDir result', () => {
+    it('resolveCrew finds .crew/ when CREW_TEAM_ROOT points to a valid project', () => {
+      const { root, crewDir } = createCrewProject();
+      process.env['CREW_TEAM_ROOT'] = root;
 
-      const startDir = getSquadStartDir();
-      const result = resolveSquad(startDir);
+      const startDir = getCrewStartDir();
+      const result = resolveCrew(startDir);
 
-      expect(result).toBe(squadDir);
+      expect(result).toBe(crewDir);
     });
 
-    it('resolveSquad finds .squad/ even when cwd is elsewhere', () => {
-      const { root, squadDir } = createSquadProject();
-      const otherDir = mkdtempSync(join(tmpdir(), 'squad-other-cwd-'));
+    it('resolveCrew finds .crew/ even when cwd is elsewhere', () => {
+      const { root, crewDir } = createCrewProject();
+      const otherDir = mkdtempSync(join(tmpdir(), 'crew-other-cwd-'));
       tmpDirs.push(otherDir);
 
       // Simulate Copilot CLI subprocess scenario:
-      // cwd is some random directory, but SQUAD_TEAM_ROOT points to real project
+      // cwd is some random directory, but CREW_TEAM_ROOT points to real project
       process.chdir(otherDir);
-      process.env['SQUAD_TEAM_ROOT'] = root;
+      process.env['CREW_TEAM_ROOT'] = root;
 
-      const startDir = getSquadStartDir();
-      const result = resolveSquad(startDir);
+      const startDir = getCrewStartDir();
+      const result = resolveCrew(startDir);
 
-      expect(result).toBe(squadDir);
+      expect(result).toBe(crewDir);
     });
 
-    it('resolveSquad returns null when SQUAD_TEAM_ROOT is unset and cwd has no .squad/', () => {
-      const emptyDir = mkdtempSync(join(tmpdir(), 'squad-empty-'));
+    it('resolveCrew returns null when CREW_TEAM_ROOT is unset and cwd has no .crew/', () => {
+      const emptyDir = mkdtempSync(join(tmpdir(), 'crew-empty-'));
       tmpDirs.push(emptyDir);
-      // Add .git so resolveSquad stops walking here
+      // Add .git so resolveCrew stops walking here
       mkdirSync(join(emptyDir, '.git'), { recursive: true });
 
-      delete process.env['SQUAD_TEAM_ROOT'];
+      delete process.env['CREW_TEAM_ROOT'];
       process.chdir(emptyDir);
 
-      const startDir = getSquadStartDir();
-      const result = resolveSquad(startDir);
+      const startDir = getCrewStartDir();
+      const result = resolveCrew(startDir);
 
       expect(result).toBeNull();
     });
   });
 
   // --------------------------------------------------------------------------
-  // Invalid / non-existent SQUAD_TEAM_ROOT
+  // Invalid / non-existent CREW_TEAM_ROOT
   // --------------------------------------------------------------------------
 
-  describe('invalid SQUAD_TEAM_ROOT path', () => {
-    it('resolveSquad returns null for a non-existent SQUAD_TEAM_ROOT path', () => {
-      const fakePath = join(tmpdir(), 'squad-nonexistent-' + Date.now());
-      process.env['SQUAD_TEAM_ROOT'] = fakePath;
+  describe('invalid CREW_TEAM_ROOT path', () => {
+    it('resolveCrew returns null for a non-existent CREW_TEAM_ROOT path', () => {
+      const fakePath = join(tmpdir(), 'crew-nonexistent-' + Date.now());
+      process.env['CREW_TEAM_ROOT'] = fakePath;
 
-      const startDir = getSquadStartDir();
-      const result = resolveSquad(startDir);
+      const startDir = getCrewStartDir();
+      const result = resolveCrew(startDir);
 
-      // Non-existent path → resolveSquad walks up and finds nothing → null
+      // Non-existent path → resolveCrew walks up and finds nothing → null
       expect(result).toBeNull();
     });
 
-    it('resolveSquad returns null for a SQUAD_TEAM_ROOT pointing to a dir without .squad/', () => {
-      const dirWithoutSquad = mkdtempSync(join(tmpdir(), 'squad-no-squad-dir-'));
-      tmpDirs.push(dirWithoutSquad);
-      // Add .git so resolveSquad stops walking here
-      mkdirSync(join(dirWithoutSquad, '.git'), { recursive: true });
+    it('resolveCrew returns null for a CREW_TEAM_ROOT pointing to a dir without .crew/', () => {
+      const dirWithoutCrew = mkdtempSync(join(tmpdir(), 'crew-no-crew-dir-'));
+      tmpDirs.push(dirWithoutCrew);
+      // Add .git so resolveCrew stops walking here
+      mkdirSync(join(dirWithoutCrew, '.git'), { recursive: true });
 
-      process.env['SQUAD_TEAM_ROOT'] = dirWithoutSquad;
+      process.env['CREW_TEAM_ROOT'] = dirWithoutCrew;
 
-      const startDir = getSquadStartDir();
-      const result = resolveSquad(startDir);
+      const startDir = getCrewStartDir();
+      const result = resolveCrew(startDir);
 
       expect(result).toBeNull();
     });

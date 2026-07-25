@@ -5,14 +5,14 @@
 #   ./scripts/delete-storage.sh [resource-group]
 #
 # Default:
-#   resource-group: squad-storage-demo-rg
+#   resource-group: crew-storage-demo-rg
 
 set -euo pipefail
 
-RG="${1:-squad-storage-demo-rg}"
+RG="${1:-crew-storage-demo-rg}"
 
 echo "══════════════════════════════════════════════"
-echo "  Azure Storage — Delete Squad Demo Resources"
+echo "  Azure Storage — Delete Crew Demo Resources"
 echo "══════════════════════════════════════════════"
 echo ""
 echo "  Resource Group: $RG"

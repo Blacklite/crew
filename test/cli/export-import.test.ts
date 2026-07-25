@@ -1,6 +1,6 @@
 /**
  * CLI Export/Import Command Integration Tests
- * Tests that export/import round-trip preserves squad state
+ * Tests that export/import round-trip preserves crew state
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -9,9 +9,9 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { randomBytes } from 'crypto';
 import { tmpdir } from 'os';
-import { runInit } from '@bradygaster/squad-cli/core/init';
-import { runExport } from '@bradygaster/squad-cli/commands/export';
-import { runImport } from '@bradygaster/squad-cli/commands/import';
+import { runInit } from '@blacklite/crew-cli/core/init';
+import { runExport } from '@blacklite/crew-cli/commands/export';
+import { runImport } from '@blacklite/crew-cli/commands/import';
 
 const EXT_ROOT = join(tmpdir(), `.test-cli-export-ext-${randomBytes(4).toString('hex')}`);
 const EXT_GLOBAL = join(tmpdir(), `.test-cli-export-ext-global-${randomBytes(4).toString('hex')}`);
@@ -33,7 +33,7 @@ describe('CLI: export/import commands', () => {
     await mkdir(TEST_ROOT, { recursive: true });
     await mkdir(IMPORT_ROOT, { recursive: true });
     
-    // Initialize a squad
+    // Initialize a crew
     await runInit(TEST_ROOT);
   });
 
@@ -46,14 +46,14 @@ describe('CLI: export/import commands', () => {
     }
   });
 
-  it('should export squad to squad-export.json', async () => {
+  it('should export crew to crew-export.json', async () => {
     // Create team.md to trigger export
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     await runExport(TEST_ROOT);
     
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     expect(existsSync(exportPath)).toBe(true);
     
     const content = await readFile(exportPath, 'utf-8');
@@ -67,7 +67,7 @@ describe('CLI: export/import commands', () => {
   });
 
   it('should export to custom output path', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     const customPath = join(TEST_ROOT, 'custom-export.json');
@@ -77,11 +77,11 @@ describe('CLI: export/import commands', () => {
   });
 
   it('should export casting state if present', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     // Create casting state
-    const castingDir = join(TEST_ROOT, '.squad', 'casting');
+    const castingDir = join(TEST_ROOT, '.crew', 'casting');
     await mkdir(castingDir, { recursive: true });
     await writeFile(
       join(castingDir, 'registry.json'),
@@ -90,7 +90,7 @@ describe('CLI: export/import commands', () => {
     
     await runExport(TEST_ROOT);
     
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     const content = await readFile(exportPath, 'utf-8');
     const manifest = JSON.parse(content);
     
@@ -98,18 +98,18 @@ describe('CLI: export/import commands', () => {
   });
 
   it('should export agent charters and histories', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     // Create an agent
-    const agentDir = join(TEST_ROOT, '.squad', 'agents', 'test-agent');
+    const agentDir = join(TEST_ROOT, '.crew', 'agents', 'test-agent');
     await mkdir(agentDir, { recursive: true });
     await writeFile(join(agentDir, 'charter.md'), '# Charter\nTest charter');
     await writeFile(join(agentDir, 'history.md'), '# History\nTest history');
     
     await runExport(TEST_ROOT);
     
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     const content = await readFile(exportPath, 'utf-8');
     const manifest = JSON.parse(content);
     
@@ -119,7 +119,7 @@ describe('CLI: export/import commands', () => {
   });
 
   it('should export skills', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     // Create a skill
@@ -130,7 +130,7 @@ describe('CLI: export/import commands', () => {
     
     await runExport(TEST_ROOT);
     
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     const content = await readFile(exportPath, 'utf-8');
     const manifest = JSON.parse(content);
     
@@ -138,82 +138,82 @@ describe('CLI: export/import commands', () => {
     expect(manifest.skills.length).toBeGreaterThan(0);
   });
 
-  it('should import squad from export file', async () => {
+  it('should import crew from export file', async () => {
     // Export from source
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     // Create minimal content
-    const agentDir = join(TEST_ROOT, '.squad', 'agents', 'lead');
+    const agentDir = join(TEST_ROOT, '.crew', 'agents', 'lead');
     await mkdir(agentDir, { recursive: true });
     await writeFile(join(agentDir, 'charter.md'), '# Lead Charter');
     
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     await runExport(TEST_ROOT, exportPath);
     
     // Import to new location
     await runImport(IMPORT_ROOT, exportPath, false);
     
     // Verify directory was created
-    expect(existsSync(join(IMPORT_ROOT, '.squad'))).toBe(true);
-    expect(existsSync(join(IMPORT_ROOT, '.squad', 'agents', 'lead'))).toBe(true);
+    expect(existsSync(join(IMPORT_ROOT, '.crew'))).toBe(true);
+    expect(existsSync(join(IMPORT_ROOT, '.crew', 'agents', 'lead'))).toBe(true);
   });
 
-  it('should fail import without --force if squad exists', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+  it('should fail import without --force if crew exists', async () => {
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     await runExport(TEST_ROOT, exportPath);
     
-    // Create existing squad in import location
+    // Create existing crew in import location
     await runInit(IMPORT_ROOT);
-    const importTeamPath = join(IMPORT_ROOT, '.squad', 'team.md');
+    const importTeamPath = join(IMPORT_ROOT, '.crew', 'team.md');
     await writeFile(importTeamPath, '# Existing Team\n');
     
-    // Import should fail without --force (fatal() throws SquadError)
-    // Verify that the import fails and the original squad is unchanged
+    // Import should fail without --force (fatal() throws CrewError)
+    // Verify that the import fails and the original crew is unchanged
     try {
       await runImport(IMPORT_ROOT, exportPath, false);
       // If we get here, the import succeeded when it shouldn't have
       expect(false).toBe(true); // Force failure
     } catch (err) {
-      // Expected to fail - verify original squad is still intact
+      // Expected to fail - verify original crew is still intact
       const existingTeam = await readFile(importTeamPath, 'utf-8');
       expect(existingTeam).toBe('# Existing Team\n');
     }
   });
 
-  it('should archive existing squad with --force', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+  it('should archive existing crew with --force', async () => {
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     await runExport(TEST_ROOT, exportPath);
     
-    // Create existing squad in import location
+    // Create existing crew in import location
     await runInit(IMPORT_ROOT);
-    const importTeamPath = join(IMPORT_ROOT, '.squad', 'team.md');
+    const importTeamPath = join(IMPORT_ROOT, '.crew', 'team.md');
     await writeFile(importTeamPath, '# Existing Team\n');
     
-    // Import with --force should archive old squad
+    // Import with --force should archive old crew
     await runImport(IMPORT_ROOT, exportPath, true);
     
-    // Verify new squad exists
-    expect(existsSync(join(IMPORT_ROOT, '.squad'))).toBe(true);
+    // Verify new crew exists
+    expect(existsSync(join(IMPORT_ROOT, '.crew'))).toBe(true);
     
     // Verify archive exists
     const files = await require('fs/promises').readdir(IMPORT_ROOT);
-    const archiveDir = files.find((f: string) => f.startsWith('.squad-archive-'));
+    const archiveDir = files.find((f: string) => f.startsWith('.crew-archive-'));
     expect(archiveDir).toBeDefined();
   });
 
   it('should preserve casting state in round-trip', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     // Create casting state
-    const castingDir = join(TEST_ROOT, '.squad', 'casting');
+    const castingDir = join(TEST_ROOT, '.crew', 'casting');
     await mkdir(castingDir, { recursive: true });
     const policyData = { universe: 'testing', roles: ['lead', 'dev'] };
     await writeFile(
@@ -222,12 +222,12 @@ describe('CLI: export/import commands', () => {
     );
     
     // Export and import
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     await runExport(TEST_ROOT, exportPath);
     await runImport(IMPORT_ROOT, exportPath, false);
     
     // Verify casting state was preserved
-    const importedPolicyPath = join(IMPORT_ROOT, '.squad', 'casting', 'policy.json');
+    const importedPolicyPath = join(IMPORT_ROOT, '.crew', 'casting', 'policy.json');
     expect(existsSync(importedPolicyPath)).toBe(true);
     
     const importedPolicy = JSON.parse(await readFile(importedPolicyPath, 'utf-8'));
@@ -235,31 +235,31 @@ describe('CLI: export/import commands', () => {
   });
 
   it('should preserve routing.md through export and import round-trip', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     // Create routing.md with rich content
     const routingContent = '# Routing Rules\n\n| Pattern | Agent |\n|---------|-------|\n| build/* | fenster |\n| docs/* | pao |\n\n## Principles\n\n1. Eager by default\n2. Scribe always runs\n';
-    await writeFile(join(TEST_ROOT, '.squad', 'routing.md'), routingContent);
+    await writeFile(join(TEST_ROOT, '.crew', 'routing.md'), routingContent);
     
     // Export and import
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     await runExport(TEST_ROOT, exportPath);
     await runImport(IMPORT_ROOT, exportPath, false);
     
     // Verify routing.md was faithfully preserved
-    const importedRoutingPath = join(IMPORT_ROOT, '.squad', 'routing.md');
+    const importedRoutingPath = join(IMPORT_ROOT, '.crew', 'routing.md');
     expect(existsSync(importedRoutingPath)).toBe(true);
     const importedRouting = await readFile(importedRoutingPath, 'utf-8');
     expect(importedRouting).toBe(routingContent);
   });
 
   it('should mark history as imported with source info', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
     
     // Create agent with history
-    const agentDir = join(TEST_ROOT, '.squad', 'agents', 'lead');
+    const agentDir = join(TEST_ROOT, '.crew', 'agents', 'lead');
     await mkdir(agentDir, { recursive: true });
     await writeFile(join(agentDir, 'charter.md'), '# Charter');
     await writeFile(join(agentDir, 'history.md'), '## Entry 1\nOld history');
@@ -270,7 +270,7 @@ describe('CLI: export/import commands', () => {
     await runImport(IMPORT_ROOT, exportPath, false);
     
     // Verify history has import marker
-    const historyPath = join(IMPORT_ROOT, '.squad', 'agents', 'lead', 'history.md');
+    const historyPath = join(IMPORT_ROOT, '.crew', 'agents', 'lead', 'history.md');
     const history = await readFile(historyPath, 'utf-8');
     
     expect(history).toContain('📌 Imported from');
@@ -278,12 +278,12 @@ describe('CLI: export/import commands', () => {
   });
 
   it('should export and import team.md, decisions.md, and routing.md', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# My Team\nLead: Alice\n');
-    await writeFile(join(TEST_ROOT, '.squad', 'decisions.md'), '# Decisions\n- Use TypeScript\n');
-    await writeFile(join(TEST_ROOT, '.squad', 'routing.md'), '# Routing\n- `*.ts` → fenster\n');
+    await writeFile(join(TEST_ROOT, '.crew', 'decisions.md'), '# Decisions\n- Use TypeScript\n');
+    await writeFile(join(TEST_ROOT, '.crew', 'routing.md'), '# Routing\n- `*.ts` → fenster\n');
 
-    const exportPath = join(TEST_ROOT, 'squad-export.json');
+    const exportPath = join(TEST_ROOT, 'crew-export.json');
     await runExport(TEST_ROOT, exportPath);
 
     // Verify manifest contains these fields
@@ -295,23 +295,23 @@ describe('CLI: export/import commands', () => {
 
     // Import and verify round-trip
     await runImport(IMPORT_ROOT, exportPath, false);
-    const importedTeam = await readFile(join(IMPORT_ROOT, '.squad', 'team.md'), 'utf-8');
-    const importedDecisions = await readFile(join(IMPORT_ROOT, '.squad', 'decisions.md'), 'utf-8');
-    const importedRouting = await readFile(join(IMPORT_ROOT, '.squad', 'routing.md'), 'utf-8');
+    const importedTeam = await readFile(join(IMPORT_ROOT, '.crew', 'team.md'), 'utf-8');
+    const importedDecisions = await readFile(join(IMPORT_ROOT, '.crew', 'decisions.md'), 'utf-8');
+    const importedRouting = await readFile(join(IMPORT_ROOT, '.crew', 'routing.md'), 'utf-8');
     expect(importedTeam).toBe('# My Team\nLead: Alice\n');
     expect(importedDecisions).toBe('# Decisions\n- Use TypeScript\n');
     expect(importedRouting).toBe('# Routing\n- `*.ts` → fenster\n');
   });
 
   it('should reject agent names with path traversal', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
 
     // Create a malicious export file with path traversal in agent name
     const maliciousManifest = {
       version: '1.0',
       exported_at: new Date().toISOString(),
-      squad_version: '0.6.0',
+      crew_version: '0.6.0',
       casting: {},
       agents: { '../../../etc/evil': { charter: 'malicious content' } },
       skills: [],
@@ -325,14 +325,14 @@ describe('CLI: export/import commands', () => {
   });
 
   it('should handle older bundles without team_md/decisions_md gracefully', async () => {
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     await writeFile(teamPath, '# Team\n');
 
     // Old format bundle without team_md, decisions_md, routing_md
     const oldManifest = {
       version: '1.0',
       exported_at: new Date().toISOString(),
-      squad_version: '0.6.0',
+      crew_version: '0.6.0',
       casting: {},
       agents: {},
       skills: [],
@@ -343,19 +343,19 @@ describe('CLI: export/import commands', () => {
     await runImport(IMPORT_ROOT, exportPath, false);
 
     // Should write empty defaults
-    const importedTeam = await readFile(join(IMPORT_ROOT, '.squad', 'team.md'), 'utf-8');
-    const importedDecisions = await readFile(join(IMPORT_ROOT, '.squad', 'decisions.md'), 'utf-8');
+    const importedTeam = await readFile(join(IMPORT_ROOT, '.crew', 'team.md'), 'utf-8');
+    const importedDecisions = await readFile(join(IMPORT_ROOT, '.crew', 'decisions.md'), 'utf-8');
     expect(importedTeam).toBe('');
     expect(importedDecisions).toBe('');
     // routing.md should not be created if not in bundle
-    expect(existsSync(join(IMPORT_ROOT, '.squad', 'routing.md'))).toBe(false);
+    expect(existsSync(join(IMPORT_ROOT, '.crew', 'routing.md'))).toBe(false);
   });
 });
 
 describe('CLI: export with externalized state (#1396)', () => {
   const origAppData = process.env['APPDATA'];
   const origXdgConfig = process.env['XDG_CONFIG_HOME'];
-  const externalStateDir = join(EXT_GLOBAL, 'squad', 'projects', EXT_PROJECT_KEY);
+  const externalStateDir = join(EXT_GLOBAL, 'crew', 'projects', EXT_PROJECT_KEY);
 
   beforeEach(async () => {
     if (existsSync(EXT_ROOT)) {
@@ -365,17 +365,17 @@ describe('CLI: export with externalized state (#1396)', () => {
       await rm(EXT_GLOBAL, { recursive: true, force: true });
     }
 
-    // Point resolveGlobalSquadPath() inside EXT_GLOBAL (not the real user dir)
+    // Point resolveGlobalCrewPath() inside EXT_GLOBAL (not the real user dir)
     if (process.platform === 'win32') {
       process.env['APPDATA'] = EXT_GLOBAL;
     } else {
       process.env['XDG_CONFIG_HOME'] = EXT_GLOBAL;
     }
 
-    // Local repo: thin .squad/ holding only the marker `squad externalize` leaves behind
-    await mkdir(join(EXT_ROOT, '.squad'), { recursive: true });
+    // Local repo: thin .crew/ holding only the marker `crew externalize` leaves behind
+    await mkdir(join(EXT_ROOT, '.crew'), { recursive: true });
     await writeFile(
-      join(EXT_ROOT, '.squad', 'config.json'),
+      join(EXT_ROOT, '.crew', 'config.json'),
       JSON.stringify({ version: 1, teamRoot: '.', projectKey: EXT_PROJECT_KEY, stateLocation: 'external' }, null, 2)
     );
 
@@ -403,7 +403,7 @@ describe('CLI: export with externalized state (#1396)', () => {
   it('exports team state from the external state dir', async () => {
     await runExport(EXT_ROOT);
 
-    const exportPath = join(EXT_ROOT, 'squad-export.json');
+    const exportPath = join(EXT_ROOT, 'crew-export.json');
     expect(existsSync(exportPath)).toBe(true);
 
     const manifest = JSON.parse(await readFile(exportPath, 'utf-8'));
@@ -414,11 +414,11 @@ describe('CLI: export with externalized state (#1396)', () => {
 
   it('prefers external state over stale local files when the marker is set', async () => {
     // Simulate local scaffolding re-created after externalize (e.g. a re-run init)
-    await writeFile(join(EXT_ROOT, '.squad', 'team.md'), '# Stale Local Scaffold\n');
+    await writeFile(join(EXT_ROOT, '.crew', 'team.md'), '# Stale Local Scaffold\n');
 
     await runExport(EXT_ROOT);
 
-    const manifest = JSON.parse(await readFile(join(EXT_ROOT, 'squad-export.json'), 'utf-8'));
+    const manifest = JSON.parse(await readFile(join(EXT_ROOT, 'crew-export.json'), 'utf-8'));
     expect(manifest.team_md).toBe('# External Team\n');
   });
 });

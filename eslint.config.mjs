@@ -4,7 +4,7 @@ import nPlugin from "eslint-plugin-n";
 
 export default [
   {
-    ignores: ["**/node_modules/**", "**/dist/**", "**/.squad/**"],
+    ignores: ["**/node_modules/**", "**/dist/**", "**/.crew/**"],
   },
 
   // Source packages — type-aware rules enabled via tsconfig project service

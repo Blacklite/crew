@@ -6,21 +6,21 @@ import { describe, it, expect } from 'vitest';
 import {
   parseAgentDoc,
   type AgentDocMetadata,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
   syncDocToConfig,
   syncConfigToDoc,
   detectDrift,
   type DriftReport,
-} from '@bradygaster/squad-sdk/config';
-import { defineConfig, type SquadConfig } from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
+import { defineConfig, type CrewConfig } from '@blacklite/crew-sdk/config';
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
 /** Minimal config factory — always supplies a fresh agents array. */
-function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
+function makeConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
   return defineConfig({ agents: [], ...overrides });
 }
 
@@ -227,7 +227,7 @@ describe('syncDocToConfig', () => {
     const config = makeConfig();
     const updated = syncDocToConfig(doc, config);
     expect(updated).toBeDefined();
-    expect(updated.team.name).toBe('Default Squad'); // unchanged
+    expect(updated.team.name).toBe('Default Crew'); // unchanged
   });
 });
 
@@ -238,11 +238,11 @@ describe('syncDocToConfig', () => {
 describe('syncConfigToDoc', () => {
   it('should generate markdown with all standard sections', () => {
     const config = makeConfig({
-      team: { name: 'Test Squad', description: 'Test team' },
+      team: { name: 'Test Crew', description: 'Test team' },
       agents: [{ name: 'tester', role: 'QA', tools: ['grep'] }],
     });
     const md = syncConfigToDoc(config);
-    expect(md).toContain('# Test Squad');
+    expect(md).toContain('# Test Crew');
     expect(md).toContain('## Identity');
     expect(md).toContain('## Capabilities');
     expect(md).toContain('## Routing');

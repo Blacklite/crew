@@ -13,14 +13,14 @@ import {
   loadLatestSession,
   listSessions,
   loadSessionById,
-} from '@bradygaster/squad-cli/shell/session-store';
-import type { SessionData } from '@bradygaster/squad-cli/shell/session-store';
-import type { ShellMessage } from '@bradygaster/squad-cli/shell/types';
+} from '@blacklite/crew-cli/shell/session-store';
+import type { SessionData } from '@blacklite/crew-cli/shell/session-store';
+import type { ShellMessage } from '@blacklite/crew-cli/shell/types';
 
 let tmpRoot: string;
 
 beforeEach(() => {
-  tmpRoot = mkdtempSync(join(tmpdir(), 'squad-session-test-'));
+  tmpRoot = mkdtempSync(join(tmpdir(), 'crew-session-test-'));
 });
 
 afterEach(() => {
@@ -115,7 +115,7 @@ describe('listSessions', () => {
   });
 
   it('lists saved sessions most recent first', () => {
-    const dir = join(tmpRoot, '.squad', 'sessions');
+    const dir = join(tmpRoot, '.crew', 'sessions');
     mkdirSync(dir, { recursive: true });
 
     const s1 = createSession();
@@ -141,7 +141,7 @@ describe('listSessions', () => {
   });
 
   it('skips malformed JSON files', () => {
-    const dir = join(tmpRoot, '.squad', 'sessions');
+    const dir = join(tmpRoot, '.crew', 'sessions');
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'bad.json'), 'not json');
 
@@ -183,7 +183,7 @@ describe('loadLatestSession', () => {
     session.createdAt = old;
     session.lastActiveAt = old;
 
-    const dir = join(tmpRoot, '.squad', 'sessions');
+    const dir = join(tmpRoot, '.crew', 'sessions');
     mkdirSync(dir, { recursive: true });
     writeFileSync(
       join(dir, `old_${session.id}.json`),
@@ -199,7 +199,7 @@ describe('loadLatestSession', () => {
 // ============================================================================
 
 describe('external stateDir support', () => {
-  it('saveSession writes to stateDir/sessions, not teamRoot/.squad/sessions', () => {
+  it('saveSession writes to stateDir/sessions, not teamRoot/.crew/sessions', () => {
     const externalDir = join(tmpRoot, 'external-state');
     mkdirSync(externalDir, { recursive: true });
 
@@ -210,7 +210,7 @@ describe('external stateDir support', () => {
     expect(filePath.startsWith(join(externalDir, 'sessions'))).toBe(true);
     expect(existsSync(filePath)).toBe(true);
     // Nothing written under teamRoot
-    expect(existsSync(join(tmpRoot, '.squad', 'sessions'))).toBe(false);
+    expect(existsSync(join(tmpRoot, '.crew', 'sessions'))).toBe(false);
   });
 
   it('loadLatestSession finds a session saved to an external stateDir', () => {

@@ -11,7 +11,7 @@
  *   4. honours --filter
  *   5. fails clearly when SDK dist is missing
  *
- * The runner intentionally imports from the built SDK at packages/squad-sdk/dist/.
+ * The runner intentionally imports from the built SDK at packages/crew-sdk/dist/.
  * The smoke tests therefore require `npm run build` to have happened. They skip
  * gracefully (with an informative message) if dist/ is not present, so this
  * file does not break clean checkouts.
@@ -24,7 +24,7 @@ import { existsSync } from 'node:fs';
 
 const REPO_ROOT = resolve(__dirname, '..');
 const RUNNER = join(REPO_ROOT, 'scripts', 'run-benchmarks.mjs');
-const SDK_DIST = join(REPO_ROOT, 'packages', 'squad-sdk', 'dist', 'runtime', 'benchmarks.js');
+const SDK_DIST = join(REPO_ROOT, 'packages', 'crew-sdk', 'dist', 'runtime', 'benchmarks.js');
 
 function runScript(args: string[], extraEnv: NodeJS.ProcessEnv = {}): Promise<{
   code: number | null;

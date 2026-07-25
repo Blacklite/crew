@@ -1,6 +1,6 @@
 # Label Taxonomy
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to apply workflow labels:**
@@ -15,10 +15,10 @@ Show me all issues with priority:p0
 
 **Try this to route work to a specific agent:**
 ```
-Add squad:fenster to issue #23
+Add crew:fenster to issue #23
 ```
 
-Squad uses structured, namespaced labels as the state machine. Labels drive workflow automation — not just tags. Five namespaces control lifecycle, priority, ownership, and release targeting.
+Crew uses structured, namespaced labels as the state machine. Labels drive workflow automation — not just tags. Five namespaces control lifecycle, priority, ownership, and release targeting.
 
 ---
 
@@ -30,7 +30,7 @@ Squad uses structured, namespaced labels as the state machine. Labels drive work
 | `release:` | Release target | `release:v0.4.0`, `release:v0.5.0`, `release:backlog` | ✅ One per issue |
 | `type:` | Issue category | `type:feature`, `type:bug`, `type:spike`, `type:docs`, `type:chore`, `type:epic` | ✅ One per issue |
 | `priority:` | Urgency level | `priority:p0`, `priority:p1`, `priority:p2` | ✅ One per issue |
-| `squad:{member}` | Agent assignment | `squad:fenster`, `squad:mcmanus`, `squad:hockney` | ❌ Can have multiple (pair work) |
+| `crew:{member}` | Agent assignment | `crew:fenster`, `crew:mcmanus`, `crew:hockney` | ❌ Can have multiple (pair work) |
 
 ## Mutual Exclusivity Rules
 
@@ -41,8 +41,8 @@ Example:
 - You apply `go:yes`
 - Result: `go:needs-research` removed, `go:yes` applied
 
-The `squad:{member}` namespace allows **multiple labels** for collaborative work:
-- `squad:fenster` + `squad:hockney` = pair programming or handoff
+The `crew:{member}` namespace allows **multiple labels** for collaborative work:
+- `crew:fenster` + `crew:hockney` = pair programming or handoff
 
 ## Workflow Automation
 
@@ -61,25 +61,25 @@ Some label changes trigger cascading updates:
 ### 3. Triage (Auto-Assignment)
 
 Ralph (work monitor) uses labels to route work:
-- `squad:fenster` → Fenster picks it up
-- No `squad:*` + `type:bug` → Routes to Tester or Lead based on routing.md
+- `crew:fenster` → Fenster picks it up
+- No `crew:*` + `type:bug` → Routes to Tester or Lead based on routing.md
 - `go:needs-research` → Routes to Lead for investigation
 
 ### 4. Heartbeat (Periodic Check)
 
-The `squad-heartbeat.yml` workflow runs every 30 minutes and:
-- Finds issues with `squad` label but no `squad:{member}` → auto-triages
-- Finds `go:yes` + `squad:{member}` but no assignee → spawns agent
+The `crew-heartbeat.yml` workflow runs every 30 minutes and:
+- Finds issues with `crew` label but no `crew:{member}` → auto-triages
+- Finds `go:yes` + `crew:{member}` but no assignee → spawns agent
 - Finds stale `go:needs-research` (>7 days) → escalates to Lead
 
 ## State Machine Flow
 
 ```
-New issue → squad label → Triage
+New issue → crew label → Triage
                             ↓
                        Lead assigns go:* + type:* + priority:*
                             ↓
-                      go:yes → squad:{member} assigned
+                      go:yes → crew:{member} assigned
                             ↓
                       Agent works → Draft PR
                             ↓
@@ -93,14 +93,14 @@ New issue → squad label → Triage
 Labels are created automatically during `init` or `upgrade`. To add custom labels:
 
 ```bash
-gh label create "squad:designer" --color "0366d6" --description "Work assigned to Designer"
+gh label create "crew:designer" --color "0366d6" --description "Work assigned to Designer"
 ```
 
 Or via the GitHub UI: Issues → Labels → New label
 
 ## Label Colors
 
-Squad uses a consistent color scheme:
+Crew uses a consistent color scheme:
 
 | Namespace | Color | Hex |
 |-----------|-------|-----|
@@ -108,7 +108,7 @@ Squad uses a consistent color scheme:
 | `release:` | Blue | `#0366d6` |
 | `type:` | Purple | `#6f42c1` |
 | `priority:` | Orange (p0), Yellow (p1), Gray (p2) | `#d93f0b`, `#fbca04`, `#d4c5f9` |
-| `squad:{member}` | Teal | `#008672` |
+| `crew:{member}` | Teal | `#008672` |
 
 ## Querying by Label
 
@@ -117,7 +117,7 @@ Squad uses a consistent color scheme:
 gh issue list --label "go:yes,release:v0.4.0,type:feature"
 
 # All p0 bugs assigned to Fenster
-gh issue list --label "priority:p0,type:bug,squad:fenster"
+gh issue list --label "priority:p0,type:bug,crew:fenster"
 
 # All issues needing research
 gh issue list --label "go:needs-research"
@@ -138,7 +138,7 @@ Updates verdict: removes `go:needs-research`, applies `go:no`, adds `release:bac
 ```
 Assign issue #28 to Fenster and Hockney for pair work
 ```
-Applies `squad:fenster` and `squad:hockney` labels. Both agents can pick it up.
+Applies `crew:fenster` and `crew:hockney` labels. Both agents can pick it up.
 
 ```
 List all p0 features approved for the next release

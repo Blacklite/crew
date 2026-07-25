@@ -13,8 +13,8 @@ import { describe, expect, it } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 
-import { FSStorageProvider } from '../../packages/squad-sdk/src/storage/fs-storage-provider.js';
-import { LocalMemoryStore } from '../../packages/squad-sdk/src/memory/index.js';
+import { FSStorageProvider } from '../../packages/crew-sdk/src/storage/fs-storage-provider.js';
+import { LocalMemoryStore } from '../../packages/crew-sdk/src/memory/index.js';
 
 import { makeWriteGuardedStorage, withHermeticRoot } from './_helpers/hermetic-root.js';
 
@@ -55,7 +55,7 @@ describe('LocalMemoryStore characterization', () => {
       const idSet = new Set(stored.map((r) => r.id!));
       expect(idSet.size).toBe(n);
 
-      const indexPath = path.join(root, '.squad', 'memory', 'index.json');
+      const indexPath = path.join(root, '.crew', 'memory', 'index.json');
       const rawIndex = await fs.readFile(indexPath, 'utf8');
       const parsedIndex = JSON.parse(rawIndex) as Array<{ id: string; status: string }>;
       expect(parsedIndex).toHaveLength(n);
@@ -64,7 +64,7 @@ describe('LocalMemoryStore characterization', () => {
 
       // audit.jsonl invariant: every line parses; write actions for our ids
       // are all present; no partial or truncated lines.
-      const auditPath = path.join(root, '.squad', 'memory', 'audit.jsonl');
+      const auditPath = path.join(root, '.crew', 'memory', 'audit.jsonl');
       const auditRecords = (await readJsonl(auditPath)) as Array<{
         action: string;
         id?: string;
@@ -90,7 +90,7 @@ describe('LocalMemoryStore characterization', () => {
       });
       expect(writeResult.stored).toBe(true);
       const id = writeResult.id!;
-      const tombstonePath = path.join(root, '.squad', 'memory', 'tombstones', `${id}.json`);
+      const tombstonePath = path.join(root, '.crew', 'memory', 'tombstones', `${id}.json`);
       const sourceAbsolute = path.join(root, writeResult.path!);
 
       // Sanity: tombstone does not exist yet; source does.
@@ -140,7 +140,7 @@ describe('LocalMemoryStore characterization', () => {
       // Post-conditions: source removed, tombstone persisted, audit updated.
       await expect(fs.access(sourceAbsolute)).rejects.toThrow();
       await expect(fs.access(tombstonePath)).resolves.toBeUndefined();
-      const auditPath = path.join(root, '.squad', 'memory', 'audit.jsonl');
+      const auditPath = path.join(root, '.crew', 'memory', 'audit.jsonl');
       const auditRecords = (await readJsonl(auditPath)) as Array<{
         action: string;
         id?: string;

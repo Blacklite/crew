@@ -1,6 +1,6 @@
 # Proposal: Retro Enforcement Skill
 
-**Issue:** bradygaster/squad#601
+**Issue:** Blacklite/crew#601
 **Author:** tamirdresher
 **Date:** 2026-03-26
 **Status:** Proposal
@@ -32,12 +32,12 @@ A PowerShell function that checks whether a retrospective has occurred within th
 if the retro is overdue.
 
 `powershell
-if (Test-RetroOverdue -LogDir ".squad/log" -WindowDays 7) {
+if (Test-RetroOverdue -LogDir ".crew/log" -WindowDays 7) {
     # Spawn retro facilitator, wait for log, then resume
 }
 `
 
-Detection: checks .squad/log/ for *retrospective* files dated within the window.
+Detection: checks .crew/log/ for *retrospective* files dated within the window.
 
 ### 2. Action Item Enforcement
 
@@ -48,7 +48,7 @@ Every retro action item MUST be a GitHub Issue. The skill provides:
 
 ### 3. Ceremonies Template Update
 
-Updates .squad-templates/ceremonies.md with an enforcement-aware Retrospective definition
+Updates .crew-templates/ceremonies.md with an enforcement-aware Retrospective definition
 that documents the enforcement behavior, cadence, and required output format.
 
 ---
@@ -56,7 +56,7 @@ that documents the enforcement behavior, cadence, and required output format.
 ## Fit with Existing Architecture
 
 - **Complements** the existing ceremonies template (additive, not replacing)
-- **Integrates** with existing .squad/log/ pattern used by Scribe and coordinators
+- **Integrates** with existing .crew/log/ pattern used by Scribe and coordinators
 - **No new dependencies** — uses PowerShell, GitHub Issues, and existing file conventions
 - **Coordinator integration** is optional and additive — existing coordinators continue to work
 
@@ -64,15 +64,15 @@ that documents the enforcement behavior, cadence, and required output format.
 
 ## What Changes
 
-- New skill: packages/squad-cli/templates/skills/retro-enforcement/SKILL.md
-- New skill: packages/squad-sdk/templates/skills/retro-enforcement/SKILL.md
-- Updated: .squad-templates/ceremonies.md (Retrospective section enhanced)
+- New skill: packages/crew-cli/templates/skills/retro-enforcement/SKILL.md
+- New skill: packages/crew-sdk/templates/skills/retro-enforcement/SKILL.md
+- Updated: .crew-templates/ceremonies.md (Retrospective section enhanced)
 - New changeset: .changeset/retro-enforcement.md
 
 ## What Stays the Same
 
 - Existing ceremonies template sections (Design Review, etc.) unchanged
-- Existing .squad/log/ format unchanged
+- Existing .crew/log/ format unchanged
 - No changes to CLI or SDK runtime code — template/skills only
 
 ---
@@ -81,12 +81,12 @@ that documents the enforcement behavior, cadence, and required output format.
 
 | Risk | Likelihood | Impact | Mitigation |
 |------|-----------|--------|------------|
-| Coordinator blocks on retro check when no .squad/log/ dir exists | Medium | Low | Test-RetroOverdue handles SilentlyContinue for missing dirs |
+| Coordinator blocks on retro check when no .crew/log/ dir exists | Medium | Low | Test-RetroOverdue handles SilentlyContinue for missing dirs |
 | Teams don't want weekly enforcement | Low | Low | Cadence is configurable (-WindowDays param) |
 
 ---
 
 ## References
 
-- Issue: bradygaster/squad#601
+- Issue: Blacklite/crew#601
 - Production data: tamirdresher/tamresearch1 (0% vs 85%+ completion, 6 retrospectives)

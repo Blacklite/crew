@@ -4,7 +4,7 @@
  * Validates advanced shell features an experienced user relies on:
  * slash commands, tab completion, Ctrl+C cancel/exit, @agent routing.
  *
- * @see https://github.com/bradygaster/squad-pr/issues/396
+ * @see https://github.com/Blacklite/crew-pr/issues/396
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -14,10 +14,10 @@ import { tmpdir } from 'node:os';
 import { rm } from 'node:fs/promises';
 import React from 'react';
 import { render, type RenderResponse } from 'ink-testing-library';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import { App, type ShellApi } from '../packages/squad-cli/src/cli/shell/components/App.js';
-import type { ParsedInput } from '../packages/squad-cli/src/cli/shell/router.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import { App, type ShellApi } from '../packages/crew-cli/src/cli/shell/components/App.js';
+import type { ParsedInput } from '../packages/crew-cli/src/cli/shell/router.js';
 
 const h = React.createElement;
 
@@ -34,14 +34,14 @@ function tick(ms = TICK): Promise<void> {
   return new Promise(r => setTimeout(r, ms));
 }
 
-function scaffoldSquadDir(root: string): void {
-  const squadDir = join(root, '.squad');
-  const agentsDir = join(squadDir, 'agents');
-  const identityDir = join(squadDir, 'identity');
+function scaffoldCrewDir(root: string): void {
+  const crewDir = join(root, '.crew');
+  const agentsDir = join(crewDir, 'agents');
+  const identityDir = join(crewDir, 'identity');
   mkdirSync(agentsDir, { recursive: true });
   mkdirSync(identityDir, { recursive: true });
 
-  writeFileSync(join(squadDir, 'team.md'), `# Squad Team — Power User Test
+  writeFileSync(join(crewDir, 'team.md'), `# Crew Team — Power User Test
 
 > A project for testing power-user workflows.
 
@@ -49,9 +49,9 @@ function scaffoldSquadDir(root: string): void {
 
 | Name | Role | Charter | Status |
 |------|------|---------|--------|
-| Keaton | Lead | \`.squad/agents/keaton/charter.md\` | ✅ Active |
-| Fenster | Core Dev | \`.squad/agents/fenster/charter.md\` | ✅ Active |
-| McManus | QA | \`.squad/agents/mcmanus/charter.md\` | ✅ Active |
+| Keaton | Lead | \`.crew/agents/keaton/charter.md\` | ✅ Active |
+| Fenster | Core Dev | \`.crew/agents/fenster/charter.md\` | ✅ Active |
+| McManus | QA | \`.crew/agents/mcmanus/charter.md\` | ✅ Active |
 `);
 
   writeFileSync(join(identityDir, 'now.md'), `---
@@ -82,7 +82,7 @@ interface ShellHarness {
 
 async function createShellHarness(opts?: {
   agents?: Array<{ name: string; role: string }>;
-  withSquadDir?: boolean;
+  withCrewDir?: boolean;
   version?: string;
 }): Promise<ShellHarness> {
   const {
@@ -91,12 +91,12 @@ async function createShellHarness(opts?: {
       { name: 'Fenster', role: 'Core Dev' },
       { name: 'McManus', role: 'QA' },
     ],
-    withSquadDir = true,
+    withCrewDir = true,
     version = '0.0.0-test',
   } = opts ?? {};
 
-  const tempDir = mkdtempSync(join(tmpdir(), 'squad-journey-pu-'));
-  if (withSquadDir) scaffoldSquadDir(tempDir);
+  const tempDir = mkdtempSync(join(tmpdir(), 'crew-journey-pu-'));
+  if (withCrewDir) scaffoldCrewDir(tempDir);
 
   const registry = new SessionRegistry();
   for (const a of agents) registry.register(a.name, a.role);

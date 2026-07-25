@@ -17,7 +17,7 @@ import {
   RalphMonitor,
   type MonitorConfig,
   type AgentWorkStatus,
-} from '../packages/squad-sdk/src/ralph/index.js';
+} from '../packages/crew-sdk/src/ralph/index.js';
 
 // --- Mock EventBus ---
 

@@ -1,6 +1,6 @@
-# Issue-Driven Development with Squad
+# Issue-Driven Development with Crew
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this:**
@@ -16,7 +16,7 @@ End-to-end workflow: connect to a repo, pick issues from backlog, let agents cre
 
 ## 1. Connect to the Repository
 
-Tell Squad which repo to track:
+Tell Crew which repo to track:
 
 ```
 > Connect to myorg/recipe-app
@@ -27,7 +27,7 @@ Tell Squad which repo to track:
    Using gh CLI for issue tracking.
 ```
 
-Squad stores the issue source in team state. From now on, it can read issues, create branches, and open PRs against this repo.
+Crew stores the issue source in team state. From now on, it can read issues, create branches, and open PRs against this repo.
 
 ---
 
@@ -60,7 +60,7 @@ Pick an issue for an agent to work on:
 > Work on #15
 ```
 
-Squad reads the issue, routes it to the right agent based on domain, and kicks off the full workflow:
+Crew reads the issue, routes it to the right agent based on domain, and kicks off the full workflow:
 
 ```
 🔧 Dallas — picking up #15 (Fix pagination on recipe list)
@@ -89,13 +89,13 @@ When the agent finishes:
 
 ## 4. Handle Review Feedback
 
-A reviewer leaves comments on the PR. Tell Squad:
+A reviewer leaves comments on the PR. Tell Crew:
 
 ```
 > There's review feedback on PR #22
 ```
 
-Squad routes the feedback to the agent who opened it:
+Crew routes the feedback to the agent who opened it:
 
 ```
 🔧 Dallas — reading review comments on PR #22
@@ -192,7 +192,7 @@ graph LR
 
 ## Tips
 
-- **You don't pick the agent.** Squad routes each issue to the agent whose expertise matches.
+- **You don't pick the agent.** Crew routes each issue to the agent whose expertise matches.
 - **Agents name branches with the issue number.** Pattern: `{number}-{slugified-title}`.
 - **PRs auto-link to issues.** The PR body includes `Closes #N`, so merging closes the issue.
 - **Review feedback is incremental.** Agents push new commits — no force-pushes, no new PRs.

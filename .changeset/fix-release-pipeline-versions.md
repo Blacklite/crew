@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-cli": patch
+"@blacklite/crew-cli": patch
 ---
 
 fix: release pipeline version pinning (#1203, #1204)
@@ -10,5 +10,5 @@ fix: release pipeline version pinning (#1203, #1204)
 - Add `isLocalOrUnpublishedVersion` guard to `buildMcpServerSpecs` so local dev
   builds and versions with build metadata (`+`) fall back to `@insider` instead
   of writing an unresolvable version string into MCP config.
-- Extend `resolveSquadStateMcpSpec` to short-circuit for build-metadata versions.
+- Extend `resolveCrewStateMcpSpec` to short-circuit for build-metadata versions.
 - Add CI step to verify SDK dependency is resolvable before publishing the CLI.

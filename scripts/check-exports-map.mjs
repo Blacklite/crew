@@ -8,7 +8,7 @@ import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SDK_ROOT = resolve(__dirname, '..', 'packages', 'squad-sdk');
+const SDK_ROOT = resolve(__dirname, '..', 'packages', 'crew-sdk');
 const SRC_DIR = join(SDK_ROOT, 'src');
 const PKG_PATH = join(SDK_ROOT, 'package.json');
 
@@ -40,7 +40,7 @@ if (missing.length === 0) {
   for (const { dir, expectedKey } of missing) {
     console.error(`  MISSING: "${expectedKey}" (has src/${dir}/index.ts but no export entry)`);
   }
-  console.error(`\nTo fix: add export entries to packages/squad-sdk/package.json "exports" for each missing barrel.`);
+  console.error(`\nTo fix: add export entries to packages/crew-sdk/package.json "exports" for each missing barrel.`);
   console.error('To skip: add the "skip-exports-check" label to your PR to bypass this gate.');
   process.exit(1);
 }

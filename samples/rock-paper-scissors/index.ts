@@ -7,8 +7,8 @@
  * GITHUB_TOKEN required.
  */
 
-import { StreamingPipeline } from '@bradygaster/squad-sdk';
-import { SquadClientWithPool } from '@bradygaster/squad-sdk/client';
+import { StreamingPipeline } from '@blacklite/crew-sdk';
+import { CrewClientWithPool } from '@blacklite/crew-sdk/client';
 import { PLAYERS, SCOREKEEPER_PROMPT, type PlayerStrategy } from './prompts.js';
 
 // ── Game State ───────────────────────────────────────────────────────
@@ -49,7 +49,7 @@ async function main(): Promise<void> {
   console.log('╚══════════════════════════════════════════╝\n');
 
   // Connect to Copilot
-  const client = new SquadClientWithPool({
+  const client = new CrewClientWithPool({
     githubToken: process.env.GITHUB_TOKEN,
     pool: { maxConcurrent: PLAYERS.length + 2 }, // players + scorekeeper + headroom
   });
@@ -152,7 +152,7 @@ async function main(): Promise<void> {
 // ── Play Single Match ────────────────────────────────────────────────
 
 async function playMatch(
-  client: SquadClientWithPool,
+  client: CrewClientWithPool,
   pipeline: StreamingPipeline,
   playerA: PlayerInfo,
   playerB: PlayerInfo,
@@ -231,7 +231,7 @@ async function playMatch(
 // ── Get Player Move ──────────────────────────────────────────────────
 
 async function getPlayerMove(
-  client: SquadClientWithPool,
+  client: CrewClientWithPool,
   player: PlayerInfo,
   opponent: PlayerInfo,
   matchHistory: MatchHistory,
@@ -353,7 +353,7 @@ function determineWinner(
 // ── Announce Result via Scorekeeper ──────────────────────────────────
 
 async function announceResult(
-  client: SquadClientWithPool,
+  client: CrewClientWithPool,
   pipeline: StreamingPipeline,
   scorekeeper: { name: string; sessionId: string },
   playerA: PlayerInfo,
@@ -416,7 +416,7 @@ async function announceResult(
 // ── Print Leaderboard ────────────────────────────────────────────────
 
 async function printLeaderboard(
-  client: SquadClientWithPool,
+  client: CrewClientWithPool,
   pipeline: StreamingPipeline,
   scorekeeper: { name: string; sessionId: string },
   players: PlayerInfo[],

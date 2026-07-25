@@ -2,12 +2,12 @@
   "id": "mempalace-memory",
   "name": "MemPalace Memory",
   "version": "1.0.0",
-  "description": "Example Squad memory provider plugin that describes a memory-palace-style knowledge layout.",
+  "description": "Example Crew memory provider plugin that describes a memory-palace-style knowledge layout.",
   "authors": [
-    "Squad"
+    "Crew"
   ],
   "license": "MIT",
-  "squad": ">=0.9.1",
+  "crew": ">=0.9.1",
   "components": {
     "memory": {
       "provider": "mempalace",
@@ -30,7 +30,7 @@
     "server": "mempalace",
     "entryPoint": "mempalace-mcp",
     "installCommand": "mempalace-mcp --palace /path/to/palace",
-    "reason": "MemPalace provides an optional MCP server for external memory access. Squad records the metadata but does not start it."
+    "reason": "MemPalace provides an optional MCP server for external memory access. Crew records the metadata but does not start it."
   },
   "providers": [
     {

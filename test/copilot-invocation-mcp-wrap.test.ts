@@ -12,13 +12,13 @@ import { randomBytes } from 'node:crypto';
 import {
   buildAdditionalMcpConfigArgs,
   withAdditionalMcpConfig,
-} from '../packages/squad-cli/src/cli/core/copilot-invocation.js';
+} from '../packages/crew-cli/src/cli/core/copilot-invocation.js';
 
 describe('copilot-invocation: --additional-mcp-config wrapping', () => {
   let workdir: string;
 
   beforeEach(() => {
-    workdir = path.join(tmpdir(), `squad-copilot-invocation-${randomBytes(4).toString('hex')}`);
+    workdir = path.join(tmpdir(), `crew-copilot-invocation-${randomBytes(4).toString('hex')}`);
     mkdirSync(workdir, { recursive: true });
   });
 

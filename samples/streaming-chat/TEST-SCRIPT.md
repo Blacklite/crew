@@ -15,11 +15,11 @@ Manual test walkthrough for the streaming-chat MVP Summit demo.
 ## Test 1 — Demo Mode Startup
 
 ```bash
-SQUAD_DEMO_MODE=true npx tsx index.ts
+CREW_DEMO_MODE=true npx tsx index.ts
 ```
 
 **Expected:**
-- [x] Banner displays: `🎬 Squad Streaming Chat · MVP Summit`
+- [x] Banner displays: `🎬 Crew Streaming Chat · MVP Summit`
 - [x] Cast shows 3 agents with colored bullets: McManus (cyan), Kobayashi (magenta), Fenster (yellow)
 - [x] Message: `Running in demo mode — responses are simulated`
 - [x] Prompt appears: `◆ you >`
@@ -89,7 +89,7 @@ Press Enter without typing anything.
 
 ---
 
-## Test 8 — Graceful Copilot Fallback (no SQUAD_DEMO_MODE)
+## Test 8 — Graceful Copilot Fallback (no CREW_DEMO_MODE)
 
 ```bash
 npx tsx index.ts

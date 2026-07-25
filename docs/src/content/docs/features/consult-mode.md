@@ -1,32 +1,32 @@
 # Consult Mode
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Consult mode lets you bring your personal squad to projects you don't own — OSS contributions, client work, temporary collaborations — without leaving any trace. Your team consults, does the work, learns things, and returns home with only the generic learnings you approve.
+Consult mode lets you bring your personal crew to projects you don't own — OSS contributions, client work, temporary collaborations — without leaving any trace. Your team consults, does the work, learns things, and returns home with only the generic learnings you approve.
 
 ---
 
 ## The Problem
 
-You have a personal squad at your global path (e.g., `~/Library/Application Support/squad/personal-squad` on macOS, `~/.config/squad/personal-squad` on Linux) with agents, skills, and decisions refined over time. When you contribute to someone else's project, you face a dilemma:
+You have a personal crew at your global path (e.g., `~/Library/Application Support/crew/personal-crew` on macOS, `~/.config/crew/personal-crew` on Linux) with agents, skills, and decisions refined over time. When you contribute to someone else's project, you face a dilemma:
 
-- **Pollute the project?** Running `squad init` creates a `.squad/` folder they didn't ask for
-- **Pollute your squad?** Project-specific knowledge bleeds into your global squad
+- **Pollute the project?** Running `crew init` creates a `.crew/` folder they didn't ask for
+- **Pollute your crew?** Project-specific knowledge bleeds into your global crew
 - **Work without your team?** Lose the productivity benefits you've built up
 
 ---
 
 ## The Solution
 
-Your team **consults** on a project. They bring their expertise, do the work, and learn things. When done, they extract what's reusable and return home. The project never knows Squad was there.
+Your team **consults** on a project. They bring their expertise, do the work, and learn things. When done, they extract what's reusable and return home. The project never knows Crew was there.
 
 | Aspect | Normal Mode | Consult Mode |
 |--------|-------------|--------------|
-| Squad location | `.squad/` in project | **Copy** of personal squad into project `.squad/` |
+| Crew location | `.crew/` in project | **Copy** of personal crew into project `.crew/` |
 | Git visibility | Committed or `.gitignore` | Invisible via `.git/info/exclude` |
-| Writes go to | Project `.squad/` | Project `.squad/` (isolated copy) |
-| After session | Stays in project | Extract generic learnings → personal squad, discard rest |
+| Writes go to | Project `.crew/` | Project `.crew/` (isolated copy) |
+| After session | Stays in project | Extract generic learnings → personal crew, discard rest |
 
 ---
 
@@ -36,93 +36,93 @@ Your team **consults** on a project. They bring their expertise, do the work, an
 
 ```bash
 cd ~/projects/kubernetes-dashboard
-squad consult                 # Enter consult mode
-# ... do your work with your squad ...
-squad extract                 # Review and extract generic learnings
-squad extract --clean --yes   # Clean up after extraction
+crew consult                 # Enter consult mode
+# ... do your work with your crew ...
+crew extract                 # Review and extract generic learnings
+crew extract --clean --yes   # Clean up after extraction
 ```
 
 ### Client Work
 
 ```bash
 cd ~/client-projects/acme-corp
-squad consult                 # Enter consult mode
+crew consult                 # Enter consult mode
 # ... work on the project ...
-squad extract --dry-run       # Preview what would be extracted
-squad extract --clean         # Extract and clean up (prompts for confirmation)
+crew extract --dry-run       # Preview what would be extracted
+crew extract --clean         # Extract and clean up (prompts for confirmation)
 ```
 
 ### Check Status
 
 ```bash
-squad consult --status        # See if consult mode is active
-squad consult --check         # Dry-run: show what would happen
+crew consult --status        # See if consult mode is active
+crew consult --check         # Dry-run: show what would happen
 ```
 
 ---
 
 ## Command Reference
 
-### `squad consult`
+### `crew consult`
 
-Enter consult mode with your personal squad.
+Enter consult mode with your personal crew.
 
 ```bash
-squad consult              # Enter consult mode
-squad consult --status     # Check current consult mode status
-squad consult --check      # Dry-run: show what would happen without creating files
+crew consult              # Enter consult mode
+crew consult --status     # Check current consult mode status
+crew consult --check      # Dry-run: show what would happen without creating files
 ```
 
 **What happens:**
 
-1. Copies your personal squad into the project's `.squad/` directory
-2. Adds `.squad/` and `.github/agents/squad.agent.md` to `.git/info/exclude`
+1. Copies your personal crew into the project's `.crew/` directory
+2. Adds `.crew/` and `.github/agents/crew.agent.md` to `.git/info/exclude`
 3. Patches the Scribe charter with extraction instructions
-4. Creates a staging area at `.squad/extract/` for generic learnings
+4. Creates a staging area at `.crew/extract/` for generic learnings
 
 **Created structure:**
 
 ```
-.squad/                     # Full copy of personal squad
-├── config.json             # { "consult": true, "sourceSquad": "...", ... }
-├── agents/                 # Copied from personal squad
-├── skills/                 # Copied from personal squad
-├── decisions.md            # Copied from personal squad
+.crew/                     # Full copy of personal crew
+├── config.json             # { "consult": true, "sourceCrew": "...", ... }
+├── agents/                 # Copied from personal crew
+├── skills/                 # Copied from personal crew
+├── decisions.md            # Copied from personal crew
 ├── scribe-charter.md       # Patched with consult mode extraction instructions
 ├── sessions/               # Local session history
 └── extract/                # Staging area for generic learnings
 
 .github/agents/
-└── squad.agent.md          # Points to local .squad/ (also excluded from git)
+└── crew.agent.md          # Points to local .crew/ (also excluded from git)
 ```
 
 **Requirements:**
 
-- You must have a personal squad configured
-- The project must not already have a committed `.squad/` folder
+- You must have a personal crew configured
+- The project must not already have a committed `.crew/` folder
 
 ---
 
-### `squad extract`
+### `crew extract`
 
-Extract generic learnings from a consult session back to your personal squad.
+Extract generic learnings from a consult session back to your personal crew.
 
 ```bash
-squad extract                    # Review and extract generic learnings
-squad extract --dry-run          # Preview what would be extracted (no changes)
-squad extract --clean            # Also delete project .squad/ after (prompts for confirmation)
-squad extract --clean --yes      # Delete without confirmation
-squad extract --accept-risks     # Allow extraction despite license risks
+crew extract                    # Review and extract generic learnings
+crew extract --dry-run          # Preview what would be extracted (no changes)
+crew extract --clean            # Also delete project .crew/ after (prompts for confirmation)
+crew extract --clean --yes      # Delete without confirmation
+crew extract --accept-risks     # Allow extraction despite license risks
 ```
 
 **What happens:**
 
 1. Reads the project's LICENSE file
-2. Loads staged learnings from `.squad/extract/`
+2. Loads staged learnings from `.crew/extract/`
 3. Presents an interactive selection UI
-4. Merges selected items to your personal squad
-5. Logs the consultation to `<personal-squad>/consultations/{project}.md`
-6. Optionally cleans up the project `.squad/` directory
+4. Merges selected items to your personal crew
+5. Logs the consultation to `<personal-crew>/consultations/{project}.md`
+6. Optionally cleans up the project `.crew/` directory
 
 **Example output:**
 
@@ -131,7 +131,7 @@ squad extract --accept-risks     # Allow extraction despite license risks
 
 ⚠️  License: MIT (safe to extract)
 
-Found 3 learning(s) in .squad/extract/:
+Found 3 learning(s) in .crew/extract/:
   [1] use-async-await.md
   [2] validate-inputs.md  
   [3] prefer-composition.md
@@ -152,7 +152,7 @@ During your consult session, the **Scribe** automatically classifies decisions a
 
 ### Generic (applies to any project)
 
-Copied to `.squad/extract/` for later extraction:
+Copied to `.crew/extract/` for later extraction:
 
 - "Always use async/await instead of callbacks"
 - "Validate inputs at API boundaries"
@@ -167,7 +167,7 @@ Kept in local `decisions.md` only — not extracted:
 - Project-specific config, APIs, or schemas
 - Decisions that mention "this project" or "this codebase"
 
-**You always have final say.** The Scribe proposes by writing to `extract/`, you approve or reject via `squad extract`. No extraction happens without your explicit confirmation.
+**You always have final say.** The Scribe proposes by writing to `extract/`, you approve or reject via `crew extract`. No extraction happens without your explicit confirmation.
 
 ---
 
@@ -190,15 +190,15 @@ GPL, AGPL, LGPL — extraction is blocked by default:
    Extraction blocked. Patterns from copyleft projects may carry
    license obligations that affect your future work.
    
-   See: https://squad.dev/docs/license-risk
+   See: https://crew.dev/docs/license-risk
    
-   To proceed anyway: squad extract --accept-risks
+   To proceed anyway: crew extract --accept-risks
 ```
 
 To override:
 
 ```bash
-squad extract --accept-risks
+crew extract --accept-risks
 ```
 
 ---
@@ -207,25 +207,25 @@ squad extract --accept-risks
 
 ### Git Invisibility
 
-Consult mode uses `.git/info/exclude` to hide Squad files:
+Consult mode uses `.git/info/exclude` to hide Crew files:
 
 - Same syntax as `.gitignore`
 - Lives inside `.git/`, so it's never committed
 - Project owners never see it
-- `git status` shows nothing Squad-related
+- `git status` shows nothing Crew-related
 
 ### Why Copy Instead of Reference?
 
-Your personal squad is **copied** into the project rather than referenced:
+Your personal crew is **copied** into the project rather than referenced:
 
-- Changes during the session don't pollute your personal squad
+- Changes during the session don't pollute your personal crew
 - Session-specific decisions stay isolated until explicitly extracted
 - Works offline (no dependency on external path)
 - Clean separation between "consulting" and "bringing home"
 
 ### Consultation Log
 
-All consultations are tracked in your personal squad at `consultations/{project}.md`:
+All consultations are tracked in your personal crew at `consultations/{project}.md`:
 
 ```markdown
 # kubernetes-dashboard
@@ -248,16 +248,16 @@ All consultations are tracked in your personal squad at `consultations/{project}
 
 ## Tips
 
-- Run `squad consult --check` before entering consult mode to preview what will happen
-- Use `squad extract --dry-run` to review staged learnings without committing
+- Run `crew consult --check` before entering consult mode to preview what will happen
+- Use `crew extract --dry-run` to review staged learnings without committing
 - The `--clean` flag is convenient for OSS drive-by contributions where you won't return
-- Consult mode errors out if the project already has a committed `.squad/` — use normal mode instead
-- Your personal squad is never modified during the session — only via explicit `squad extract`
+- Consult mode errors out if the project already has a committed `.crew/` — use normal mode instead
+- Your personal crew is never modified during the session — only via explicit `crew extract`
 
 ---
 
 ## Next Steps
 
-- **Set up a personal squad:** See [Your Personal Squad](../guide/personal-squad.md) for initial setup with `squad init --global`
+- **Set up a personal crew:** See [Your Personal Crew](../guide/personal-crew.md) for initial setup with `crew init --global`
 - **Learn about sharing:** See [Export & Import](./export-import.md) for portable team snapshots
 - **Upstream inheritance:** See [Upstream Inheritance](./upstream-inheritance.md) for knowledge sharing across teams

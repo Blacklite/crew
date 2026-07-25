@@ -27,8 +27,8 @@ const root = join(__dirname, '..');
 
 const PACKAGE_PATHS = [
   join(root, 'package.json'),
-  join(root, 'packages', 'squad-sdk', 'package.json'),
-  join(root, 'packages', 'squad-cli', 'package.json'),
+  join(root, 'packages', 'crew-sdk', 'package.json'),
+  join(root, 'packages', 'crew-cli', 'package.json'),
 ];
 
 // Parse version: "major.minor.patch-prerelease.build" or "major.minor.patch.build"
@@ -81,8 +81,8 @@ for (const pkgPath of PACKAGE_PATHS) {
 // drift where package.json says X.Y.Z-build.N but lockfile workspace entries
 // still say the previous version → npm ci fails in CI with EUSAGE.
 //
-// We only touch the two workspace entries (packages/squad-cli and
-// packages/squad-sdk) and their cross-dependency reference. No npm
+// We only touch the two workspace entries (packages/crew-cli and
+// packages/crew-sdk) and their cross-dependency reference. No npm
 // install is run, so the dependency tree is not touched.
 const LOCKFILE_PATH = join(root, 'package-lock.json');
 try {
@@ -90,18 +90,18 @@ try {
   const lock = JSON.parse(lockRaw);
   if (lock.packages) {
     let lockChanged = false;
-    for (const key of ['packages/squad-sdk', 'packages/squad-cli']) {
+    for (const key of ['packages/crew-sdk', 'packages/crew-cli']) {
       const entry = lock.packages[key];
       if (entry && entry.version !== newVersion) {
         entry.version = newVersion;
         lockChanged = true;
       }
-      // Also bump the CLI's @bradygaster/squad-sdk dependency floor so it
+      // Also bump the CLI's @blacklite/crew-sdk dependency floor so it
       // resolves the freshly-built SDK rather than the previous version.
-      if (key === 'packages/squad-cli' && entry?.dependencies?.['@bradygaster/squad-sdk']) {
+      if (key === 'packages/crew-cli' && entry?.dependencies?.['@blacklite/crew-sdk']) {
         const desired = `>=${newVersion}`;
-        if (entry.dependencies['@bradygaster/squad-sdk'] !== desired) {
-          entry.dependencies['@bradygaster/squad-sdk'] = desired;
+        if (entry.dependencies['@blacklite/crew-sdk'] !== desired) {
+          entry.dependencies['@blacklite/crew-sdk'] = desired;
           lockChanged = true;
         }
       }

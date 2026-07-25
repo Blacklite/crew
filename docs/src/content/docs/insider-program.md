@@ -1,12 +1,12 @@
 # Insider Program
 
-Get early access to Squad development builds and shape the future of the project.
+Get early access to Crew development builds and shape the future of the project.
 
 ---
 
 ## What Is the Insider Program?
 
-The Insider Program gives you continuous access to development builds of Squad. Insiders run code published from the `dev` branch — the bleeding edge where new features land first. It's a lightweight, honor-system program designed for developers who want to:
+The Insider Program gives you continuous access to development builds of Crew. Insiders run code published from the `dev` branch — the bleeding edge where new features land first. It's a lightweight, honor-system program designed for developers who want to:
 
 - **Try new features early** — Before they ship in a release
 - **Help catch bugs** — Report issues before they reach stable versions
@@ -34,22 +34,22 @@ main (stable)      → npm @latest tag
 ### Install Insider Build
 
 ```bash
-npm install -g @bradygaster/squad-cli@insider
+npm install -g @blacklite/crew-cli@insider
 ```
 
 ### Upgrade Existing Repo to Insider
 
 ```bash
-npm install -g @bradygaster/squad-cli@insider
-squad upgrade
+npm install -g @blacklite/crew-cli@insider
+crew upgrade
 ```
 
-This updates Squad-owned files (`squad.agent.md`, workflows, templates) to the latest insider build. Your `.squad/` team state (agents, decisions, casting, history) is always preserved.
+This updates Crew-owned files (`crew.agent.md`, workflows, templates) to the latest insider build. Your `.crew/` team state (agents, decisions, casting, history) is always preserved.
 
 ### Self-Upgrade to Insider
 
 ```bash
-squad upgrade --self --insider
+crew upgrade --self --insider
 ```
 
 ---
@@ -80,7 +80,7 @@ Found a bug? We want to hear about it.
 
 **Open a GitHub issue** with:
 
-1. **Version** — Full version from `squad --version`
+1. **Version** — Full version from `crew --version`
 2. **What happened** — Clear description of the bug
 3. **Steps to reproduce** — Exact steps to trigger it
 4. **Environment** — CLI or VS Code, Node version, OS
@@ -94,10 +94,10 @@ Found a bug? We want to hear about it.
 Want to go back to stable releases?
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest
+npm install -g @blacklite/crew-cli@latest
 ```
 
-This installs the latest stable version. Your `.squad/` state is safe — it'll work with any version.
+This installs the latest stable version. Your `.crew/` state is safe — it'll work with any version.
 
 ---
 
@@ -109,31 +109,31 @@ This installs the latest stable version. Your `.squad/` state is safe — it'll 
 
 ### Q: Can I switch between insider and stable builds?
 
-**A:** Yes. Insider builds are backward compatible with stable installs. Your `.squad/` directory works with any version.
+**A:** Yes. Insider builds are backward compatible with stable installs. Your `.crew/` directory works with any version.
 
 ### Q: How often do insider builds update?
 
-**A:** Whenever maintainers trigger the insider publish workflow from `dev`. Run `npm install -g @bradygaster/squad-cli@insider` again to fetch the latest.
+**A:** Whenever maintainers trigger the insider publish workflow from `dev`. Run `npm install -g @blacklite/crew-cli@insider` again to fetch the latest.
 
 ### Q: Will my team state be preserved?
 
-**A:** Yes. `.squad/` is never overwritten on upgrade. All your agents, decisions, and histories are safe.
+**A:** Yes. `.crew/` is never overwritten on upgrade. All your agents, decisions, and histories are safe.
 
 ### Q: What if an insider build has a bad bug?
 
 **A:** Roll back immediately:
 
 ```bash
-npm install -g @bradygaster/squad-cli@latest   # Back to stable
-squad upgrade                                   # Apply stable version
+npm install -g @blacklite/crew-cli@latest   # Back to stable
+crew upgrade                                   # Apply stable version
 ```
 
-Then [report the issue](https://github.com/bradygaster/squad/issues).
+Then [report the issue](https://github.com/Blacklite/crew/issues).
 
 ---
 
 ## Thank You
 
-Insiders help us ship better software. Your bug reports, feature requests, and feedback make Squad stronger. Thank you for being part of the journey.
+Insiders help us ship better software. Your bug reports, feature requests, and feedback make Crew stronger. Thank you for being part of the journey.
 
-Have questions? [Start a discussion](https://github.com/bradygaster/squad/discussions).
+Have questions? [Start a discussion](https://github.com/Blacklite/crew/discussions).

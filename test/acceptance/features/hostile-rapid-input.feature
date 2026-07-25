@@ -1,7 +1,7 @@
 Feature: Hostile — Rapid consecutive commands
 
   Scenario: Multiple version checks in rapid succession
-    When I run 5 rapid "squad --version" commands
+    When I run 5 rapid "crew --version" commands
     Then all commands complete without crash
     And all exit codes are 0
 
@@ -10,6 +10,6 @@ Feature: Hostile — Rapid consecutive commands
     Then all commands complete without crash
 
   Scenario: Concurrent help and version commands
-    When I run "squad --version" and "squad --help" concurrently
+    When I run "crew --version" and "crew --help" concurrently
     Then all commands complete without crash
     And all exit codes are 0

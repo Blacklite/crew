@@ -88,5 +88,5 @@ Preferred: {model}
 - Don't create skills for content only one agent uses
 - Don't merge unrelated patterns into a single mega-skill
 - Don't remove Model preference line (coordinator needs it for model selection)
-- Don't touch `.squad/decisions.md` during reskill
+- Don't touch `.crew/decisions.md` during reskill
 - Don't remove the tagline blockquote — it's the charter's soul in one line

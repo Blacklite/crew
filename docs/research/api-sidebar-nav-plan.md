@@ -34,13 +34,13 @@ Extend `generate-api-docs.mjs` to output a nav fragment file after categorizatio
       "title": "Interfaces",
       "items": [
         { "title": "AgentCapability", "slug": "reference/api/interface-agentcapability" },
-        { "title": "SquadConfig", "slug": "reference/api/interface-squadconfig" }
+        { "title": "CrewConfig", "slug": "reference/api/interface-crewconfig" }
       ]
     },
     {
       "title": "Functions",
       "items": [
-        { "title": "defineSquad", "slug": "reference/api/function-definesquad" },
+        { "title": "defineCrew", "slug": "reference/api/function-definecrew" },
         { "title": "loadConfig", "slug": "reference/api/function-loadconfig" }
       ]
     },

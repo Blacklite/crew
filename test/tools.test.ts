@@ -2,24 +2,24 @@
  * Integration tests for ToolRegistry (M1-1, M1-2, Issues #88 #92)
  *
  * Tests tool registration, lookup, filtering, and handler execution for:
- * - squad_route: Routing tasks to agents
- * - squad_decide: Writing decisions to inbox
- * - squad_memory: Appending to agent history
- * - squad_status: Querying session state
- * - squad_skill: Reading/writing skills
+ * - crew_route: Routing tasks to agents
+ * - crew_decide: Writing decisions to inbox
+ * - crew_memory: Appending to agent history
+ * - crew_status: Querying session state
+ * - crew_skill: Reading/writing skills
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { ToolRegistry, defineTool, sanitizeArgs, type RouteRequest, type DecisionRecord, type MemoryEntry } from '@bradygaster/squad-sdk/tools';
-import { SessionPool, EventBus } from '@bradygaster/squad-sdk/client';
-import type { FanOutDependencies } from '@bradygaster/squad-sdk/coordinator';
-import type { AgentCharter } from '@bradygaster/squad-sdk/agents';
+import { ToolRegistry, defineTool, sanitizeArgs, type RouteRequest, type DecisionRecord, type MemoryEntry } from '@blacklite/crew-sdk/tools';
+import { SessionPool, EventBus } from '@blacklite/crew-sdk/client';
+import type { FanOutDependencies } from '@blacklite/crew-sdk/coordinator';
+import type { AgentCharter } from '@blacklite/crew-sdk/agents';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 /**
- * Build a fully-mocked FanOutDependencies suitable for squad_route tests.
+ * Build a fully-mocked FanOutDependencies suitable for crew_route tests.
  * Mirrors test/fan-out.test.ts mock style so any future change to the
  * fan-out contract surfaces in both places.
  */
@@ -53,7 +53,7 @@ function buildMockFanOutDeps(overrides: Partial<FanOutDependencies> = {}): FanOu
 }
 
 describe('defineTool', () => {
-  it('should create a typed SquadTool', () => {
+  it('should create a typed CrewTool', () => {
     const tool = defineTool({
       name: 'test_tool',
       description: 'A test tool',
@@ -118,27 +118,27 @@ describe('ToolRegistry', () => {
   let registry: ToolRegistry;
   let testRoot: string;
   const builtInToolNames = [
-    'squad_route',
-    'squad_decide',
-    'squad_memory',
-    'squad_state_read',
-    'squad_state_write',
-    'squad_state_append',
-    'squad_state_delete',
-    'squad_state_list',
-    'squad_state_health',
+    'crew_route',
+    'crew_decide',
+    'crew_memory',
+    'crew_state_read',
+    'crew_state_write',
+    'crew_state_append',
+    'crew_state_delete',
+    'crew_state_list',
+    'crew_state_health',
     'memory.classify',
     'memory.write',
     'memory.search',
     'memory.promote',
     'memory.delete',
     'memory.audit',
-    'squad_status',
-    'squad_skill',
+    'crew_status',
+    'crew_skill',
   ];
 
   beforeEach(() => {
-    testRoot = path.join('.', '.test-squad-' + randomUUID());
+    testRoot = path.join('.', '.test-crew-' + randomUUID());
     registry = new ToolRegistry(testRoot);
   });
 
@@ -149,7 +149,7 @@ describe('ToolRegistry', () => {
   });
 
   describe('registration', () => {
-    it('should register all squad and memory governance tools', () => {
+    it('should register all crew and memory governance tools', () => {
       const tools = registry.getTools();
       expect(tools.length).toBe(builtInToolNames.length);
 
@@ -158,9 +158,9 @@ describe('ToolRegistry', () => {
     });
 
     it('should register tools with descriptions and parameters', () => {
-      const routeTool = registry.getTool('squad_route');
+      const routeTool = registry.getTool('crew_route');
       expect(routeTool).toBeDefined();
-      expect(routeTool!.name).toBe('squad_route');
+      expect(routeTool!.name).toBe('crew_route');
       expect(routeTool!.description).toContain('Route a task');
       expect(routeTool!.parameters).toBeDefined();
     });
@@ -188,9 +188,9 @@ describe('ToolRegistry', () => {
     });
 
     it('should filter tools by allowed list', () => {
-      const tools = registry.getToolsForAgent(['squad_route', 'squad_decide']);
+      const tools = registry.getToolsForAgent(['crew_route', 'crew_decide']);
       expect(tools.length).toBe(2);
-      expect(tools.map(t => t.name)).toEqual(['squad_route', 'squad_decide']);
+      expect(tools.map(t => t.name)).toEqual(['crew_route', 'crew_decide']);
     });
 
     it('should handle empty allowed list', () => {
@@ -199,17 +199,17 @@ describe('ToolRegistry', () => {
     });
 
     it('should filter out non-existent tools', () => {
-      const tools = registry.getToolsForAgent(['squad_route', 'nonexistent_tool', 'squad_decide']);
+      const tools = registry.getToolsForAgent(['crew_route', 'nonexistent_tool', 'crew_decide']);
       expect(tools.length).toBe(2);
-      expect(tools.map(t => t.name)).toEqual(['squad_route', 'squad_decide']);
+      expect(tools.map(t => t.name)).toEqual(['crew_route', 'crew_decide']);
     });
   });
 
   describe('getTool', () => {
     it('should retrieve tool by name', () => {
-      const tool = registry.getTool('squad_route');
+      const tool = registry.getTool('crew_route');
       expect(tool).toBeDefined();
-      expect(tool!.name).toBe('squad_route');
+      expect(tool!.name).toBe('crew_route');
     });
 
     it('should return undefined for non-existent tool', () => {
@@ -218,13 +218,13 @@ describe('ToolRegistry', () => {
     });
   });
 
-  // #1255: identity/ must be writable via squad_state_write
-  describe('squad_state_write identity/ key (Issue #1255)', () => {
+  // #1255: identity/ must be writable via crew_state_write
+  describe('crew_state_write identity/ key (Issue #1255)', () => {
     it('should succeed when writing identity/now.md', async () => {
-      const tool = registry.getTool('squad_state_write')!;
+      const tool = registry.getTool('crew_state_write')!;
       const result = await tool.handler(
         { key: 'identity/now.md', content: '# Now\n\nActive on #1255 fix.' },
-        { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'squad_state_write', arguments: {} },
+        { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'crew_state_write', arguments: {} },
       );
 
       expect(result.resultType).toBe('success');
@@ -233,10 +233,10 @@ describe('ToolRegistry', () => {
     });
 
     it('should succeed when writing any path under identity/', async () => {
-      const tool = registry.getTool('squad_state_write')!;
+      const tool = registry.getTool('crew_state_write')!;
       const result = await tool.handler(
         { key: 'identity/focus.md', content: '# Focus\n' },
-        { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'squad_state_write', arguments: {} },
+        { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'crew_state_write', arguments: {} },
       );
 
       expect(result.resultType).toBe('success');
@@ -244,16 +244,16 @@ describe('ToolRegistry', () => {
   });
 });
 
-describe('squad_route handler', () => {
+describe('crew_route handler', () => {
   it('should validate target agent is required', async () => {
-    const registry = new ToolRegistry('.test-squad-route');
-    const tool = registry.getTool('squad_route')!;
+    const registry = new ToolRegistry('.test-crew-route');
+    const tool = registry.getTool('crew_route')!;
     const result = await tool.handler(
       { targetAgent: '', task: 'Do something' } as RouteRequest,
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         arguments: {},
       }
     );
@@ -266,14 +266,14 @@ describe('squad_route handler', () => {
 
   it('should fail with fan-out-deps-unavailable when no fanOutDepsGetter is configured', async () => {
     // Default ToolRegistry has no fanOutDepsGetter — must not fake success.
-    const registry = new ToolRegistry('.test-squad-route');
-    const tool = registry.getTool('squad_route')!;
+    const registry = new ToolRegistry('.test-crew-route');
+    const tool = registry.getTool('crew_route')!;
     const result = await tool.handler(
       { targetAgent: 'fenster', task: 'Implement feature X' } as RouteRequest,
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         arguments: {},
       }
     );
@@ -292,8 +292,8 @@ describe('squad_route handler', () => {
 
   it('should spawn target agent via spawnParallel when fanOutDepsGetter is configured', async () => {
     const deps = buildMockFanOutDeps();
-    const registry = new ToolRegistry('.test-squad-route', undefined, undefined, undefined, () => deps);
-    const tool = registry.getTool('squad_route')!;
+    const registry = new ToolRegistry('.test-crew-route', undefined, undefined, undefined, () => deps);
+    const tool = registry.getTool('crew_route')!;
     const result = await tool.handler(
       {
         targetAgent: 'fenster',
@@ -304,7 +304,7 @@ describe('squad_route handler', () => {
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         arguments: {},
       }
     );
@@ -323,14 +323,14 @@ describe('squad_route handler', () => {
 
   it('should default priority to normal when omitted', async () => {
     const deps = buildMockFanOutDeps();
-    const registry = new ToolRegistry('.test-squad-route', undefined, undefined, undefined, () => deps);
-    const tool = registry.getTool('squad_route')!;
+    const registry = new ToolRegistry('.test-crew-route', undefined, undefined, undefined, () => deps);
+    const tool = registry.getTool('crew_route')!;
     const result = await tool.handler(
       { targetAgent: 'brady', task: 'Review code' } as RouteRequest,
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         arguments: {},
       }
     );
@@ -345,14 +345,14 @@ describe('squad_route handler', () => {
         throw new Error('charter-not-found');
       }),
     });
-    const registry = new ToolRegistry('.test-squad-route', undefined, undefined, undefined, () => deps);
-    const tool = registry.getTool('squad_route')!;
+    const registry = new ToolRegistry('.test-crew-route', undefined, undefined, undefined, () => deps);
+    const tool = registry.getTool('crew_route')!;
     const result = await tool.handler(
       { targetAgent: 'ghost', task: 'Do thing' } as RouteRequest,
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         arguments: {},
       }
     );
@@ -364,14 +364,14 @@ describe('squad_route handler', () => {
   });
 
   it('should fail with fan-out-deps-unavailable when fanOutDepsGetter returns undefined', async () => {
-    const registry = new ToolRegistry('.test-squad-route', undefined, undefined, undefined, () => undefined);
-    const tool = registry.getTool('squad_route')!;
+    const registry = new ToolRegistry('.test-crew-route', undefined, undefined, undefined, () => undefined);
+    const tool = registry.getTool('crew_route')!;
     const result = await tool.handler(
       { targetAgent: 'fenster', task: 'Implement feature X' } as RouteRequest,
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_route',
+        toolName: 'crew_route',
         arguments: {},
       }
     );
@@ -383,12 +383,12 @@ describe('squad_route handler', () => {
   });
 });
 
-describe('squad_decide handler', () => {
+describe('crew_decide handler', () => {
   let registry: ToolRegistry;
   let testRoot: string;
 
   beforeEach(() => {
-    testRoot = path.join('.', '.test-squad-decide-' + randomUUID());
+    testRoot = path.join('.', '.test-crew-decide-' + randomUUID());
     registry = new ToolRegistry(testRoot);
   });
 
@@ -399,7 +399,7 @@ describe('squad_decide handler', () => {
   });
 
   it('should write decision to inbox directory', async () => {
-    const tool = registry.getTool('squad_decide')!;
+    const tool = registry.getTool('crew_decide')!;
     const result = await tool.handler(
       {
         author: 'fenster',
@@ -410,7 +410,7 @@ describe('squad_decide handler', () => {
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_decide',
+        toolName: 'crew_decide',
         arguments: {},
       }
     );
@@ -436,7 +436,7 @@ describe('squad_decide handler', () => {
   });
 
   it('should handle decision without references', async () => {
-    const tool = registry.getTool('squad_decide')!;
+    const tool = registry.getTool('crew_decide')!;
     const result = await tool.handler(
       {
         author: 'brady',
@@ -446,7 +446,7 @@ describe('squad_decide handler', () => {
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_decide',
+        toolName: 'crew_decide',
         arguments: {},
       }
     );
@@ -467,12 +467,12 @@ describe('squad_decide handler', () => {
 
 // #1256: on-behalf-of authors with spaces/parens/etc must be accepted;
 //        filename must be slugified; author > 200 chars must be rejected.
-describe('squad_decide author validation (Issue #1256)', () => {
+describe('crew_decide author validation (Issue #1256)', () => {
   let registry: ToolRegistry;
   let testRoot: string;
 
   beforeEach(() => {
-    testRoot = path.join('.', '.test-squad-decide-1256-' + randomUUID());
+    testRoot = path.join('.', '.test-crew-decide-1256-' + randomUUID());
     registry = new ToolRegistry(testRoot);
   });
 
@@ -483,15 +483,15 @@ describe('squad_decide author validation (Issue #1256)', () => {
   });
 
   it('accepts on-behalf-of author with spaces and parens and writes raw author in By: line', async () => {
-    const tool = registry.getTool('squad_decide')!;
-    const author = 'Squad (Coordinator) on behalf of Tamir Dresher (CTO)';
+    const tool = registry.getTool('crew_decide')!;
+    const author = 'Crew (Coordinator) on behalf of Tamir Dresher (CTO)';
     const result = await tool.handler(
       {
         author,
         summary: 'Adopt TypeScript strict mode',
         body: 'Reduces runtime errors across the board.',
       } as DecisionRecord,
-      { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'squad_decide', arguments: {} },
+      { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'crew_decide', arguments: {} },
     );
 
     expect(result.resultType).toBe('success');
@@ -512,7 +512,7 @@ describe('squad_decide author validation (Issue #1256)', () => {
   });
 
   it('rejects an author longer than 200 characters', async () => {
-    const tool = registry.getTool('squad_decide')!;
+    const tool = registry.getTool('crew_decide')!;
     const longAuthor = 'a'.repeat(201);
     const result = await tool.handler(
       {
@@ -520,33 +520,33 @@ describe('squad_decide author validation (Issue #1256)', () => {
         summary: 'Some decision',
         body: 'Body text.',
       } as DecisionRecord,
-      { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'squad_decide', arguments: {} },
+      { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'crew_decide', arguments: {} },
     );
 
     expect(result.resultType).toBe('failure');
   });
 
   it('success message reports slugified filename, not raw author string', async () => {
-    const tool = registry.getTool('squad_decide')!;
-    const author = 'Squad (Coordinator) on behalf of Tamir Dresher (CTO)';
+    const tool = registry.getTool('crew_decide')!;
+    const author = 'Crew (Coordinator) on behalf of Tamir Dresher (CTO)';
     const result = await tool.handler(
       {
         author,
         summary: 'Adopt strict mode',
         body: 'Reduces runtime errors.',
       } as DecisionRecord,
-      { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'squad_decide', arguments: {} },
+      { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'crew_decide', arguments: {} },
     );
 
     expect(result.resultType).toBe('success');
     // textResultForLlm must reference the actual slugified author portion of the filename
-    expect(result.textResultForLlm).toMatch(/squad-coordinator-on-behalf-of-tamir-dresher-cto/);
+    expect(result.textResultForLlm).toMatch(/crew-coordinator-on-behalf-of-tamir-dresher-cto/);
     // textResultForLlm must NOT contain the raw author string with spaces/parens
-    expect(result.textResultForLlm).not.toContain('Squad (Coordinator)');
+    expect(result.textResultForLlm).not.toContain('Crew (Coordinator)');
   });
 
   it('rejects an author whose slugified form is empty (spaces/punctuation only)', async () => {
-    const tool = registry.getTool('squad_decide')!;
+    const tool = registry.getTool('crew_decide')!;
     const emptySlugAuthors = ['   ', '()', '---', '...'];
 
     for (const author of emptySlugAuthors) {
@@ -556,7 +556,7 @@ describe('squad_decide author validation (Issue #1256)', () => {
           summary: 'Some decision',
           body: 'Body text.',
         } as DecisionRecord,
-        { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'squad_decide', arguments: {} },
+        { sessionId: 'test-session', toolCallId: 'test-call', toolName: 'crew_decide', arguments: {} },
       );
 
       expect(result.resultType).toBe('failure');
@@ -565,12 +565,12 @@ describe('squad_decide author validation (Issue #1256)', () => {
   });
 });
 
-describe('squad_memory handler', () => {
+describe('crew_memory handler', () => {
   let registry: ToolRegistry;
   let testRoot: string;
 
   beforeEach(() => {
-    testRoot = path.join('.', '.test-squad-memory-' + randomUUID());
+    testRoot = path.join('.', '.test-crew-memory-' + randomUUID());
     registry = new ToolRegistry(testRoot);
 
     // Create test agent history file
@@ -604,7 +604,7 @@ Initial session entry.
   });
 
   it('should append to existing section', async () => {
-    const tool = registry.getTool('squad_memory')!;
+    const tool = registry.getTool('crew_memory')!;
     const result = await tool.handler(
       {
         agent: 'fenster',
@@ -614,7 +614,7 @@ Initial session entry.
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_memory',
+        toolName: 'crew_memory',
         arguments: {},
       }
     );
@@ -644,7 +644,7 @@ Initial session entry.
     fs.mkdirSync(agentDir, { recursive: true });
     fs.writeFileSync(path.join(agentDir, 'history.md'), '# Brady History\n\n## Learnings\n', 'utf-8');
 
-    const tool = registry.getTool('squad_memory')!;
+    const tool = registry.getTool('crew_memory')!;
     const result = await tool.handler(
       {
         agent: 'brady',
@@ -654,7 +654,7 @@ Initial session entry.
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_memory',
+        toolName: 'crew_memory',
         arguments: {},
       }
     );
@@ -671,7 +671,7 @@ Initial session entry.
   });
 
   it('should fail if agent history does not exist', async () => {
-    const tool = registry.getTool('squad_memory')!;
+    const tool = registry.getTool('crew_memory')!;
     const result = await tool.handler(
       {
         agent: 'nonexistent',
@@ -681,7 +681,7 @@ Initial session entry.
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_memory',
+        toolName: 'crew_memory',
         arguments: {},
       }
     );
@@ -800,23 +800,23 @@ describe('memory governance tool handlers', () => {
   });
 });
 
-describe('squad_status handler', () => {
+describe('crew_status handler', () => {
   let registry: ToolRegistry;
   let sessionPool: SessionPool;
 
   beforeEach(() => {
     sessionPool = new SessionPool({ maxConcurrent: 5, idleTimeout: 60000, healthCheckInterval: 30000 });
-    registry = new ToolRegistry('.test-squad-status', () => sessionPool);
+    registry = new ToolRegistry('.test-crew-status', () => sessionPool);
   });
 
   it('should return pool status with no sessions', async () => {
-    const tool = registry.getTool('squad_status')!;
+    const tool = registry.getTool('crew_status')!;
     const result = await tool.handler(
       {},
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_status',
+        toolName: 'crew_status',
         arguments: {},
       }
     );
@@ -843,13 +843,13 @@ describe('squad_status handler', () => {
       createdAt: new Date(),
     });
 
-    const tool = registry.getTool('squad_status')!;
+    const tool = registry.getTool('crew_status')!;
     const result = await tool.handler(
       {},
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_status',
+        toolName: 'crew_status',
         arguments: {},
       }
     );
@@ -876,13 +876,13 @@ describe('squad_status handler', () => {
       createdAt: new Date(),
     });
 
-    const tool = registry.getTool('squad_status')!;
+    const tool = registry.getTool('crew_status')!;
     const result = await tool.handler(
       { agentName: 'fenster' },
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_status',
+        toolName: 'crew_status',
         arguments: {},
       }
     );
@@ -902,13 +902,13 @@ describe('squad_status handler', () => {
       createdAt: new Date(Date.now() - 5000), // 5 seconds ago
     });
 
-    const tool = registry.getTool('squad_status')!;
+    const tool = registry.getTool('crew_status')!;
     const result = await tool.handler(
       { verbose: true },
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_status',
+        toolName: 'crew_status',
         arguments: {},
       }
     );
@@ -922,14 +922,14 @@ describe('squad_status handler', () => {
   });
 
   it('should handle query without pool', async () => {
-    const registryNoPool = new ToolRegistry('.test-squad-status');
-    const tool = registryNoPool.getTool('squad_status')!;
+    const registryNoPool = new ToolRegistry('.test-crew-status');
+    const tool = registryNoPool.getTool('crew_status')!;
     const result = await tool.handler(
       {},
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_status',
+        toolName: 'crew_status',
         arguments: {},
       }
     );
@@ -942,14 +942,14 @@ describe('squad_status handler', () => {
   });
 });
 
-describe('squad_skill handler', () => {
+describe('crew_skill handler', () => {
   let registry: ToolRegistry;
   let testRoot: string;
   let projectRoot: string;
 
   beforeEach(() => {
-    projectRoot = path.join('.', '.test-squad-skill-' + randomUUID());
-    testRoot = path.join(projectRoot, '.squad');
+    projectRoot = path.join('.', '.test-crew-skill-' + randomUUID());
+    testRoot = path.join(projectRoot, '.crew');
     fs.mkdirSync(testRoot, { recursive: true });
     registry = new ToolRegistry(testRoot);
   });
@@ -961,7 +961,7 @@ describe('squad_skill handler', () => {
   });
 
   it('should write skill file', async () => {
-    const tool = registry.getTool('squad_skill')!;
+    const tool = registry.getTool('crew_skill')!;
     const result = await tool.handler(
       {
         skillName: 'typescript-refactoring',
@@ -972,7 +972,7 @@ describe('squad_skill handler', () => {
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_skill',
+        toolName: 'crew_skill',
         arguments: {},
       }
     );
@@ -997,7 +997,7 @@ describe('squad_skill handler', () => {
     const skillContent = '# debugging\n\n**Confidence:** medium\n\nExpert at debugging Node.js applications.';
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), skillContent, 'utf-8');
 
-    const tool = registry.getTool('squad_skill')!;
+    const tool = registry.getTool('crew_skill')!;
     const result = await tool.handler(
       {
         skillName: 'debugging',
@@ -1006,7 +1006,7 @@ describe('squad_skill handler', () => {
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_skill',
+        toolName: 'crew_skill',
         arguments: {},
       }
     );
@@ -1019,7 +1019,7 @@ describe('squad_skill handler', () => {
   });
 
   it('should fail to read non-existent skill', async () => {
-    const tool = registry.getTool('squad_skill')!;
+    const tool = registry.getTool('crew_skill')!;
     const result = await tool.handler(
       {
         skillName: 'nonexistent',
@@ -1028,7 +1028,7 @@ describe('squad_skill handler', () => {
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_skill',
+        toolName: 'crew_skill',
         arguments: {},
       }
     );
@@ -1040,7 +1040,7 @@ describe('squad_skill handler', () => {
   });
 
   it('should fail to write without content', async () => {
-    const tool = registry.getTool('squad_skill')!;
+    const tool = registry.getTool('crew_skill')!;
     const result = await tool.handler(
       {
         skillName: 'test-skill',
@@ -1049,7 +1049,7 @@ describe('squad_skill handler', () => {
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_skill',
+        toolName: 'crew_skill',
         arguments: {},
       }
     );
@@ -1061,7 +1061,7 @@ describe('squad_skill handler', () => {
   });
 
   it('should default confidence to medium', async () => {
-    const tool = registry.getTool('squad_skill')!;
+    const tool = registry.getTool('crew_skill')!;
     await tool.handler(
       {
         skillName: 'test-skill',
@@ -1071,7 +1071,7 @@ describe('squad_skill handler', () => {
       {
         sessionId: 'test-session',
         toolCallId: 'test-call',
-        toolName: 'squad_skill',
+        toolName: 'crew_skill',
         arguments: {},
       }
     );

@@ -17,11 +17,11 @@ import { resolve } from 'node:path';
 // ---------------------------------------------------------------------------
 
 const PROTECTED_FILES = [
-  'packages/squad-cli/src/cli/core/detect-squad-dir.ts',
-  'packages/squad-cli/src/cli/core/errors.ts',
-  'packages/squad-cli/src/cli/core/gh-cli.ts',
-  'packages/squad-cli/src/cli/core/output.ts',
-  'packages/squad-cli/src/cli/core/history-split.ts',
+  'packages/crew-cli/src/cli/core/detect-crew-dir.ts',
+  'packages/crew-cli/src/cli/core/errors.ts',
+  'packages/crew-cli/src/cli/core/gh-cli.ts',
+  'packages/crew-cli/src/cli/core/output.ts',
+  'packages/crew-cli/src/cli/core/history-split.ts',
 ];
 
 const refIndex = process.argv.indexOf('--ref');

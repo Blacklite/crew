@@ -51,12 +51,12 @@ function findViolations(content: string): { line: number; text: string }[] {
 describe('publish-policy lint logic', () => {
   describe('should PASS (workspace-scoped)', () => {
     const goodLines = [
-      'npm -w packages/squad-sdk publish --access public --provenance',
-      'npm -w packages/squad-cli publish --tag insider --access public',
-      'run: npm -w packages/squad-sdk publish --access public --provenance',
-      'run: npm -w packages/squad-cli publish --tag insider --access public',
-      'npm --workspace packages/squad-sdk publish --access public',
-      'npm --workspace packages/squad-cli publish --tag insider',
+      'npm -w packages/crew-sdk publish --access public --provenance',
+      'npm -w packages/crew-cli publish --tag insider --access public',
+      'run: npm -w packages/crew-sdk publish --access public --provenance',
+      'run: npm -w packages/crew-cli publish --tag insider --access public',
+      'npm --workspace packages/crew-sdk publish --access public',
+      'npm --workspace packages/crew-cli publish --tag insider',
     ];
 
     for (const line of goodLines) {

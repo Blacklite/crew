@@ -4,15 +4,15 @@ import { visit } from 'unist-util-visit';
  * Remark plugin that rewrites relative .md links to Astro route paths.
  *
  * In content collection markdown files, internal links look like:
- *   ../reference/sdk.md       → /squad/docs/reference/sdk/
- *   first-session.md          → /squad/docs/get-started/first-session/
- *   ../features/memory.md#api → /squad/docs/features/memory/#api
+ *   ../reference/sdk.md       → /crew/docs/reference/sdk/
+ *   first-session.md          → /crew/docs/get-started/first-session/
+ *   ../features/memory.md#api → /crew/docs/features/memory/#api
  *
  * Links to deleted sections (cli/, sdk/) are remapped to reference/.
  * Links that escape the content directory (../../README.md) go to GitHub.
  */
 
-const GITHUB_REPO = 'https://github.com/bradygaster/squad';
+const GITHUB_REPO = 'https://github.com/Blacklite/crew';
 
 // Map old section paths to new locations
 const SECTION_REDIRECTS = {
@@ -90,7 +90,7 @@ export function remarkRewriteLinks() {
           resolved = SECTION_REDIRECTS[resolved];
         }
 
-        node.url = `/squad/docs/${resolved}/${hash}`;
+        node.url = `/crew/docs/${resolved}/${hash}`;
 
       } else if (contentBlogMatch) {
         // Blog posts: resolve relative to blog/ directory
@@ -117,11 +117,11 @@ export function remarkRewriteLinks() {
           }
         } else if (upLevels === 1) {
           // One level up from blog/ — this is a doc page reference
-          // remaining might be "features/remote-control" or "remote-squad-mode"
-          node.url = `/squad/docs/${remaining}/${hash}`;
+          // remaining might be "features/remote-control" or "remote-crew-mode"
+          node.url = `/crew/docs/${remaining}/${hash}`;
         } else {
           // Same directory — another blog post
-          node.url = `/squad/blog/${remaining}/${hash}`;
+          node.url = `/crew/blog/${remaining}/${hash}`;
         }
       } else {
         // Fallback: strip .md, add trailing slash

@@ -8,11 +8,11 @@ import { describe, it, expect } from 'vitest';
 import {
   HookPipeline,
   ReviewerLockoutHook,
-} from '@bradygaster/squad-sdk/hooks';
+} from '@blacklite/crew-sdk/hooks';
 import type {
   PreToolUseContext,
   PostToolUseContext,
-} from '@bradygaster/squad-sdk/hooks';
+} from '@blacklite/crew-sdk/hooks';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ function makePostCtx(overrides: Partial<PostToolUseContext> = {}): PostToolUseCo
 
 describe('File-Write Guards', () => {
   const pipeline = new HookPipeline({
-    allowedWritePaths: ['src/**/*.ts', '.squad/**'],
+    allowedWritePaths: ['src/**/*.ts', '.crew/**'],
   });
 
   it('allows writes to permitted paths', async () => {
@@ -66,9 +66,9 @@ describe('File-Write Guards', () => {
     expect(result.action).toBe('block');
   });
 
-  it('allows writes to .squad/ directory', async () => {
+  it('allows writes to .crew/ directory', async () => {
     const result = await pipeline.runPreToolHooks(
-      makePreCtx({ toolName: 'create', arguments: { path: '.squad/agents/test/charter.md' } }),
+      makePreCtx({ toolName: 'create', arguments: { path: '.crew/agents/test/charter.md' } }),
     );
     expect(result.action).toBe('allow');
   });

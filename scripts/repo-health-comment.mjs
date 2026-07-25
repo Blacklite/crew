@@ -4,7 +4,7 @@
 
 const JOBS = {
   leakage: {
-    marker: '<!-- squad-repo-health-leakage -->',
+    marker: '<!-- crew-repo-health-leakage -->',
     parse(output) {
       try {
         const jsonMatch = output.match(/\{[\s\S]*?\}/);
@@ -17,9 +17,9 @@ const JOBS = {
     format(parsed) {
       const fileList = parsed.files.map(f => `- \`${f}\``).join('\n');
       return [
-        '## ⚠️ Squad File Leakage Detected',
+        '## ⚠️ Crew File Leakage Detected',
         '',
-        'The following `.squad/` files were modified in this PR:',
+        'The following `.crew/` files were modified in this PR:',
         '',
         fileList,
         '',
@@ -29,7 +29,7 @@ const JOBS = {
     },
   },
   architectural: {
-    marker: '<!-- squad-architectural-review -->',
+    marker: '<!-- crew-architectural-review -->',
     parse(output) {
       try {
         const jsonMatch = output.match(/\{[\s\S]*"findings"[\s\S]*\}/);
@@ -63,7 +63,7 @@ const JOBS = {
     },
   },
   security: {
-    marker: '<!-- squad-security-review -->',
+    marker: '<!-- crew-security-review -->',
     parse(output) {
       try {
         const jsonMatch = output.match(/\{[\s\S]*"findings"[\s\S]*\}/);

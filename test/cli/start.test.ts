@@ -14,18 +14,18 @@ afterEach(() => {
 
 describe('CLI: start command', () => {
   it('module exports runStart function', async () => {
-    const mod = await import('@bradygaster/squad-cli/commands/start');
+    const mod = await import('@blacklite/crew-cli/commands/start');
     expect(typeof mod.runStart).toBe('function');
   });
 
   it('module exports StartOptions type (verifiable via function arity)', async () => {
-    const mod = await import('@bradygaster/squad-cli/commands/start');
+    const mod = await import('@blacklite/crew-cli/commands/start');
     // runStart(cwd, options) — should accept 2 parameters
     expect(mod.runStart.length).toBe(2);
   });
 
   it('module has no unexpected default export', async () => {
-    const mod = await import('@bradygaster/squad-cli/commands/start');
+    const mod = await import('@blacklite/crew-cli/commands/start');
     // ESM module should have named exports, no default
     expect(mod.default).toBeUndefined();
   });
@@ -55,7 +55,7 @@ describe('CLI: start command - node-pty requirement (issue #711)', () => {
       throw exitSignal;
     }) as never);
 
-    vi.doMock('@bradygaster/squad-sdk', () => {
+    vi.doMock('@blacklite/crew-sdk', () => {
       class FSStorageProvider {
         existsSync(): boolean {
           return false;
@@ -86,7 +86,7 @@ describe('CLI: start command - node-pty requirement (issue #711)', () => {
       return { FSStorageProvider, RemoteBridge };
     });
 
-    vi.doMock('../../packages/squad-cli/src/cli/commands/rc-tunnel.js', () => ({
+    vi.doMock('../../packages/crew-cli/src/cli/commands/rc-tunnel.js', () => ({
       isDevtunnelAvailable,
       createTunnel,
       destroyTunnel,
@@ -98,7 +98,7 @@ describe('CLI: start command - node-pty requirement (issue #711)', () => {
       throw new Error('Cannot find package "node-pty" imported from start.ts');
     });
 
-    const { runStart } = await import('../../packages/squad-cli/src/cli/commands/start.ts');
+    const { runStart } = await import('../../packages/crew-cli/src/cli/commands/start.ts');
 
     await expect(runStart(process.cwd(), { tunnel: true, port: 0 })).rejects.toBe(exitSignal);
 
@@ -123,7 +123,7 @@ describe('CLI: start command - node-pty requirement (issue #711)', () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
 
-    const startTsPath = path.resolve(process.cwd(), 'packages/squad-cli/src/cli/commands/start.ts');
+    const startTsPath = path.resolve(process.cwd(), 'packages/crew-cli/src/cli/commands/start.ts');
     const source = fs.readFileSync(startTsPath, 'utf-8');
 
     // Verify the dedicated helper exists and owns the optional import

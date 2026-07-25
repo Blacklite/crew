@@ -1,9 +1,9 @@
 # GitHub Integration
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Squad plugs directly into your GitHub workflow — issues become branches, branches become PRs, PRs become merged code. No context-switching, no copy-paste, no ticket juggling. Just tell your squad what to build and watch the commits roll in.
+Crew plugs directly into your GitHub workflow — issues become branches, branches become PRs, PRs become merged code. No context-switching, no copy-paste, no ticket juggling. Just tell your crew what to build and watch the commits roll in.
 
 ---
 
@@ -43,13 +43,13 @@ Connect repo  →  Show backlog  →  Assign issues  →  Agent branches + imple
 | `"Merge PR #24"` | Squash-merge, delete branch, close linked issue |
 | `"What's left?"` | Refreshes backlog, shows remaining open issues |
 
-**Prerequisite:** Install and authenticate the `gh` CLI (`gh auth login`). Squad uses it for all GitHub operations.
+**Prerequisite:** Install and authenticate the `gh` CLI (`gh auth login`). Crew uses it for all GitHub operations.
 
 ---
 
 ## Working with your team
 
-Squad is built for mixed teams — humans set direction, AI agents execute and report back. The Lead agent bridges between them, routing work and surfacing decisions when a human needs to act.
+Crew is built for mixed teams — humans set direction, AI agents execute and report back. The Lead agent bridges between them, routing work and surfacing decisions when a human needs to act.
 
 ### Humans in the lifecycle
 
@@ -75,7 +75,7 @@ For agent anatomy and how each team member (AI, human, @copilot) is structured, 
 
 ## Label Taxonomy
 
-Labels aren't just tags — they're Squad's **state machine**. Five namespaces drive workflow automation, routing, and lifecycle tracking.
+Labels aren't just tags — they're Crew's **state machine**. Five namespaces drive workflow automation, routing, and lifecycle tracking.
 
 | Namespace | Purpose | Example Values | Mutual Exclusivity |
 |-----------|---------|----------------|-------------------|
@@ -83,9 +83,9 @@ Labels aren't just tags — they're Squad's **state machine**. Five namespaces d
 | `release:` | Release target | `release:v0.4.0`, `release:backlog` | ✅ One per issue |
 | `type:` | Issue category | `type:feature`, `type:bug`, `type:spike`, `type:docs`, `type:chore`, `type:epic` | ✅ One per issue |
 | `priority:` | Urgency | `priority:p0`, `priority:p1`, `priority:p2` | ✅ One per issue |
-| `squad:{member}` | Agent assignment | `squad:fenster`, `squad:hockney` | ❌ Multiple OK (pair work) |
+| `crew:{member}` | Agent assignment | `crew:fenster`, `crew:hockney` | ❌ Multiple OK (pair work) |
 
-Within `go:`, `release:`, `type:`, and `priority:`, applying a second label **auto-removes** the first. The `squad:{member}` namespace allows multiple labels for collaborative work.
+Within `go:`, `release:`, `type:`, and `priority:`, applying a second label **auto-removes** the first. The `crew:{member}` namespace allows multiple labels for collaborative work.
 
 ### How Labels Drive Automation
 
@@ -93,17 +93,17 @@ Labels power four automation layers:
 
 1. **Enforcement** — `label-enforcement.yml` watches for changes and removes duplicates within a namespace.
 2. **Sync** — Cross-namespace cascading: `go:no` → auto-adds `release:backlog`; `priority:p0` → ensures `go:yes`.
-3. **Triage** — Ralph uses labels to route work: `squad:fenster` → Fenster picks it up; no `squad:*` + `type:bug` → routes based on `routing.md`.
-4. **Heartbeat** — `squad-heartbeat.yml` runs every 30 minutes, auto-triaging unassigned issues and escalating stale research.
+3. **Triage** — Ralph uses labels to route work: `crew:fenster` → Fenster picks it up; no `crew:*` + `type:bug` → routes based on `routing.md`.
+4. **Heartbeat** — `crew-heartbeat.yml` runs every 30 minutes, auto-triaging unassigned issues and escalating stale research.
 
 ### State Machine Flow
 
 ```mermaid
 graph TD
-    A["New issue"] --> B["squad label"]
+    A["New issue"] --> B["crew label"]
     B --> C["Triage"]
     C --> D["Lead assigns<br/>go:* + type:* + priority:*"]
-    D --> E["go:yes →<br/>squad:{member} assigned"]
+    D --> E["go:yes →<br/>crew:{member} assigned"]
     E --> F["Agent works"]
     F --> G["Draft PR"]
     G --> H["Review"]
@@ -116,14 +116,14 @@ graph TD
 Labels are created automatically during `init` or `upgrade`. Add custom labels with:
 
 ```bash
-gh label create "squad:designer" --color "0366d6" --description "Work assigned to Designer"
+gh label create "crew:designer" --color "0366d6" --description "Work assigned to Designer"
 ```
 
 ---
 
 ## Ralph — Work Monitor
 
-Ralph is a built-in squad member who tracks the work queue, monitors CI status, and keeps the team moving. He's always on the roster — no casting required.
+Ralph is a built-in crew member who tracks the work queue, monitors CI status, and keeps the team moving. He's always on the roster — no casting required.
 
 ### Talking to Ralph
 
@@ -138,9 +138,9 @@ Ralph is a built-in squad member who tracks the work queue, monitors CI status, 
 
 | Signal | Action |
 |--------|--------|
-| Untriaged issues (no `squad:{member}` label) | Lead triages and assigns |
+| Untriaged issues (no `crew:{member}` label) | Lead triages and assigns |
 | Assigned but unstarted issues | Spawns agent to pick it up |
-| Draft PRs from squad members | Checks if agent is stalled |
+| Draft PRs from crew members | Checks if agent is stalled |
 | Review feedback on PRs | Routes to author agent |
 | CI failures | Notifies agent to fix |
 | Approved PRs | Merges and closes issue |
@@ -152,10 +152,10 @@ Ralph **never stops on his own while work remains** — he keeps cycling until t
 | Layer | When | How |
 |-------|------|-----|
 | **In-session** | You're at the keyboard | `"Ralph, go"` — active loop |
-| **Local watchdog** | You're AFK but machine is on | `squad watch --interval 10` |
-| **Cloud heartbeat** | Fully unattended | `squad-heartbeat.yml` GitHub Actions events |
+| **Local watchdog** | You're AFK but machine is on | `crew watch --interval 10` |
+| **Cloud heartbeat** | Fully unattended | `crew-heartbeat.yml` GitHub Actions events |
 
-The heartbeat workflow (`squad-heartbeat.yml`) is installed during `init` or `upgrade`. It runs on issue close, PR merge, and manual dispatch. Edit the workflow in `.github/workflows/squad-heartbeat.yml` to customize triggers. For periodic polling without events, use `squad watch` locally.
+The heartbeat workflow (`crew-heartbeat.yml`) is installed during `init` or `upgrade`. It runs on issue close, PR merge, and manual dispatch. Edit the workflow in `.github/workflows/crew-heartbeat.yml` to customize triggers. For periodic polling without events, use `crew watch` locally.
 
 **PAT requirement:** Ralph needs `gh` CLI authenticated with a Classic PAT (scopes: `repo` and `project`). The default `GITHUB_TOKEN` doesn't have sufficient scopes.
 
@@ -163,7 +163,7 @@ The heartbeat workflow (`squad-heartbeat.yml`) is installed during `init` or `up
 
 ## PRD Mode
 
-Got a product spec? Hand it to Squad and the Lead decomposes it into prioritized, dependency-tracked work items.
+Got a product spec? Hand it to Crew and the Lead decomposes it into prioritized, dependency-tracked work items.
 
 ```
 Read the PRD at docs/product-spec.md and break it into work items
@@ -175,20 +175,20 @@ The Lead agent:
 3. Routes items to agents based on domain expertise
 4. Tracks dependencies — won't start WI-4 if it depends on WI-2
 
-Independent items run in parallel. When requirements change, give Squad the updated PRD — the Lead diffs against existing items and adjusts the backlog without undoing completed work.
+Independent items run in parallel. When requirements change, give Crew the updated PRD — the Lead diffs against existing items and adjusts the backlog without undoing completed work.
 
 ---
 
 ## Project Boards
 
-Squad integrates with GitHub Projects V2 for visual workflow tracking. **Labels are the source of truth** — boards are one-way projections that visualize the state machine.
+Crew integrates with GitHub Projects V2 for visual workflow tracking. **Labels are the source of truth** — boards are one-way projections that visualize the state machine.
 
 | Board Column | Label State |
 |--------------|-------------|
 | **Backlog** | `go:no` or `release:backlog` |
 | **Needs Research** | `go:needs-research` |
-| **Ready** | `go:yes`, no `squad:*` |
-| **In Progress** | `go:yes` + `squad:{member}` |
+| **Ready** | `go:yes`, no `crew:*` |
+| **In Progress** | `go:yes` + `crew:{member}` |
 | **Done** | Issue closed |
 
 Board sync runs on label changes, issue close, PR merge, and a 30-minute schedule. Dragging an issue on the board triggers a webhook that applies the corresponding label.
@@ -199,7 +199,7 @@ Board sync runs on label changes, issue close, PR merge, and a 30-minute schedul
 
 ## Notifications
 
-Your squad pings you when they need input, hit an error, or finish work. Squad uses MCP-based notification servers — you bring your own delivery channel.
+Your crew pings you when they need input, hit an error, or finish work. Crew uses MCP-based notification servers — you bring your own delivery channel.
 
 See the [Notifications Guide](../features/notifications.md) for [platform setup](../features/notifications.md#quick-start-teams-simplest-path) (Teams, Discord, iMessage, webhooks), [trigger configuration](../features/notifications.md#what-triggers-a-notification), and [sample MCP configs](../features/notifications.md#sample-mcp-configs).
 
@@ -207,21 +207,21 @@ See the [Notifications Guide](../features/notifications.md) for [platform setup]
 
 ## Tips
 
-- You don't need to assign issues to agents — Squad routes based on domain expertise defined in charters and `routing.md`.
-- If `gh` isn't authenticated, Squad will tell you. Run `gh auth login` first.
+- You don't need to assign issues to agents — Crew routes based on domain expertise defined in charters and `routing.md`.
+- If `gh` isn't authenticated, Crew will tell you. Run `gh auth login` first.
 - Use `priority:p0` to fast-track critical items — it auto-sets `go:yes`.
 - Combine PRD mode with GitHub Issues to auto-create issues from work items.
-- Ralph's in-session loop is session-scoped — state resets between sessions. Use `squad watch` or the heartbeat for persistent monitoring.
+- Ralph's in-session loop is session-scoped — state resets between sessions. Use `crew watch` or the heartbeat for persistent monitoring.
 
 ---
 
 ## Sample Prompts
 
 ```
-connect to bradygaster/squad and show me the backlog
+connect to Blacklite/crew and show me the backlog
 ```
 
-Links Squad to a GitHub repo and displays all open issues.
+Links Crew to a GitHub repo and displays all open issues.
 
 ```
 work on all issues labeled "bug"
@@ -260,7 +260,7 @@ list all p0 features approved for the next release
 Queries issues with `priority:p0 + type:feature + go:yes + release:{current milestone}`.
 
 ```
-squad watch --interval 5
+crew watch --interval 5
 ```
 
 Starts persistent local polling — checks GitHub every 5 minutes for new work and triages automatically.

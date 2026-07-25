@@ -11,7 +11,7 @@ import {
   base64url,
   validateGraphId,
   TeamsCommunicationAdapter,
-} from '../packages/squad-sdk/src/platform/comms-teams.js';
+} from '../packages/crew-sdk/src/platform/comms-teams.js';
 
 // ─── escapeHtml ──────────────────────────────────────────────────────
 

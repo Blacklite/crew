@@ -1,6 +1,6 @@
 # Your First Session
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 A step-by-step walkthrough from install to parallel fan-out. Follow along in your terminal.
@@ -11,31 +11,31 @@ A step-by-step walkthrough from install to parallel fan-out. Follow along in you
 
 ```bash
 mkdir my-app && cd my-app && git init
-squad
+crew
 ```
 
 Then tell your team what you're building.
 
 ---
 
-## 1. Install Squad
+## 1. Install Crew
 
 Start with a git repo — new or existing:
 
 ```bash
 mkdir my-app && cd my-app
 git init
-squad
+crew
 ```
 
 You'll see:
 
 ```
-✅ Squad installed.
-   .github/agents/squad.agent.md — coordinator agent
-   .squad/templates/ — 11 template files
+✅ Crew installed.
+   .github/agents/crew.agent.md — coordinator agent
+   .crew/templates/ — 11 template files
 
-Open GitHub Copilot and select Squad from the agent list.
+Open GitHub Copilot and select Crew from the agent list.
 ```
 
 ---
@@ -48,7 +48,7 @@ Start the Copilot CLI:
 copilot
 ```
 
-Select **Squad** from the `/agent` list (CLI) or `/agents` (VS Code). Squad greets you by name:
+Select **Crew** from the `/agent` list (CLI) or `/agents` (VS Code). Crew greets you by name:
 
 ```
 Hey Brady, what are you building?
@@ -61,7 +61,7 @@ Describe your project:
 > post recipes, search by ingredient, and save favorites.
 ```
 
-Squad proposes a team. The coordinator analyzes your description and suggests specialists:
+Crew proposes a team. The coordinator analyzes your description and suggests specialists:
 
 ```
 Here's your team:
@@ -88,9 +88,9 @@ Say "yes" or skip straight to a task (which is implicit confirmation):
 > Yes. Dallas, set up the Express server with basic routing.
 ```
 
-Squad creates the `.squad/` directory structure — team roster, routing rules, casting state, ceremony config, agent charters, and histories — all seeded with your project context. Each agent spawns to do their work.
+Crew creates the `.crew/` directory structure — team roster, routing rules, casting state, ceremony config, agent charters, and histories — all seeded with your project context. Each agent spawns to do their work.
 
-### What's inside .squad/?
+### What's inside .crew/?
 
 | File/Directory | Purpose |
 |---|---|
@@ -103,9 +103,9 @@ Squad creates the `.squad/` directory structure — team roster, routing rules, 
 | `skills/` | Reusable capabilities agents can learn |
 | `templates/` | Format reference files for docs, PRDs, charters |
 
-**You own these files.** Edit them anytime — change roles, add routing rules, fix decisions. Squad reads them before every spawn.
+**You own these files.** Edit them anytime — change roles, add routing rules, fix decisions. Crew reads them before every spawn.
 
-**Commit `.squad/` to version control.** It's your team's brain. Anyone who clones the repo gets the team with all their knowledge.
+**Commit `.crew/` to version control.** It's your team's brain. Anyone who clones the repo gets the team with all their knowledge.
 
 Then it spawns Dallas:
 
@@ -126,7 +126,7 @@ Now give a bigger task to see parallel work:
 > that returns recipes and a React component that displays them.
 ```
 
-Squad decomposes the work and launches agents simultaneously:
+Crew decomposes the work and launches agents simultaneously:
 
 ```
 🏗️ Hicks   — reviewing requirements, defining API contract
@@ -209,7 +209,7 @@ Give a follow-up task:
 > recipes by ingredient name.
 ```
 
-Squad fans out again:
+Crew fans out again:
 
 ```
 🔧 Dallas  — adding search endpoint with ingredient filtering
@@ -253,7 +253,7 @@ You notice something you want to standardize:
 > Always use Zod for API input validation
 ```
 
-Squad captures it — no agent spawn needed:
+Crew captures it — no agent spawn needed:
 
 ```
 📌 Captured. All API input validation must use Zod.
@@ -263,16 +263,16 @@ This gets written to `decisions.md`. Every agent will see it in their next spawn
 
 ---
 
-## 9. Export Your Squad
+## 9. Export Your Crew
 
 After a productive session, export your team for portability:
 
 ```bash
-squad export
+crew export
 ```
 
 ```
-✅ Exported to squad-export.json
+✅ Exported to crew-export.json
    5 agents, 3 skills, 6 decisions
 ```
 
@@ -280,8 +280,8 @@ This snapshot contains charters, histories, casting state, skills, and decisions
 
 ```bash
 cd ../other-project
-squad
-squad import ../my-app/squad-export.json
+crew
+crew import ../my-app/crew-export.json
 ```
 
 ---
@@ -289,7 +289,7 @@ squad import ../my-app/squad-export.json
 ## Tips
 
 - **First session is slowest.** Agents have no history yet. After 2–3 sessions, they know your conventions.
-- **Commit `.squad/`** — your team's brain. Anyone who clones the repo gets the full team.
+- **Commit `.crew/`** — your team's brain. Anyone who clones the repo gets the full team.
 - **Say "team" for big tasks.** The word "team" triggers parallel fan-out across multiple agents.
 - **Name an agent for focused work.** `"Dallas, fix the login bug"` sends work to one specific agent.
 - **Directives are sticky.** Once captured, they persist across all future sessions.
@@ -300,4 +300,4 @@ squad import ../my-app/squad-export.json
 
 - [**Your Team**](../concepts/your-team.md) — How agents form, specialize, and collaborate
 - [**Memory & Knowledge**](../concepts/memory-and-knowledge.md) — Decisions, skills, and persistent context
-- [**Existing Repo Scenario**](../scenarios/existing-repo.md) — Bring Squad into a project that's already in flight
+- [**Existing Repo Scenario**](../scenarios/existing-repo.md) — Bring Crew into a project that's already in flight

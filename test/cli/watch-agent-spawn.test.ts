@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { WatchContext } from '../../packages/squad-cli/src/cli/commands/watch/types.js';
+import type { WatchContext } from '../../packages/crew-cli/src/cli/commands/watch/types.js';
 
 const { mockExecFile, mockFsExistsSync } = vi.hoisted(() => ({
   mockExecFile: vi.fn((...args: unknown[]) => {
@@ -29,7 +29,7 @@ vi.mock('node:fs', () => ({
   existsSync: mockFsExistsSync,
 }));
 
-import { buildCopilotCommand, spawnAgent } from '../../packages/squad-cli/src/cli/commands/watch/agent-spawn.js';
+import { buildCopilotCommand, spawnAgent } from '../../packages/crew-cli/src/cli/commands/watch/agent-spawn.js';
 
 function makeContext(overrides: Partial<WatchContext> = {}): WatchContext {
   return {

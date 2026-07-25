@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-cli": patch
+"@blacklite/crew-cli": patch
 ---
 
 Fix Windows shell spawn issues and gh auth false-negative

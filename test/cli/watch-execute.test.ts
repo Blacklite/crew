@@ -6,10 +6,10 @@
  */
 
 import { describe, it, expect, vi } from 'vitest';
-import { buildAgentCommand, findExecutableIssues, reportBoard } from '../../packages/squad-cli/src/cli/commands/watch/index.js';
-import type { WatchWorkItem } from '../../packages/squad-cli/src/cli/commands/watch/index.js';
-import { classifyIssue } from '../../packages/squad-cli/src/cli/commands/watch/capabilities/execute.js';
-import type { ExecutableWorkItem } from '../../packages/squad-cli/src/cli/commands/watch/capabilities/execute.js';
+import { buildAgentCommand, findExecutableIssues, reportBoard } from '../../packages/crew-cli/src/cli/commands/watch/index.js';
+import type { WatchWorkItem } from '../../packages/crew-cli/src/cli/commands/watch/index.js';
+import { classifyIssue } from '../../packages/crew-cli/src/cli/commands/watch/capabilities/execute.js';
+import type { ExecutableWorkItem } from '../../packages/crew-cli/src/cli/commands/watch/capabilities/execute.js';
 
 describe('CLI: watch execute mode', () => {
   describe('buildAgentCommand', () => {
@@ -18,10 +18,10 @@ describe('CLI: watch execute mode', () => {
         number: 42,
         title: 'Fix auth redirect bug',
         body: 'User auth redirects to wrong page',
-        labels: [{ name: 'squad:eecom' }],
+        labels: [{ name: 'crew:eecom' }],
         assignees: [],
       };
-      const teamRoot = '/path/to/squad';
+      const teamRoot = '/path/to/crew';
       const options = { intervalMinutes: 10 };
 
       const { cmd, args } = buildAgentCommand(issue, teamRoot, options);
@@ -36,10 +36,10 @@ describe('CLI: watch execute mode', () => {
         number: 45,
         title: 'Add retry logic',
         body: 'Add exponential backoff',
-        labels: [{ name: 'squad:gnc' }],
+        labels: [{ name: 'crew:gnc' }],
         assignees: [],
       };
-      const teamRoot = '/path/to/squad';
+      const teamRoot = '/path/to/crew';
       const options = { intervalMinutes: 10, copilotFlags: '--model gpt-4 --yolo' };
 
       const { cmd, args } = buildAgentCommand(issue, teamRoot, options);
@@ -55,10 +55,10 @@ describe('CLI: watch execute mode', () => {
         number: 50,
         title: 'Custom task',
         body: '',
-        labels: [{ name: 'squad:custom' }],
+        labels: [{ name: 'crew:custom' }],
         assignees: [],
       };
-      const teamRoot = '/path/to/squad';
+      const teamRoot = '/path/to/crew';
       const options = { intervalMinutes: 10, agentCmd: 'custom-agent --flag value' };
 
       const { cmd, args } = buildAgentCommand(issue, teamRoot, options);
@@ -73,16 +73,16 @@ describe('CLI: watch execute mode', () => {
   describe('findExecutableIssues', () => {
     it('returns only issues ready for execution', async () => {
             const roster = [
-        { name: 'EECOM', label: 'squad:eecom', expertise: [] },
-        { name: 'GNC', label: 'squad:gnc', expertise: [] },
+        { name: 'EECOM', label: 'crew:eecom', expertise: [] },
+        { name: 'GNC', label: 'crew:gnc', expertise: [] },
       ];
       const issues: WatchWorkItem[] = [
-        // Executable: has squad label, unassigned, not blocked
+        // Executable: has crew label, unassigned, not blocked
         {
           number: 1,
           title: 'Task 1',
           body: '',
-          labels: [{ name: 'squad:eecom' }],
+          labels: [{ name: 'crew:eecom' }],
           assignees: [],
         },
         // Not executable: assigned to human
@@ -90,7 +90,7 @@ describe('CLI: watch execute mode', () => {
           number: 2,
           title: 'Task 2',
           body: '',
-          labels: [{ name: 'squad:gnc' }],
+          labels: [{ name: 'crew:gnc' }],
           assignees: [{ login: 'alice' }],
         },
         // Not executable: blocked label
@@ -98,10 +98,10 @@ describe('CLI: watch execute mode', () => {
           number: 3,
           title: 'Task 3',
           body: '',
-          labels: [{ name: 'squad:eecom' }, { name: 'status:blocked' }],
+          labels: [{ name: 'crew:eecom' }, { name: 'status:blocked' }],
           assignees: [],
         },
-        // Not executable: no squad label
+        // Not executable: no crew label
         {
           number: 4,
           title: 'Task 4',
@@ -118,13 +118,13 @@ describe('CLI: watch execute mode', () => {
     });
 
     it('filters by capabilities when provided', async () => {
-            const roster = [{ name: 'EECOM', label: 'squad:eecom', expertise: [] }];
+            const roster = [{ name: 'EECOM', label: 'crew:eecom', expertise: [] }];
       const issues: WatchWorkItem[] = [
         {
           number: 10,
           title: 'Task with needs',
           body: '',
-          labels: [{ name: 'squad:eecom' }, { name: 'needs:docker' }],
+          labels: [{ name: 'crew:eecom' }, { name: 'needs:docker' }],
           assignees: [],
         },
       ];
@@ -212,7 +212,7 @@ describe('CLI: watch execute mode', () => {
 
     it('defaults to write when no keywords match', () => {
       expect(classifyIssue('Random task')).toBe('write');
-      expect(classifyIssue('Some squad work')).toBe('write');
+      expect(classifyIssue('Some crew work')).toBe('write');
     });
 
     it('defaults to write when both read and write keywords appear', () => {
@@ -227,13 +227,13 @@ describe('CLI: watch execute mode', () => {
   });
 
   describe('fleet/hybrid dispatch classification routing', () => {
-    const roster = [{ name: 'EECOM', label: 'squad:eecom', expertise: [] }];
+    const roster = [{ name: 'EECOM', label: 'crew:eecom', expertise: [] }];
 
     const makeIssue = (number: number, title: string): ExecutableWorkItem => ({
       number,
       title,
       body: '',
-      labels: [{ name: 'squad:eecom' }],
+      labels: [{ name: 'crew:eecom' }],
       assignees: [],
     });
 

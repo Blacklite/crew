@@ -7,24 +7,24 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { 
-  resolveSquadPaths, 
-  resolveSquad, 
+  resolveCrewPaths, 
+  resolveCrew, 
   loadDirConfig,
   isConsultMode,
-  ensureSquadPathDual,
-  type ResolvedSquadPaths,
-  type SquadDirConfig,
-} from '../packages/squad-sdk/src/resolution.js';
+  ensureCrewPathDual,
+  type ResolvedCrewPaths,
+  type CrewDirConfig,
+} from '../packages/crew-sdk/src/resolution.js';
 import { 
   ReviewerLockoutHook, 
   HookPipeline,
   type PreToolUseContext,
-} from '../packages/squad-sdk/src/hooks/index.js';
+} from '../packages/crew-sdk/src/hooks/index.js';
 import { 
   CompiledWorkTypeRule, 
   RoutingMatch,
   type CompiledRouter,
-} from '../packages/squad-sdk/src/config/routing.js';
+} from '../packages/crew-sdk/src/config/routing.js';
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -34,16 +34,16 @@ import { tmpdir } from 'node:os';
 // =============================================================================
 
 describe('SDK Feature: Worktree Awareness', () => {
-  it('resolveSquad() stops at .git boundary (worktree file)', () => {
+  it('resolveCrew() stops at .git boundary (worktree file)', () => {
     // Create temp structure: repo/.git (file, not dir) → simulates worktree
-    const testRoot = join(tmpdir(), `squad-test-${Date.now()}`);
+    const testRoot = join(tmpdir(), `crew-test-${Date.now()}`);
     mkdirSync(testRoot, { recursive: true });
     
     // Write .git file (worktree marker)
     writeFileSync(join(testRoot, '.git'), 'gitdir: /some/other/location');
     
-    // No .squad/ in this directory
-    const result = resolveSquad(testRoot);
+    // No .crew/ in this directory
+    const result = resolveCrew(testRoot);
     
     // Should return null — stops at .git boundary
     expect(result).toBeNull();
@@ -51,30 +51,30 @@ describe('SDK Feature: Worktree Awareness', () => {
     rmSync(testRoot, { recursive: true, force: true });
   });
 
-  it('resolveSquad() finds .squad/ in parent before hitting .git', () => {
-    const testRoot = join(tmpdir(), `squad-test-${Date.now()}`);
+  it('resolveCrew() finds .crew/ in parent before hitting .git', () => {
+    const testRoot = join(tmpdir(), `crew-test-${Date.now()}`);
     const subdir = join(testRoot, 'src', 'components');
     mkdirSync(subdir, { recursive: true });
     
     // Put .git at root
     mkdirSync(join(testRoot, '.git'));
     
-    // Put .squad/ at root
-    mkdirSync(join(testRoot, '.squad'));
+    // Put .crew/ at root
+    mkdirSync(join(testRoot, '.crew'));
     
     // Resolve from deep subdirectory
-    const result = resolveSquad(subdir);
+    const result = resolveCrew(subdir);
     
-    expect(result).toBe(join(testRoot, '.squad'));
+    expect(result).toBe(join(testRoot, '.crew'));
     
     rmSync(testRoot, { recursive: true, force: true });
   });
 
-  it('resolveSquadPaths() handles local mode (no config.json)', () => {
-    const testRoot = join(tmpdir(), `squad-test-${Date.now()}`);
-    mkdirSync(join(testRoot, '.squad'), { recursive: true });
+  it('resolveCrewPaths() handles local mode (no config.json)', () => {
+    const testRoot = join(tmpdir(), `crew-test-${Date.now()}`);
+    mkdirSync(join(testRoot, '.crew'), { recursive: true });
     
-    const result = resolveSquadPaths(testRoot);
+    const result = resolveCrewPaths(testRoot);
     
     expect(result).not.toBeNull();
     expect(result?.mode).toBe('local');
@@ -83,36 +83,36 @@ describe('SDK Feature: Worktree Awareness', () => {
     rmSync(testRoot, { recursive: true, force: true });
   });
 
-  it('resolveSquadPaths() handles remote mode (with teamRoot config)', () => {
-    const testRoot = join(tmpdir(), `squad-test-${Date.now()}`);
-    const projectSquad = join(testRoot, 'project-a', '.squad');
-    const teamSquad = join(testRoot, 'team-identity');
+  it('resolveCrewPaths() handles remote mode (with teamRoot config)', () => {
+    const testRoot = join(tmpdir(), `crew-test-${Date.now()}`);
+    const projectCrew = join(testRoot, 'project-a', '.crew');
+    const teamCrew = join(testRoot, 'team-identity');
     
-    mkdirSync(projectSquad, { recursive: true });
-    mkdirSync(teamSquad, { recursive: true });
+    mkdirSync(projectCrew, { recursive: true });
+    mkdirSync(teamCrew, { recursive: true });
     
     // Write config.json with teamRoot
-    const config: SquadDirConfig = {
+    const config: CrewDirConfig = {
       version: 1,
       teamRoot: '../team-identity',
       projectKey: 'project-a',
     };
-    writeFileSync(join(projectSquad, 'config.json'), JSON.stringify(config, null, 2));
+    writeFileSync(join(projectCrew, 'config.json'), JSON.stringify(config, null, 2));
     
-    const result = resolveSquadPaths(join(testRoot, 'project-a'));
+    const result = resolveCrewPaths(join(testRoot, 'project-a'));
     
     expect(result).not.toBeNull();
     expect(result?.mode).toBe('remote');
-    expect(result?.projectDir).toBe(projectSquad);
+    expect(result?.projectDir).toBe(projectCrew);
     expect(result?.teamDir).toContain('team-identity');
     
     rmSync(testRoot, { recursive: true, force: true });
   });
 
   it('isConsultMode() returns true when config.consult is true', () => {
-    const config: SquadDirConfig = {
+    const config: CrewDirConfig = {
       version: 1,
-      teamRoot: '../personal-squad',
+      teamRoot: '../personal-crew',
       projectKey: null,
       consult: true,
     };
@@ -121,7 +121,7 @@ describe('SDK Feature: Worktree Awareness', () => {
   });
 
   it('isConsultMode() returns false when config.consult is false or missing', () => {
-    const config: SquadDirConfig = {
+    const config: CrewDirConfig = {
       version: 1,
       teamRoot: '../team',
       projectKey: 'project',
@@ -131,32 +131,32 @@ describe('SDK Feature: Worktree Awareness', () => {
     expect(isConsultMode(null)).toBe(false);
   });
 
-  it('ensureSquadPathDual() allows paths in projectDir', () => {
-    const projectDir = '/repo/.squad';
+  it('ensureCrewPathDual() allows paths in projectDir', () => {
+    const projectDir = '/repo/.crew';
     const teamDir = '/team-identity';
-    const filePath = '/repo/.squad/decisions/inbox/test.md';
+    const filePath = '/repo/.crew/decisions/inbox/test.md';
     
-    const result = ensureSquadPathDual(filePath, projectDir, teamDir);
-    expect(result).toContain('.squad');
+    const result = ensureCrewPathDual(filePath, projectDir, teamDir);
+    expect(result).toContain('.crew');
   });
 
-  it('ensureSquadPathDual() allows paths in teamDir', () => {
-    const projectDir = '/repo/.squad';
+  it('ensureCrewPathDual() allows paths in teamDir', () => {
+    const projectDir = '/repo/.crew';
     const teamDir = '/team-identity';
     const filePath = '/team-identity/agents/test-agent-1/charter.md';
     
-    const result = ensureSquadPathDual(filePath, projectDir, teamDir);
+    const result = ensureCrewPathDual(filePath, projectDir, teamDir);
     expect(result).toContain('team-identity');
   });
 
-  it('ensureSquadPathDual() rejects paths outside both roots', () => {
-    const projectDir = '/repo/.squad';
+  it('ensureCrewPathDual() rejects paths outside both roots', () => {
+    const projectDir = '/repo/.crew';
     const teamDir = '/team-identity';
     const filePath = '/etc/passwd';
     
     expect(() => {
-      ensureSquadPathDual(filePath, projectDir, teamDir);
-    }).toThrow(/outside both squad roots/);
+      ensureCrewPathDual(filePath, projectDir, teamDir);
+    }).toThrow(/outside both crew roots/);
   });
 });
 

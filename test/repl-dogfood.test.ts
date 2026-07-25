@@ -11,7 +11,7 @@
  *   3. Large mixed-language (Go + Python + TypeScript, deep nesting)
  *   4. Edge cases (deep dirs, large files, many agents, minimal repos)
  *
- * @see https://github.com/bradygaster/squad-pr/issues/532
+ * @see https://github.com/Blacklite/crew-pr/issues/532
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -26,14 +26,14 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { rm } from 'node:fs/promises';
 
-import { ShellLifecycle } from '../packages/squad-cli/src/cli/shell/lifecycle.js';
-import { loadWelcomeData } from '../packages/squad-cli/src/cli/shell/lifecycle.js';
-import { parseInput } from '../packages/squad-cli/src/cli/shell/router.js';
-import { executeCommand } from '../packages/squad-cli/src/cli/shell/commands.js';
-import { parseCoordinatorResponse } from '../packages/squad-cli/src/cli/shell/coordinator.js';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import type { ShellMessage } from '../packages/squad-cli/src/cli/shell/types.js';
+import { ShellLifecycle } from '../packages/crew-cli/src/cli/shell/lifecycle.js';
+import { loadWelcomeData } from '../packages/crew-cli/src/cli/shell/lifecycle.js';
+import { parseInput } from '../packages/crew-cli/src/cli/shell/router.js';
+import { executeCommand } from '../packages/crew-cli/src/cli/shell/commands.js';
+import { parseCoordinatorResponse } from '../packages/crew-cli/src/cli/shell/coordinator.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import type { ShellMessage } from '../packages/crew-cli/src/cli/shell/types.js';
 
 // ============================================================================
 // Helpers
@@ -51,10 +51,10 @@ function makeTeamMd(
   const rows = agents
     .map(
       (a) =>
-        `| ${a.name} | ${a.role} | \`.squad/agents/${a.name.toLowerCase()}/charter.md\` | ✅ ${a.status ?? 'Active'} |`,
+        `| ${a.name} | ${a.role} | \`.crew/agents/${a.name.toLowerCase()}/charter.md\` | ✅ ${a.status ?? 'Active'} |`,
     )
     .join('\n');
-  return `# Squad Team — ${projectName}
+  return `# Crew Team — ${projectName}
 
 > ${description}
 
@@ -70,7 +70,7 @@ ${rows}
 `;
 }
 
-function scaffoldSquad(
+function scaffoldCrew(
   root: string,
   opts: {
     projectName: string;
@@ -81,14 +81,14 @@ function scaffoldSquad(
     firstRun?: boolean;
   },
 ): void {
-  const squadDir = join(root, '.squad');
-  const agentsDir = join(squadDir, 'agents');
-  const identityDir = join(squadDir, 'identity');
+  const crewDir = join(root, '.crew');
+  const agentsDir = join(crewDir, 'agents');
+  const identityDir = join(crewDir, 'identity');
   mkdirSync(agentsDir, { recursive: true });
   mkdirSync(identityDir, { recursive: true });
 
   writeFileSync(
-    join(squadDir, 'team.md'),
+    join(crewDir, 'team.md'),
     makeTeamMd(opts.projectName, opts.description, opts.agents),
   );
 
@@ -110,11 +110,11 @@ function scaffoldSquad(
   }
 
   if (opts.routingMd) {
-    writeFileSync(join(squadDir, 'routing.md'), opts.routingMd);
+    writeFileSync(join(crewDir, 'routing.md'), opts.routingMd);
   }
 
   if (opts.firstRun) {
-    writeFileSync(join(squadDir, '.first-run'), new Date().toISOString() + '\n');
+    writeFileSync(join(crewDir, '.first-run'), new Date().toISOString() + '\n');
   }
 }
 
@@ -163,7 +163,7 @@ function buildPythonFixture(root: string): void {
   writeFileSync(join(root, 'tests', 'unit', 'test_helpers.py'), 'from mypackage.utils.helpers import greet\n\ndef test_greet():\n    assert greet("World") == "Hello, World!"\n');
   writeFileSync(join(root, 'tests', 'integration', 'test_app.py'), '# Integration tests for the Flask app\n');
 
-  scaffoldSquad(root, {
+  scaffoldCrew(root, {
     projectName: 'my-python-pkg',
     description: 'A small Python web service with Flask.',
     agents: [
@@ -226,7 +226,7 @@ function buildMonorepoFixture(root: string): void {
   );
   writeFileSync(join(pkgC, 'utils.ts'), 'export const VERSION = "1.0.0";\n');
 
-  scaffoldSquad(root, {
+  scaffoldCrew(root, {
     projectName: 'my-monorepo',
     description: 'A multi-package TypeScript workspace with SDK, CLI, and shared utils.',
     agents: [
@@ -275,7 +275,7 @@ function buildMixedLanguageFixture(root: string): void {
 
   writeFileSync(join(root, 'README.md'), '# Mixed Language Platform\n\nGo API, Python ML, TypeScript Frontend.\n');
 
-  scaffoldSquad(root, {
+  scaffoldCrew(root, {
     projectName: 'platform',
     description: 'Full-stack platform with Go microservices, Python ML pipelines, and TypeScript frontend.',
     agents: [
@@ -335,7 +335,7 @@ function buildEdgeCaseFixture(root: string): void {
     role: i % 5 === 0 ? 'Lead' : i % 5 === 1 ? 'Core Dev' : i % 5 === 2 ? 'Tester' : i % 5 === 3 ? 'DevRel' : 'TypeScript Engineer',
   }));
 
-  scaffoldSquad(root, {
+  scaffoldCrew(root, {
     projectName: 'edge-case-repo',
     description: 'Repository with extreme edge cases for dogfood testing.',
     agents: manyAgents,
@@ -343,9 +343,9 @@ function buildEdgeCaseFixture(root: string): void {
   });
 }
 
-/** Minimal repo: .squad/ with team.md only, nothing else */
+/** Minimal repo: .crew/ with team.md only, nothing else */
 function buildMinimalFixture(root: string): void {
-  scaffoldSquad(root, {
+  scaffoldCrew(root, {
     projectName: 'minimal',
     description: 'A bare-bones project.',
     agents: [{ name: 'Solo', role: 'Lead' }],
@@ -840,7 +840,7 @@ describe('Dogfood: Minimal repo', () => {
   it('loadWelcomeData returns null focus when no identity/now.md', () => {
     const data = loadWelcomeData(root);
     // Minimal fixture has no focus set (no identity/now.md with focus_area)
-    // Our scaffoldSquad creates identity/now.md only when opts.focus is set
+    // Our scaffoldCrew creates identity/now.md only when opts.focus is set
     expect(data!.focus).toBeNull();
   });
 
@@ -861,11 +861,11 @@ describe('Dogfood: Minimal repo', () => {
   });
 });
 
-describe('Dogfood: No .squad/ directory', () => {
+describe('Dogfood: No .crew/ directory', () => {
   let root: string;
 
   beforeEach(() => {
-    root = makeTempDir('dogfood-nosquad-');
+    root = makeTempDir('dogfood-nocrew-');
   });
 
   afterEach(async () => {
@@ -1048,7 +1048,7 @@ describe('Dogfood: First-run ceremony detection', () => {
   });
 
   it('detects first-run marker and consumes it', () => {
-    scaffoldSquad(root, {
+    scaffoldCrew(root, {
       projectName: 'first-run-test',
       description: 'Testing first-run detection.',
       agents: [{ name: 'Keaton', role: 'Lead' }],

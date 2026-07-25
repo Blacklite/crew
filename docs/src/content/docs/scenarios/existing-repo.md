@@ -1,43 +1,43 @@
-# Adding Squad to an Existing Repo
+# Adding Crew to an Existing Repo
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this:**
 ```
-This is a SaaS app with React frontend, Node.js API, and PostgreSQL — set up Squad
+This is a SaaS app with React frontend, Node.js API, and PostgreSQL — set up Crew
 ```
 
-Squad discovers your existing project — stack, patterns, conventions — and proposes a team that fits. Agents explore the codebase first, then start working with full context.
+Crew discovers your existing project — stack, patterns, conventions — and proposes a team that fits. Agents explore the codebase first, then start working with full context.
 
 ---
 
-## 1. Install Squad
+## 1. Install Crew
 
 Navigate to your existing repo and run:
 
 ```bash
 cd ~/projects/my-saas-app
-squad
+crew
 ```
 
 ```
-✅ .github/agents/squad.agent.md (v0.2.0)
+✅ .github/agents/crew.agent.md (v0.2.0)
 ✅ .github/workflows/ (10 workflows)
-✅ .squad/templates/
+✅ .crew/templates/
 ✅ .copilot/skills/ (starter skills)
-✅ .squad/ceremonies.md
+✅ .crew/ceremonies.md
 ✅ .gitattributes (merge=union rules)
 
-Squad is ready.
+Crew is ready.
 
 Next steps:
   1. Open Copilot:  copilot
-  2. Select Squad from the /agent list (CLI) or /agents (VS Code)
+  2. Select Crew from the /agent list (CLI) or /agents (VS Code)
   3. Tell it what you're building
 ```
 
-If you already have a `.gitattributes` file, Squad appends `merge=union` rules for append-only team state files. Your existing rules are untouched.
+If you already have a `.gitattributes` file, Crew appends `merge=union` rules for append-only team state files. Your existing rules are untouched.
 
 ---
 
@@ -47,7 +47,7 @@ If you already have a `.gitattributes` file, Squad appends `merge=union` rules f
 copilot
 ```
 
-Select **Squad** from the `/agent` list (CLI) or `/agents` (VS Code). When Squad asks what you're building, describe the project as it exists today:
+Select **Crew** from the `/agent` list (CLI) or `/agents` (VS Code). When Crew asks what you're building, describe the project as it exists today:
 
 ```
 > This is a SaaS invoicing app. React frontend, Node.js/Express API,
@@ -55,7 +55,7 @@ Select **Squad** from the `/agent` list (CLI) or `/agents` (VS Code). When Squad
 > and Prisma as the ORM. The app has been in production for 8 months.
 ```
 
-Squad proposes a team based on your stack:
+Crew proposes a team based on your stack:
 
 ```
 Here's your team:
@@ -162,8 +162,8 @@ Because Morpheus already explored the codebase, he knows the Prisma schema, the 
 ## 6. Commit Your Team
 
 ```bash
-git add .squad/ .github/ .gitattributes
-git commit -m "Add Squad team"
+git add .crew/ .github/ .gitattributes
+git commit -m "Add Crew team"
 ```
 
 ---
@@ -173,5 +173,5 @@ git commit -m "Add Squad team"
 - **Explore first, build second.** The initial codebase review pays for itself immediately.
 - **Share your conventions.** Agents can't discover team norms from code alone. Tell them.
 - **Mention fragile areas.** Agents will be more cautious and add extra test coverage.
-- **Existing `.gitattributes` is safe.** Squad only appends `merge=union` rules.
+- **Existing `.gitattributes` is safe.** Crew only appends `merge=union` rules.
 - **History accumulates fast.** After 2–3 real tasks, agents are significantly better than cold-start.

@@ -17,19 +17,19 @@ import {
   writeEconomyMode,
   applyEconomyMode,
   ECONOMY_MODEL_MAP,
-} from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
 import {
   resolveModel as sdkResolveModel,
-} from '@bradygaster/squad-sdk/agents';
+} from '@blacklite/crew-sdk/agents';
 
-let squadDir: string;
+let crewDir: string;
 
 beforeEach(() => {
-  squadDir = mkdtempSync(join(tmpdir(), 'squad-economy-'));
+  crewDir = mkdtempSync(join(tmpdir(), 'crew-economy-'));
 });
 
 afterEach(() => {
-  rmSync(squadDir, { recursive: true, force: true });
+  rmSync(crewDir, { recursive: true, force: true });
 });
 
 // ============================================================================
@@ -73,74 +73,74 @@ describe('applyEconomyMode', () => {
 
 describe('readEconomyMode', () => {
   it('returns false when config.json does not exist', () => {
-    expect(readEconomyMode(squadDir)).toBe(false);
+    expect(readEconomyMode(crewDir)).toBe(false);
   });
 
   it('returns false when economyMode field is absent', () => {
-    writeFileSync(join(squadDir, 'config.json'), JSON.stringify({ version: 1 }));
-    expect(readEconomyMode(squadDir)).toBe(false);
+    writeFileSync(join(crewDir, 'config.json'), JSON.stringify({ version: 1 }));
+    expect(readEconomyMode(crewDir)).toBe(false);
   });
 
   it('returns false when economyMode is false', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, economyMode: false })
     );
-    expect(readEconomyMode(squadDir)).toBe(false);
+    expect(readEconomyMode(crewDir)).toBe(false);
   });
 
   it('returns true when economyMode is true', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, economyMode: true })
     );
-    expect(readEconomyMode(squadDir)).toBe(true);
+    expect(readEconomyMode(crewDir)).toBe(true);
   });
 
   it('returns false on malformed JSON', () => {
-    writeFileSync(join(squadDir, 'config.json'), '{ bad json');
-    expect(readEconomyMode(squadDir)).toBe(false);
+    writeFileSync(join(crewDir, 'config.json'), '{ bad json');
+    expect(readEconomyMode(crewDir)).toBe(false);
   });
 });
 
 describe('writeEconomyMode', () => {
   it('creates config.json with economyMode: true', () => {
-    writeEconomyMode(squadDir, true);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeEconomyMode(crewDir, true);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.economyMode).toBe(true);
     expect(raw.version).toBe(1);
   });
 
   it('removes economyMode field when set to false', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, economyMode: true })
     );
-    writeEconomyMode(squadDir, false);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeEconomyMode(crewDir, false);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw).not.toHaveProperty('economyMode');
   });
 
   it('merges with existing config without clobbering other fields', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
-    writeEconomyMode(squadDir, true);
-    const raw = JSON.parse(readFileSync(join(squadDir, 'config.json'), 'utf-8'));
+    writeEconomyMode(crewDir, true);
+    const raw = JSON.parse(readFileSync(join(crewDir, 'config.json'), 'utf-8'));
     expect(raw.defaultModel).toBe('claude-opus-4.6');
     expect(raw.economyMode).toBe(true);
   });
 
   it('round-trips: write on → read true', () => {
-    writeEconomyMode(squadDir, true);
-    expect(readEconomyMode(squadDir)).toBe(true);
+    writeEconomyMode(crewDir, true);
+    expect(readEconomyMode(crewDir)).toBe(true);
   });
 
   it('round-trips: write off → read false', () => {
-    writeEconomyMode(squadDir, true);
-    writeEconomyMode(squadDir, false);
-    expect(readEconomyMode(squadDir)).toBe(false);
+    writeEconomyMode(crewDir, true);
+    writeEconomyMode(crewDir, false);
+    expect(readEconomyMode(crewDir)).toBe(false);
   });
 });
 
@@ -183,24 +183,24 @@ describe('resolveModel economy mode (option)', () => {
 
   it('Layer 0b global config: NOT overridden by economy mode', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, defaultModel: 'claude-opus-4.6' })
     );
     expect(
-      resolveModel({ squadDir, taskModel: 'claude-sonnet-4.6', economyMode: true })
+      resolveModel({ crewDir, taskModel: 'claude-sonnet-4.6', economyMode: true })
     ).toBe('claude-opus-4.6');
   });
 
   it('Layer 0a per-agent override: NOT overridden by economy mode', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({
         version: 1,
         agentModelOverrides: { eecom: 'claude-opus-4.6' },
       })
     );
     expect(
-      resolveModel({ agentName: 'eecom', squadDir, taskModel: 'claude-haiku-4.5', economyMode: true })
+      resolveModel({ agentName: 'eecom', crewDir, taskModel: 'claude-haiku-4.5', economyMode: true })
     ).toBe('claude-opus-4.6');
   });
 });
@@ -212,28 +212,28 @@ describe('resolveModel economy mode (option)', () => {
 describe('resolveModel economy mode (from config)', () => {
   it('uses economy model when economyMode: true in config', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, economyMode: true })
     );
-    expect(resolveModel({ squadDir, taskModel: 'claude-sonnet-4.6' })).toBe('gpt-5-mini');
+    expect(resolveModel({ crewDir, taskModel: 'claude-sonnet-4.6' })).toBe('gpt-5-mini');
   });
 
   it('uses normal model when economyMode absent from config', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1 })
     );
-    expect(resolveModel({ squadDir, taskModel: 'claude-sonnet-4.6' })).toBe('claude-sonnet-4.6');
+    expect(resolveModel({ crewDir, taskModel: 'claude-sonnet-4.6' })).toBe('claude-sonnet-4.6');
   });
 
   it('explicit economyMode option overrides config setting', () => {
     writeFileSync(
-      join(squadDir, 'config.json'),
+      join(crewDir, 'config.json'),
       JSON.stringify({ version: 1, economyMode: false })
     );
     // Option says true, config says false → option wins
     expect(
-      resolveModel({ squadDir, taskModel: 'claude-sonnet-4.6', economyMode: true })
+      resolveModel({ crewDir, taskModel: 'claude-sonnet-4.6', economyMode: true })
     ).toBe('gpt-5-mini');
   });
 });

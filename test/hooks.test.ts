@@ -10,19 +10,19 @@ import {
   PreToolUseContext,
   PostToolUseContext,
   DEFAULT_BLOCKED_COMMANDS,
-} from '@bradygaster/squad-sdk/hooks';
+} from '@blacklite/crew-sdk/hooks';
 
 describe('HookPipeline', () => {
   describe('File-write guard', () => {
     it('should allow writes to paths matching allowed patterns', async () => {
       const config: PolicyConfig = {
-        allowedWritePaths: ['.squad/**', 'docs/**'],
+        allowedWritePaths: ['.crew/**', 'docs/**'],
       };
       const pipeline = new HookPipeline(config);
 
       const ctx: PreToolUseContext = {
         toolName: 'edit',
-        arguments: { path: '.squad/team.md' },
+        arguments: { path: '.crew/team.md' },
         agentName: 'test-agent',
         sessionId: 'session-1',
       };
@@ -33,7 +33,7 @@ describe('HookPipeline', () => {
 
     it('should block writes to paths not matching allowed patterns', async () => {
       const config: PolicyConfig = {
-        allowedWritePaths: ['.squad/**'],
+        allowedWritePaths: ['.crew/**'],
       };
       const pipeline = new HookPipeline(config);
 
@@ -76,7 +76,7 @@ describe('HookPipeline', () => {
 
     it('should not interfere with non-write tools', async () => {
       const config: PolicyConfig = {
-        allowedWritePaths: ['.squad/**'],
+        allowedWritePaths: ['.crew/**'],
       };
       const pipeline = new HookPipeline(config);
 
@@ -93,13 +93,13 @@ describe('HookPipeline', () => {
 
     it('should handle Windows-style paths', async () => {
       const config: PolicyConfig = {
-        allowedWritePaths: ['.squad\\**'],
+        allowedWritePaths: ['.crew\\**'],
       };
       const pipeline = new HookPipeline(config);
 
       const ctx: PreToolUseContext = {
         toolName: 'edit',
-        arguments: { path: '.squad\\team.md' },
+        arguments: { path: '.crew\\team.md' },
         agentName: 'test-agent',
         sessionId: 'session-1',
       };

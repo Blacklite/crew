@@ -2,7 +2,7 @@
  * CLI Packaging Smoke Test
  *
  * Validates that the packaged CLI works end-to-end:
- * 1. Packs both squad-sdk and squad-cli packages
+ * 1. Packs both crew-sdk and crew-cli packages
  * 2. Installs both tarballs in a clean temp directory
  * 3. Verifies every CLI command is reachable (routed correctly)
  *
@@ -44,8 +44,8 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
 
   beforeAll(() => {
     const cwd = process.cwd();
-    const sdkDir = join(cwd, 'packages', 'squad-sdk');
-    const cliDir = join(cwd, 'packages', 'squad-cli');
+    const sdkDir = join(cwd, 'packages', 'crew-sdk');
+    const cliDir = join(cwd, 'packages', 'crew-cli');
 
     // Build first if dist/ doesn't exist
     const sdkDist = join(sdkDir, 'dist');
@@ -56,16 +56,16 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
     const buildEnv = { ...process.env, SKIP_BUILD_BUMP: '1' };
 
     if (!existsSync(sdkDist)) {
-      console.log('Building squad-sdk...');
+      console.log('Building crew-sdk...');
       execSync('npm run build', { cwd: sdkDir, stdio: 'inherit', env: buildEnv });
     }
 
     if (!existsSync(cliDist)) {
-      console.log('Building squad-cli...');
+      console.log('Building crew-cli...');
       execSync('npm run build', { cwd: cliDir, stdio: 'inherit', env: buildEnv });
     }
 
-    packageArtifactsDir = mkdtempSync(join(tmpdir(), 'squad-cli-pack-'));
+    packageArtifactsDir = mkdtempSync(join(tmpdir(), 'crew-cli-pack-'));
 
     // Pack both packages into an isolated temp directory so reruns do not
     // reuse or mutate repo-local tarballs between installs.
@@ -101,8 +101,8 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
       const cliEntryPath = join(
         tempDir,
         'node_modules',
-        '@bradygaster',
-        'squad-cli',
+        '@blacklite',
+        'crew-cli',
         'dist',
         'cli-entry.js',
       );
@@ -114,7 +114,7 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
       return { tempDir, cliEntryPath };
     };
 
-    installedCli = installPackedCli('squad-cli-test-');
+    installedCli = installPackedCli('crew-cli-test-');
   }, 90000);
 
   afterAll(() => {
@@ -147,7 +147,7 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
 
   /**
    * Helper to run a CLI command and capture output.
-   * Many commands will exit non-zero (expected — no .squad/ dir, etc.).
+   * Many commands will exit non-zero (expected — no .crew/ dir, etc.).
    * We only care that the command was ROUTED, not that it succeeded.
    *
    * Uses a short timeout (2s) — if the command starts executing and doesn't
@@ -209,7 +209,7 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
 
     return [
       join(cli.tempDir, 'node_modules', dependency),
-      join(cli.tempDir, 'node_modules', '@bradygaster', 'squad-cli', 'node_modules', dependency),
+      join(cli.tempDir, 'node_modules', '@blacklite', 'crew-cli', 'node_modules', dependency),
     ].find(path => existsSync(path));
   }
 
@@ -218,9 +218,9 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
   // These prevent broken packages from reaching npm.
   // ============================================================================
 
-  it('squad-cli has no file: dependencies (breaks global installs)', () => {
+  it('crew-cli has no file: dependencies (breaks global installs)', () => {
     expect(installedCli).toBeDefined();
-    const pkgPath = join(installedCli!.tempDir, 'node_modules', '@bradygaster', 'squad-cli', 'package.json');
+    const pkgPath = join(installedCli!.tempDir, 'node_modules', '@blacklite', 'crew-cli', 'package.json');
     const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
     const deps = pkg.dependencies || {};
     for (const [name, version] of Object.entries(deps)) {
@@ -229,25 +229,25 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
     }
   });
 
-  it('squad-sdk resolves as a real package (not a workspace link)', () => {
+  it('crew-sdk resolves as a real package (not a workspace link)', () => {
     expect(installedCli).toBeDefined();
-    const sdkPkg = join(installedCli!.tempDir, 'node_modules', '@bradygaster', 'squad-sdk', 'package.json');
-    expect(existsSync(sdkPkg), 'squad-sdk not installed as dependency of squad-cli').toBe(true);
+    const sdkPkg = join(installedCli!.tempDir, 'node_modules', '@blacklite', 'crew-sdk', 'package.json');
+    expect(existsSync(sdkPkg), 'crew-sdk not installed as dependency of crew-cli').toBe(true);
     const pkg = JSON.parse(readFileSync(sdkPkg, 'utf8'));
-    expect(pkg.name).toBe('@bradygaster/squad-sdk');
+    expect(pkg.name).toBe('@blacklite/crew-sdk');
   });
 
   // ============================================================================
   // PHASE 2 — SMOKE TESTS
   // ============================================================================
 
-  it('squad --version exits 0 and outputs semver', () => {
+  it('crew --version exits 0 and outputs semver', () => {
     const result = runCommand(['--version']);
     expect(result.exitCode).toBe(0);
     expect(result.stdout).toMatch(/^\d+\.\d+\.\d+/);
   });
 
-  it('squad --help exits 0 and contains usage info', () => {
+  it('crew --help exits 0 and contains usage info', () => {
     const result = runCommand(['--help']);
     expect(result.exitCode).toBe(0);
     const output = result.stdout.toLowerCase();
@@ -327,7 +327,7 @@ describe('CLI packaging smoke test', { timeout: 120_000 }, () => {
     const triageResult = runCommand(['triage']);
     expectCommandRouted(watchResult);
     expectCommandRouted(triageResult);
-    // Both should fail in the same way (no .squad/ dir or similar)
+    // Both should fail in the same way (no .crew/ dir or similar)
     // Just verify they're both routed
   });
 

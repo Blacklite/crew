@@ -1,11 +1,11 @@
 ---
-"@bradygaster/squad-cli": patch
-"@bradygaster/squad-sdk": patch
+"@blacklite/crew-cli": patch
+"@blacklite/crew-sdk": patch
 ---
 
 Fix #1377 follow-ups: spawn-backend fallback, slot-leak guards, timeouts, prompt sanitization
 
-Addresses the six deferred review items from the #1385 review (sub-sessions in the Copilot App). All are hardening fixes to the spawn coordinator (`packages/squad-sdk/src/coordinator/`) plus a template probe-order correction.
+Addresses the six deferred review items from the #1385 review (sub-sessions in the Copilot App). All are hardening fixes to the spawn coordinator (`packages/crew-sdk/src/coordinator/`) plus a template probe-order correction.
 
 **Blockers**
 
@@ -13,7 +13,7 @@ Addresses the six deferred review items from the #1385 review (sub-sessions in t
 
 2. **Concurrency slot leak (`fan-out.ts`).** `registerSpawnRelease()` now (a) treats `completed` as a terminal status (previously only `idle`/`error`/`destroyed` released the slot), and (b) installs an unref'd max-lifetime safety timer (default 1h) that force-releases the slot if a silently-crashed sub-session emits no terminal event. The timer is cleared on normal release.
 
-3. **Template detection-order drift.** Re-synced the canonical `.squad-templates/squad.agent.md` probe order (`create_session` → `runSubagent` → `task` → inline) to all mirror copies, which had `task` and `runSubagent` swapped.
+3. **Template detection-order drift.** Re-synced the canonical `.crew-templates/crew.agent.md` probe order (`create_session` → `runSubagent` → `task` → inline) to all mirror copies, which had `task` and `runSubagent` swapped.
 
 **Risks**
 

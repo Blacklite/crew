@@ -1,8 +1,8 @@
 {
-  "name": "@squad-samples/cost-aware-router",
+  "name": "@crew-samples/cost-aware-router",
   "version": "1.0.0",
   "private": true,
-  "description": "Demonstrates Squad SDK cost-aware routing — tier selection, budget tracking, and per-agent cost breakdowns",
+  "description": "Demonstrates Crew SDK cost-aware routing — tier selection, budget tracking, and per-agent cost breakdowns",
   "type": "module",
   "scripts": {
     "build": "tsc",
@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@bradygaster/squad-sdk": "^0.8.0"
+    "@blacklite/crew-sdk": "^0.8.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

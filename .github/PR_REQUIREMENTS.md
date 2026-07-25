@@ -1,4 +1,4 @@
-# PR Requirements — Squad Repository
+# PR Requirements — Crew Repository
 
 > **This file is the canonical source of truth for PR requirements.**
 > Issue #106 tracks the PRD; this file is the versioned spec.
@@ -11,21 +11,21 @@
 A PR contains a **user-facing change** if it introduces a CRUD operation to the CLI or SDK layer that is exposed in TypeScript or true executable functionality.
 
 "User-facing" is anchored to two concrete package boundaries:
-- **SDK layer**: `packages/squad-sdk/src/` exports exposed in `package.json` subpath exports
-- **CLI layer**: `packages/squad-cli/src/cli/` commands and subcommands
+- **SDK layer**: `packages/crew-sdk/src/` exports exposed in `package.json` subpath exports
+- **CLI layer**: `packages/crew-cli/src/cli/` commands and subcommands
 
 ### CRUD Operations — What Counts as User-Facing
 
 | Operation | SDK Layer | CLI Layer |
 |-----------|-----------|-----------|
-| **Create** | New export added to `packages/squad-sdk/src/`; new subpath export added to `package.json` | New CLI command or subcommand added to `packages/squad-cli/src/cli/commands/` |
+| **Create** | New export added to `packages/crew-sdk/src/`; new subpath export added to `package.json` | New CLI command or subcommand added to `packages/crew-cli/src/cli/commands/` |
 | **Read** | N/A — reading doesn't change the surface | N/A — reading doesn't change the surface |
 | **Update** | Change to existing public API signature (parameters, return types, behavior) | Change to CLI command flags, behavior, or subcommand structure |
 | **Delete** | Remove a previously public export from `package.json` | Remove a CLI command or subcommand |
 
 ### What Is NOT User-Facing
 
-- `.squad/` state files (decisions, history, skills, templates)
+- `.crew/` state files (decisions, history, skills, templates)
 - Internal refactors that don't change the public API surface
 - Infrastructure (CI, GitHub Actions, workflows)
 - Documentation-only changes
@@ -35,9 +35,9 @@ Why this matters: The requirement categories below apply conditionally to user-f
 
 ### Examples of "new module"
 
-- Adding a new directory under packages/squad-sdk/src/ (e.g., src/storage/, src/casting/)
+- Adding a new directory under packages/crew-sdk/src/ (e.g., src/storage/, src/casting/)
 - Adding a new subpath export to package.json (e.g., ./storage, ./casting)
-- Adding a new CLI command file under packages/squad-cli/src/cli/commands/
+- Adding a new CLI command file under packages/crew-cli/src/cli/commands/
 
 ### NOT a new module
 
@@ -59,7 +59,7 @@ Requirements are ordered by review flow. All marked **REQUIRED** must be satisfi
 - [ ] Clean commit history: logical commits or squashed to a single coherent commit
 - [ ] No force-pushes to shared branches (`dev`, `main`)
 
-**Enforced by**: squad-ci.yml bleed check + git hooks
+**Enforced by**: crew-ci.yml bleed check + git hooks
 
 ### b) CI / Build (REQUIRED — automated)
 
@@ -84,7 +84,7 @@ Requirements are ordered by review flow. All marked **REQUIRED** must be satisfi
 
 - [ ] CHANGELOG.md entry under `[Unreleased]` following Keep-a-Changelog format
   - Example: `### Added — FeatureName (#N) — short description`
-  - Required when: a **user-facing change** (see "Definition of \"User-Facing Change\"") affects the SDK or CLI public surface (e.g., exports in `packages/squad-sdk/src/` or commands in `packages/squad-cli/src/cli/`)
+  - Required when: a **user-facing change** (see "Definition of \"User-Facing Change\"") affects the SDK or CLI public surface (e.g., exports in `packages/crew-sdk/src/` or commands in `packages/crew-cli/src/cli/`)
 - [ ] README.md section updated if adding a new feature or module to the SDK
 - [ ] Docs feature page added under `docs/src/content/docs/features/` if adding a user-facing capability
 - [ ] `docs/src/navigation.ts` updated if a new docs page is added
@@ -226,7 +226,7 @@ This requirements file is the source of truth. CI gate scripts (#104) and review
 
 ### 4. Ambiguities
 
-- **"Module" definition**: new directory under `packages/squad-sdk/src/` or new export namespace. Refactoring existing module does not trigger export requirement.
+- **"Module" definition**: new directory under `packages/crew-sdk/src/` or new export namespace. Refactoring existing module does not trigger export requirement.
 - **"User-facing" detection for CHANGELOG**: Currently manual. #104 will implement export-diff detection.
 
 ---

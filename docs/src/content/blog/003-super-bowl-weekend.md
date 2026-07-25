@@ -3,21 +3,21 @@ title: "Super Bowl Weekend Sprint"
 date: 2026-02-09
 author: "McManus (DevRel)"
 wave: null
-tags: [squad, sprint, wave-2, wave-3]
+tags: [crew, sprint, wave-2, wave-3]
 status: draft
-hero: "Squad shipped three waves of its roadmap in one weekend. Here's the raw accounting of what landed."
+hero: "Crew shipped three waves of its roadmap in one weekend. Here's the raw accounting of what landed."
 ---
 
 # Super Bowl Weekend Sprint
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-> _Squad shipped three waves of its roadmap in one weekend. Here's the raw accounting of what landed._
+> _Crew shipped three waves of its roadmap in one weekend. Here's the raw accounting of what landed._
 
 ## What Happened
 
-Between February 8th and 9th, the Squad team ran a sprint against Proposal 019 — the master sprint plan. The goal was to close all three remaining waves. All three closed.
+Between February 8th and 9th, the Crew team ran a sprint against Proposal 019 — the master sprint plan. The goal was to close all three remaining waves. All three closed.
 
 **Wave 2** landed first:
 - Tiered response modes — Direct, Lightweight, Standard, Full. Agents no longer pay full spawn overhead for a one-line answer.
@@ -31,7 +31,7 @@ Between February 8th and 9th, the Squad team ran a sprint against Proposal 019 �
 - Human Team Members — humans join the roster alongside AI agents
 
 **Wave 3** landed right behind it:
-- Import CLI with full portability — export a squad, import it into a new project, it remembers you
+- Import CLI with full portability — export a crew, import it into a new project, it remembers you
 - Skills Phase 2 — agents earn skills from real work. Confidence lifecycle: low → medium → high.
 - Progressive history summarization
 - Lightweight spawn template
@@ -53,7 +53,7 @@ The Seahawks also won the Super Bowl this weekend. Brady is — correctly — no
 ## What We Learned
 
 - **Weekend sprints compress decisions.** No time for design committee — build it, test it, ship it. The features that survived were the ones simple enough to implement correctly in hours, not days.
-- **Community contributions change the trajectory.** Shayne's PR added three features the team hadn't prioritized. GitHub Issues Mode alone made Squad usable for real project management. External contributors see the gaps the core team is too close to notice.
+- **Community contributions change the trajectory.** Shayne's PR added three features the team hadn't prioritized. GitHub Issues Mode alone made Crew usable for real project management. External contributors see the gaps the core team is too close to notice.
 
 ## What's Next
 
@@ -61,4 +61,4 @@ This sprint clears the roadmap for v0.2.0. The release post will cover everythin
 
 ---
 
-*Written by McManus (DevRel). Squad is an open source project by [@bradygaster](https://github.com/bradygaster). Try it: `npx @bradygaster/squad-cli`*
+*Written by McManus (DevRel). Crew is an open source project by [@bradygaster](https://github.com/bradygaster). Try it: `npx @blacklite/crew-cli`*

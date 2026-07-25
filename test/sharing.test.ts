@@ -5,24 +5,24 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  exportSquadConfig,
+  exportCrewConfig,
   serializeBundle,
   sanitizeContent,
   anonymizeContent,
   type ExportBundle,
   type ExportOptions,
-} from '@bradygaster/squad-sdk/sharing';
+} from '@blacklite/crew-sdk/sharing';
 import {
-  importSquadConfig,
+  importCrewConfig,
   deserializeBundle,
   validateBundle,
-} from '@bradygaster/squad-sdk/sharing';
+} from '@blacklite/crew-sdk/sharing';
 import {
   splitHistory,
   mergeHistory,
   type AgentHistory,
   type HistoryEntry,
-} from '@bradygaster/squad-sdk/sharing';
+} from '@blacklite/crew-sdk/sharing';
 
 // --- Helpers ---
 
@@ -99,21 +99,21 @@ afterEach(() => {
 // ========== Export ==========
 
 describe('Export', () => {
-  it('should export squad config with agents', () => {
-    const bundle = exportSquadConfig(TEST_DIR);
+  it('should export crew config with agents', () => {
+    const bundle = exportCrewConfig(TEST_DIR);
     expect(bundle.agents).toHaveLength(2);
     expect(bundle.agents.some(a => a.name === 'fenster')).toBe(true);
     expect(bundle.agents.some(a => a.name === 'ralph')).toBe(true);
   });
 
   it('should export routing rules', () => {
-    const bundle = exportSquadConfig(TEST_DIR);
+    const bundle = exportCrewConfig(TEST_DIR);
     expect(bundle.routingRules.length).toBeGreaterThanOrEqual(1);
     expect(bundle.routingRules.some(r => r.agent === 'fenster')).toBe(true);
   });
 
   it('should export raw routing file content', () => {
-    const bundle = exportSquadConfig(TEST_DIR);
+    const bundle = exportCrewConfig(TEST_DIR);
     expect(bundle.routingFile).toBeDefined();
     expect(bundle.routingFile).toContain('build/*');
     expect(bundle.routingFile).toContain('fenster');
@@ -121,7 +121,7 @@ describe('Export', () => {
 
   it('should not include routingFile when routing.md is missing', () => {
     rmSync(join(TEST_DIR, '.ai-team', 'routing.md'));
-    const bundle = exportSquadConfig(TEST_DIR);
+    const bundle = exportCrewConfig(TEST_DIR);
     expect(bundle.routingFile).toBeUndefined();
   });
 
@@ -130,54 +130,54 @@ describe('Export', () => {
       join(TEST_DIR, '.ai-team', 'routing.md'),
       '# Routing\n\n- `build/*` → fenster\n\nContact: user@example.com\n',
     );
-    const bundle = exportSquadConfig(TEST_DIR, { anonymize: true });
+    const bundle = exportCrewConfig(TEST_DIR, { anonymize: true });
     expect(bundle.routingFile).toBeDefined();
     expect(bundle.routingFile).not.toContain('user@example.com');
     expect(bundle.routingFile).toContain('[email]');
   });
 
   it('should export skills when includeSkills is true', () => {
-    const bundle = exportSquadConfig(TEST_DIR, { includeSkills: true });
+    const bundle = exportCrewConfig(TEST_DIR, { includeSkills: true });
     expect(bundle.skills).toContain('typescript');
   });
 
   it('should exclude skills when includeSkills is false', () => {
-    const bundle = exportSquadConfig(TEST_DIR, { includeSkills: false });
+    const bundle = exportCrewConfig(TEST_DIR, { includeSkills: false });
     expect(bundle.skills).toHaveLength(0);
   });
 
   it('should include history array when includeHistory is true', () => {
-    const bundle = exportSquadConfig(TEST_DIR, { includeHistory: true });
+    const bundle = exportCrewConfig(TEST_DIR, { includeHistory: true });
     expect(bundle.history).toBeDefined();
     expect(Array.isArray(bundle.history)).toBe(true);
   });
 
   it('should not include history by default', () => {
-    const bundle = exportSquadConfig(TEST_DIR);
+    const bundle = exportCrewConfig(TEST_DIR);
     expect(bundle.history).toBeUndefined();
   });
 
   it('should populate metadata', () => {
-    const bundle = exportSquadConfig(TEST_DIR);
+    const bundle = exportCrewConfig(TEST_DIR);
     expect(bundle.metadata.version).toBe('1.0.0');
     expect(bundle.metadata.timestamp).toBeTruthy();
     expect(bundle.metadata.source).toBe(TEST_DIR);
   });
 
   it('should anonymize source in metadata when anonymize option is set', () => {
-    const bundle = exportSquadConfig(TEST_DIR, { anonymize: true });
+    const bundle = exportCrewConfig(TEST_DIR, { anonymize: true });
     expect(bundle.metadata.source).toBe('[anonymized]');
   });
 
   it('should handle missing agents directory', () => {
     rmSync(join(TEST_DIR, '.github', 'agents'), { recursive: true });
-    const bundle = exportSquadConfig(TEST_DIR);
+    const bundle = exportCrewConfig(TEST_DIR);
     expect(bundle.agents).toHaveLength(0);
   });
 
   it('should handle missing routing file', () => {
     rmSync(join(TEST_DIR, '.ai-team', 'routing.md'));
-    const bundle = exportSquadConfig(TEST_DIR);
+    const bundle = exportCrewConfig(TEST_DIR);
     expect(bundle.routingRules).toHaveLength(0);
   });
 });
@@ -233,7 +233,7 @@ describe('Sanitization', () => {
   });
 
   it('should anonymize absolute paths', () => {
-    const result = anonymizeContent('Found at /home/user/projects/squad/file.ts');
+    const result = anonymizeContent('Found at /home/user/projects/crew/file.ts');
     expect(result).toContain('[path]');
   });
 });
@@ -294,7 +294,7 @@ describe('Import', () => {
     const targetDir = join(IMPORT_DIR, 'target');
     mkdirSync(targetDir, { recursive: true });
 
-    const result = importSquadConfig(bundlePath, targetDir);
+    const result = importCrewConfig(bundlePath, targetDir);
     expect(result.success).toBe(true);
     expect(result.changes.some(c => c.type === 'added')).toBe(true);
     expect(existsSync(join(targetDir, '.github', 'agents', 'fenster.agent.md'))).toBe(true);
@@ -309,7 +309,7 @@ describe('Import', () => {
     const targetDir = join(IMPORT_DIR, 'target-routing');
     mkdirSync(targetDir, { recursive: true });
 
-    const result = importSquadConfig(bundlePath, targetDir);
+    const result = importCrewConfig(bundlePath, targetDir);
     expect(result.success).toBe(true);
     expect(result.changes.some(c => c.path === '.ai-team/routing.md')).toBe(true);
     const routingContent = readFileSync(join(targetDir, '.ai-team', 'routing.md'), 'utf-8');
@@ -327,7 +327,7 @@ describe('Import', () => {
     const targetDir = join(IMPORT_DIR, 'target-routing-only');
     mkdirSync(targetDir, { recursive: true });
 
-    const result = importSquadConfig(bundlePath, targetDir);
+    const result = importCrewConfig(bundlePath, targetDir);
     expect(result.success).toBe(true);
     expect(result.changes.some(c => c.path === '.ai-team/routing.md')).toBe(true);
     const routingContent = readFileSync(join(targetDir, '.ai-team', 'routing.md'), 'utf-8');
@@ -342,14 +342,14 @@ describe('Import', () => {
     const targetDir = join(IMPORT_DIR, 'target-dry');
     mkdirSync(targetDir, { recursive: true });
 
-    const result = importSquadConfig(bundlePath, targetDir, { dryRun: true });
+    const result = importCrewConfig(bundlePath, targetDir, { dryRun: true });
     expect(result.success).toBe(true);
     expect(result.changes.length).toBeGreaterThan(0);
     expect(existsSync(join(targetDir, '.github', 'agents', 'fenster.agent.md'))).toBe(false);
   });
 
   it('should return error for missing bundle file', () => {
-    const result = importSquadConfig('/nonexistent/bundle.json', IMPORT_DIR);
+    const result = importCrewConfig('/nonexistent/bundle.json', IMPORT_DIR);
     expect(result.success).toBe(false);
     expect(result.warnings.some(w => w.includes('not found'))).toBe(true);
   });
@@ -357,14 +357,14 @@ describe('Import', () => {
   it('should return error for invalid bundle content', () => {
     const bundlePath = join(IMPORT_DIR, 'bad.json');
     writeFileSync(bundlePath, 'not valid json');
-    const result = importSquadConfig(bundlePath, IMPORT_DIR);
+    const result = importCrewConfig(bundlePath, IMPORT_DIR);
     expect(result.success).toBe(false);
   });
 
   it('should return validation errors for invalid bundle', () => {
     const bundlePath = join(IMPORT_DIR, 'invalid-bundle.json');
     writeFileSync(bundlePath, JSON.stringify({ agents: 'bad' }));
-    const result = importSquadConfig(bundlePath, IMPORT_DIR);
+    const result = importCrewConfig(bundlePath, IMPORT_DIR);
     expect(result.success).toBe(false);
     expect(result.warnings.length).toBeGreaterThan(0);
   });
@@ -378,7 +378,7 @@ describe('Import', () => {
     const targetDir = join(IMPORT_DIR, 'target-skip');
     mkdirSync(targetDir, { recursive: true });
 
-    const result = importSquadConfig(bundlePath, targetDir, { skipValidation: true });
+    const result = importCrewConfig(bundlePath, targetDir, { skipValidation: true });
     // Should not fail on validation
     expect(result.warnings.length).toBe(0);
   });
@@ -392,7 +392,7 @@ describe('Import', () => {
     mkdirSync(join(targetDir, '.github', 'agents'), { recursive: true });
     writeFileSync(join(targetDir, '.github', 'agents', 'fenster.agent.md'), 'existing');
 
-    const result = importSquadConfig(bundlePath, targetDir, { merge: false });
+    const result = importCrewConfig(bundlePath, targetDir, { merge: false });
     expect(result.success).toBe(true);
     expect(result.changes.some(c => c.type === 'skipped' && c.path.includes('fenster'))).toBe(true);
     // File should not be overwritten

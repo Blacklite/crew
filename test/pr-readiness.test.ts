@@ -164,14 +164,14 @@ describe('checkCopilotReview', () => {
 
 describe('checkChangeset', () => {
   it('passes when changeset file exists', () => {
-    const files = [{ filename: '.changeset/abc.md' }, { filename: 'packages/squad-sdk/src/foo.ts' }];
+    const files = [{ filename: '.changeset/abc.md' }, { filename: 'packages/crew-sdk/src/foo.ts' }];
     const result = checkChangeset(files, []);
     expect(result.pass).toBe(true);
     expect(result.detail).toContain('Changeset file found');
   });
 
   it('passes when CHANGELOG.md is edited', () => {
-    const files = [{ filename: 'CHANGELOG.md' }, { filename: 'packages/squad-cli/src/bar.ts' }];
+    const files = [{ filename: 'CHANGELOG.md' }, { filename: 'packages/crew-cli/src/bar.ts' }];
     const result = checkChangeset(files, []);
     expect(result.pass).toBe(true);
     expect(result.detail).toContain('CHANGELOG.md edit found');
@@ -185,14 +185,14 @@ describe('checkChangeset', () => {
   });
 
   it('fails when source files changed but no changeset', () => {
-    const files = [{ filename: 'packages/squad-sdk/src/index.ts' }];
+    const files = [{ filename: 'packages/crew-sdk/src/index.ts' }];
     const result = checkChangeset(files, []);
     expect(result.pass).toBe(false);
     expect(result.detail).toContain('Missing');
   });
 
   it('passes with skip-changelog label', () => {
-    const files = [{ filename: 'packages/squad-sdk/src/index.ts' }];
+    const files = [{ filename: 'packages/crew-sdk/src/index.ts' }];
     const labels = [{ name: 'skip-changelog' }];
     const result = checkChangeset(files, labels);
     expect(result.pass).toBe(true);
@@ -200,7 +200,7 @@ describe('checkChangeset', () => {
   });
 
   it('prefers changeset detail over skip-changelog when both present', () => {
-    const files = [{ filename: '.changeset/abc.md' }, { filename: 'packages/squad-sdk/src/x.ts' }];
+    const files = [{ filename: '.changeset/abc.md' }, { filename: 'packages/crew-sdk/src/x.ts' }];
     const labels = [{ name: 'skip-changelog' }];
     const result = checkChangeset(files, labels);
     expect(result.pass).toBe(true);
@@ -208,7 +208,7 @@ describe('checkChangeset', () => {
   });
 
   it('handles null labels gracefully', () => {
-    const files = [{ filename: 'packages/squad-sdk/src/index.ts' }];
+    const files = [{ filename: 'packages/crew-sdk/src/index.ts' }];
     const result = checkChangeset(files, null);
     expect(result.pass).toBe(false);
   });
@@ -220,17 +220,17 @@ describe('checkChangeset', () => {
 
 describe('checkScopeClean', () => {
   it('passes with no scope files', () => {
-    const files = [{ filename: 'packages/squad-sdk/src/index.ts' }, { filename: 'README.md' }];
+    const files = [{ filename: 'packages/crew-sdk/src/index.ts' }, { filename: 'README.md' }];
     const result = checkScopeClean(files);
     expect(result.pass).toBe(true);
-    expect(result.detail).toContain('No .squad/ or docs/proposals/ files');
+    expect(result.detail).toContain('No .crew/ or docs/proposals/ files');
   });
 
-  it('warns when .squad/ files are present', () => {
-    const files = [{ filename: '.squad/team.md' }, { filename: 'packages/squad-sdk/src/index.ts' }];
+  it('warns when .crew/ files are present', () => {
+    const files = [{ filename: '.crew/team.md' }, { filename: 'packages/crew-sdk/src/index.ts' }];
     const result = checkScopeClean(files);
     expect(result.pass).toBe(true);
-    expect(result.detail).toContain('1 .squad/ file(s)');
+    expect(result.detail).toContain('1 .crew/ file(s)');
     expect(result.detail).toContain('ensure these are intentional');
   });
 
@@ -242,29 +242,29 @@ describe('checkScopeClean', () => {
     expect(result.detail).toContain('ensure these are intentional');
   });
 
-  it('warns with both .squad/ and docs/proposals/ counts', () => {
+  it('warns with both .crew/ and docs/proposals/ counts', () => {
     const files = [
-      { filename: '.squad/team.md' },
-      { filename: '.squad/routing.md' },
+      { filename: '.crew/team.md' },
+      { filename: '.crew/routing.md' },
       { filename: 'docs/proposals/pr-readiness-checks.md' },
     ];
     const result = checkScopeClean(files);
     expect(result.pass).toBe(true);
-    expect(result.detail).toContain('2 .squad/ file(s)');
+    expect(result.detail).toContain('2 .crew/ file(s)');
     expect(result.detail).toContain('1 docs/proposals/ file(s)');
   });
 
-  it('catches nested .squad/ paths', () => {
-    const files = [{ filename: '.squad/agents/eecom/history.md' }];
+  it('catches nested .crew/ paths', () => {
+    const files = [{ filename: '.crew/agents/eecom/history.md' }];
     const result = checkScopeClean(files);
     expect(result.pass).toBe(true);
-    expect(result.detail).toContain('1 .squad/ file(s)');
+    expect(result.detail).toContain('1 .crew/ file(s)');
   });
 
   it('handles null/undefined files gracefully', () => {
     const result = checkScopeClean(null);
     expect(result.pass).toBe(true);
-    expect(result.detail).toContain('No .squad/ or docs/proposals/ files');
+    expect(result.detail).toContain('No .crew/ or docs/proposals/ files');
   });
 });
 
@@ -552,13 +552,13 @@ describe('buildFileList', () => {
     const files = [
       { filename: 'scripts/moderate-spam.mjs', additions: 142, deletions: 0 },
       { filename: 'test/scripts/moderate-spam.test.ts', additions: 98, deletions: 0 },
-      { filename: '.github/workflows/squad-comment-moderation.yml', additions: 45, deletions: 0 },
+      { filename: '.github/workflows/crew-comment-moderation.yml', additions: 45, deletions: 0 },
     ];
     const result = buildFileList(files);
     expect(result).toContain('### Files Changed (3 files, +285 −0)');
     expect(result).toContain('| `scripts/moderate-spam.mjs` | +142 −0 |');
     expect(result).toContain('| `test/scripts/moderate-spam.test.ts` | +98 −0 |');
-    expect(result).toContain('| `.github/workflows/squad-comment-moderation.yml` | +45 −0 |');
+    expect(result).toContain('| `.github/workflows/crew-comment-moderation.yml` | +45 −0 |');
     expect(result).toContain('**Total: +285 −0**');
   });
 
@@ -699,8 +699,8 @@ describe('classifyScope', () => {
 
   it('returns Product for only product source files', () => {
     const files = [
-      { filename: 'packages/squad-sdk/src/index.ts' },
-      { filename: 'packages/squad-cli/src/main.ts' },
+      { filename: 'packages/crew-sdk/src/index.ts' },
+      { filename: 'packages/crew-cli/src/main.ts' },
     ];
     const result = classifyScope(files);
     expect(result.label).toBe('Product');
@@ -709,7 +709,7 @@ describe('classifyScope', () => {
 
   it('returns Mixed for both product and infrastructure files', () => {
     const files = [
-      { filename: 'packages/squad-sdk/src/index.ts' },
+      { filename: 'packages/crew-sdk/src/index.ts' },
       { filename: 'scripts/build.mjs' },
     ];
     const result = classifyScope(files);
@@ -788,11 +788,11 @@ describe('constants', () => {
   });
 
   it('SOURCE_PATTERN matches SDK source files', () => {
-    expect(SOURCE_PATTERN.test('packages/squad-sdk/src/index.ts')).toBe(true);
+    expect(SOURCE_PATTERN.test('packages/crew-sdk/src/index.ts')).toBe(true);
   });
 
   it('SOURCE_PATTERN matches CLI source files', () => {
-    expect(SOURCE_PATTERN.test('packages/squad-cli/src/cli.ts')).toBe(true);
+    expect(SOURCE_PATTERN.test('packages/crew-cli/src/cli.ts')).toBe(true);
   });
 
   it('SOURCE_PATTERN does not match non-source files', () => {
@@ -814,7 +814,7 @@ describe('run()', () => {
     PR_BASE_REF: 'dev',
     REPO_OWNER: 'testorg',
     REPO_NAME: 'testrepo',
-    RUN_NAME: 'Squad PR Readiness',
+    RUN_NAME: 'Crew PR Readiness',
     PR_LABELS: '[]',
   };
 
@@ -953,7 +953,7 @@ describe('run()', () => {
 
   it('passes PR labels through for changeset check', async () => {
     const mockFetch = createMockFetch({
-      files: [{ filename: 'packages/squad-sdk/src/foo.ts' }],
+      files: [{ filename: 'packages/crew-sdk/src/foo.ts' }],
     });
     const env = {
       ...baseEnv,
@@ -968,7 +968,7 @@ describe('run()', () => {
 
   it('handles invalid PR_LABELS JSON gracefully', async () => {
     const mockFetch = createMockFetch({
-      files: [{ filename: 'packages/squad-sdk/src/foo.ts' }],
+      files: [{ filename: 'packages/crew-sdk/src/foo.ts' }],
     });
     const env = { ...baseEnv, PR_LABELS: 'not-json' };
     const result = await run({ env, fetchFn: mockFetch });

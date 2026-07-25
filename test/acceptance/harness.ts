@@ -3,7 +3,7 @@ import { EventEmitter } from 'node:events';
 import { resolve } from 'node:path';
 
 /**
- * Terminal harness for E2E testing the Squad CLI.
+ * Terminal harness for E2E testing the Crew CLI.
  * Uses child_process.spawn with pipes as a pragmatic cross-platform solution.
  */
 export class TerminalHarness extends EventEmitter {
@@ -41,7 +41,7 @@ export class TerminalHarness extends EventEmitter {
       ...options?.env,
     };
 
-    const cliEntry = resolve(process.cwd(), 'packages/squad-cli/dist/cli-entry.js');
+    const cliEntry = resolve(process.cwd(), 'packages/crew-cli/dist/cli-entry.js');
 
     const harness = new TerminalHarness(
       'node',

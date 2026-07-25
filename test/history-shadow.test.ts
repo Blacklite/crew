@@ -17,12 +17,12 @@ import {
   readHistory,
   deleteHistoryShadow,
   shadowExists,
-} from '@bradygaster/squad-sdk/agents';
+} from '@blacklite/crew-sdk/agents';
 
 let tmpDir: string;
 
 beforeEach(async () => {
-  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'squad-history-test-'));
+  tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'crew-history-test-'));
 });
 
 afterEach(async () => {
@@ -56,7 +56,7 @@ describe('history-shadow (#479 race condition fix)', () => {
 
     it('should create a section if it does not exist', async () => {
       // Create a minimal history file without a Patterns section
-      const agentDir = path.join(tmpDir, '.squad', 'agents', 'testbot');
+      const agentDir = path.join(tmpDir, '.crew', 'agents', 'testbot');
       await fs.mkdir(agentDir, { recursive: true });
       await fs.writeFile(
         path.join(agentDir, 'history.md'),
@@ -132,7 +132,7 @@ describe('history-shadow (#479 race condition fix)', () => {
       await createHistoryShadow(tmpDir, 'cleanbot');
       await appendToHistory(tmpDir, 'cleanbot', 'Learnings', 'Clean entry');
 
-      const agentDir = path.join(tmpDir, '.squad', 'agents', 'cleanbot');
+      const agentDir = path.join(tmpDir, '.crew', 'agents', 'cleanbot');
       const files = await fs.readdir(agentDir);
       const lockFiles = files.filter(f => f.endsWith('.lock'));
 
@@ -143,7 +143,7 @@ describe('history-shadow (#479 race condition fix)', () => {
       await createHistoryShadow(tmpDir, 'cleanbot2');
       await appendToHistory(tmpDir, 'cleanbot2', 'Learnings', 'Clean entry 2');
 
-      const agentDir = path.join(tmpDir, '.squad', 'agents', 'cleanbot2');
+      const agentDir = path.join(tmpDir, '.crew', 'agents', 'cleanbot2');
       const files = await fs.readdir(agentDir);
       const tmpFiles = files.filter(f => f.endsWith('.tmp'));
 
@@ -159,7 +159,7 @@ describe('history-shadow (#479 race condition fix)', () => {
         ),
       );
 
-      const agentDir = path.join(tmpDir, '.squad', 'agents', 'cleanbot3');
+      const agentDir = path.join(tmpDir, '.crew', 'agents', 'cleanbot3');
       const files = await fs.readdir(agentDir);
       const lockFiles = files.filter(f => f.endsWith('.lock'));
       const tmpFiles = files.filter(f => f.endsWith('.tmp'));

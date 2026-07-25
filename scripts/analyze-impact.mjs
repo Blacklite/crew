@@ -23,13 +23,13 @@ import { generateReport } from './impact-utils/report-generator.mjs';
 // ── Module mapping ────────────────────────────────────────────────────────
 // Directory prefix → module name (first match wins).
 const MODULE_MAP = [
-  ['packages/squad-sdk/', 'squad-sdk'],
-  ['packages/squad-cli/', 'squad-cli'],
-  ['.squad-templates/', 'templates'],
+  ['packages/crew-sdk/', 'crew-sdk'],
+  ['packages/crew-cli/', 'crew-cli'],
+  ['.crew-templates/', 'templates'],
   ['.github/', 'ci-workflows'],
   ['scripts/', 'scripts'],
   ['.copilot/', 'copilot-config'],
-  ['.squad/', 'squad-state'],
+  ['.crew/', 'crew-state'],
   ['test/', 'tests'],
   ['docs/', 'docs'],
 ];

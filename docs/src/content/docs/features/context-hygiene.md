@@ -1,6 +1,6 @@
 # Context Hygiene: Nap, Reskill, and Compact
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to compact your team's memory:**
@@ -18,13 +18,13 @@ Team, reskill
 Team, reskill, take a nap, and let me know how much context you cleared out collectively for future iterations
 ```
 
-Over multiple sessions, Squad's `.squad/` files grow — agent histories, decisions, skill files. Context hygiene commands let you actively manage that growth so agents stay fast and focused.
+Over multiple sessions, Crew's `.crew/` files grow — agent histories, decisions, skill files. Context hygiene commands let you actively manage that growth so agents stay fast and focused.
 
 ---
 
 ## Nap
 
-**What it does:** Summarizes accumulated work into smaller, more efficient memory files. This is the same as running `/compact` in the CLI or `squad nap` from the command line.
+**What it does:** Summarizes accumulated work into smaller, more efficient memory files. This is the same as running `/compact` in the CLI or `crew nap` from the command line.
 
 When you tell the team to "take a nap," each agent:
 
@@ -37,19 +37,19 @@ When you tell the team to "take a nap," each agent:
 
 This is the most common misconception:
 
-| Action | What happens to `.squad/` files |
+| Action | What happens to `.crew/` files |
 |--------|-------------------------------|
-| **Shutting down Squad** (closing the CLI, killing the process) | Files stay exactly as they are. Nothing is summarized or compacted. |
-| **Nap** (`team, take a nap` or `squad nap`) | Files are actively summarized and compacted. Older entries are archived, working context gets leaner. |
+| **Shutting down Crew** (closing the CLI, killing the process) | Files stay exactly as they are. Nothing is summarized or compacted. |
+| **Nap** (`team, take a nap` or `crew nap`) | Files are actively summarized and compacted. Older entries are archived, working context gets leaner. |
 
-Shutting down Squad every night does **not** perform context hygiene. You must explicitly tell the team to take a nap.
+Shutting down Crew every night does **not** perform context hygiene. You must explicitly tell the team to take a nap.
 
 ### CLI equivalents
 
 ```bash
-squad nap              # Standard context hygiene
-squad nap --deep       # Thorough cleanup with recursive descent
-squad nap --dry-run    # Preview what would be cleaned up
+crew nap              # Standard context hygiene
+crew nap --deep       # Thorough cleanup with recursive descent
+crew nap --dry-run    # Preview what would be cleaned up
 ```
 
 In the interactive shell, use `/compact` for the same effect.
@@ -69,7 +69,7 @@ When you tell the team to "reskill," agents:
 
 ### Availability
 
-> **Note:** As of now, reskill requires running Squad from source (via symlink). It is not yet available through `squad upgrade`. This will change in a future release.
+> **Note:** As of now, reskill requires running Crew from source (via symlink). It is not yet available through `crew upgrade`. This will change in a future release.
 
 ---
 
@@ -92,7 +92,7 @@ This runs both behaviors and gives you a report on how much context was reduced 
 | After several work sessions, agents feel slow or unfocused | `team, take a nap` |
 | Codebase has changed significantly and skills may be stale | `team, reskill` |
 | Before a major new phase of work | Combine both |
-| End of sprint / milestone | `squad nap --deep` |
+| End of sprint / milestone | `crew nap --deep` |
 
 ---
 
@@ -101,7 +101,7 @@ This runs both behaviors and gives you a report on how much context was reduced 
 - **Nap regularly.** A few sessions of heavy work can bloat history files. Napping keeps context budgets in check.
 - **Don't rely on shutdown.** Closing the CLI preserves files as-is — it does not compact anything.
 - **Reskill after refactors.** If you've restructured the codebase, agent skills may reference outdated patterns.
-- **Check the dry run first.** Use `squad nap --dry-run` to preview cleanup actions before committing to them.
+- **Check the dry run first.** Use `crew nap --dry-run` to preview cleanup actions before committing to them.
 
 ## Sample Prompts
 
@@ -124,7 +124,7 @@ team, reskill, take a nap, and let me know how much context you cleared out coll
 Combines both behaviors and reports back on total context reduction.
 
 ```
-squad nap --dry-run
+crew nap --dry-run
 ```
 
 Previews what a nap would clean up without making any changes.

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { getRoleById, listRoles } from '@bradygaster/squad-sdk/roles';
+import { getRoleById, listRoles } from '@blacklite/crew-sdk/roles';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 
@@ -45,7 +45,7 @@ describe('fact-checker charter template', () => {
   const templatePath = path.join(
     process.cwd(),
     'packages',
-    'squad-cli',
+    'crew-cli',
     'templates',
     'fact-checker-charter.md',
   );

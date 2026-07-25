@@ -1,14 +1,14 @@
 /**
- * Squad SubSquads — Comprehensive Tests
+ * Crew SubCrews — Comprehensive Tests
  *
  * Tests cover:
- *   - SubSquad types (compile-time, verified via usage)
- *   - SubSquad resolution (env var, file, config, fallback)
+ *   - SubCrew types (compile-time, verified via usage)
+ *   - SubCrew resolution (env var, file, config, fallback)
  *   - Label-based filtering (match, no match, multiple labels, case insensitive)
  *   - Config loading / validation
- *   - CLI activate command (writes .squad-workstream)
- *   - Init with SubSquads (generates workstreams.json)
- *   - Edge cases (empty SubSquads, invalid JSON, missing env, passthrough)
+ *   - CLI activate command (writes .crew-workstream)
+ *   - Init with SubCrews (generates workstreams.json)
+ *   - Edge cases (empty SubCrews, invalid JSON, missing env, passthrough)
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -17,48 +17,48 @@ import path from 'node:path';
 import os from 'node:os';
 
 import {
-  loadSubSquadsConfig,
-  resolveSubSquad,
-  getSubSquadLabelFilter,
-  filterIssuesBySubSquad,
+  loadSubCrewsConfig,
+  resolveSubCrew,
+  getSubCrewLabelFilter,
+  filterIssuesBySubCrew,
   // Verify backward-compat aliases still exist
   loadWorkstreamsConfig,
   resolveWorkstream,
   getWorkstreamLabelFilter,
   filterIssuesByWorkstream,
-} from '../packages/squad-sdk/src/streams/index.js';
+} from '../packages/crew-sdk/src/streams/index.js';
 
 import type {
-  SubSquadDefinition,
-  SubSquadConfig,
-  ResolvedSubSquad,
-  SubSquadIssue,
+  SubCrewDefinition,
+  SubCrewConfig,
+  ResolvedSubCrew,
+  SubCrewIssue,
   // Verify deprecated type aliases still exist
   WorkstreamDefinition,
   WorkstreamConfig,
   ResolvedWorkstream,
   WorkstreamIssue,
-} from '../packages/squad-sdk/src/streams/index.js';
+} from '../packages/crew-sdk/src/streams/index.js';
 
 // ============================================================================
 // Helpers
 // ============================================================================
 
 function makeTmpDir(): string {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'squad-workstreams-test-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'crew-workstreams-test-'));
 }
 
-function writeSquadWorkstreamsConfig(root: string, config: SubSquadConfig): void {
-  const squadDir = path.join(root, '.squad');
-  fs.mkdirSync(squadDir, { recursive: true });
-  fs.writeFileSync(path.join(squadDir, 'workstreams.json'), JSON.stringify(config, null, 2), 'utf-8');
+function writeCrewWorkstreamsConfig(root: string, config: SubCrewConfig): void {
+  const crewDir = path.join(root, '.crew');
+  fs.mkdirSync(crewDir, { recursive: true });
+  fs.writeFileSync(path.join(crewDir, 'workstreams.json'), JSON.stringify(config, null, 2), 'utf-8');
 }
 
-function writeSquadWorkstreamFile(root: string, name: string): void {
-  fs.writeFileSync(path.join(root, '.squad-workstream'), name + '\n', 'utf-8');
+function writeCrewWorkstreamFile(root: string, name: string): void {
+  fs.writeFileSync(path.join(root, '.crew-workstream'), name + '\n', 'utf-8');
 }
 
-const SAMPLE_CONFIG: SubSquadConfig = {
+const SAMPLE_CONFIG: SubCrewConfig = {
   workstreams: [
     { name: 'ui-team', labelFilter: 'team:ui', folderScope: ['apps/web'], workflow: 'branch-per-issue', description: 'UI specialists' },
     { name: 'backend-team', labelFilter: 'team:backend', folderScope: ['apps/api'], workflow: 'direct' },
@@ -67,7 +67,7 @@ const SAMPLE_CONFIG: SubSquadConfig = {
   defaultWorkflow: 'branch-per-issue',
 };
 
-const SAMPLE_ISSUES: SubSquadIssue[] = [
+const SAMPLE_ISSUES: SubCrewIssue[] = [
   { number: 1, title: 'Fix button color', labels: [{ name: 'team:ui' }, { name: 'bug' }] },
   { number: 2, title: 'Add REST endpoint', labels: [{ name: 'team:backend' }] },
   { number: 3, title: 'Setup CI', labels: [{ name: 'team:infra' }] },
@@ -79,55 +79,55 @@ const SAMPLE_ISSUES: SubSquadIssue[] = [
 // loadStreamsConfig
 // ============================================================================
 
-describe('loadSubSquadsConfig', () => {
+describe('loadSubCrewsConfig', () => {
   let tmpDir: string;
 
   beforeEach(() => { tmpDir = makeTmpDir(); });
   afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
 
-  it('returns null when .squad/workstreams.json does not exist', () => {
-    expect(loadSubSquadsConfig(tmpDir)).toBeNull();
+  it('returns null when .crew/workstreams.json does not exist', () => {
+    expect(loadSubCrewsConfig(tmpDir)).toBeNull();
   });
 
-  it('loads a valid SubSquads config', () => {
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    const result = loadSubSquadsConfig(tmpDir);
+  it('loads a valid SubCrews config', () => {
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    const result = loadSubCrewsConfig(tmpDir);
     expect(result).not.toBeNull();
     expect(result!.workstreams).toHaveLength(3);
     expect(result!.defaultWorkflow).toBe('branch-per-issue');
   });
 
   it('returns null for invalid JSON', () => {
-    const squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(path.join(squadDir, 'workstreams.json'), '{invalid', 'utf-8');
-    expect(loadSubSquadsConfig(tmpDir)).toBeNull();
+    const crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(path.join(crewDir, 'workstreams.json'), '{invalid', 'utf-8');
+    expect(loadSubCrewsConfig(tmpDir)).toBeNull();
   });
 
   it('returns null when workstreams array is missing', () => {
-    const squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(path.join(squadDir, 'workstreams.json'), '{"defaultWorkflow":"direct"}', 'utf-8');
-    expect(loadSubSquadsConfig(tmpDir)).toBeNull();
+    const crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(path.join(crewDir, 'workstreams.json'), '{"defaultWorkflow":"direct"}', 'utf-8');
+    expect(loadSubCrewsConfig(tmpDir)).toBeNull();
   });
 
   it('defaults defaultWorkflow to branch-per-issue when missing', () => {
-    const squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(path.join(squadDir, 'workstreams.json'), '{"workstreams":[{"name":"a","labelFilter":"x"}]}', 'utf-8');
-    const result = loadSubSquadsConfig(tmpDir);
+    const crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(path.join(crewDir, 'workstreams.json'), '{"workstreams":[{"name":"a","labelFilter":"x"}]}', 'utf-8');
+    const result = loadSubCrewsConfig(tmpDir);
     expect(result!.defaultWorkflow).toBe('branch-per-issue');
   });
 
   it('preserves folderScope arrays', () => {
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    const result = loadSubSquadsConfig(tmpDir)!;
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    const result = loadSubCrewsConfig(tmpDir)!;
     expect(result.workstreams[0]!.folderScope).toEqual(['apps/web']);
   });
 
   it('preserves optional description', () => {
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    const result = loadSubSquadsConfig(tmpDir)!;
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    const result = loadSubCrewsConfig(tmpDir)!;
     expect(result.workstreams[0]!.description).toBe('UI specialists');
     expect(result.workstreams[1]!.description).toBeUndefined();
   });
@@ -137,29 +137,29 @@ describe('loadSubSquadsConfig', () => {
 // resolveStream
 // ============================================================================
 
-describe('resolveSubSquad', () => {
+describe('resolveSubCrew', () => {
   let tmpDir: string;
-  const origEnv = process.env.SQUAD_TEAM;
+  const origEnv = process.env.CREW_TEAM;
 
   beforeEach(() => {
     tmpDir = makeTmpDir();
-    delete process.env.SQUAD_TEAM;
+    delete process.env.CREW_TEAM;
   });
   afterEach(() => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
     if (origEnv !== undefined) {
-      process.env.SQUAD_TEAM = origEnv;
+      process.env.CREW_TEAM = origEnv;
     } else {
-      delete process.env.SQUAD_TEAM;
+      delete process.env.CREW_TEAM;
     }
   });
 
   // --- Env var resolution ---
 
-  it('resolves from SQUAD_TEAM env var with matching config', () => {
-    process.env.SQUAD_TEAM = 'ui-team';
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    const result = resolveSubSquad(tmpDir);
+  it('resolves from CREW_TEAM env var with matching config', () => {
+    process.env.CREW_TEAM = 'ui-team';
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    const result = resolveSubCrew(tmpDir);
     expect(result).not.toBeNull();
     expect(result!.name).toBe('ui-team');
     expect(result!.source).toBe('env');
@@ -167,19 +167,19 @@ describe('resolveSubSquad', () => {
     expect(result!.definition.folderScope).toEqual(['apps/web']);
   });
 
-  it('synthesizes definition from SQUAD_TEAM when no config exists', () => {
-    process.env.SQUAD_TEAM = 'custom-team';
-    const result = resolveSubSquad(tmpDir);
+  it('synthesizes definition from CREW_TEAM when no config exists', () => {
+    process.env.CREW_TEAM = 'custom-team';
+    const result = resolveSubCrew(tmpDir);
     expect(result).not.toBeNull();
     expect(result!.name).toBe('custom-team');
     expect(result!.source).toBe('env');
     expect(result!.definition.labelFilter).toBe('team:custom-team');
   });
 
-  it('synthesizes definition from SQUAD_TEAM when SubSquad not in config', () => {
-    process.env.SQUAD_TEAM = 'unknown-team';
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    const result = resolveSubSquad(tmpDir);
+  it('synthesizes definition from CREW_TEAM when SubCrew not in config', () => {
+    process.env.CREW_TEAM = 'unknown-team';
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    const result = resolveSubCrew(tmpDir);
     expect(result).not.toBeNull();
     expect(result!.name).toBe('unknown-team');
     expect(result!.source).toBe('env');
@@ -188,46 +188,46 @@ describe('resolveSubSquad', () => {
 
   // --- File resolution ---
 
-  it('resolves from .squad-workstream file with matching config', () => {
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    writeSquadWorkstreamFile(tmpDir, 'backend-team');
-    const result = resolveSubSquad(tmpDir);
+  it('resolves from .crew-workstream file with matching config', () => {
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    writeCrewWorkstreamFile(tmpDir, 'backend-team');
+    const result = resolveSubCrew(tmpDir);
     expect(result).not.toBeNull();
     expect(result!.name).toBe('backend-team');
     expect(result!.source).toBe('file');
     expect(result!.definition.workflow).toBe('direct');
   });
 
-  it('synthesizes definition from .squad-workstream file when no config', () => {
-    writeSquadWorkstreamFile(tmpDir, 'my-subsquad');
-    const result = resolveSubSquad(tmpDir);
+  it('synthesizes definition from .crew-workstream file when no config', () => {
+    writeCrewWorkstreamFile(tmpDir, 'my-subcrew');
+    const result = resolveSubCrew(tmpDir);
     expect(result).not.toBeNull();
-    expect(result!.name).toBe('my-subsquad');
+    expect(result!.name).toBe('my-subcrew');
     expect(result!.source).toBe('file');
-    expect(result!.definition.labelFilter).toBe('team:my-subsquad');
+    expect(result!.definition.labelFilter).toBe('team:my-subcrew');
   });
 
-  it('ignores empty .squad-workstream file', () => {
-    fs.writeFileSync(path.join(tmpDir, '.squad-workstream'), '   \n', 'utf-8');
-    expect(resolveSubSquad(tmpDir)).toBeNull();
+  it('ignores empty .crew-workstream file', () => {
+    fs.writeFileSync(path.join(tmpDir, '.crew-workstream'), '   \n', 'utf-8');
+    expect(resolveSubCrew(tmpDir)).toBeNull();
   });
 
-  it('trims whitespace from .squad-workstream file', () => {
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    fs.writeFileSync(path.join(tmpDir, '.squad-workstream'), '  ui-team  \n', 'utf-8');
+  it('trims whitespace from .crew-workstream file', () => {
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    fs.writeFileSync(path.join(tmpDir, '.crew-workstream'), '  ui-team  \n', 'utf-8');
     const result = resolveWorkstream(tmpDir);
     expect(result!.name).toBe('ui-team');
     expect(result!.source).toBe('file');
   });
 
-  // --- Config resolution (single SubSquad auto-select) ---
+  // --- Config resolution (single SubCrew auto-select) ---
 
-  it('auto-selects single SubSquad from config', () => {
+  it('auto-selects single SubCrew from config', () => {
     const singleConfig: WorkstreamConfig = {
       workstreams: [{ name: 'solo', labelFilter: 'team:solo' }],
       defaultWorkflow: 'direct',
     };
-    writeSquadWorkstreamsConfig(tmpDir, singleConfig);
+    writeCrewWorkstreamsConfig(tmpDir, singleConfig);
     const result = resolveWorkstream(tmpDir);
     expect(result).not.toBeNull();
     expect(result!.name).toBe('solo');
@@ -236,35 +236,35 @@ describe('resolveSubSquad', () => {
 
   // --- Fallback ---
 
-  it('returns null when no SubSquad context exists', () => {
+  it('returns null when no SubCrew context exists', () => {
     expect(resolveWorkstream(tmpDir)).toBeNull();
   });
 
-  it('returns null when config has multiple SubSquads but no env/file', () => {
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+  it('returns null when config has multiple SubCrews but no env/file', () => {
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
     expect(resolveWorkstream(tmpDir)).toBeNull();
   });
 
   // --- Priority order ---
 
-  it('env var takes priority over .squad-workstream file', () => {
-    process.env.SQUAD_TEAM = 'ui-team';
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    writeSquadWorkstreamFile(tmpDir, 'backend-team');
+  it('env var takes priority over .crew-workstream file', () => {
+    process.env.CREW_TEAM = 'ui-team';
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    writeCrewWorkstreamFile(tmpDir, 'backend-team');
     const result = resolveWorkstream(tmpDir);
     expect(result!.name).toBe('ui-team');
     expect(result!.source).toBe('env');
   });
 
-  it('.squad-workstream file takes priority over config auto-select', () => {
+  it('.crew-workstream file takes priority over config auto-select', () => {
     const singleConfig: WorkstreamConfig = {
       workstreams: [
         { name: 'alpha', labelFilter: 'team:alpha' },
       ],
       defaultWorkflow: 'branch-per-issue',
     };
-    writeSquadWorkstreamsConfig(tmpDir, singleConfig);
-    writeSquadWorkstreamFile(tmpDir, 'alpha');
+    writeCrewWorkstreamsConfig(tmpDir, singleConfig);
+    writeCrewWorkstreamFile(tmpDir, 'alpha');
     const result = resolveWorkstream(tmpDir);
     // file source takes priority
     expect(result!.source).toBe('file');
@@ -272,134 +272,134 @@ describe('resolveSubSquad', () => {
 });
 
 // ============================================================================
-// getSubSquadLabelFilter
+// getSubCrewLabelFilter
 // ============================================================================
 
-describe('getSubSquadLabelFilter', () => {
+describe('getSubCrewLabelFilter', () => {
   it('returns the label filter from definition', () => {
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'ui-team',
       definition: { name: 'ui-team', labelFilter: 'team:ui' },
       source: 'env',
     };
-    expect(getSubSquadLabelFilter(subsquad)).toBe('team:ui');
+    expect(getSubCrewLabelFilter(subcrew)).toBe('team:ui');
   });
 
   it('returns synthesized label filter', () => {
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'custom',
       definition: { name: 'custom', labelFilter: 'team:custom' },
       source: 'file',
     };
-    expect(getSubSquadLabelFilter(subsquad)).toBe('team:custom');
+    expect(getSubCrewLabelFilter(subcrew)).toBe('team:custom');
   });
 
   it('backward compat: getWorkstreamLabelFilter still works', () => {
-    const subsquad: ResolvedWorkstream = {
+    const subcrew: ResolvedWorkstream = {
       name: 'ui-team',
       definition: { name: 'ui-team', labelFilter: 'team:ui' },
       source: 'env',
     };
-    expect(getWorkstreamLabelFilter(subsquad)).toBe('team:ui');
+    expect(getWorkstreamLabelFilter(subcrew)).toBe('team:ui');
   });
 });
 
 // ============================================================================
-// filterIssuesBySubSquad
+// filterIssuesBySubCrew
 // ============================================================================
 
-describe('filterIssuesBySubSquad', () => {
-  it('filters issues matching the SubSquad label', () => {
-    const subsquad: ResolvedSubSquad = {
+describe('filterIssuesBySubCrew', () => {
+  it('filters issues matching the SubCrew label', () => {
+    const subcrew: ResolvedSubCrew = {
       name: 'ui-team',
       definition: { name: 'ui-team', labelFilter: 'team:ui' },
       source: 'env',
     };
-    const result = filterIssuesBySubSquad(SAMPLE_ISSUES, subsquad);
+    const result = filterIssuesBySubCrew(SAMPLE_ISSUES, subcrew);
     expect(result).toHaveLength(2); // issue 1 and 5
     expect(result.map(i => i.number)).toEqual([1, 5]);
   });
 
   it('returns empty array when no issues match', () => {
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'qa-team',
       definition: { name: 'qa-team', labelFilter: 'team:qa' },
       source: 'env',
     };
-    const result = filterIssuesBySubSquad(SAMPLE_ISSUES, subsquad);
+    const result = filterIssuesBySubCrew(SAMPLE_ISSUES, subcrew);
     expect(result).toHaveLength(0);
   });
 
   it('handles case-insensitive matching', () => {
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'ui-team',
       definition: { name: 'ui-team', labelFilter: 'TEAM:UI' },
       source: 'env',
     };
-    const result = filterIssuesBySubSquad(SAMPLE_ISSUES, subsquad);
+    const result = filterIssuesBySubCrew(SAMPLE_ISSUES, subcrew);
     expect(result).toHaveLength(2);
   });
 
   it('returns all issues when labelFilter is empty', () => {
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'all',
       definition: { name: 'all', labelFilter: '' },
       source: 'env',
     };
-    const result = filterIssuesBySubSquad(SAMPLE_ISSUES, subsquad);
+    const result = filterIssuesBySubCrew(SAMPLE_ISSUES, subcrew);
     expect(result).toHaveLength(SAMPLE_ISSUES.length);
   });
 
   it('handles issues with no labels', () => {
-    const issues: SubSquadIssue[] = [
+    const issues: SubCrewIssue[] = [
       { number: 10, title: 'No labels', labels: [] },
     ];
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'ui-team',
       definition: { name: 'ui-team', labelFilter: 'team:ui' },
       source: 'env',
     };
-    expect(filterIssuesBySubSquad(issues, subsquad)).toHaveLength(0);
+    expect(filterIssuesBySubCrew(issues, subcrew)).toHaveLength(0);
   });
 
   it('handles empty issues array', () => {
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'ui-team',
       definition: { name: 'ui-team', labelFilter: 'team:ui' },
       source: 'env',
     };
-    expect(filterIssuesBySubSquad([], subsquad)).toHaveLength(0);
+    expect(filterIssuesBySubCrew([], subcrew)).toHaveLength(0);
   });
 
   it('filters backend-team correctly', () => {
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'backend-team',
       definition: { name: 'backend-team', labelFilter: 'team:backend' },
       source: 'config',
     };
-    const result = filterIssuesBySubSquad(SAMPLE_ISSUES, subsquad);
+    const result = filterIssuesBySubCrew(SAMPLE_ISSUES, subcrew);
     expect(result).toHaveLength(2); // issue 2 and 5
     expect(result.map(i => i.number)).toEqual([2, 5]);
   });
 
   it('filters infra-team correctly (single match)', () => {
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'infra-team',
       definition: { name: 'infra-team', labelFilter: 'team:infra' },
       source: 'file',
     };
-    const result = filterIssuesBySubSquad(SAMPLE_ISSUES, subsquad);
+    const result = filterIssuesBySubCrew(SAMPLE_ISSUES, subcrew);
     expect(result).toHaveLength(1);
     expect(result[0]!.number).toBe(3);
   });
 
   it('backward compat: filterIssuesByWorkstream still works', () => {
-    const subsquad: ResolvedWorkstream = {
+    const subcrew: ResolvedWorkstream = {
       name: 'ui-team',
       definition: { name: 'ui-team', labelFilter: 'team:ui' },
       source: 'env',
     };
-    const result = filterIssuesByWorkstream(SAMPLE_ISSUES, subsquad);
+    const result = filterIssuesByWorkstream(SAMPLE_ISSUES, subcrew);
     expect(result).toHaveLength(2);
   });
 });
@@ -408,21 +408,21 @@ describe('filterIssuesBySubSquad', () => {
 // Type checks (compile-time — these just verify the types work)
 // ============================================================================
 
-describe('SubSquad types', () => {
-  it('SubSquadDefinition accepts all fields', () => {
-    const def: SubSquadDefinition = {
+describe('SubCrew types', () => {
+  it('SubCrewDefinition accepts all fields', () => {
+    const def: SubCrewDefinition = {
       name: 'test',
       labelFilter: 'team:test',
       folderScope: ['src/'],
       workflow: 'branch-per-issue',
-      description: 'Test SubSquad',
+      description: 'Test SubCrew',
     };
     expect(def.name).toBe('test');
     expect(def.workflow).toBe('branch-per-issue');
   });
 
-  it('SubSquadDefinition works with minimal fields', () => {
-    const def: SubSquadDefinition = {
+  it('SubCrewDefinition works with minimal fields', () => {
+    const def: SubCrewDefinition = {
       name: 'minimal',
       labelFilter: 'team:minimal',
     };
@@ -431,8 +431,8 @@ describe('SubSquad types', () => {
     expect(def.description).toBeUndefined();
   });
 
-  it('SubSquadConfig has required fields', () => {
-    const config: SubSquadConfig = {
+  it('SubCrewConfig has required fields', () => {
+    const config: SubCrewConfig = {
       workstreams: [],
       defaultWorkflow: 'direct',
     };
@@ -440,8 +440,8 @@ describe('SubSquad types', () => {
     expect(config.defaultWorkflow).toBe('direct');
   });
 
-  it('ResolvedSubSquad has source provenance', () => {
-    const resolved: ResolvedSubSquad = {
+  it('ResolvedSubCrew has source provenance', () => {
+    const resolved: ResolvedSubCrew = {
       name: 'test',
       definition: { name: 'test', labelFilter: 'x' },
       source: 'env',
@@ -454,20 +454,20 @@ describe('SubSquad types', () => {
 // Init integration (streams.json generation)
 // ============================================================================
 
-describe('initSquad with SubSquads', () => {
+describe('initCrew with SubCrews', () => {
   let tmpDir: string;
 
   beforeEach(() => { tmpDir = makeTmpDir(); });
   afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
 
   it('generates workstreams.json when streams option is provided', async () => {
-    const { initSquad } = await import('../packages/squad-sdk/src/config/init.js');
-    const streams: SubSquadDefinition[] = [
+    const { initCrew } = await import('../packages/crew-sdk/src/config/init.js');
+    const streams: SubCrewDefinition[] = [
       { name: 'ui-team', labelFilter: 'team:ui', folderScope: ['apps/web'] },
       { name: 'api-team', labelFilter: 'team:api' },
     ];
 
-    await initSquad({
+    await initCrew({
       teamRoot: tmpDir,
       projectName: 'test-workstreams',
       agents: [{ name: 'lead', role: 'lead' }],
@@ -477,35 +477,35 @@ describe('initSquad with SubSquads', () => {
       includeMcpConfig: false,
     });
 
-    const workstreamsPath = path.join(tmpDir, '.squad', 'workstreams.json');
+    const workstreamsPath = path.join(tmpDir, '.crew', 'workstreams.json');
     expect(fs.existsSync(workstreamsPath)).toBe(true);
 
-    const content = JSON.parse(fs.readFileSync(workstreamsPath, 'utf-8')) as SubSquadConfig;
+    const content = JSON.parse(fs.readFileSync(workstreamsPath, 'utf-8')) as SubCrewConfig;
     expect(content.workstreams).toHaveLength(2);
     expect(content.workstreams[0]!.name).toBe('ui-team');
     expect(content.defaultWorkflow).toBe('branch-per-issue');
   });
 
   it('does not generate workstreams.json when no streams provided', async () => {
-    const { initSquad } = await import('../packages/squad-sdk/src/config/init.js');
+    const { initCrew } = await import('../packages/crew-sdk/src/config/init.js');
 
-    await initSquad({
+    await initCrew({
       teamRoot: tmpDir,
-      projectName: 'test-no-subsquads',
+      projectName: 'test-no-subcrews',
       agents: [{ name: 'lead', role: 'lead' }],
       includeWorkflows: false,
       includeTemplates: false,
       includeMcpConfig: false,
     });
 
-    const workstreamsPath = path.join(tmpDir, '.squad', 'workstreams.json');
+    const workstreamsPath = path.join(tmpDir, '.crew', 'workstreams.json');
     expect(fs.existsSync(workstreamsPath)).toBe(false);
   });
 
-  it('adds .squad-workstream to .gitignore', async () => {
-    const { initSquad } = await import('../packages/squad-sdk/src/config/init.js');
+  it('adds .crew-workstream to .gitignore', async () => {
+    const { initCrew } = await import('../packages/crew-sdk/src/config/init.js');
 
-    await initSquad({
+    await initCrew({
       teamRoot: tmpDir,
       projectName: 'test-gitignore',
       agents: [{ name: 'lead', role: 'lead' }],
@@ -517,7 +517,7 @@ describe('initSquad with SubSquads', () => {
     const gitignorePath = path.join(tmpDir, '.gitignore');
     expect(fs.existsSync(gitignorePath)).toBe(true);
     const content = fs.readFileSync(gitignorePath, 'utf-8');
-    expect(content).toContain('.squad-workstream');
+    expect(content).toContain('.crew-workstream');
   });
 });
 
@@ -531,28 +531,28 @@ describe('CLI activate behavior', () => {
   beforeEach(() => { tmpDir = makeTmpDir(); });
   afterEach(() => { fs.rmSync(tmpDir, { recursive: true, force: true }); });
 
-  it('writes .squad-workstream file with the SubSquad name', () => {
-    const filePath = path.join(tmpDir, '.squad-workstream');
-    fs.writeFileSync(filePath, 'my-subsquad\n', 'utf-8');
+  it('writes .crew-workstream file with the SubCrew name', () => {
+    const filePath = path.join(tmpDir, '.crew-workstream');
+    fs.writeFileSync(filePath, 'my-subcrew\n', 'utf-8');
     const content = fs.readFileSync(filePath, 'utf-8').trim();
-    expect(content).toBe('my-subsquad');
+    expect(content).toBe('my-subcrew');
   });
 
   it('resolves after activation', () => {
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    writeSquadWorkstreamFile(tmpDir, 'infra-team');
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    writeCrewWorkstreamFile(tmpDir, 'infra-team');
     const result = resolveWorkstream(tmpDir);
     expect(result).not.toBeNull();
     expect(result!.name).toBe('infra-team');
     expect(result!.definition.labelFilter).toBe('team:infra');
   });
 
-  it('overwriting .squad-workstream changes active workstream', () => {
-    writeSquadWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
-    writeSquadWorkstreamFile(tmpDir, 'ui-team');
+  it('overwriting .crew-workstream changes active workstream', () => {
+    writeCrewWorkstreamsConfig(tmpDir, SAMPLE_CONFIG);
+    writeCrewWorkstreamFile(tmpDir, 'ui-team');
     expect(resolveWorkstream(tmpDir)!.name).toBe('ui-team');
 
-    writeSquadWorkstreamFile(tmpDir, 'backend-team');
+    writeCrewWorkstreamFile(tmpDir, 'backend-team');
     expect(resolveWorkstream(tmpDir)!.name).toBe('backend-team');
   });
 });
@@ -563,59 +563,59 @@ describe('CLI activate behavior', () => {
 
 describe('Edge cases', () => {
   let tmpDir: string;
-  const origEnv = process.env.SQUAD_TEAM;
+  const origEnv = process.env.CREW_TEAM;
 
   beforeEach(() => {
     tmpDir = makeTmpDir();
-    delete process.env.SQUAD_TEAM;
+    delete process.env.CREW_TEAM;
   });
   afterEach(() => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
     if (origEnv !== undefined) {
-      process.env.SQUAD_TEAM = origEnv;
+      process.env.CREW_TEAM = origEnv;
     } else {
-      delete process.env.SQUAD_TEAM;
+      delete process.env.CREW_TEAM;
     }
   });
 
-  it('handles empty SubSquads array in config', () => {
-    const emptyConfig: SubSquadConfig = { workstreams: [], defaultWorkflow: 'direct' };
-    writeSquadWorkstreamsConfig(tmpDir, emptyConfig);
-    expect(resolveSubSquad(tmpDir)).toBeNull();
+  it('handles empty SubCrews array in config', () => {
+    const emptyConfig: SubCrewConfig = { workstreams: [], defaultWorkflow: 'direct' };
+    writeCrewWorkstreamsConfig(tmpDir, emptyConfig);
+    expect(resolveSubCrew(tmpDir)).toBeNull();
   });
 
   it('handles config with workstreams but non-array type', () => {
-    const squadDir = path.join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(path.join(squadDir, 'workstreams.json'), '{"workstreams":"not-array"}', 'utf-8');
-    expect(loadSubSquadsConfig(tmpDir)).toBeNull();
+    const crewDir = path.join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(path.join(crewDir, 'workstreams.json'), '{"workstreams":"not-array"}', 'utf-8');
+    expect(loadSubCrewsConfig(tmpDir)).toBeNull();
   });
 
-  it('handles SQUAD_TEAM set to empty string', () => {
-    process.env.SQUAD_TEAM = '';
-    expect(resolveSubSquad(tmpDir)).toBeNull();
+  it('handles CREW_TEAM set to empty string', () => {
+    process.env.CREW_TEAM = '';
+    expect(resolveSubCrew(tmpDir)).toBeNull();
   });
 
-  it('filterIssuesBySubSquad handles labels with special characters', () => {
-    const issues: SubSquadIssue[] = [
+  it('filterIssuesBySubCrew handles labels with special characters', () => {
+    const issues: SubCrewIssue[] = [
       { number: 1, title: 'Test', labels: [{ name: 'team:front-end/ui' }] },
     ];
-    const subsquad: ResolvedSubSquad = {
+    const subcrew: ResolvedSubCrew = {
       name: 'fe',
       definition: { name: 'fe', labelFilter: 'team:front-end/ui' },
       source: 'env',
     };
-    const result = filterIssuesBySubSquad(issues, subsquad);
+    const result = filterIssuesBySubCrew(issues, subcrew);
     expect(result).toHaveLength(1);
   });
 
   it('resolves workflow from definition over defaultWorkflow', () => {
-    const config: SubSquadConfig = {
-      workstreams: [{ name: 'direct-subsquad', labelFilter: 'team:direct', workflow: 'direct' }],
+    const config: SubCrewConfig = {
+      workstreams: [{ name: 'direct-subcrew', labelFilter: 'team:direct', workflow: 'direct' }],
       defaultWorkflow: 'branch-per-issue',
     };
-    writeSquadWorkstreamsConfig(tmpDir, config);
-    const result = resolveSubSquad(tmpDir);
+    writeCrewWorkstreamsConfig(tmpDir, config);
+    const result = resolveSubCrew(tmpDir);
     expect(result!.definition.workflow).toBe('direct');
   });
 });

@@ -1,6 +1,6 @@
 # Team Setup & Init Mode
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to initialize for a specific stack:**
@@ -18,29 +18,29 @@ Add a security specialist to the team
 Show me the current team roster
 ```
 
-Squad analyzes your project and proposes a team roster with 3-7 members tailored to your stack. You can accept as-is, customize during setup, or modify the team anytime after.
+Crew analyzes your project and proposes a team roster with 3-7 members tailored to your stack. You can accept as-is, customize during setup, or modify the team anytime after.
 
 ---
 
 ## How Init Works
 
-When you first run Squad in a repository, it doesn't impose a team — it proposes one. The init flow analyzes your project, suggests roles and members, waits for your confirmation, then creates the `.squad/` directory structure and installs the crew.
+When you first run Crew in a repository, it doesn't impose a team — it proposes one. The init flow analyzes your project, suggests roles and members, waits for your confirmation, then creates the `.crew/` directory structure and installs the crew.
 
 ### Character Casting
 
-By default, Squad uses the **CastingEngine** to assign agent names from fictional universes (The Usual Suspects, Ocean's Eleven, etc.). The LLM proposes roles and team composition; the engine allocates curated character names, personalities, and backstories from the selected universe. Use `squad init --roles` to opt into the base role catalog (Lead, Backend, Frontend, Tester) instead of universe casting.
+By default, Crew uses the **CastingEngine** to assign agent names from fictional universes (The Usual Suspects, Ocean's Eleven, etc.). The LLM proposes roles and team composition; the engine allocates curated character names, personalities, and backstories from the selected universe. Use `crew init --roles` to opt into the base role catalog (Lead, Backend, Frontend, Tester) instead of universe casting.
 
 ## How Init Works
 
-1. **Discovery** — Squad scans your repository: language distribution, file structure, test frameworks, dependencies, existing workflows.
-2. **Proposal** — Based on what it finds, Squad proposes a team roster with 3-7 members and their roles.
+1. **Discovery** — Crew scans your repository: language distribution, file structure, test frameworks, dependencies, existing workflows.
+2. **Proposal** — Based on what it finds, Crew proposes a team roster with 3-7 members and their roles.
 3. **Confirmation** — You review the proposal and can accept as-is, add members, remove members, or change roles.
-4. **Creation** — Squad writes `.squad/team.md`, creates agent directories under `.squad/agents/{member}/`, and sets up the coordinator.
+4. **Creation** — Crew writes `.crew/team.md`, creates agent directories under `.crew/agents/{member}/`, and sets up the coordinator.
 
 ### File Structure Created
 
 ```
-.squad/
+.crew/
 ├── team.md                         # Team roster
 ├── routing.md                      # Work routing rules
 ├── decisions.md                    # Team memory (directives)
@@ -72,7 +72,7 @@ By default, Squad uses the **CastingEngine** to assign agent names from fictiona
 
 ## Customizing After Init
 
-You can modify `.squad/team.md` directly or ask the coordinator:
+You can modify `.crew/team.md` directly or ask the coordinator:
 
 > "Add a security specialist to the team"
 
@@ -85,12 +85,12 @@ The coordinator will:
 
 The coordinator will:
 1. Remove the member from `team.md`
-2. Archive their agent directory (moves to `.squad/agents/.archived/{member}/`)
+2. Archive their agent directory (moves to `.crew/agents/.archived/{member}/`)
 3. Update routing rules
 
 ## Default Team Composition
 
-For most projects, Squad proposes:
+For most projects, Crew proposes:
 
 | Role | When Included |
 |------|--------------|
@@ -107,16 +107,16 @@ For most projects, Squad proposes:
 | Command | When to Use |
 |---------|------------|
 | `init` | First-time setup in a new repository |
-| `upgrade` | Existing `.squad/` — updates templates, adds new members, migrates config |
+| `upgrade` | Existing `.crew/` — updates templates, adds new members, migrates config |
 
-Running `init` on an existing Squad repository prompts for upgrade mode automatically.
+Running `init` on an existing Crew repository prompts for upgrade mode automatically.
 
 ## Sample Prompts
 
 ```
-Start a new Squad team for this project
+Start a new Crew team for this project
 ```
-Triggers init mode. Squad analyzes the repository and proposes a team.
+Triggers init mode. Crew analyzes the repository and proposes a team.
 
 ```
 Add a database specialist to the team

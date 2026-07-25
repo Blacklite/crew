@@ -1,12 +1,12 @@
 /**
- * Integration tests for SquadClient adapter (M0-9, Issue #85)
+ * Integration tests for CrewClient adapter (M0-9, Issue #85)
  * 
  * Tests connection lifecycle, session CRUD, and error recovery.
  * Uses vi.mock to stub CopilotClient since it requires a real CLI server.
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SquadClient, type SquadClientOptions } from '@bradygaster/squad-sdk/client';
+import { CrewClient, type CrewClientOptions } from '@blacklite/crew-sdk/client';
 import { CopilotClient } from '@github/copilot-sdk';
 
 // Mock CopilotClient
@@ -48,19 +48,19 @@ vi.mock('@github/copilot-sdk', () => {
   };
 });
 
-describe('SquadClient — Connection Lifecycle', () => {
+describe('CrewClient — Connection Lifecycle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should construct with minimal options', () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     expect(client).toBeDefined();
     expect(client.getState()).toBe('disconnected');
   });
 
   it('should construct with custom options', () => {
-    const options: SquadClientOptions = {
+    const options: CrewClientOptions = {
       cwd: '/tmp/test',
       port: 8080,
       useStdio: false,
@@ -70,13 +70,13 @@ describe('SquadClient — Connection Lifecycle', () => {
       maxReconnectAttempts: 5,
       reconnectDelayMs: 2000,
     };
-    const client = new SquadClient(options);
+    const client = new CrewClient(options);
     expect(client).toBeDefined();
     expect(client.getState()).toBe('disconnected');
   });
 
   it('should connect and transition to connected state', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     expect(client.isConnected()).toBe(false);
 
     await client.connect();
@@ -86,7 +86,7 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 
   it('should not connect twice when already connected', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
     expect(client.getState()).toBe('connected');
 
@@ -96,7 +96,7 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 
   it('should deduplicate concurrent connect calls', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     
     // Make start() slow so both calls overlap
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -117,7 +117,7 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 
   it('should handle concurrent createSession calls that trigger auto-connect', async () => {
-    const client = new SquadClient({ autoStart: true });
+    const client = new CrewClient({ autoStart: true });
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
     const instance = MockedCopilotClient.mock.results[0].value;
     instance.start.mockImplementation(() => new Promise(resolve => setTimeout(resolve, 50)));
@@ -135,7 +135,7 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 
   it('should propagate connect failure to concurrent callers', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
     const instance = MockedCopilotClient.mock.results[0].value;
     instance.start.mockImplementation(
@@ -155,7 +155,7 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 
   it('should start fresh connect after failed concurrent connect', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
     const instance = MockedCopilotClient.mock.results[0].value;
 
@@ -177,7 +177,7 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 
   it('should disconnect gracefully', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const errors = await client.disconnect();
@@ -188,7 +188,7 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 
   it('should force disconnect without graceful cleanup', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     await client.forceDisconnect();
@@ -197,7 +197,7 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 
   it('should reset reconnect attempts on successful connect', async () => {
-    const client = new SquadClient({ maxReconnectAttempts: 3 });
+    const client = new CrewClient({ maxReconnectAttempts: 3 });
     
     await client.connect();
     expect(client.getState()).toBe('connected');
@@ -209,13 +209,13 @@ describe('SquadClient — Connection Lifecycle', () => {
   });
 });
 
-describe('SquadClient — Auto-Reconnection', () => {
+describe('CrewClient — Auto-Reconnection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should auto-reconnect on ECONNREFUSED', async () => {
-    const client = new SquadClient({ autoReconnect: true, reconnectDelayMs: 10 });
+    const client = new CrewClient({ autoReconnect: true, reconnectDelayMs: 10 });
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -235,7 +235,7 @@ describe('SquadClient — Auto-Reconnection', () => {
   });
 
   it('should auto-reconnect on ECONNRESET', async () => {
-    const client = new SquadClient({ autoReconnect: true, reconnectDelayMs: 10 });
+    const client = new CrewClient({ autoReconnect: true, reconnectDelayMs: 10 });
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -251,7 +251,7 @@ describe('SquadClient — Auto-Reconnection', () => {
   });
 
   it('should auto-reconnect on EPIPE', async () => {
-    const client = new SquadClient({ autoReconnect: true, reconnectDelayMs: 10 });
+    const client = new CrewClient({ autoReconnect: true, reconnectDelayMs: 10 });
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -267,7 +267,7 @@ describe('SquadClient — Auto-Reconnection', () => {
   });
 
   it('should exhaust max reconnect attempts', async () => {
-    const client = new SquadClient({ autoReconnect: true, maxReconnectAttempts: 2, reconnectDelayMs: 10 });
+    const client = new CrewClient({ autoReconnect: true, maxReconnectAttempts: 2, reconnectDelayMs: 10 });
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -281,7 +281,7 @@ describe('SquadClient — Auto-Reconnection', () => {
   });
 
   it('should not auto-reconnect when autoReconnect is false', async () => {
-    const client = new SquadClient({ autoReconnect: false });
+    const client = new CrewClient({ autoReconnect: false });
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -293,7 +293,7 @@ describe('SquadClient — Auto-Reconnection', () => {
   });
 
   it('should provide approve-once guidance for permission handler errors', async () => {
-    const client = new SquadClient({ autoReconnect: false });
+    const client = new CrewClient({ autoReconnect: false });
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -305,7 +305,7 @@ describe('SquadClient — Auto-Reconnection', () => {
   });
 
   it('should not auto-reconnect after manual disconnect', async () => {
-    const client = new SquadClient({ autoReconnect: true, autoStart: false });
+    const client = new CrewClient({ autoReconnect: true, autoStart: false });
     await client.connect();
     await client.disconnect();
 
@@ -313,7 +313,7 @@ describe('SquadClient — Auto-Reconnection', () => {
   });
 
   it('should use exponential backoff for reconnect delays', async () => {
-    const client = new SquadClient({ autoReconnect: true, maxReconnectAttempts: 3, reconnectDelayMs: 100 });
+    const client = new CrewClient({ autoReconnect: true, maxReconnectAttempts: 3, reconnectDelayMs: 100 });
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -338,13 +338,13 @@ describe('SquadClient — Auto-Reconnection', () => {
   });
 });
 
-describe('SquadClient — Session CRUD', () => {
+describe('CrewClient — Session CRUD', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should create session when connected', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const session = await client.createSession({ model: 'claude-sonnet-4.5' });
@@ -354,7 +354,7 @@ describe('SquadClient — Session CRUD', () => {
   });
 
   it('should auto-connect when creating session with autoStart enabled', async () => {
-    const client = new SquadClient({ autoStart: true });
+    const client = new CrewClient({ autoStart: true });
     expect(client.isConnected()).toBe(false);
 
     const session = await client.createSession({ model: 'claude-sonnet-4.5' });
@@ -364,13 +364,13 @@ describe('SquadClient — Session CRUD', () => {
   });
 
   it('should throw when creating session without connection and autoStart disabled', async () => {
-    const client = new SquadClient({ autoStart: false });
+    const client = new CrewClient({ autoStart: false });
 
     await expect(client.createSession()).rejects.toThrow('Client not connected');
   });
 
   it('should resume existing session', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const session = await client.resumeSession('session-1', { model: 'claude-opus-4.6' });
@@ -380,7 +380,7 @@ describe('SquadClient — Session CRUD', () => {
   });
 
   it('should list sessions', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -398,7 +398,7 @@ describe('SquadClient — Session CRUD', () => {
   });
 
   it('should delete session', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     await client.deleteSession('session-1');
@@ -409,7 +409,7 @@ describe('SquadClient — Session CRUD', () => {
   });
 
   it('should get last session ID', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -422,13 +422,13 @@ describe('SquadClient — Session CRUD', () => {
   });
 });
 
-describe('SquadClient — Status Operations', () => {
+describe('CrewClient — Status Operations', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should ping server', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const result = await client.ping('hello');
@@ -438,7 +438,7 @@ describe('SquadClient — Status Operations', () => {
   });
 
   it('should get status', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -455,7 +455,7 @@ describe('SquadClient — Status Operations', () => {
   });
 
   it('should get auth status', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -472,7 +472,7 @@ describe('SquadClient — Status Operations', () => {
   });
 
   it('should list models', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     await client.connect();
 
     const MockedCopilotClient = CopilotClient as unknown as ReturnType<typeof vi.fn>;
@@ -489,7 +489,7 @@ describe('SquadClient — Status Operations', () => {
   });
 
   it('should throw when calling operations while disconnected', async () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
 
     await expect(client.ping()).rejects.toThrow('Client not connected');
     await expect(client.getStatus()).rejects.toThrow('Client not connected');
@@ -500,13 +500,13 @@ describe('SquadClient — Status Operations', () => {
   });
 });
 
-describe('SquadClient — Event Subscriptions', () => {
+describe('CrewClient — Event Subscriptions', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should subscribe to typed events', () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     const handler = vi.fn();
 
     const unsubscribe = client.on('session.created', handler);
@@ -515,7 +515,7 @@ describe('SquadClient — Event Subscriptions', () => {
   });
 
   it('should subscribe to all events', () => {
-    const client = new SquadClient();
+    const client = new CrewClient();
     const handler = vi.fn();
 
     const unsubscribe = client.on(handler);

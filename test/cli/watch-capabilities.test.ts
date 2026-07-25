@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { WatchContext } from '../../packages/squad-cli/src/cli/commands/watch/types.js';
+import type { WatchContext } from '../../packages/crew-cli/src/cli/commands/watch/types.js';
 
 // ── Shared mock state (hoisted alongside vi.mock) ───────────────────
 
@@ -38,7 +38,7 @@ const {
 
 // ── Module mocks ────────────────────────────────────────────────────
 
-vi.mock('@bradygaster/squad-sdk', () => ({
+vi.mock('@blacklite/crew-sdk', () => ({
   FSStorageProvider: vi.fn(function () { return mockStorage; }),
 }));
 
@@ -58,12 +58,12 @@ import {
   ExecuteCapability,
   buildAgentPrompt,
   findExecutableIssues,
-} from '../../packages/squad-cli/src/cli/commands/watch/capabilities/execute.js';
-import type { ExecutableWorkItem } from '../../packages/squad-cli/src/cli/commands/watch/capabilities/execute.js';
-import { CleanupCapability } from '../../packages/squad-cli/src/cli/commands/watch/capabilities/cleanup.js';
-import { DecisionHygieneCapability } from '../../packages/squad-cli/src/cli/commands/watch/capabilities/decision-hygiene.js';
-import { BoardCapability } from '../../packages/squad-cli/src/cli/commands/watch/capabilities/board.js';
-import { SelfPullCapability } from '../../packages/squad-cli/src/cli/commands/watch/capabilities/self-pull.js';
+} from '../../packages/crew-cli/src/cli/commands/watch/capabilities/execute.js';
+import type { ExecutableWorkItem } from '../../packages/crew-cli/src/cli/commands/watch/capabilities/execute.js';
+import { CleanupCapability } from '../../packages/crew-cli/src/cli/commands/watch/capabilities/cleanup.js';
+import { DecisionHygieneCapability } from '../../packages/crew-cli/src/cli/commands/watch/capabilities/decision-hygiene.js';
+import { BoardCapability } from '../../packages/crew-cli/src/cli/commands/watch/capabilities/board.js';
+import { SelfPullCapability } from '../../packages/crew-cli/src/cli/commands/watch/capabilities/self-pull.js';
 
 // ── Helpers ─────────────────────────────────────────────────────────
 
@@ -74,7 +74,7 @@ function makeContext(overrides: Partial<WatchContext> = {}): WatchContext {
       listWorkItems: vi.fn().mockResolvedValue([]),
     } as unknown as WatchContext['adapter'],
     round: 1,
-    roster: [{ name: 'EECOM', label: 'squad:eecom', expertise: [] }],
+    roster: [{ name: 'EECOM', label: 'crew:eecom', expertise: [] }],
     config: {},
     ...overrides,
   };
@@ -164,8 +164,8 @@ describe('Watch Capabilities', () => {
     describe('buildAgentPrompt', () => {
       it('includes issue numbers and titles', () => {
         const issues: ExecutableWorkItem[] = [
-          { number: 1, title: 'Fix bug', labels: [{ name: 'squad:eecom' }], assignees: [] },
-          { number: 2, title: 'Add tests', labels: [{ name: 'squad' }], assignees: [] },
+          { number: 1, title: 'Fix bug', labels: [{ name: 'crew:eecom' }], assignees: [] },
+          { number: 2, title: 'Add tests', labels: [{ name: 'crew' }], assignees: [] },
         ];
         const prompt = buildAgentPrompt(issues, '/fake/team');
         expect(prompt).toContain('#1');
@@ -177,7 +177,7 @@ describe('Watch Capabilities', () => {
       it('uses ralph-instructions.md prompt when file exists', () => {
         mockFsExistsSync.mockReturnValue(true);
         const issues: ExecutableWorkItem[] = [
-          { number: 1, title: 'Task', labels: [{ name: 'squad' }], assignees: [] },
+          { number: 1, title: 'Task', labels: [{ name: 'crew' }], assignees: [] },
         ];
         const prompt = buildAgentPrompt(issues, '/fake/team');
         expect(prompt).toContain('ralph-instructions.md');
@@ -187,7 +187,7 @@ describe('Watch Capabilities', () => {
       it('uses fallback prompt when ralph-instructions.md is missing', () => {
         mockFsExistsSync.mockReturnValue(false);
         const issues: ExecutableWorkItem[] = [
-          { number: 1, title: 'Task', labels: [{ name: 'squad' }], assignees: [] },
+          { number: 1, title: 'Task', labels: [{ name: 'crew' }], assignees: [] },
         ];
         const prompt = buildAgentPrompt(issues, '/fake/team');
         expect(prompt).toContain('autonomous work monitor');
@@ -198,28 +198,28 @@ describe('Watch Capabilities', () => {
         const issues: ExecutableWorkItem[] = [{
           number: 42,
           title: 'Fix auth',
-          labels: [{ name: 'squad:eecom' }, { name: 'P1' }],
+          labels: [{ name: 'crew:eecom' }, { name: 'P1' }],
           assignees: [{ login: 'alice' }],
         }];
         const prompt = buildAgentPrompt(issues, '/fake');
-        expect(prompt).toContain('squad:eecom, P1');
+        expect(prompt).toContain('crew:eecom, P1');
         expect(prompt).toContain('alice');
       });
     });
 
     describe('findExecutableIssues (edge cases)', () => {
-      const roster = [{ name: 'EECOM', label: 'squad:eecom', expertise: [] as string[] }];
+      const roster = [{ name: 'EECOM', label: 'crew:eecom', expertise: [] as string[] }];
 
-      it('accepts bare "squad" label', () => {
+      it('accepts bare "crew" label', () => {
         const issues: ExecutableWorkItem[] = [
-          { number: 1, title: 'T', labels: [{ name: 'squad' }], assignees: [] },
+          { number: 1, title: 'T', labels: [{ name: 'crew' }], assignees: [] },
         ];
         expect(findExecutableIssues(roster, null, issues)).toHaveLength(1);
       });
 
-      it('accepts "squad:" prefixed labels', () => {
+      it('accepts "crew:" prefixed labels', () => {
         const issues: ExecutableWorkItem[] = [
-          { number: 1, title: 'T', labels: [{ name: 'squad:gnc' }], assignees: [] },
+          { number: 1, title: 'T', labels: [{ name: 'crew:gnc' }], assignees: [] },
         ];
         expect(findExecutableIssues(roster, null, issues)).toHaveLength(1);
       });
@@ -228,7 +228,7 @@ describe('Watch Capabilities', () => {
         for (const label of ['status:blocked', 'status:wontfix', 'status:on-hold', 'blocked']) {
           const issues: ExecutableWorkItem[] = [{
             number: 1, title: 'T',
-            labels: [{ name: 'squad' }, { name: label }],
+            labels: [{ name: 'crew' }, { name: label }],
             assignees: [],
           }];
           expect(
@@ -240,8 +240,8 @@ describe('Watch Capabilities', () => {
 
       it('returns empty when all issues are filtered out', () => {
         const issues: ExecutableWorkItem[] = [
-          { number: 1, title: 'Assigned', labels: [{ name: 'squad' }], assignees: [{ login: 'bob' }] },
-          { number: 2, title: 'Blocked', labels: [{ name: 'squad' }, { name: 'status:blocked' }], assignees: [] },
+          { number: 1, title: 'Assigned', labels: [{ name: 'crew' }], assignees: [{ login: 'bob' }] },
+          { number: 2, title: 'Blocked', labels: [{ name: 'crew' }, { name: 'status:blocked' }], assignees: [] },
           { number: 3, title: 'No label', labels: [{ name: 'bug' }], assignees: [] },
         ];
         expect(findExecutableIssues(roster, null, issues)).toHaveLength(0);
@@ -277,26 +277,26 @@ describe('Watch Capabilities', () => {
         const cap = new ExecuteCapability();
         const result = await cap.execute(makeContext());
         expect(result.success).toBe(true);
-        expect(result.summary).toContain('no squad-labeled issues');
+        expect(result.summary).toContain('no crew-labeled issues');
       });
 
       it('returns success when all issues are filtered out', async () => {
         const cap = new ExecuteCapability();
         const ctx = makeContext({
           adapter: mockAdapter([
-            { id: 1, title: 'Assigned task', tags: ['squad'], assignedTo: 'human' },
+            { id: 1, title: 'Assigned task', tags: ['crew'], assignedTo: 'human' },
           ]),
         });
         const result = await cap.execute(ctx);
         expect(result.success).toBe(true);
-        expect(result.summary).toContain('no squad-labeled issues');
+        expect(result.summary).toContain('no crew-labeled issues');
       });
 
       it('dispatches agent for eligible issues', async () => {
         const cap = new ExecuteCapability();
         const ctx = makeContext({
           adapter: mockAdapter([
-            { id: 1, title: 'Fix bug', tags: ['squad:eecom'] },
+            { id: 1, title: 'Fix bug', tags: ['crew:eecom'] },
           ]),
         });
         const result = await cap.execute(ctx);
@@ -325,7 +325,7 @@ describe('Watch Capabilities', () => {
         });
         const cap = new ExecuteCapability();
         const ctx = makeContext({
-          adapter: mockAdapter([{ id: 1, title: 'Fix', tags: ['squad'] }]),
+          adapter: mockAdapter([{ id: 1, title: 'Fix', tags: ['crew'] }]),
         });
         const result = await cap.execute(ctx);
         expect(result.success).toBe(false);
@@ -340,7 +340,7 @@ describe('Watch Capabilities', () => {
         });
         const cap = new ExecuteCapability();
         const ctx = makeContext({
-          adapter: mockAdapter([{ id: 1, title: 'Fix', tags: ['squad'] }]),
+          adapter: mockAdapter([{ id: 1, title: 'Fix', tags: ['crew'] }]),
         });
         const result = await cap.execute(ctx);
         expect(result.success).toBe(false);
@@ -351,7 +351,7 @@ describe('Watch Capabilities', () => {
         const cap = new ExecuteCapability();
         const ctx = makeContext({
           agentCmd: 'my-agent --flag',
-          adapter: mockAdapter([{ id: 1, title: 'Fix', tags: ['squad'] }]),
+          adapter: mockAdapter([{ id: 1, title: 'Fix', tags: ['crew'] }]),
         });
         await cap.execute(ctx);
         expect(mockExecFile).toHaveBeenCalledWith(
@@ -379,7 +379,7 @@ describe('Watch Capabilities', () => {
         const cap = new ExecuteCapability();
         const ctx = makeContext({
           pidTracker: { track, untrack },
-          adapter: mockAdapter([{ id: 1, title: 'Fix', tags: ['squad'] }]),
+          adapter: mockAdapter([{ id: 1, title: 'Fix', tags: ['crew'] }]),
         });
 
         await cap.execute(ctx);
@@ -398,19 +398,19 @@ describe('Watch Capabilities', () => {
 
   describe('CleanupCapability', () => {
     describe('preflight', () => {
-      it('succeeds when .squad directory exists', async () => {
+      it('succeeds when .crew directory exists', async () => {
         mockStorage.existsSync.mockReturnValue(true);
         const cap = new CleanupCapability();
         const result = await cap.preflight(makeContext());
         expect(result.ok).toBe(true);
       });
 
-      it('fails when .squad directory is missing', async () => {
+      it('fails when .crew directory is missing', async () => {
         mockStorage.existsSync.mockReturnValue(false);
         const cap = new CleanupCapability();
         const result = await cap.preflight(makeContext());
         expect(result.ok).toBe(false);
-        expect(result.reason).toContain('.squad');
+        expect(result.reason).toContain('.crew');
       });
     });
 
@@ -678,7 +678,7 @@ describe('Watch Capabilities', () => {
             return revParseCount === 1 ? 'abc123\n' : 'def456\n';
           }
           if (a.includes('--porcelain')) return '';
-          if (a.includes('--name-only')) return 'packages/squad-cli/src/watch.ts\n';
+          if (a.includes('--name-only')) return 'packages/crew-cli/src/watch.ts\n';
           return '';
         });
 

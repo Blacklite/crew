@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { TEMPLATE_MANIFEST } from '../packages/squad-cli/src/cli/core/templates.js';
+import { TEMPLATE_MANIFEST } from '../packages/crew-cli/src/cli/core/templates.js';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
 // Use __dirname for reliable resolution regardless of working directory
-const TEMPLATES_DIR = path.resolve(__dirname, '..', 'packages', 'squad-cli', 'templates');
+const TEMPLATES_DIR = path.resolve(__dirname, '..', 'packages', 'crew-cli', 'templates');
 
-/** Expected built-in skills that ship with squad init/upgrade */
+/** Expected built-in skills that ship with crew init/upgrade */
 const EXPECTED_BUILTIN_SKILLS = [
-  'squad-conventions',
+  'crew-conventions',
   'error-recovery',
   'secret-handling',
   'git-workflow',
@@ -19,7 +19,7 @@ const EXPECTED_BUILTIN_SKILLS = [
 ];
 
 // Unit tests for the skill manifest declarations. End-to-end scaffolding
-// (files actually written to disk) is tested via `squad init` integration tests.
+// (files actually written to disk) is tested via `crew init` integration tests.
 describe('built-in skills in TEMPLATE_MANIFEST', () => {
   const skillEntries = TEMPLATE_MANIFEST.filter(f => f.destination.includes('.github/skills/'));
 
@@ -34,9 +34,9 @@ describe('built-in skills in TEMPLATE_MANIFEST', () => {
     }
   });
 
-  it('all skill entries have overwriteOnUpgrade: true (squad-owned)', () => {
+  it('all skill entries have overwriteOnUpgrade: true (crew-owned)', () => {
     for (const entry of skillEntries) {
-      expect(entry.overwriteOnUpgrade, `${entry.source} should be squad-owned`).toBe(true);
+      expect(entry.overwriteOnUpgrade, `${entry.source} should be crew-owned`).toBe(true);
     }
   });
 

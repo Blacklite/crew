@@ -1,20 +1,20 @@
 ---
 title: "Generic Scheduler: Unified Task Orchestration"
 date: 2026-03-17
-author: "Squad (Copilot)"
+author: "Crew (Copilot)"
 wave: null
-tags: [squad, scheduler, automation, cron, tasks]
+tags: [crew, scheduler, automation, cron, tasks]
 status: published
-hero: "Stop scattering cron jobs, polling scripts, and manual triggers. Define all recurring squad tasks in one place and let Squad run them locally or on GitHub Actions."
+hero: "Stop scattering cron jobs, polling scripts, and manual triggers. Define all recurring crew tasks in one place and let Crew run them locally or on GitHub Actions."
 ---
 
 # Generic Scheduler: Unified Task Orchestration
 
-> _One config file. Local polling or GitHub Actions. Cron, interval, event-driven, or startup triggers. Squad runs your tasks reliably._
+> _One config file. Local polling or GitHub Actions. Cron, interval, event-driven, or startup triggers. Crew runs your tasks reliably._
 
 ## The Problem
 
-Squads need to run recurring tasks:
+Crews need to run recurring tasks:
 - Ralph monitors work every 5 minutes
 - Upstream sync runs every 6 hours
 - Daily reports generate at 9am
@@ -32,7 +32,7 @@ No unified way to orchestrate, monitor, or test.
 
 ### One Config, Two Runtimes
 
-Define your schedule once in `.squad/schedule.json`:
+Define your schedule once in `.crew/schedule.json`:
 
 ```json
 {
@@ -40,7 +40,7 @@ Define your schedule once in `.squad/schedule.json`:
     {
       "id": "ralph-heartbeat",
       "trigger": { "type": "interval", "intervalSeconds": 300 },
-      "task": { "type": "script", "command": "squad ralph watch --duration 25s" },
+      "task": { "type": "script", "command": "crew ralph watch --duration 25s" },
       "providers": ["local-polling", "github-actions"]
     }
   ]
@@ -49,19 +49,19 @@ Define your schedule once in `.squad/schedule.json`:
 
 Run it **locally**:
 ```bash
-squad schedule watch
+crew schedule watch
 ```
 
 Or **in GitHub Actions** (auto-generated):
 ```bash
-squad schedule init-ci
+crew schedule init-ci
 ```
 
 Same config, both runtimes work.
 
 ## Real-World Example
 
-### A Squad's Daily Routine
+### A Crew's Daily Routine
 
 **Morning**: Deploy latest code
 ```json
@@ -78,7 +78,7 @@ Same config, both runtimes work.
 {
   "id": "sync-upstream",
   "trigger": { "type": "cron", "expression": "0 * * * *" },
-  "task": { "type": "script", "command": "squad upstream sync" },
+  "task": { "type": "script", "command": "crew upstream sync" },
   "providers": ["github-actions"]
 }
 ```
@@ -88,7 +88,7 @@ Same config, both runtimes work.
 {
   "id": "ralph-heartbeat",
   "trigger": { "type": "interval", "intervalSeconds": 300 },
-  "task": { "type": "script", "command": "squad ralph watch --duration 25s" },
+  "task": { "type": "script", "command": "crew ralph watch --duration 25s" },
   "providers": ["local-polling"]
 }
 ```
@@ -98,7 +98,7 @@ Same config, both runtimes work.
 {
   "id": "init-metrics",
   "trigger": { "type": "startup" },
-  "task": { "type": "script", "command": "mkdir -p .squad/metrics" },
+  "task": { "type": "script", "command": "mkdir -p .crew/metrics" },
   "providers": ["local-polling"]
 }
 ```
@@ -111,13 +111,13 @@ Same config, both runtimes work.
 
 **Throughout the day**:
 - Every hour, `sync-upstream` runs to check for parent changes
-- Every 5 minutes (if you're running `squad schedule watch`), Ralph checks work
+- Every 5 minutes (if you're running `crew schedule watch`), Ralph checks work
 
 **Failure scenario**:
 - A sync attempt fails (network issue)
 - Scheduler waits 30 seconds (backoff)
 - Retries automatically
-- Logs to `.squad/.schedule-state.json`
+- Logs to `.crew/.schedule-state.json`
 
 ## Trigger Types
 
@@ -146,13 +146,13 @@ Run when something happens:
 ```
 
 Built-in events:
-- `session:start` — Squad initializes
-- `session:complete` — Squad finishes
+- `session:start` — Crew initializes
+- `session:complete` — Crew finishes
 - `agent:milestone` — Agent reaches checkpoint
 - `error:uncaught` — Error occurs
 
 ### Startup
-Run once when squad initializes:
+Run once when crew initializes:
 ```json
 { "type": "startup" }
 ```
@@ -162,7 +162,7 @@ Run once when squad initializes:
 ### Script
 Run a shell command:
 ```json
-{ "type": "script", "command": "squad upstream sync --auto-pr" }
+{ "type": "script", "command": "crew upstream sync --auto-pr" }
 ```
 
 ### Workflow
@@ -180,13 +180,13 @@ Run a Copilot agent task:
 ### Webhook
 POST to a URL:
 ```json
-{ "type": "webhook", "url": "https://api.example.com/hooks/squad-task", "method": "POST" }
+{ "type": "webhook", "url": "https://api.example.com/hooks/crew-task", "method": "POST" }
 ```
 
 ## Providers
 
 ### Local Polling
-Run in-process when you run `squad schedule watch`:
+Run in-process when you run `crew schedule watch`:
 ```json
 { "providers": ["local-polling"] }
 ```
@@ -199,7 +199,7 @@ Automatically generate GitHub Actions workflows:
 { "providers": ["github-actions"] }
 ```
 
-Best for production. Runs 24/7 on GitHub's infrastructure. Squad generates `.github/workflows/schedule-{id}.yml` files.
+Best for production. Runs 24/7 on GitHub's infrastructure. Crew generates `.github/workflows/schedule-{id}.yml` files.
 
 ## Configuration Reference
 
@@ -235,7 +235,7 @@ Best for production. Runs 24/7 on GitHub's infrastructure. Squad generates `.git
 
 Check schedule status anytime:
 ```bash
-squad schedule status
+crew schedule status
 ```
 
 Output shows:
@@ -246,7 +246,7 @@ Output shows:
 
 View detailed logs:
 ```bash
-squad schedule logs ralph-heartbeat
+crew schedule logs ralph-heartbeat
 ```
 
 ## Error Handling
@@ -273,28 +273,28 @@ On failure:
 
 ### Monitoring
 ```bash
-squad schedule init ralph-monitor --trigger interval:300
+crew schedule init ralph-monitor --trigger interval:300
 ```
 
 Ralph checks work every 5 minutes.
 
 ### CI/CD Integration
 ```bash
-squad schedule init deploy --trigger "cron:0 8 * * *" --task workflow:.github/workflows/deploy.yml
+crew schedule init deploy --trigger "cron:0 8 * * *" --task workflow:.github/workflows/deploy.yml
 ```
 
 Deploy every morning at 8am.
 
 ### Syncing
 ```bash
-squad schedule init sync-upstream --trigger "cron:0 * * * *" --providers github-actions
+crew schedule init sync-upstream --trigger "cron:0 * * * *" --providers github-actions
 ```
 
 Sync from parent every hour (GitHub Actions only).
 
 ### Notifications
 ```bash
-squad schedule init slack-report --trigger "cron:0 9 * * MON-FRI" --task webhook:https://hooks.slack.com/...
+crew schedule init slack-report --trigger "cron:0 9 * * MON-FRI" --task webhook:https://hooks.slack.com/...
 ```
 
 Send daily standup to Slack on weekday mornings.
@@ -302,5 +302,5 @@ Send daily standup to Slack on weekday mornings.
 ## See Also
 
 - [Persistent Ralph](/features/persistent-ralph) — Monitor agent activity
-- [Upstream Auto-Sync](/features/upstream-sync) — Sync squads on schedule
-- [Cross-Squad Orchestration](/features/cross-squad-orchestration) — Delegate recurring work
+- [Upstream Auto-Sync](/features/upstream-sync) — Sync crews on schedule
+- [Cross-Crew Orchestration](/features/cross-crew-orchestration) — Delegate recurring work

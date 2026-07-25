@@ -114,7 +114,7 @@ vi.mock('node:http', async () => {
   return { ...actual, createServer: httpMocks.createServer };
 });
 
-import { TeamsCommunicationAdapter } from '../packages/squad-sdk/src/platform/comms-teams.js';
+import { TeamsCommunicationAdapter } from '../packages/crew-sdk/src/platform/comms-teams.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
@@ -311,7 +311,7 @@ describe('saveTokens — icacls warning on Windows (#770)', () => {
     // Verify icacls was attempted
     expect(cpMocks.execFile).toHaveBeenCalledWith(
       'icacls',
-      expect.arrayContaining([expect.stringContaining('.squad')]),
+      expect.arrayContaining([expect.stringContaining('.crew')]),
       expect.any(Function),
     );
     // Verify warning was logged

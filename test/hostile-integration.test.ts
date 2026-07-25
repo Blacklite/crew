@@ -22,9 +22,9 @@ import {
   executeCommand,
   SessionRegistry,
   ShellRenderer,
-} from '../packages/squad-cli/src/cli/shell/index.js';
-import { MessageStream } from '../packages/squad-cli/src/cli/shell/components/MessageStream.js';
-import type { ShellMessage } from '../packages/squad-cli/src/cli/shell/types.js';
+} from '../packages/crew-cli/src/cli/shell/index.js';
+import { MessageStream } from '../packages/crew-cli/src/cli/shell/components/MessageStream.js';
+import type { ShellMessage } from '../packages/crew-cli/src/cli/shell/types.js';
 
 const h = React.createElement;
 

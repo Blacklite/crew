@@ -1,6 +1,6 @@
-# Issue Templates for Squad
+# Issue Templates for Crew
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this after setting up templates:**
@@ -14,37 +14,37 @@ When GitHub Issues are your work queue, creating tasks should be frictionless. I
 
 ---
 
-## Why Issue Templates Matter for Squad
+## Why Issue Templates Matter for Crew
 
-GitHub provides Issue Templates — a platform feature that pre-fills labels, fields, and structure when creating new issues. This guide shows how to configure templates that work smoothly with Squad's label-based routing.
+GitHub provides Issue Templates — a platform feature that pre-fills labels, fields, and structure when creating new issues. This guide shows how to configure templates that work smoothly with Crew's label-based routing.
 
-Squad operates best when work is captured as GitHub Issues. But creating an issue from scratch takes time: you need to remember the right labels, format the description consistently, and ensure the structure matches what agents expect.
+Crew operates best when work is captured as GitHub Issues. But creating an issue from scratch takes time: you need to remember the right labels, format the description consistently, and ensure the structure matches what agents expect.
 
 Issue templates solve this:
 
-- **Pre-filled labels** — `squad` label applied automatically
+- **Pre-filled labels** — `crew` label applied automatically
 - **Structured format** — Task description, acceptance criteria, priority fields
 - **Mobile-friendly** — Works in the GitHub mobile app
 - **Fast task creation** — Add work while walking the dog, waiting for coffee, or during a meeting
 
-With templates, creating a Squad task takes 10 seconds instead of 2 minutes.
+With templates, creating a Crew task takes 10 seconds instead of 2 minutes.
 
 ---
 
-## Basic Squad Task Template
+## Basic Crew Task Template
 
-Create `.github/ISSUE_TEMPLATE/squad-task.yml` in your repository:
+Create `.github/ISSUE_TEMPLATE/crew-task.yml` in your repository:
 
 ```yaml
-name: Squad Task
-description: Create a task for the Squad team
+name: Crew Task
+description: Create a task for the Crew team
 title: "[Task]: "
-labels: ["squad"]
+labels: ["crew"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for creating a Squad task! Fill in the details below.
+        Thanks for creating a Crew task! Fill in the details below.
         
   - type: textarea
     id: description
@@ -88,7 +88,7 @@ body:
 
 ### What This Template Does
 
-- **Applies `squad` label** — Ralph sees it in the untriaged queue
+- **Applies `crew` label** — Ralph sees it in the untriaged queue
 - **Structured sections** — Description, acceptance criteria, priority
 - **Markdown support** — Use checklists, code blocks, links
 - **Works on mobile** — GitHub app renders forms beautifully
@@ -97,13 +97,13 @@ body:
 
 ## Custom Labels for Routing
 
-Ralph uses `.squad/routing.md` to route work to agents. Add `squad:{member}` labels to your template for pre-triaging:
+Ralph uses `.crew/routing.md` to route work to agents. Add `crew:{member}` labels to your template for pre-triaging:
 
 ```yaml
 name: Documentation Task
 description: Create a docs task (auto-routed to PAO)
 title: "[Docs]: "
-labels: ["squad", "squad:pao"]
+labels: ["crew", "crew:pao"]
 body:
   - type: textarea
     id: description
@@ -113,17 +113,17 @@ body:
         Add a guide for setting up Ralph in production.
 ```
 
-When Ralph scans the board, this issue is already labeled `squad:pao` — no triage needed, work goes straight to PAO.
+When Ralph scans the board, this issue is already labeled `crew:pao` — no triage needed, work goes straight to PAO.
 
-### Setting up labels for Squad routing
+### Setting up labels for Crew routing
 
-Create labels in your repository for each squad member:
+Create labels in your repository for each crew member:
 
 ```bash
 # Using gh CLI
-gh label create "squad:pao" --description "DevRel tasks" --color "1d76db"
-gh label create "squad:flight" --description "Architecture and planning" --color "d73a4a"
-gh label create "squad:fido" --description "Testing and quality" --color "0e8a16"
+gh label create "crew:pao" --description "DevRel tasks" --color "1d76db"
+gh label create "crew:flight" --description "Architecture and planning" --color "d73a4a"
+gh label create "crew:fido" --description "Testing and quality" --color "0e8a16"
 ```
 
 Or use the [label sync workflow](../features/labels.md) to automate label management across repositories.
@@ -140,9 +140,9 @@ Different work types need different structures:
 
 ```yaml
 name: Bug Report
-description: Report a bug for Squad to fix
+description: Report a bug for Crew to fix
 title: "[Bug]: "
-labels: ["squad", "bug"]
+labels: ["crew", "bug"]
 body:
   - type: textarea
     id: description
@@ -157,7 +157,7 @@ body:
     attributes:
       label: Steps to Reproduce
       placeholder: |
-        1. Run `squad init`
+        1. Run `crew init`
         2. Create a team with 3 agents
         3. Try to export the configuration
         4. See error: "Cannot read property 'name' of undefined"
@@ -175,7 +175,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Squad Version
+      label: Crew Version
       placeholder: "0.8.24"
     validations:
       required: false
@@ -187,9 +187,9 @@ body:
 
 ```yaml
 name: Feature Request
-description: Suggest a new feature for Squad
+description: Suggest a new feature for Crew
 title: "[Feature]: "
-labels: ["squad", "enhancement"]
+labels: ["crew", "enhancement"]
 body:
   - type: textarea
     id: problem
@@ -225,7 +225,7 @@ body:
 name: Documentation Update
 description: Suggest a docs improvement
 title: "[Docs]: "
-labels: ["squad", "squad:pao", "documentation"]
+labels: ["crew", "crew:pao", "documentation"]
 body:
   - type: textarea
     id: what
@@ -259,7 +259,7 @@ GitHub Issues + templates work from anywhere:
 6. Tap **Submit new issue**
 
 **10 seconds later:**
-- Issue created with `squad` label
+- Issue created with `crew` label
 - Ralph sees it in the next scan
 - Agent picks it up autonomously
 
@@ -276,12 +276,12 @@ GitHub supports multiple templates. Create a config file to customize the issue 
 ```yaml
 blank_issues_enabled: false
 contact_links:
-  - name: Squad Community Discussions
-    url: https://github.com/bradygaster/squad/discussions
+  - name: Crew Community Discussions
+    url: https://github.com/Blacklite/crew/discussions
     about: Ask questions or share ideas in Discussions
-  - name: Squad Documentation
-    url: https://squad.dev
-    about: Read the full Squad documentation
+  - name: Crew Documentation
+    url: https://crew.dev
+    about: Read the full Crew documentation
 ```
 
 This disables blank issues (forcing template use) and provides helpful links when users click "New Issue."
@@ -302,25 +302,25 @@ This disables blank issues (forcing template use) and provides helpful links whe
 
 ## Integration with Ralph
 
-Ralph's heartbeat workflow (`.github/workflows/squad-heartbeat.yml`) scans for untriaged issues:
+Ralph's heartbeat workflow (`.github/workflows/crew-heartbeat.yml`) scans for untriaged issues:
 
-1. Issue created with `squad` label (from template)
+1. Issue created with `crew` label (from template)
 2. Heartbeat workflow runs (every 30 min or on issue create)
-3. Ralph reads `.squad/routing.md` to determine agent
-4. Ralph adds `squad:{member}` label
+3. Ralph reads `.crew/routing.md` to determine agent
+4. Ralph adds `crew:{member}` label
 5. Next heartbeat run (or in-session Ralph) assigns agent
 
-If your template pre-fills `squad:{member}`, Ralph skips triage and goes straight to assignment.
+If your template pre-fills `crew:{member}`, Ralph skips triage and goes straight to assignment.
 
 ---
 
 ## Sample Prompts
 
 ```
-Show me untriaged squad issues
+Show me untriaged crew issues
 ```
 
-Lists all issues with `squad` label but no `squad:{member}` assignment.
+Lists all issues with `crew` label but no `crew:{member}` assignment.
 
 ```
 Ralph, triage and assign the backlog

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Platform Adapter abstraction allows Squad to work with multiple source code hosting platforms (GitHub, Azure DevOps) through a unified interface. This enables Ralph and the coordinator to use the same triage/assignment logic regardless of the underlying platform.
+The Platform Adapter abstraction allows Crew to work with multiple source code hosting platforms (GitHub, Azure DevOps) through a unified interface. This enables Ralph and the coordinator to use the same triage/assignment logic regardless of the underlying platform.
 
 ## Design Decisions
 
@@ -15,7 +15,7 @@ We use a TypeScript interface (`PlatformAdapter`) rather than an abstract class.
 Both adapters wrap CLI tools (`gh` for GitHub, `az` for ADO) rather than using REST APIs directly. This:
 - Leverages existing authentication (users are already logged into `gh`/`az`)
 - Avoids managing OAuth tokens, PATs, or refresh flows
-- Matches how Squad already interacts with GitHub
+- Matches how Crew already interacts with GitHub
 
 ### 3. Auto-detection from git remote
 
@@ -42,7 +42,7 @@ If the required CLI is not installed, the adapter throws a descriptive error wit
 ## Module Structure
 
 ```
-packages/squad-sdk/src/platform/
+packages/crew-sdk/src/platform/
 ├── types.ts          # PlatformType, WorkItem, PullRequest, PlatformAdapter
 ├── detect.ts         # detectPlatform, parseGitHubRemote, parseAzureDevOpsRemote
 ├── github.ts         # GitHubAdapter

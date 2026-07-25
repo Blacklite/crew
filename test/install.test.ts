@@ -9,19 +9,19 @@ import {
   validatePipelineConfig,
   getDefaultSteps,
   type CIPipelineConfig,
-} from '@bradygaster/squad-sdk/build';
+} from '@blacklite/crew-sdk/build';
 import {
   parseConventionalCommit,
   bumpVersion,
   stampVersion,
   generateChangelog,
   type CommitInfo,
-} from '@bradygaster/squad-sdk/build';
+} from '@blacklite/crew-sdk/build';
 import {
   detectInstallMethod,
   migrateInstallPath,
   generateMigrationInstructions,
-} from '@bradygaster/squad-sdk/build';
+} from '@blacklite/crew-sdk/build';
 
 // --- Helpers ---
 

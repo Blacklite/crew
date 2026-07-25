@@ -7,23 +7,23 @@ status: published
 
 # v0.4.0 Sprint Progress — Platform Parity, Client Compatibility, and Project Boards
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Squad v0.4.0 brings **platform parity research complete**, **client compatibility matrix published**, **agent progress updates designed**, and **community features greenlit**. This sprint expanded what's possible on VS Code and locked in the patterns for long-running work visibility.
+Crew v0.4.0 brings **platform parity research complete**, **client compatibility matrix published**, **agent progress updates designed**, and **community features greenlit**. This sprint expanded what's possible on VS Code and locked in the patterns for long-running work visibility.
 
 ## Completed Work
 
 ### 1. VS Code Parity Investigation (Spikes #32, #33, #34)
 
-We proved what intuition suggested: **Squad works identically on VS Code as it does on the CLI, with zero code changes.**
+We proved what intuition suggested: **Crew works identically on VS Code as it does on the CLI, with zero code changes.**
 
 **Key findings:**
 
 - **Sub-agent spawning:** VS Code's `runSubagent` tool maps 1:1 to CLI's `task` tool. Agents spawn synchronously individually, but multiple agents in the same turn run in parallel — functionally equivalent to CLI's `mode: "background"` with concurrent execution.
 - **Model selection:** VS Code's Phase 1 MVP accepts the session model. Phase 2 (v0.5.0) will support custom agent frontmatter for static per-agent routing. Cost optimization deferred but not blocked.
-- **File discovery:** `.github/agents/squad.agent.md` auto-discovers and hot-reloads on VS Code. No restart needed.
-- **`.squad/` access:** Full read/write support, workspace-scoped. First write may prompt for approval (VS Code security); subsequent writes automatic.
+- **File discovery:** `.github/agents/crew.agent.md` auto-discovers and hot-reloads on VS Code. No restart needed.
+- **`.crew/` access:** Full read/write support, workspace-scoped. First write may prompt for approval (VS Code security); subsequent writes automatic.
 - **SQL tool:** Not available on VS Code. This is documented; workflows should detect platform and adapt.
 
 **Workarounds documented:** `runSubagent` has no `model` or `background` parameters. Workaround: spawn multiple subagents in one turn for parallelism; batch Scribe last (tolerable cost since Scribe is Haiku-tier work).
@@ -41,10 +41,10 @@ We published the first production compatibility matrix covering CLI, VS Code, Je
 | Sub-agent spawning | ✅ | ✅ | ⚠️ | ❌ |
 | Per-spawn model selection | ✅ | ⚠️ | ? | ? |
 | Background/async execution | ✅ | ⚠️ | ? | ? |
-| `.squad/` file access | ✅ | ✅ | ? | ? |
+| `.crew/` file access | ✅ | ✅ | ? | ? |
 | SQL tool | ✅ | ❌ | ❌ | ❌ |
 
-**Also documented:** Platform adaptation guide for Squad developers. Coordinator instructions for platform detection (CLI mode vs VS Code mode vs fallback mode).
+**Also documented:** Platform adaptation guide for Crew developers. Coordinator instructions for platform detection (CLI mode vs VS Code mode vs fallback mode).
 
 ### 3. Agent Progress Updates Designed (Proposal 022a)
 
@@ -81,10 +81,10 @@ Coordinator:
 
 ### 4. SSH Bug Documented and Closed (#30)
 
-Issue: `npx github:bradygaster/squad` previously appeared to hang during install. This is no longer relevant with npm-only distribution.
+Issue: `npx github:Blacklite/crew` previously appeared to hang during install. This is no longer relevant with npm-only distribution.
 
 **Current install method:**
-- Install globally: `npm install -g @bradygaster/squad-cli`
+- Install globally: `npm install -g @blacklite/crew-cli`
 
 **Status:** Issue closed, solution in README and troubleshooting docs.
 
@@ -95,9 +95,9 @@ Issue: `npx github:bradygaster/squad` previously appeared to hang during install
 **Scope:**
 - Ralph (Work Monitor) writes board status
 - Agents read board milestones for context
-- Workflow automation: `squad-board-sync.yml`
+- Workflow automation: `crew-board-sync.yml`
 
-**Community:** This was @londospark's proposal. Squad is architected to be extended by the community.
+**Community:** This was @londospark's proposal. Crew is architected to be extended by the community.
 
 ## Contributors This Sprint
 
@@ -125,8 +125,8 @@ Issue: `npx github:bradygaster/squad` previously appeared to hang during install
 
 ## The Vibe
 
-This sprint was about **reducing uncertainty.** We came into v0.4.0 with questions: *Does Squad work on VS Code? What are the constraints? How do we show progress on long work?*
+This sprint was about **reducing uncertainty.** We came into v0.4.0 with questions: *Does Crew work on VS Code? What are the constraints? How do we show progress on long work?*
 
-We shipped answers. VS Code users can adopt Squad without waiting for a v0.5.0 overhaul. Long-running work feels less like a black box. The compatibility matrix gives us a roadmap for what to test next.
+We shipped answers. VS Code users can adopt Crew without waiting for a v0.5.0 overhaul. Long-running work feels less like a black box. The compatibility matrix gives us a roadmap for what to test next.
 
 Open source moves at the pace of clarity. We shipped that.

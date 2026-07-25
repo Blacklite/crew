@@ -5,13 +5,13 @@ description: Three-tier agent memory model that cuts spawn context cost by 20-55
 
 # Tiered Memory — Hot / Cold / Wiki
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-**Problem:** Squad agents load their full `history.md` on every spawn. Production measurements show 34–74KB payloads per agent (8.8K–18.5K tokens), with 82–96% of that being "old noise" — context the current task doesn't need.
+**Problem:** Crew agents load their full `history.md` on every spawn. Production measurements show 34–74KB payloads per agent (8.8K–18.5K tokens), with 82–96% of that being "old noise" — context the current task doesn't need.
 
 **Solution:** A three-tier memory model that loads only what each task actually requires, achieving 20–55% context reduction per spawn.
 
-Tiered Memory ships as a built-in skill at `.copilot/skills/tiered-memory/SKILL.md` and pairs with Scribe's existing 15KB-summarization rule (see [Memory & Knowledge](/squad/docs/concepts/memory-and-knowledge/)) to give large, long-running squads predictable context budgets.
+Tiered Memory ships as a built-in skill at `.copilot/skills/tiered-memory/SKILL.md` and pairs with Scribe's existing 15KB-summarization rule (see [Memory & Knowledge](/crew/docs/concepts/memory-and-knowledge/)) to give large, long-running crews predictable context budgets.
 
 ---
 
@@ -62,7 +62,7 @@ The bias is to load LESS, not more. Cold and Wiki should be opt-in for each spaw
 
 ## How Scribe maintains the tiers
 
-Scribe's existing maintenance cycle (see [Memory & Knowledge](/squad/docs/concepts/memory-and-knowledge/)) is extended:
+Scribe's existing maintenance cycle (see [Memory & Knowledge](/crew/docs/concepts/memory-and-knowledge/)) is extended:
 
 1. **Hot drained at session end** — Scribe scans the session's hot memory, summarizes meaningful entries, appends them to Cold
 2. **Cold aged into Wiki** — entries older than 30 days that contain structured facts (decisions, conventions, contracts) get promoted to Wiki
@@ -72,9 +72,9 @@ Scribe's existing maintenance cycle (see [Memory & Knowledge](/squad/docs/concep
 
 ## Production measurements
 
-The skill's documentation cites measurements from a large production squad:
+The skill's documentation cites measurements from a large production crew:
 
-| Squad size | Before tiered | After tiered | Reduction |
+| Crew size | Before tiered | After tiered | Reduction |
 |------------|--------------|--------------|-----------|
 | 8 agents, 34KB total history | 8,800 tokens/spawn | 4,400 tokens/spawn | ~50% |
 | 14 agents, 74KB total history | 18,500 tokens/spawn | 8,300 tokens/spawn | ~55% |
@@ -86,13 +86,13 @@ The exact savings depend on what fraction of each agent's history is task-releva
 ## Caveats
 
 - **The tier split is currently advisory** — the skill defines hot/cold/wiki semantics, but the spawn template doesn't yet enforce `--include-cold` / `--include-wiki` flags as part of the runtime contract. Adoption is per-team via spawn-template edits.
-- **Wiki has no UI** — there's no `squad wiki list` command yet. Entries live as files in `.squad/wiki/` (when teams create that directory) and the coordinator references them by path.
-- **Issue [#1268](https://github.com/bradygaster/squad/issues/1268) and [#1269](https://github.com/bradygaster/squad/issues/1269)** propose making Scribe enforce these tiers via the governed memory pipeline. Until those land, tier maintenance is best-effort.
+- **Wiki has no UI** — there's no `crew wiki list` command yet. Entries live as files in `.crew/wiki/` (when teams create that directory) and the coordinator references them by path.
+- **Issue [#1268](https://github.com/Blacklite/crew/issues/1268) and [#1269](https://github.com/Blacklite/crew/issues/1269)** propose making Scribe enforce these tiers via the governed memory pipeline. Until those land, tier maintenance is best-effort.
 
 ---
 
 ## See also
 
-- [Memory & Knowledge](/squad/docs/concepts/memory-and-knowledge/) — the broader memory architecture
-- [Skills](/squad/docs/features/skills/) — how built-in skills work
-- [Context Hygiene](/squad/docs/features/context-hygiene/) — related practices for keeping spawn context small
+- [Memory & Knowledge](/crew/docs/concepts/memory-and-knowledge/) — the broader memory architecture
+- [Skills](/crew/docs/features/skills/) — how built-in skills work
+- [Context Hygiene](/crew/docs/features/context-hygiene/) — related practices for keeping spawn context small

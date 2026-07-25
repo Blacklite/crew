@@ -3,7 +3,7 @@
 **Auditor:** Fenster (Core Dev)
 **Requested by:** Brady
 **Date:** 2026-02-22
-**Scope:** `packages/squad-sdk/src/adapter/`, `packages/squad-cli/src/cli/shell/`, `packages/squad-sdk/src/client/`
+**Scope:** `packages/crew-sdk/src/adapter/`, `packages/crew-cli/src/cli/shell/`, `packages/crew-sdk/src/client/`
 **Related:** Issue #315 (CopilotSessionAdapter fix)
 
 ---
@@ -12,7 +12,7 @@
 
 **7 findings total: 2 P0, 3 P1, 2 P2**
 
-The #315 fix (`CopilotSessionAdapter`) correctly maps `sendMessage()` → `send()`, `off()` → unsubscribe tracking, and `close()` → `destroy()`. However, the adapter passes event type strings straight through without mapping them, and all consumer code uses Squad-internal event names (`message_delta`, `usage`) that do not match the SDK's actual event type names (`assistant.message_delta`, `assistant.usage`). This means **streaming event handlers will silently never fire** when connected to a real `CopilotSession`.
+The #315 fix (`CopilotSessionAdapter`) correctly maps `sendMessage()` → `send()`, `off()` → unsubscribe tracking, and `close()` → `destroy()`. However, the adapter passes event type strings straight through without mapping them, and all consumer code uses Crew-internal event names (`message_delta`, `usage`) that do not match the SDK's actual event type names (`assistant.message_delta`, `assistant.usage`). This means **streaming event handlers will silently never fire** when connected to a real `CopilotSession`.
 
 ---
 
@@ -26,7 +26,7 @@ The #315 fix (`CopilotSessionAdapter`) correctly maps `sendMessage()` → `send(
 | **What code assumes** | Event type `'message_delta'` and `'usage'` are valid `CopilotSession` event types |
 | **What SDK provides** | `SessionEventType` uses namespaced names: `'assistant.message_delta'`, `'assistant.usage'`, `'session.idle'`, etc. |
 | **Impact** | `session.on('message_delta', handler)` registers for a type that never fires. All streaming listeners are dead. |
-| **Suggested fix** | Add an event name mapping in `CopilotSessionAdapter.on()` that translates Squad event names to SDK event names (e.g. `'message_delta'` → `'assistant.message_delta'`, `'usage'` → `'assistant.usage'`). |
+| **Suggested fix** | Add an event name mapping in `CopilotSessionAdapter.on()` that translates Crew event names to SDK event names (e.g. `'message_delta'` → `'assistant.message_delta'`, `'usage'` → `'assistant.usage'`). |
 
 **Affected call sites:**
 
@@ -44,7 +44,7 @@ The #315 fix (`CopilotSessionAdapter`) correctly maps `sendMessage()` → `send(
 | **What code assumes** | `event.type === 'message_delta'`, `event.delta`, `event.content`, `event.inputTokens`, `event.outputTokens` |
 | **What SDK provides** | SDK events have structure `{ type: 'assistant.message_delta', data: { messageId, deltaContent } }` and `{ type: 'assistant.usage', data: { model, inputTokens, outputTokens } }`. Data is nested under `.data`, not top-level. |
 | **Impact** | Even if F1 is fixed, handlers read wrong properties. `extractDelta()` returns `''`, token counts always `0`. |
-| **Suggested fix** | Update `CopilotSessionAdapter.on()` to unwrap the SDK event shape into the Squad event shape before calling the handler, mapping `event.data.deltaContent` → `event.delta` and `event.data.inputTokens` → `event.inputTokens`. |
+| **Suggested fix** | Update `CopilotSessionAdapter.on()` to unwrap the SDK event shape into the Crew event shape before calling the handler, mapping `event.data.deltaContent` → `event.delta` and `event.data.inputTokens` → `event.inputTokens`. |
 
 **Specific mismatches in `adapter/client.ts:633-639`:**
 
@@ -66,27 +66,27 @@ event['delta'] ?? event['content']   // SDK sends: event.data.deltaContent
 
 ## P1 — Will Malfunction
 
-### F3. `listSessions()` uses `as unknown as SquadSessionMetadata[]` — no runtime validation
+### F3. `listSessions()` uses `as unknown as CrewSessionMetadata[]` — no runtime validation
 
 | | |
 |---|---|
 | **File** | `adapter/client.ts:458` |
-| **What code assumes** | `CopilotClient.listSessions()` returns objects matching `SquadSessionMetadata` shape |
+| **What code assumes** | `CopilotClient.listSessions()` returns objects matching `CrewSessionMetadata` shape |
 | **What SDK provides** | `SessionMetadata` with `context?: SessionContext` (structured type with `cwd`, `gitRoot`, `repository`, `branch`) |
-| **Risk** | Squad types `context` as `Record<string, unknown>`, losing access to structured fields. If the SDK ever adds/removes fields, the cast silently breaks. |
-| **Suggested fix** | Map through results and construct `SquadSessionMetadata` objects explicitly, similar to how `CopilotSessionAdapter` wraps sessions. |
+| **Risk** | Crew types `context` as `Record<string, unknown>`, losing access to structured fields. If the SDK ever adds/removes fields, the cast silently breaks. |
+| **Suggested fix** | Map through results and construct `CrewSessionMetadata` objects explicitly, similar to how `CopilotSessionAdapter` wraps sessions. |
 
-### F4. `SquadClient.on()` casts event types and handlers to `any`
+### F4. `CrewClient.on()` casts event types and handlers to `any`
 
 | | |
 |---|---|
 | **File** | `adapter/client.ts:703-705` |
-| **What code assumes** | `SquadSessionEventType` (string) maps to `CopilotClient.on()` event types |
+| **What code assumes** | `CrewSessionEventType` (string) maps to `CopilotClient.on()` event types |
 | **What SDK provides** | `CopilotClient.on()` accepts `SessionLifecycleEventType` which is `'session.created' | 'session.deleted' | 'session.updated' | 'session.foreground' | 'session.background'` |
-| **Impact** | Passing Squad event types that aren't lifecycle events silently registers handlers that never fire. Handler signature also mismatches. |
-| **Suggested fix** | Restrict `SquadClient.on()` to accept only lifecycle event types, or add a mapping layer like the session adapter. |
+| **Impact** | Passing Crew event types that aren't lifecycle events silently registers handlers that never fire. Handler signature also mismatches. |
+| **Suggested fix** | Restrict `CrewClient.on()` to accept only lifecycle event types, or add a mapping layer like the session adapter. |
 
-### F5. `SquadClient.sendMessage()` subscribes to adapter events using wrong names
+### F5. `CrewClient.sendMessage()` subscribes to adapter events using wrong names
 
 | | |
 |---|---|
@@ -100,23 +100,23 @@ event['delta'] ?? event['content']   // SDK sends: event.data.deltaContent
 
 ## P2 — Code Smell
 
-### F6. Dead reference to `_squadOnMessage`
+### F6. Dead reference to `_crewOnMessage`
 
 | | |
 |---|---|
 | **File** | `adapter/client.ts:628` |
-| **Code** | `const prevOnMessage = (session as any)._squadOnMessage;` |
-| **Issue** | `_squadOnMessage` does not exist on `SquadSession` or `CopilotSessionAdapter`. The variable is assigned but never used. |
+| **Code** | `const prevOnMessage = (session as any)._crewOnMessage;` |
+| **Issue** | `_crewOnMessage` does not exist on `CrewSession` or `CopilotSessionAdapter`. The variable is assigned but never used. |
 | **Suggested fix** | Delete the dead line. |
 
-### F7. `SquadClientWithPool.on()` is fully untyped
+### F7. `CrewClientWithPool.on()` is fully untyped
 
 | | |
 |---|---|
 | **File** | `client/index.ts:209` |
 | **Code** | `on(eventType: any, handler: any)` |
-| **Issue** | Accepts any event type and any handler with no type checking. Bypasses the type safety that `SquadClient.on()` provides. |
-| **Suggested fix** | Match the overload signatures from `SquadClient.on()`. |
+| **Issue** | Accepts any event type and any handler with no type checking. Bypasses the type safety that `CrewClient.on()` provides. |
+| **Suggested fix** | Match the overload signatures from `CrewClient.on()`. |
 
 ---
 
@@ -130,7 +130,7 @@ event['delta'] ?? event['content']   // SDK sends: event.data.deltaContent
 | `CopilotSessionAdapter.close()` maps to `destroy()` | Correct (`client.ts:66-69`) |
 | `CopilotSessionAdapter.off()` calls stored unsubscribe function | Correct (`client.ts:58-64`) |
 | `session.sessionId` property exists on `CopilotSession` | Correct (`session.d.ts:38`) |
-| `SquadSessionConfig` structurally matches SDK `SessionConfig` | Correct (compatible field names and types) |
+| `CrewSessionConfig` structurally matches SDK `SessionConfig` | Correct (compatible field names and types) |
 | Shell cleanup calls `session.close()` through adapter | Correct (`shell/index.ts:246-254`) |
 
 ---
@@ -158,5 +158,5 @@ This is the same class of bug as #315 — the adapter provides a type-level faca
 
 1. **F1 + F2 + F5** — Single fix: Add event name mapping + event shape unwrapping in `CopilotSessionAdapter.on()`. This restores streaming and telemetry.
 2. **F3** — Replace `as unknown as` cast with explicit mapping function.
-3. **F4** — Restrict `SquadClient.on()` types or add lifecycle event mapping.
+3. **F4** — Restrict `CrewClient.on()` types or add lifecycle event mapping.
 4. **F6 + F7** — Cleanup (can batch with any PR).

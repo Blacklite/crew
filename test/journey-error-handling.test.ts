@@ -5,7 +5,7 @@
  * friendly messages rather than raw stack traces, and that the shell
  * remains usable after failures.
  *
- * @see https://github.com/bradygaster/squad-pr/issues/386
+ * @see https://github.com/Blacklite/crew-pr/issues/386
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -15,11 +15,11 @@ import { tmpdir } from 'node:os';
 import { rm } from 'node:fs/promises';
 import React from 'react';
 import { render, type RenderResponse } from 'ink-testing-library';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import { App, type ShellApi } from '../packages/squad-cli/src/cli/shell/components/App.js';
-import { ErrorBoundary } from '../packages/squad-cli/src/cli/shell/components/ErrorBoundary.js';
-import type { ParsedInput } from '../packages/squad-cli/src/cli/shell/router.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import { App, type ShellApi } from '../packages/crew-cli/src/cli/shell/components/App.js';
+import { ErrorBoundary } from '../packages/crew-cli/src/cli/shell/components/ErrorBoundary.js';
+import type { ParsedInput } from '../packages/crew-cli/src/cli/shell/router.js';
 
 const h = React.createElement;
 
@@ -36,14 +36,14 @@ function tick(ms = TICK): Promise<void> {
   return new Promise(r => setTimeout(r, ms));
 }
 
-function scaffoldSquadDir(root: string): void {
-  const squadDir = join(root, '.squad');
-  const agentsDir = join(squadDir, 'agents');
-  const identityDir = join(squadDir, 'identity');
+function scaffoldCrewDir(root: string): void {
+  const crewDir = join(root, '.crew');
+  const agentsDir = join(crewDir, 'agents');
+  const identityDir = join(crewDir, 'identity');
   mkdirSync(agentsDir, { recursive: true });
   mkdirSync(identityDir, { recursive: true });
 
-  writeFileSync(join(squadDir, 'team.md'), `# Squad Team — E2E Test Project
+  writeFileSync(join(crewDir, 'team.md'), `# Crew Team — E2E Test Project
 
 > An end-to-end test project for shell integration.
 
@@ -51,8 +51,8 @@ function scaffoldSquadDir(root: string): void {
 
 | Name | Role | Charter | Status |
 |------|------|---------|--------|
-| Keaton | Lead | \`.squad/agents/keaton/charter.md\` | ✅ Active |
-| Fenster | Core Dev | \`.squad/agents/fenster/charter.md\` | ✅ Active |
+| Keaton | Lead | \`.crew/agents/keaton/charter.md\` | ✅ Active |
+| Fenster | Core Dev | \`.crew/agents/fenster/charter.md\` | ✅ Active |
 `);
 
   writeFileSync(join(identityDir, 'now.md'), `---
@@ -83,7 +83,7 @@ interface ShellHarness {
 
 async function createShellHarness(opts?: {
   agents?: Array<{ name: string; role: string }>;
-  withSquadDir?: boolean;
+  withCrewDir?: boolean;
   version?: string;
   onDispatch?: (parsed: ParsedInput) => Promise<void>;
   /** When true, omit onDispatch entirely to simulate no SDK connection. */
@@ -94,13 +94,13 @@ async function createShellHarness(opts?: {
       { name: 'Keaton', role: 'Lead' },
       { name: 'Fenster', role: 'Core Dev' },
     ],
-    withSquadDir = true,
+    withCrewDir = true,
     version = '0.0.0-test',
     noSdk = false,
   } = opts ?? {};
 
-  const tempDir = mkdtempSync(join(tmpdir(), 'squad-e2e-err-'));
-  if (withSquadDir) scaffoldSquadDir(tempDir);
+  const tempDir = mkdtempSync(join(tmpdir(), 'crew-e2e-err-'));
+  if (withCrewDir) scaffoldCrewDir(tempDir);
 
   const registry = new SessionRegistry();
   for (const a of agents) registry.register(a.name, a.role);
@@ -192,22 +192,22 @@ describe('Journey: SDK connection failure', () => {
   });
 
   it('shows SDK-not-connected message when user sends a message without SDK', async () => {
-    await shell.submit('hello squad');
+    await shell.submit('hello crew');
     expect(shell.hasText('SDK not connected')).toBe(true);
   });
 
-  it('suggests squad doctor for setup issues', async () => {
-    await shell.submit('hello squad');
-    expect(shell.hasText('squad doctor')).toBe(true);
+  it('suggests crew doctor for setup issues', async () => {
+    await shell.submit('hello crew');
+    expect(shell.hasText('crew doctor')).toBe(true);
   });
 
   it('suggests checking internet connection', async () => {
-    await shell.submit('hello squad');
+    await shell.submit('hello crew');
     expect(shell.hasText('internet connection')).toBe(true);
   });
 
   it('does not show a raw stack trace', async () => {
-    await shell.submit('hello squad');
+    await shell.submit('hello crew');
     const frame = shell.frame();
     expect(frame).not.toMatch(/at\s+\w+\s+\(/); // no stack trace lines
     expect(frame).not.toContain('Error:');
@@ -240,7 +240,7 @@ describe('Journey: Agent dispatch failure', () => {
     // Simulate what handleDispatch does when an error is caught:
     shell.api().addMessage({
       role: 'system',
-      content: '❌ Something went wrong: Connection refused: SDK backend unavailable\n   Try again, or check your connection. Run `squad doctor` for diagnostics.',
+      content: '❌ Something went wrong: Connection refused: SDK backend unavailable\n   Try again, or check your connection. Run `crew doctor` for diagnostics.',
       timestamp: new Date(),
     });
     await tick(120);
@@ -248,15 +248,15 @@ describe('Journey: Agent dispatch failure', () => {
     expect(shell.hasText('Connection refused')).toBe(true);
   });
 
-  it('error message suggests diagnostics with squad doctor', async () => {
+  it('error message suggests diagnostics with crew doctor', async () => {
     // Simulate what handleDispatch does when an error is caught:
     shell.api().addMessage({
       role: 'system',
-      content: '❌ Something went wrong: Connection refused: SDK backend unavailable\n   Try again, or check your connection. Run `squad doctor` for diagnostics.',
+      content: '❌ Something went wrong: Connection refused: SDK backend unavailable\n   Try again, or check your connection. Run `crew doctor` for diagnostics.',
       timestamp: new Date(),
     });
     await tick(120);
-    expect(shell.hasText('squad doctor')).toBe(true);
+    expect(shell.hasText('crew doctor')).toBe(true);
   });
 });
 
@@ -325,7 +325,7 @@ describe('Journey: Network errors during streaming', () => {
     // Simulate what StreamBridge.onError does
     shell.api().addMessage({
       role: 'system',
-      content: '❌ Keaton hit a problem: ECONNRESET: network connection was reset\n   Try again, or run `squad doctor` to check your setup.',
+      content: '❌ Keaton hit a problem: ECONNRESET: network connection was reset\n   Try again, or run `crew doctor` to check your setup.',
       timestamp: new Date(),
     });
     await tick(120);
@@ -336,7 +336,7 @@ describe('Journey: Network errors during streaming', () => {
   it('network error does not contain raw Error: prefix', async () => {
     shell.api().addMessage({
       role: 'system',
-      content: '❌ Keaton hit a problem: network connection was reset\n   Try again, or run `squad doctor` to check your setup.',
+      content: '❌ Keaton hit a problem: network connection was reset\n   Try again, or run `crew doctor` to check your setup.',
       timestamp: new Date(),
     });
     await tick(120);
@@ -344,14 +344,14 @@ describe('Journey: Network errors during streaming', () => {
     expect(frame).not.toMatch(/^Error:/m);
   });
 
-  it('suggests squad doctor for recovery', async () => {
+  it('suggests crew doctor for recovery', async () => {
     shell.api().addMessage({
       role: 'system',
-      content: '❌ Keaton hit a problem: timeout exceeded\n   Try again, or run `squad doctor` to check your setup.',
+      content: '❌ Keaton hit a problem: timeout exceeded\n   Try again, or run `crew doctor` to check your setup.',
       timestamp: new Date(),
     });
     await tick(120);
-    expect(shell.hasText('squad doctor')).toBe(true);
+    expect(shell.hasText('crew doctor')).toBe(true);
   });
 });
 
@@ -434,7 +434,7 @@ describe('Journey: Shell remains usable after error', () => {
     expect(shell.hasText('Unknown command')).toBe(true);
     // Now submit a valid command
     await shell.submit('/status');
-    expect(shell.hasText('Squad Status')).toBe(true);
+    expect(shell.hasText('Crew Status')).toBe(true);
   });
 
   it('user can type a new message after a dispatch error', async () => {
@@ -489,14 +489,14 @@ describe('Journey: Error messages are user-friendly', () => {
     // Simulate what handleDispatch produces (strips "Error: " prefix)
     shell.api().addMessage({
       role: 'system',
-      content: '❌ Something went wrong: session creation failed\n   Try again, or check your connection. Run `squad doctor` for diagnostics.',
+      content: '❌ Something went wrong: session creation failed\n   Try again, or check your connection. Run `crew doctor` for diagnostics.',
       timestamp: new Date(),
     });
     await tick(120);
     const frame = shell.frame();
     expect(frame).toContain('session creation failed');
     expect(frame).not.toMatch(/^Error:/m);
-    expect(frame).toContain('squad doctor');
+    expect(frame).toContain('crew doctor');
   });
 
   it('unknown command error is conversational, not a stack trace', async () => {
@@ -515,7 +515,7 @@ describe('Journey: Error messages are user-friendly', () => {
     const frame = noSdkShell.frame();
 
     // Should contain numbered steps or helpful recovery suggestions
-    expect(frame).toContain('squad doctor');
+    expect(frame).toContain('crew doctor');
     expect(frame).toContain('internet connection');
     expect(frame).toContain('restart');
     await noSdkShell.cleanup();

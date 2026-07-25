@@ -1,0 +1,727 @@
+/**
+ * crew doctor — setup validation diagnostic command.
+ *
+ * Inspects the .crew/ directory (or hub layout) and reports
+ * the health of every expected file / convention. Always exits 0
+ * because this is a diagnostic tool, not a gate.
+ *
+ * Inspired by @spboyer (Shayne Boyer)'s doctor command in PR Blacklite/crew#131.
+ *
+ * @module cli/commands/doctor
+ */
+
+import path from 'node:path';
+import { execFile, execFileSync } from 'node:child_process';
+import { FSStorageProvider, resolveStateBackend, type StateBackendType } from '@blacklite/crew-sdk';
+import { resolveStateDir } from '../core/effective-crew-dir.js';
+
+const storage = new FSStorageProvider();
+
+/** Result of a single diagnostic check. */
+export interface DoctorCheck {
+  name: string;
+  status: 'pass' | 'fail' | 'warn';
+  message: string;
+  /** Optional severity hint for display; keeps the status union stable. */
+  severity?: 'info';
+}
+
+/** Detected crew layout mode. */
+export type DoctorMode = 'local' | 'remote' | 'hub';
+
+/** Resolved mode + base directory for the crew. */
+interface ModeInfo {
+  mode: DoctorMode;
+  crewDir: string;
+  /** Only set when mode === 'remote' */
+  teamRoot?: string;
+}
+
+// ── helpers ─────────────────────────────────────────────────────────
+
+function fileExists(p: string): boolean {
+  return storage.existsSync(p);
+}
+
+function isDirectory(p: string): boolean {
+  return storage.isDirectorySync(p);
+}
+
+function tryReadJson(p: string): unknown | undefined {
+  try {
+    const raw = storage.readSync(p);
+    if (!raw) return undefined;
+    return JSON.parse(raw);
+  } catch {
+    return undefined;
+  }
+}
+
+// ── mode detection ──────────────────────────────────────────────────
+
+function detectMode(cwd: string): ModeInfo {
+  const crewDir = path.join(cwd, '.crew');
+  const configPath = path.join(crewDir, 'config.json');
+
+  // Remote mode: config.json exists with teamRoot
+  if (fileExists(configPath)) {
+    const cfg = tryReadJson(configPath);
+    if (cfg && typeof cfg === 'object' && 'teamRoot' in cfg) {
+      const raw = (cfg as Record<string, unknown>)['teamRoot'];
+      if (typeof raw === 'string' && raw.length > 0) {
+        return { mode: 'remote', crewDir, teamRoot: raw };
+      }
+    }
+  }
+
+  // Hub mode: crew-hub.json in cwd
+  if (fileExists(path.join(cwd, 'crew-hub.json'))) {
+    return { mode: 'hub', crewDir };
+  }
+
+  // Default: local
+  return { mode: 'local', crewDir };
+}
+
+// ── individual checks ───────────────────────────────────────────────
+
+function checkCrewDir(crewDir: string): DoctorCheck {
+  const exists = isDirectory(crewDir);
+  return {
+    name: '.crew/ directory exists',
+    status: exists ? 'pass' : 'fail',
+    message: exists ? 'directory present' : 'directory not found',
+  };
+}
+
+function checkConfigJson(crewDir: string): DoctorCheck | undefined {
+  const configPath = path.join(crewDir, 'config.json');
+  if (!fileExists(configPath)) return undefined; // optional file — skip
+
+  const data = tryReadJson(configPath);
+  if (data === undefined) {
+    return {
+      name: 'config.json valid',
+      status: 'fail',
+      message: 'file exists but is not valid JSON',
+    };
+  }
+
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    'teamRoot' in data &&
+    typeof (data as Record<string, unknown>)['teamRoot'] !== 'string'
+  ) {
+    return {
+      name: 'config.json valid',
+      status: 'fail',
+      message: 'teamRoot must be a string',
+    };
+  }
+
+  return {
+    name: 'config.json valid',
+    status: 'pass',
+    message: 'parses as JSON, schema OK',
+  };
+}
+
+function checkAbsoluteTeamRoot(crewDir: string): DoctorCheck | undefined {
+  const configPath = path.join(crewDir, 'config.json');
+  if (!fileExists(configPath)) return undefined;
+
+  const data = tryReadJson(configPath) as Record<string, unknown> | undefined;
+  if (!data || typeof data['teamRoot'] !== 'string') return undefined;
+
+  const teamRoot = data['teamRoot'] as string;
+  if (path.isAbsolute(teamRoot)) {
+    return {
+      name: 'absolute path warning',
+      status: 'warn',
+      message: `teamRoot is absolute (${teamRoot}) — prefer relative paths for portability. Edit .crew/config.json to use a relative path.`,
+    };
+  }
+  return undefined;
+}
+
+function checkTeamRootResolves(crewDir: string, teamRoot: string): DoctorCheck {
+  const resolved = path.isAbsolute(teamRoot)
+    ? teamRoot
+    : path.resolve(path.dirname(crewDir), teamRoot);
+  const exists = isDirectory(resolved);
+  return {
+    name: 'team root resolves',
+    status: exists ? 'pass' : 'fail',
+    message: exists ? `resolved to ${resolved}` : `directory not found: ${resolved}`,
+  };
+}
+
+function checkTeamMd(crewDir: string): DoctorCheck {
+  const teamPath = path.join(crewDir, 'team.md');
+  if (!fileExists(teamPath)) {
+    return { name: 'team.md found with ## Members header', status: 'fail', message: 'file not found' };
+  }
+  const content = storage.readSync(teamPath) ?? '';
+  if (!content.includes('## Members')) {
+    return { name: 'team.md found with ## Members header', status: 'warn', message: 'file exists but missing ## Members header' };
+  }
+  return { name: 'team.md found with ## Members header', status: 'pass', message: 'file present, header found' };
+}
+
+function checkRoutingMd(crewDir: string): DoctorCheck {
+  const exists = fileExists(path.join(crewDir, 'routing.md'));
+  return {
+    name: 'routing.md found',
+    status: exists ? 'pass' : 'fail',
+    message: exists ? 'file present' : 'file not found',
+  };
+}
+
+function checkAgentsDir(crewDir: string): DoctorCheck {
+  const agentsDir = path.join(crewDir, 'agents');
+  if (!isDirectory(agentsDir)) {
+    return { name: 'agents/ directory exists', status: 'fail', message: 'directory not found' };
+  }
+  let count = 0;
+  try {
+    for (const entry of storage.listSync(agentsDir)) {
+      if (storage.isDirectorySync(path.join(agentsDir, entry))) count++;
+    }
+  } catch { /* empty */ }
+  return {
+    name: 'agents/ directory exists',
+    status: 'pass',
+    message: `directory present (${count} agent${count === 1 ? '' : 's'})`,
+  };
+}
+
+function checkCastingRegistry(crewDir: string): DoctorCheck {
+  const registryPath = path.join(crewDir, 'casting', 'registry.json');
+  if (!fileExists(registryPath)) {
+    return { name: 'casting/registry.json exists', status: 'fail', message: 'file not found' };
+  }
+  const data = tryReadJson(registryPath);
+  if (data === undefined) {
+    return { name: 'casting/registry.json exists', status: 'fail', message: 'file exists but is not valid JSON' };
+  }
+  return { name: 'casting/registry.json exists', status: 'pass', message: 'file present, valid JSON' };
+}
+
+function configuredStateBackend(crewDir: string): StateBackendType | undefined {
+  const configPath = path.join(crewDir, 'config.json');
+  if (!fileExists(configPath)) return undefined;
+
+  const config = tryReadJson(configPath) as Record<string, unknown> | undefined;
+  const backend = config?.['stateBackend'];
+  if (backend === 'worktree') return 'local';
+  if (backend === 'git-notes') return 'two-layer';
+  if (backend === 'external') return 'external-stub';
+  if (backend === 'local' || backend === 'external-stub' || backend === 'orphan' || backend === 'two-layer') {
+    return backend;
+  }
+  return undefined;
+}
+
+function checkBackendDecisionsMd(cwd: string, crewDir: string, stateBackend: 'orphan' | 'two-layer'): DoctorCheck {
+  try {
+    const backend = resolveStateBackend(crewDir, cwd, stateBackend);
+    if (backend.name !== stateBackend) {
+      return {
+        name: 'decisions.md exists',
+        status: 'fail',
+        message: `configured '${stateBackend}' backend was not available; resolved '${backend.name}' instead and could not inspect crew-state`,
+      };
+    }
+
+    const exists = backend.exists('decisions.md');
+    return {
+      name: 'decisions.md exists',
+      status: exists ? 'pass' : 'fail',
+      message: exists
+        ? `file present in crew-state (${stateBackend} backend)`
+        : `file not found in crew-state (${stateBackend} backend)`,
+    };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return {
+      name: 'decisions.md exists',
+      status: 'fail',
+      message: `could not inspect crew-state for '${stateBackend}' backend: ${msg}`,
+    };
+  }
+}
+
+function checkDecisionsMd(cwd: string, crewDir: string, stateDir: string): DoctorCheck {
+  const stateBackend = configuredStateBackend(crewDir);
+  if (stateBackend === 'orphan' || stateBackend === 'two-layer') {
+    return checkBackendDecisionsMd(cwd, crewDir, stateBackend);
+  }
+
+  const exists = fileExists(path.join(stateDir, 'decisions.md'));
+  return {
+    name: 'decisions.md exists',
+    status: exists ? 'pass' : 'fail',
+    message: exists ? 'file present' : 'file not found',
+  };
+}
+
+/**
+ * Report the last detected rate limit, if any, by reading the status file
+ * written by the shell when a rate limit error is caught.
+ */
+function checkRateLimitStatus(crewDir: string): DoctorCheck | undefined {
+  const statusPath = path.join(crewDir, 'rate-limit-status.json');
+  if (!fileExists(statusPath)) return undefined;
+
+  const data = tryReadJson(statusPath) as Record<string, unknown> | undefined;
+  if (!data) {
+    return {
+      name: 'rate limit status',
+      status: 'warn',
+      message: 'rate-limit-status.json exists but could not be parsed',
+    };
+  }
+
+  const ts = typeof data['timestamp'] === 'string' ? new Date(data['timestamp']) : null;
+  const retryAfter = typeof data['retryAfter'] === 'number' ? data['retryAfter'] : null;
+  const model = typeof data['model'] === 'string' ? data['model'] : null;
+
+  const age = ts ? Math.floor((Date.now() - ts.getTime()) / 1000) : null;
+  const ageStr = age !== null ? ` (${formatAge(age)} ago)` : '';
+  const modelStr = model ? ` on model: ${model}` : '';
+  const retryStr = retryAfter ? ` — retry after ${retryAfter}s` : '';
+
+  // If last rate limit was more than 4 hours ago, treat as stale info (pass)
+  const stale = age !== null && age > 4 * 3600;
+
+  return {
+    name: 'rate limit status',
+    status: stale ? 'pass' : 'warn',
+    message: stale
+      ? `Last rate limit${ageStr}${modelStr} — appears resolved. Run \`crew economy on\` to reduce future risk.`
+      : `Rate limit detected${ageStr}${modelStr}${retryStr}. Run \`crew economy on\` to switch to cheaper models.`,
+  };
+}
+
+function formatAge(seconds: number): string {
+  if (seconds >= 3600) {
+    const h = Math.floor(seconds / 3600);
+    return `${h}h`;
+  }
+  if (seconds >= 60) {
+    const m = Math.floor(seconds / 60);
+    return `${m}m`;
+  }
+  return `${seconds}s`;
+}
+
+// ── ESM compatibility checks ────────────────────────────────────────
+
+// ── environment checks ─────────────────────────────────────────────
+
+/**
+ * Check that Node.js is ≥22.5.0 for node:sqlite availability.
+ * Accepts an optional version string for testing.
+ */
+export function checkNodeVersion(nodeVersion?: string): DoctorCheck {
+  const version = nodeVersion ?? process.versions.node;
+  const parts = version.split('.').map(Number);
+  const major = parts[0] ?? 0;
+  const minor = parts[1] ?? 0;
+  const ok = major > 22 || (major === 22 && minor >= 5);
+  return {
+    name: 'Node.js ≥22.5.0 (node:sqlite)',
+    status: ok ? 'pass' : 'fail',
+    message: ok
+      ? `v${version} — node:sqlite available`
+      : `v${version} — node:sqlite requires ≥22.5.0. Upgrade at https://nodejs.org/en/download`,
+  };
+}
+
+/**
+ * Check that vscode-jsonrpc has the `exports` field needed for Node 22/24+
+ * strict ESM subpath resolution. Without it, `import('vscode-jsonrpc/node')`
+ * fails with ERR_PACKAGE_PATH_NOT_EXPORTED.
+ */
+function checkVscodeJsonrpcExports(cwd: string): DoctorCheck {
+  const possiblePaths = [
+    path.join(cwd, 'node_modules', 'vscode-jsonrpc', 'package.json'),
+    path.join(cwd, 'packages', 'crew-cli', 'node_modules', 'vscode-jsonrpc', 'package.json'),
+  ];
+
+  for (const pkgPath of possiblePaths) {
+    if (!fileExists(pkgPath)) continue;
+
+    const pkg = tryReadJson(pkgPath) as Record<string, unknown> | undefined;
+    if (!pkg) {
+      return {
+        name: 'vscode-jsonrpc exports field',
+        status: 'fail',
+        message: 'package.json found but not valid JSON',
+      };
+    }
+
+    if (pkg['exports'] && typeof pkg['exports'] === 'object') {
+      const exports = pkg['exports'] as Record<string, unknown>;
+      if (exports['./node']) {
+        return {
+          name: 'vscode-jsonrpc exports field',
+          status: 'pass',
+          message: 'exports field present with ./node subpath',
+        };
+      }
+    }
+
+    return {
+      name: 'vscode-jsonrpc exports field',
+      status: 'fail',
+      message: 'missing exports field — run postinstall or reinstall (see #449)',
+    };
+  }
+
+  // Detect whether we're in a local dev context (node_modules exists) or global install
+  const hasNodeModules = isDirectory(path.join(cwd, 'node_modules'));
+  if (hasNodeModules) {
+    return {
+      name: 'vscode-jsonrpc exports field',
+      status: 'warn',
+      message: 'not found in node_modules — run npm install or check dependencies',
+    };
+  }
+
+  return {
+    name: 'vscode-jsonrpc exports field',
+    status: 'warn',
+    severity: 'info',
+    message: 'not found in node_modules (expected for global installs)',
+  };
+}
+
+/**
+ * Check that @github/copilot-sdk session.js has the .js extension fix
+ * on its vscode-jsonrpc/node import (defense-in-depth behind the exports patch).
+ */
+function checkCopilotSdkSessionPatch(cwd: string): DoctorCheck {
+  const possiblePaths = [
+    path.join(cwd, 'node_modules', '@github', 'copilot-sdk', 'dist', 'session.js'),
+    path.join(cwd, 'packages', 'crew-cli', 'node_modules', '@github', 'copilot-sdk', 'dist', 'session.js'),
+  ];
+
+  for (const sessionPath of possiblePaths) {
+    if (!fileExists(sessionPath)) continue;
+
+    try {
+      const content = storage.readSync(sessionPath) ?? '';
+
+      if (/from\s+["']vscode-jsonrpc\/node["']/.test(content)) {
+        return {
+          name: 'copilot-sdk session.js ESM patch',
+          status: 'fail',
+          message: 'session.js has extensionless vscode-jsonrpc/node import — run postinstall (see #449)',
+        };
+      }
+
+      return {
+        name: 'copilot-sdk session.js ESM patch',
+        status: 'pass',
+        message: 'session.js imports use .js extension',
+      };
+    } catch {
+      return {
+        name: 'copilot-sdk session.js ESM patch',
+        status: 'warn',
+        message: 'could not read session.js',
+      };
+    }
+  }
+
+  // Detect whether we're in a local dev context (node_modules exists) or global install
+  const hasNodeModules = isDirectory(path.join(cwd, 'node_modules'));
+  if (hasNodeModules) {
+    return {
+      name: 'copilot-sdk session.js ESM patch',
+      status: 'warn',
+      message: 'not found in node_modules — run npm install or check dependencies',
+    };
+  }
+
+  return {
+    name: 'copilot-sdk session.js ESM patch',
+    status: 'warn',
+    severity: 'info',
+    message: 'not found in node_modules (expected for global installs)',
+  };
+}
+
+function checkCrewAgentMd(cwd: string): DoctorCheck {
+  const agentMdPath = path.join(cwd, '.github', 'agents', 'crew.agent.md');
+  if (!fileExists(agentMdPath)) {
+    return {
+      name: '.github/agents/crew.agent.md',
+      status: 'fail',
+      message: "file not found — run 'crew upgrade' to restore it",
+    };
+  }
+  try {
+    const content = storage.readSync(agentMdPath) ?? '';
+    if (content.trim().length === 0) {
+      return {
+        name: '.github/agents/crew.agent.md',
+        status: 'warn',
+        message: "file is empty — run 'crew upgrade' to restore it",
+      };
+    }
+  } catch {
+    return {
+      name: '.github/agents/crew.agent.md',
+      status: 'warn',
+      message: "file is empty — run 'crew upgrade' to restore it",
+    };
+  }
+  return {
+    name: '.github/agents/crew.agent.md',
+    status: 'pass',
+    message: 'file present (Copilot agent discovery file)',
+  };
+}
+
+// ── copilot CLI check ───────────────────────────────────────────────
+
+/**
+ * Check that the Copilot CLI is reachable (needed by watch capabilities).
+ * Tests `copilot --version` with shell:true for Windows compatibility.
+ */
+function checkCopilotCli(): Promise<DoctorCheck> {
+  return new Promise((resolve) => {
+    execFile('copilot', ['--version'], { shell: true, timeout: 5000 }, (err) => {
+      if (err) {
+        resolve({
+          name: 'Copilot CLI available',
+          status: 'warn',
+          message:
+            "'copilot --version' failed — watch capabilities (monitor-teams, monitor-email, retro, decision-hygiene) require the Copilot CLI. " +
+            "If you installed the GitHub CLI extension, ensure 'copilot' is also available on your PATH, or set --agent-cmd to override.",
+        });
+      } else {
+        resolve({
+          name: 'Copilot CLI available',
+          status: 'pass',
+          message: 'copilot CLI reachable',
+        });
+      }
+    });
+  });
+}
+
+/**
+ * Check that the Claude Code CLI is reachable (needed for --harness claude).
+ * Informational — Claude is an optional alternative harness.
+ */
+function checkClaudeCli(): Promise<DoctorCheck> {
+  return new Promise((resolve) => {
+    execFile('claude', ['--version'], { shell: true, timeout: 5000 }, (err) => {
+      if (err) {
+        resolve({
+          name: 'Claude Code CLI available',
+          status: 'warn',
+          message:
+            "'claude --version' failed — the Claude harness (--harness claude, CREW_HARNESS=claude) requires Claude Code. " +
+            'Install with `npm install -g @anthropic-ai/claude-code`. Not needed when using the Copilot harness.',
+        });
+      } else {
+        resolve({
+          name: 'Claude Code CLI available',
+          status: 'pass',
+          message: 'claude CLI reachable',
+        });
+      }
+    });
+  });
+}
+
+// ── git sync hooks check ─────────────────────────────────────────────
+
+const CREW_SYNC_HOOK_MARKER = '# --- crew-sync-hook ---';
+// Must match the full set installed by install-hooks.ts: the four sync hooks
+// plus pre-commit/post-commit, which guard and flush two-layer state (#1190).
+const REQUIRED_SYNC_HOOKS = ['pre-push', 'post-merge', 'post-rewrite', 'post-checkout', 'pre-commit', 'post-commit'] as const;
+
+/**
+ * Check that crew git sync hooks are installed when the state backend requires them.
+ * Only runs for 'two-layer' and 'orphan' backends (which need hooks to push state branches).
+ * Returns undefined when the check is not applicable.
+ */
+export function checkGitSyncHooks(cwd: string, crewDir: string): DoctorCheck | undefined {
+  const stateBackend = configuredStateBackend(crewDir);
+  if (stateBackend !== 'two-layer' && stateBackend !== 'orphan') return undefined;
+
+  // Resolve the git hooks directory (respects core.hooksPath when configured)
+  let hooksDir: string;
+  try {
+    const customPath = execFileSync('git', ['config', '--get', 'core.hooksPath'], {
+      cwd,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    }).trim();
+    if (customPath) {
+      hooksDir = path.isAbsolute(customPath) ? customPath : path.resolve(cwd, customPath);
+    } else {
+      throw new Error('empty hooksPath');
+    }
+  } catch {
+    // core.hooksPath not configured — resolve via git rev-parse --git-dir
+    // This handles git worktrees correctly (unlike hardcoding .git/hooks)
+    try {
+      const gitDir = execFileSync('git', ['rev-parse', '--git-dir'], {
+        cwd,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }).trim();
+      hooksDir = path.resolve(cwd, gitDir, 'hooks');
+    } catch {
+      hooksDir = path.join(cwd, '.git', 'hooks');
+    }
+  }
+
+  const missingHooks: string[] = [];
+  for (const hookName of REQUIRED_SYNC_HOOKS) {
+    const hookPath = path.join(hooksDir, hookName);
+    if (!fileExists(hookPath)) {
+      missingHooks.push(hookName);
+      continue;
+    }
+    try {
+      const content = storage.readSync(hookPath) ?? '';
+      if (!content.includes(CREW_SYNC_HOOK_MARKER)) {
+        missingHooks.push(hookName);
+      }
+    } catch {
+      missingHooks.push(hookName);
+    }
+  }
+
+  if (missingHooks.length > 0) {
+    return {
+      name: 'git sync hooks installed',
+      status: 'fail',
+      message:
+        `Missing crew sync hooks for '${stateBackend}' backend: ${missingHooks.join(', ')}. ` +
+        `Run 'crew install-hooks' to install them.`,
+    };
+  }
+
+  return {
+    name: 'git sync hooks installed',
+    status: 'pass',
+    message: `crew sync hooks present for '${stateBackend}' backend`,
+  };
+}
+
+// ── public API ──────────────────────────────────────────────────────
+
+/**
+ * Run all doctor checks for the given working directory.
+ * Returns an array of check results — never throws for check failures.
+ */
+export async function runDoctor(cwd?: string): Promise<DoctorCheck[]> {
+  const resolvedCwd = cwd ?? process.cwd();
+  const { mode, crewDir, teamRoot } = detectMode(resolvedCwd);
+  const checks: DoctorCheck[] = [];
+
+  // 1. .crew/ directory
+  checks.push(checkCrewDir(crewDir));
+
+  // 2. config.json (if present)
+  const configCheck = checkConfigJson(crewDir);
+  if (configCheck) checks.push(configCheck);
+
+  // 3. Absolute path warning
+  const absWarn = checkAbsoluteTeamRoot(crewDir);
+  if (absWarn) checks.push(absWarn);
+
+  // 4. Remote team root resolution
+  if (mode === 'remote' && teamRoot) {
+    checks.push(checkTeamRootResolves(crewDir, teamRoot));
+  }
+
+  // 5–9 standard files (only if .crew/ exists)
+  if (isDirectory(crewDir)) {
+    // Resolve effective state dir for externalized files
+    const stateDir = resolveStateDir(crewDir);
+    checks.push(checkTeamMd(stateDir));
+    checks.push(checkRoutingMd(stateDir));
+    checks.push(checkAgentsDir(stateDir));
+    checks.push(checkCastingRegistry(stateDir));
+    checks.push(checkDecisionsMd(resolvedCwd, crewDir, stateDir));
+    const rateLimitCheck = checkRateLimitStatus(crewDir);
+    if (rateLimitCheck) checks.push(rateLimitCheck);
+
+    // Hook presence check (only for two-layer / orphan backends)
+    const hookCheck = checkGitSyncHooks(resolvedCwd, crewDir);
+    if (hookCheck) checks.push(hookCheck);
+  }
+
+  // 10. Copilot agent discovery file (relative to cwd, not crewDir)
+  checks.push(checkCrewAgentMd(resolvedCwd));
+
+  // 11. Node.js version (node:sqlite availability)
+  checks.push(checkNodeVersion());
+
+  // 11-12. ESM compatibility (Node 22/24+)
+  checks.push(checkVscodeJsonrpcExports(resolvedCwd));
+  checks.push(checkCopilotSdkSessionPatch(resolvedCwd));
+
+  // 13. Copilot CLI availability (needed by watch capabilities)
+  checks.push(await checkCopilotCli());
+  checks.push(await checkClaudeCli());
+
+  return checks;
+}
+
+/**
+ * Detect the crew mode for the given working directory.
+ * Exported for tests and display.
+ */
+export function getDoctorMode(cwd?: string): DoctorMode {
+  return detectMode(cwd ?? process.cwd()).mode;
+}
+
+// ── CLI output ──────────────────────────────────────────────────────
+
+const STATUS_ICON: Record<DoctorCheck['status'], string> = {
+  pass: '✅',
+  fail: '❌',
+  warn: '⚠️',
+};
+
+/**
+ * Print doctor results to stdout. Intended for CLI use.
+ */
+export function printDoctorReport(checks: DoctorCheck[], mode: DoctorMode): void {
+  console.log('\n🩺 Crew Doctor');
+  console.log('═══════════════\n');
+  console.log(`Mode: ${mode}\n`);
+
+  for (const c of checks) {
+    const icon = c.severity === 'info' ? 'ℹ️' : STATUS_ICON[c.status];
+    console.log(`${icon}  ${c.name} — ${c.message}`);
+  }
+
+  const passed = checks.filter(c => c.status === 'pass').length;
+  const failed = checks.filter(c => c.status === 'fail').length;
+  const warned = checks.filter(c => c.status === 'warn' && c.severity !== 'info').length;
+  const infos = checks.filter(c => c.severity === 'info').length;
+
+  console.log(`\nSummary: ${passed} passed, ${failed} failed, ${warned} warnings, ${infos} info\n`);
+}
+
+/**
+ * CLI entry point — run doctor and print results.
+ */
+export async function doctorCommand(cwd?: string): Promise<void> {
+  const resolvedCwd = cwd ?? process.cwd();
+  const mode = getDoctorMode(resolvedCwd);
+  const checks = await runDoctor(resolvedCwd);
+  printDoctorReport(checks, mode);
+}

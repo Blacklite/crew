@@ -1,6 +1,6 @@
-# Contributing to Squad
+# Contributing to Crew
 
-Welcome to Squad development. This guide explains how to build, test, and contribute.
+Welcome to Crew development. This guide explains how to build, test, and contribute.
 
 ## Prerequisites
 
@@ -36,25 +36,25 @@ If your legitimate issue/comment is caught by spam detection, please contact a m
 
 ## Monorepo Structure
 
-Squad is an npm workspace monorepo with two packages:
+Crew is an npm workspace monorepo with two packages:
 
 ```
-squad/
-├── packages/squad-cli/       # CLI tool (@bradygaster/squad-cli)
-├── packages/squad-sdk/       # Runtime SDK (@bradygaster/squad-sdk)
+crew/
+├── packages/crew-cli/       # CLI tool (@blacklite/crew-cli)
+├── packages/crew-sdk/       # Runtime SDK (@blacklite/crew-sdk)
 ├── src/                      # Legacy CLI code (migrating to packages/)
 ├── dist/                     # Compiled output
-├── .squad/                   # Team state and agent history
+├── .crew/                   # Team state and agent history
 ├── docs/                     # Documentation and proposals
 └── test-fixtures/            # Test data
 ```
 
 ### Package Independence
 
-- **squad-sdk**: Core runtime, agent orchestration, tool registry. No CLI dependencies.
-- **squad-cli**: Command-line interface. Depends on squad-sdk.
+- **crew-sdk**: Core runtime, agent orchestration, tool registry. No CLI dependencies.
+- **crew-cli**: Command-line interface. Depends on crew-sdk.
 
-Each package has independent versioning via changesets. A change to squad-sdk may bump only squad-sdk; a change to CLI bumps only squad-cli.
+Each package has independent versioning via changesets. A change to crew-sdk may bump only crew-sdk; a change to CLI bumps only crew-cli.
 
 ## Getting Started
 
@@ -62,19 +62,19 @@ Each package has independent versioning via changesets. A change to squad-sdk ma
 
 **Step 1: Fork the repo on GitHub**
 
-Go to https://github.com/bradygaster/squad and click "Fork" to create your own copy.
+Go to https://github.com/Blacklite/crew and click "Fork" to create your own copy.
 
 **Step 2: Clone your fork**
 
 ```bash
-git clone git@github.com:{yourusername}/squad.git
-cd squad
+git clone git@github.com:{yourusername}/crew.git
+cd crew
 ```
 
 **Step 3: Add upstream remote**
 
 ```bash
-git remote add upstream git@github.com:bradygaster/squad.git
+git remote add upstream git@github.com:Blacklite/crew.git
 ```
 
 **Step 4: Fetch the dev branch**
@@ -89,7 +89,7 @@ git fetch upstream dev
 npm install
 ```
 
-npm workspaces automatically links local packages. `@bradygaster/squad-cli` can import from `@bradygaster/squad-sdk` without publishing.
+npm workspaces automatically links local packages. `@blacklite/crew-cli` can import from `@blacklite/crew-sdk` without publishing.
 
 ### 2. Build
 
@@ -137,7 +137,7 @@ Always rebase before opening or updating a PR to ensure your changes are based o
 
 ### Creating a Feature Branch
 
-Follow the branch naming convention from `.squad/decisions.md`:
+Follow the branch naming convention from `.crew/decisions.md`:
 
 ```bash
 # For user-facing work, use user_name/issue-number-slug format
@@ -176,7 +176,7 @@ The Co-authored-by trailer is **required** for all commits (added by Copilot CLI
 
 1. Add a changeset: `npx changeset add` (required before PR — see Changesets section)
 2. Push your branch: `git push origin {yourusername}/217-readme-help-update`
-3. Create a PR **as a draft**: `gh pr create --draft --base dev --repo bradygaster/squad --head {yourusername}:your-branch`
+3. Create a PR **as a draft**: `gh pr create --draft --base dev --repo Blacklite/crew --head {yourusername}:your-branch`
 4. Link the issue: Add `Closes #217` to PR description
 5. Work on your changes until CI passes and you're satisfied
 6. **Mark as "Ready for review"** — this is the handoff signal to the core team (see below)
@@ -187,7 +187,7 @@ External contributors don't have write access, so the review-to-merge flow has a
 
 **Your side (contributor):**
 
-1. ✅ All required CI checks are green (build, test, lint; the changeset/CHANGELOG gate applies when `packages/squad-(sdk|cli)/src/` **or** governed template/scaffolding paths change — `packages/squad-(sdk|cli)/templates/`, `.squad-templates/`, top-level `templates/`, and `.squad/agents/*/charter.md`)
+1. ✅ All required CI checks are green (build, test, lint; the changeset/CHANGELOG gate applies when `packages/crew-(sdk|cli)/src/` **or** governed template/scaffolding paths change — `packages/crew-(sdk|cli)/templates/`, `.crew-templates/`, top-level `templates/`, and `.crew/agents/*/charter.md`)
 2. ✅ PR is no longer a draft — mark as **"Ready for review"**
 3. ✅ Copilot reviewer bot posts its review automatically
 4. ✅ Review Copilot's suggestions and manually apply any you agree with in your fork
@@ -214,15 +214,15 @@ An automated readiness check runs on every PR and posts a checklist comment. Add
 | **Not in draft** | Mark your PR as "Ready for review" when it's done |
 | **Branch up to date** | Rebase on latest `dev` (`git fetch upstream && git rebase upstream/dev`) |
 | **Copilot review** | Wait for the Copilot reviewer bot to post its review |
-| **Changeset present** | Run `npx changeset add` if you changed `packages/squad-(sdk|cli)/src/` or governed template/scaffolding paths (`packages/squad-(sdk|cli)/templates/`, `.squad-templates/`, top-level `templates/`, `.squad/agents/*/charter.md`) |
+| **Changeset present** | Run `npx changeset add` if you changed `packages/crew-(sdk|cli)/src/` or governed template/scaffolding paths (`packages/crew-(sdk|cli)/templates/`, `.crew-templates/`, top-level `templates/`, `.crew/agents/*/charter.md`) |
 | **No merge conflicts** | Resolve any conflicts with the target branch |
 | **CI passing** | All CI checks (build, test, lint) must be green |
 
-The readiness check is **informational** — it helps you self-serve before a human reviewer looks at your PR. It automatically re-runs after Squad CI completes, so the checklist stays up to date without manual intervention. See `.github/PR_REQUIREMENTS.md` for the full requirements spec.
+The readiness check is **informational** — it helps you self-serve before a human reviewer looks at your PR. It automatically re-runs after Crew CI completes, so the checklist stays up to date without manual intervention. See `.github/PR_REQUIREMENTS.md` for the full requirements spec.
 
 ## Code Style & Conventions
 
-Squad follows strict TypeScript conventions:
+Crew follows strict TypeScript conventions:
 
 - **Type Safety:** `strict: true`, `noUncheckedIndexedAccess: true`
 - **No `@ts-ignore`** — if a type error exists, fix the code
@@ -246,38 +246,38 @@ Keep every change as small and focused as the task requires. Incidental formatti
 - **README.md** — User-facing guide, quick start, architecture overview
 - **CONTRIBUTING.md** — This file
 - **docs/proposals/** — Design docs for significant changes (required before code)
-- **.squad/agents/[name]/history.md** — Agent learnings and project context
+- **.crew/agents/[name]/history.md** — Agent learnings and project context
 
 All docs in v1 are **internal only**. No public docs site until v2.
 
 ## Local Development Versioning
 
-When developing Squad locally, set the package version to `{next-version}-preview` (e.g. `0.8.6-preview`) or a numbered iteration like `0.8.6-preview.N`. The `insider` dist-tag uses `X.Y.Z-insider.N` versions. All three patterns are accepted by the CI Prerelease Version Guard.
+When developing Crew locally, set the package version to `{next-version}-preview` (e.g. `0.8.6-preview`) or a numbered iteration like `0.8.6-preview.N`. The `insider` dist-tag uses `X.Y.Z-insider.N` versions. All three patterns are accepted by the CI Prerelease Version Guard.
 
-This convention makes `squad version` show the preview tag locally, clearly indicating you're running unreleased source code, not the published npm package. The release agent will bump this to the final version at publish time, then immediately back to the next preview version for continued development.
+This convention makes `crew version` show the preview tag locally, clearly indicating you're running unreleased source code, not the published npm package. The release agent will bump this to the final version at publish time, then immediately back to the next preview version for continued development.
 
-### Making the `squad` Command Use Your Local Build
+### Making the `crew` Command Use Your Local Build
 
-To make the `squad` CLI command globally available and pointing to your local development build:
+To make the `crew` CLI command globally available and pointing to your local development build:
 
 ```bash
-npm run build -w packages/squad-sdk && npm run build -w packages/squad-cli
-npm link -w packages/squad-cli
+npm run build -w packages/crew-sdk && npm run build -w packages/crew-cli
+npm link -w packages/crew-cli
 ```
 
-After this, `squad version` will show `0.8.6-preview` (or the current preview version). When you make code changes and rebuild, the `squad` command automatically picks up the changes—no need to reinstall. To verify your local build is active, the version output should include the `-preview` tag.
+After this, `crew version` will show `0.8.6-preview` (or the current preview version). When you make code changes and rebuild, the `crew` command automatically picks up the changes—no need to reinstall. To verify your local build is active, the version output should include the `-preview` tag.
 
 To revert back to the globally installed npm package version, run:
 
 ```bash
-npm unlink -w packages/squad-cli
+npm unlink -w packages/crew-cli
 ```
 
 ## Changesets: Independent Versioning
 
-Squad uses [@changesets/cli](https://github.com/changesets/changesets) for independent package versioning.
+Crew uses [@changesets/cli](https://github.com/changesets/changesets) for independent package versioning.
 
-**When your PR changes SDK or CLI source files** (`packages/squad-sdk/src/` or `packages/squad-cli/src/`) **or governed template/scaffolding paths** (`packages/squad-(sdk|cli)/templates/`, `.squad-templates/`, top-level `templates/`, or `.squad/agents/*/charter.md`), add a changeset file instead of editing `CHANGELOG.md` directly. Changesets prevent merge conflicts when multiple PRs are open simultaneously and are the preferred workflow.
+**When your PR changes SDK or CLI source files** (`packages/crew-sdk/src/` or `packages/crew-cli/src/`) **or governed template/scaffolding paths** (`packages/crew-(sdk|cli)/templates/`, `.crew-templates/`, top-level `templates/`, or `.crew/agents/*/charter.md`), add a changeset file instead of editing `CHANGELOG.md` directly. Changesets prevent merge conflicts when multiple PRs are open simultaneously and are the preferred workflow.
 
 ### Adding a Changeset
 
@@ -288,7 +288,7 @@ npx changeset add
 ```
 
 This prompts:
-1. Which packages changed? (squad-sdk, squad-cli, both)
+1. Which packages changed? (crew-sdk, crew-cli, both)
 2. What type? (patch, minor, major)
 3. Brief summary of changes
 
@@ -300,7 +300,7 @@ Create a file at `.changeset/your-change-name.md` with frontmatter specifying th
 
 ```markdown
 ---
-'@bradygaster/squad-cli': patch
+'@blacklite/crew-cli': patch
 ---
 
 Fix help text rendering for the status command
@@ -312,8 +312,8 @@ The frontmatter lists each affected package and its semver bump type. The body i
 
 ```markdown
 ---
-"@bradygaster/squad-sdk": minor
-"@bradygaster/squad-cli": patch
+"@blacklite/crew-sdk": minor
+"@blacklite/crew-cli": patch
 ---
 
 Add streaming support to agent orchestration. Update CLI to display stream progress.
@@ -321,7 +321,7 @@ Add streaming support to agent orchestration. Update CLI to display stream progr
 
 ### CI Changelog Gate
 
-The `changelog-gate` CI check enforces that PRs touching SDK/CLI source files — or governed template/scaffolding paths (`packages/squad-(sdk|cli)/templates/`, `.squad-templates/`, top-level `templates/`, `.squad/agents/*/charter.md`) — include either:
+The `changelog-gate` CI check enforces that PRs touching SDK/CLI source files — or governed template/scaffolding paths (`packages/crew-(sdk|cli)/templates/`, `.crew-templates/`, top-level `templates/`, `.crew/agents/*/charter.md`) — include either:
 - A `.changeset/*.md` file (preferred), **or**
 - A direct `CHANGELOG.md` edit (backward-compatible)
 
@@ -352,7 +352,7 @@ CI watches for drift: `scripts/check-changeset-drift.mjs` warns on PRs and fails
 - **bradygaster/dev** — Integration branch. **All PRs from forks must target this branch**, not `main`.
 - **user/issue-slug** — Feature branches from users or agents.
 
-> **Note:** The `insider` npm tag (`@bradygaster/squad-cli@insider`) publishes from `dev` via manual workflow dispatch. There is no separate insider branch.
+> **Note:** The `insider` npm tag (`@blacklite/crew-cli@insider`) publishes from `dev` via manual workflow dispatch. There is no separate insider branch.
 
 ## Continuous Integration
 
@@ -368,20 +368,20 @@ All checks must pass before merge.
 
 ## Testing Template Changes (End-to-End)
 
-Changes to coordinator and agent templates (`.squad-templates/squad.agent.md`, `scribe-charter.md`, etc.) can't be validated by unit tests alone — they're prompts interpreted by an LLM at runtime. For these changes, run real squad sessions against your locally-built CLI.
+Changes to coordinator and agent templates (`.crew-templates/crew.agent.md`, `scribe-charter.md`, etc.) can't be validated by unit tests alone — they're prompts interpreted by an LLM at runtime. For these changes, run real crew sessions against your locally-built CLI.
 
 ### Quick version
 
 ```bash
 # 1. Build and link your branch
-npm run build && cd packages/squad-cli && npm link && cd ../..
+npm run build && cd packages/crew-cli && npm link && cd ../..
 
 # 2. Create a disposable test repo
 mkdir /tmp/sq-test && cd /tmp/sq-test
 git init && echo "# Test" > README.md && git add -A && git commit -m "init"
 
-# 3. Init a squad with your modified templates
-squad init
+# 3. Init a crew with your modified templates
+crew init
 
 # 4. Run a session and verify behavior
 copilot -p "Picard, decide on a testing framework." 2>&1 | tee session.log
@@ -389,11 +389,11 @@ copilot -p "Picard, decide on a testing framework." 2>&1 | tee session.log
 
 ### Full guide
 
-See `.squad-templates/skills/e2e-template-testing/SKILL.md` for the complete workflow: test matrix, evidence collection, verdict format, and anti-patterns.
+See `.crew-templates/skills/e2e-template-testing/SKILL.md` for the complete workflow: test matrix, evidence collection, verdict format, and anti-patterns.
 
 ### When is this needed?
 
-- Any change to `.squad-templates/*.md` files
+- Any change to `.crew-templates/*.md` files
 - Changes to init scaffolding that writes templates to target repos
 - Changes to conditional template blocks (e.g. state-backend-aware prompts)
 
@@ -418,25 +418,25 @@ Unit tests (`npm test`) still run for logic changes — E2E template testing is 
 
 ### Migrate Legacy Code
 
-The `src/` directory contains legacy code migrating to `packages/squad-cli/` and `packages/squad-sdk/`. When moving code:
+The `src/` directory contains legacy code migrating to `packages/crew-cli/` and `packages/crew-sdk/`. When moving code:
 
 1. Create the new file in the target package
 2. Update imports in both locations
 3. Ensure tests follow the file
 4. Delete the old `src/` file once all references are updated
-5. Document the migration in `.squad/agents/[name]/history.md`
+5. Document the migration in `.crew/agents/[name]/history.md`
 
 ## Key Files
 
 - **src/index.ts** — CLI entry point and routing
-- **src/resolution.ts** — Squad path resolution (repo vs. global)
-- **.squad/decisions.md** — Team decisions and conventions
-- **.squad/agents/[name]/charter.md** — Agent identity and expertise
+- **src/resolution.ts** — Crew path resolution (repo vs. global)
+- **.crew/decisions.md** — Team decisions and conventions
+- **.crew/agents/[name]/charter.md** — Agent identity and expertise
 - **package.json** — Workspace and script definitions
 
 ## Questions?
 
-Open an issue or ask in `.squad/` discussion channels. The team is here to help.
+Open an issue or ask in `.crew/` discussion channels. The team is here to help.
 
 ## License
 

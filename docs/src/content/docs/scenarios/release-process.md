@@ -1,4 +1,4 @@
-# Release Process for Squad Maintainers
+# Release Process for Crew Maintainers
 
 **Try this to ship a new version:**
 ```
@@ -10,7 +10,7 @@ We're ready to ship v1.2.0 — run the release process: changelog, tags, and pub
 Merge preview to main and cut a production release
 ```
 
-Complete step-by-step guide for Squad maintainers: three-branch model (dev/preview/main), guard workflows, PR merging, and production release procedures.
+Complete step-by-step guide for Crew maintainers: three-branch model (dev/preview/main), guard workflows, PR merging, and production release procedures.
 
 ---
 
@@ -257,7 +257,7 @@ git push
 
 ```bash
 # Try HTTP instead
-git remote set-url origin https://github.com/bradygaster/squad.git
+git remote set-url origin https://github.com/Blacklite/crew.git
 git push origin <branch>
 
 # Or test SSH
@@ -285,9 +285,9 @@ git push origin dev
 **Fix:**
 
 ```bash
-squad upgrade
+crew upgrade
 git add .github/workflows/
-git commit -m "chore: restore Squad workflows"
+git commit -m "chore: restore Crew workflows"
 git push origin dev
 ```
 

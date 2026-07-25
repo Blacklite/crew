@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { slugify } from '../packages/squad-sdk/src/utils/slugify.js';
+import { slugify } from '../packages/crew-sdk/src/utils/slugify.js';
 
 describe('slugify', () => {
   it('slugifies "Steve Rogers" to "steve-rogers"', () => {

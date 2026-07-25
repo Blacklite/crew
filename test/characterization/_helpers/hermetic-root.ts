@@ -2,7 +2,7 @@
  * Hermetic helpers for characterization tests.
  *
  * Every characterization suite MUST run inside a fresh temp directory under
- * `os.tmpdir()`. Repository `.squad/**` state is never test input and is
+ * `os.tmpdir()`. Repository `.crew/**` state is never test input and is
  * never read, hashed, or listed by these tests.
  *
  * `makeWriteGuardedStorage` wraps any `StorageProvider` and asserts that
@@ -18,7 +18,7 @@
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import type { StorageProvider } from '../../../packages/squad-sdk/src/storage/storage-provider.js';
+import type { StorageProvider } from '../../../packages/crew-sdk/src/storage/storage-provider.js';
 
 /**
  * Create a hermetic temp directory, run `fn` inside it, and remove it in a
@@ -27,7 +27,7 @@ import type { StorageProvider } from '../../../packages/squad-sdk/src/storage/st
  */
 export async function withHermeticRoot<T>(
   fn: (root: string) => Promise<T>,
-  prefix = 'squad-characterization-',
+  prefix = 'crew-characterization-',
 ): Promise<T> {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), prefix));
   try {

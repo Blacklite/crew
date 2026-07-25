@@ -12,16 +12,16 @@ An agent wrote bad code — how do I revert it?
 
 **Try this to reset confused agents:**
 ```
-The squad is confused — reset their context
+The crew is confused — reset their context
 ```
 
-Recovery procedures for deleted `.ai-team/`, bad agent code, confused squads, and upgrade issues. Most problems are fixable with Git or re-init.
+Recovery procedures for deleted `.ai-team/`, bad agent code, confused crews, and upgrade issues. Most problems are fixable with Git or re-init.
 
 ---
 
 ## 1. "I accidentally deleted `.ai-team/`"
 
-Recovery scenarios: deleted `.ai-team/`, bad agent code, confused squad, upgrade issues.
+Recovery scenarios: deleted `.ai-team/`, bad agent code, confused crew, upgrade issues.
 
 **Solution:** It's in Git. Restore it.
 
@@ -29,17 +29,17 @@ Recovery scenarios: deleted `.ai-team/`, bad agent code, confused squad, upgrade
 git checkout .ai-team/
 ```
 
-If you haven't committed `.squad/` yet, it's gone. Rebuild:
+If you haven't committed `.crew/` yet, it's gone. Rebuild:
 
 ```bash
-npm install -g @bradygaster/squad-cli
-squad init
+npm install -g @blacklite/crew-cli
+crew init
 ```
 
-Start from scratch. If you exported your squad before, import the export:
+Start from scratch. If you exported your crew before, import the export:
 
 ```bash
-squad import squad-export-2025-07-15.zip
+crew import crew-export-2025-07-15.zip
 ```
 
 **Prevention:** Commit `.ai-team/` early. Don't let it stay uncommitted for long.
@@ -112,7 +112,7 @@ Agents now read the new decision and build accordingly.
 
 ---
 
-## 4. "My squad is confused after a bad session"
+## 4. "My crew is confused after a bad session"
 
 **What happened:** Agents learned incorrect information during a session. Now they're making mistakes.
 
@@ -142,43 +142,43 @@ Agents **forget** the bad session. They still have their long-term skills and de
 
 ## 5. "I want to start over completely"
 
-**Solution:** Delete `.squad/` and reinitialize.
+**Solution:** Delete `.crew/` and reinitialize.
 
 ```bash
-rm -rf .squad/
-squad init
+rm -rf .crew/
+crew init
 ```
 
 ```
-Squad is ready. What are you building?
+Crew is ready. What are you building?
 ```
 
 You're back to day one. Clean slate.
 
-**Prevention:** Only do this if the squad is truly beyond repair. Usually archiving histories (above) is enough.
+**Prevention:** Only do this if the crew is truly beyond repair. Usually archiving histories (above) is enough.
 
 ---
 
 ## 6. "Upgrade broke something"
 
-**What happened:** You upgraded Squad to a new version, and now something doesn't work.
+**What happened:** You upgraded Crew to a new version, and now something doesn't work.
 
-**Solution:** Squad upgrades **never touch** `.ai-team/`. The issue is likely in:
+**Solution:** Crew upgrades **never touch** `.ai-team/`. The issue is likely in:
 
 1. **Workflow templates** — check `.ai-team-templates/`
-2. **Squad agent definition** — check `.github/agents/squad.agent.md`
+2. **Crew agent definition** — check `.github/agents/crew.agent.md`
 3. **Model configuration** — check `.ai-team/model-config.json`
 
-Roll back the Squad agent definition:
+Roll back the Crew agent definition:
 
 ```bash
-git checkout HEAD^ .github/agents/squad.agent.md
+git checkout HEAD^ .github/agents/crew.agent.md
 ```
 
 Or reinstall a previous version:
 
 ```bash
-npm install -g @bradygaster/squad-cli@0.1.5
+npm install -g @blacklite/crew-cli@0.1.5
 ```
 
 **Your team's knowledge is safe.** `.ai-team/` is untouched.

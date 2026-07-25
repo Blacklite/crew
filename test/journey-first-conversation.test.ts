@@ -1,12 +1,12 @@
 /**
  * Human Journey E2E Test — "My first conversation"
  *
- * Simulates a brand-new user's first interactive session with Squad:
+ * Simulates a brand-new user's first interactive session with Crew:
  * seeing the welcome banner, typing a message, observing the thinking
  * indicator, receiving a response, exploring /help and /status,
  * trying @agent routing, and exiting gracefully.
  *
- * @see https://github.com/bradygaster/squad-pr/issues/384
+ * @see https://github.com/Blacklite/crew-pr/issues/384
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -16,10 +16,10 @@ import { tmpdir } from 'node:os';
 import { rm } from 'node:fs/promises';
 import React from 'react';
 import { render, type RenderResponse } from 'ink-testing-library';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import { App, type ShellApi } from '../packages/squad-cli/src/cli/shell/components/App.js';
-import type { ParsedInput } from '../packages/squad-cli/src/cli/shell/router.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import { App, type ShellApi } from '../packages/crew-cli/src/cli/shell/components/App.js';
+import type { ParsedInput } from '../packages/crew-cli/src/cli/shell/router.js';
 
 const h = React.createElement;
 
@@ -36,24 +36,24 @@ function tick(ms = TICK): Promise<void> {
   return new Promise(r => setTimeout(r, ms));
 }
 
-/** Scaffold a minimal .squad/ directory so the App shows a welcome banner. */
-function scaffoldSquadDir(root: string): void {
-  const squadDir = join(root, '.squad');
-  const agentsDir = join(squadDir, 'agents');
-  const identityDir = join(squadDir, 'identity');
+/** Scaffold a minimal .crew/ directory so the App shows a welcome banner. */
+function scaffoldCrewDir(root: string): void {
+  const crewDir = join(root, '.crew');
+  const agentsDir = join(crewDir, 'agents');
+  const identityDir = join(crewDir, 'identity');
   mkdirSync(agentsDir, { recursive: true });
   mkdirSync(identityDir, { recursive: true });
 
-  writeFileSync(join(squadDir, 'team.md'), `# Squad Team — My First Project
+  writeFileSync(join(crewDir, 'team.md'), `# Crew Team — My First Project
 
-> A brand-new project exploring Squad for the first time.
+> A brand-new project exploring Crew for the first time.
 
 ## Members
 
 | Name | Role | Charter | Status |
 |------|------|---------|--------|
-| Keaton | Lead | \`.squad/agents/keaton/charter.md\` | ✅ Active |
-| Fenster | Core Dev | \`.squad/agents/fenster/charter.md\` | ✅ Active |
+| Keaton | Lead | \`.crew/agents/keaton/charter.md\` | ✅ Active |
+| Fenster | Core Dev | \`.crew/agents/fenster/charter.md\` | ✅ Active |
 `);
 
   writeFileSync(join(identityDir, 'now.md'), `---
@@ -64,7 +64,7 @@ active_issues: []
 
 # What We're Focused On
 
-Getting started with Squad.
+Getting started with Crew.
 `);
 }
 
@@ -84,7 +84,7 @@ interface ShellHarness {
 
 async function createShellHarness(opts?: {
   agents?: Array<{ name: string; role: string }>;
-  withSquadDir?: boolean;
+  withCrewDir?: boolean;
   version?: string;
 }): Promise<ShellHarness> {
   const {
@@ -92,12 +92,12 @@ async function createShellHarness(opts?: {
       { name: 'Keaton', role: 'Lead' },
       { name: 'Fenster', role: 'Core Dev' },
     ],
-    withSquadDir = true,
+    withCrewDir = true,
     version = '0.0.0-test',
   } = opts ?? {};
 
-  const tempDir = mkdtempSync(join(tmpdir(), 'squad-journey-'));
-  if (withSquadDir) scaffoldSquadDir(tempDir);
+  const tempDir = mkdtempSync(join(tmpdir(), 'crew-journey-'));
+  if (withCrewDir) scaffoldCrewDir(tempDir);
 
   const registry = new SessionRegistry();
   for (const a of agents) registry.register(a.name, a.role);
@@ -189,8 +189,8 @@ describe('Journey: My first conversation (#384)', { timeout: 30_000 }, () => {
   // ── Step 1: User sees welcome message on shell start ──────────────────
 
   describe('Step 1 — Welcome message on shell start', () => {
-    it('shows SQUAD title in the welcome banner', () => {
-      // Figlet banner renders SQUAD as ASCII art (not literal text)
+    it('shows CREW title in the welcome banner', () => {
+      // Figlet banner renders CREW as ASCII art (not literal text)
       expect(shell.hasText('___')).toBe(true);
     });
 
@@ -216,8 +216,8 @@ describe('Journey: My first conversation (#384)', { timeout: 30_000 }, () => {
 
   describe('Step 2 — First message submission', () => {
     it('typed text appears in the input area', async () => {
-      await shell.type('Hello Squad!');
-      expect(shell.hasText('Hello Squad!')).toBe(true);
+      await shell.type('Hello Crew!');
+      expect(shell.hasText('Hello Crew!')).toBe(true);
     });
 
     it('submitted message appears in the conversation', async () => {

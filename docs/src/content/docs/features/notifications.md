@@ -1,6 +1,6 @@
-# Squad pings you
+# Crew pings you
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to get notified on completion:**
@@ -13,26 +13,26 @@ Notify me when the build finishes
 Ping me on Teams when you need my input
 ```
 
-Your squad sends you instant messages when they need input, hit an error, or complete work. Works with Teams, Discord, Slack, webhooks — whatever you configure.
+Your crew sends you instant messages when they need input, hit an error, or complete work. Works with Teams, Discord, Slack, webhooks — whatever you configure.
 
 ---
 
 ## How It Works
 
-Your squad can send you instant messages when they need your input. Leave your terminal, get pinged on your phone.
+Your crew can send you instant messages when they need your input. Leave your terminal, get pinged on your phone.
 
 ---
 
 ## How It Works
 
-Squad ships zero notification infrastructure. Instead, it uses **skills** — reusable knowledge files — to teach agents when and how to ping you. You bring your own notification delivery by configuring an MCP notification server in your Copilot environment.
+Crew ships zero notification infrastructure. Instead, it uses **skills** — reusable knowledge files — to teach agents when and how to ping you. You bring your own notification delivery by configuring an MCP notification server in your Copilot environment.
 
 The flow:
 1. **Skill** (`human-notification`) tells agents when to ping — blocked waiting for input, decision needed, error hit, work complete
 2. **Agent** calls the skill, which invokes your configured MCP server
 3. **Your MCP server** (Teams, iMessage, Discord, webhook, etc.) sends the actual message to your device
 
-This means Squad works with any notification service. Pick your favorite messaging platform, configure it once, and your squad has a direct line to you.
+This means Crew works with any notification service. Pick your favorite messaging platform, configure it once, and your crew has a direct line to you.
 
 ---
 
@@ -40,15 +40,15 @@ This means Squad works with any notification service. Pick your favorite messagi
 
 ### What you need to know
 
-Squad doesn't ship a Teams MCP server. You bring your own — either a community implementation or one you build yourself. Squad agents discover the configured MCP server at spawn time and call it automatically when they need to notify you.
+Crew doesn't ship a Teams MCP server. You bring your own — either a community implementation or one you build yourself. Crew agents discover the configured MCP server at spawn time and call it automatically when they need to notify you.
 
 ### Teams Workflows webhook
 
 Teams Workflows (Power Automate) webhooks are the recommended approach. Office 365 Connectors were [retired by Microsoft](https://devblogs.microsoft.com/microsoft365dev/retirement-of-office-365-connectors-within-microsoft-teams/) — use Workflows instead.
 
-1. **Create a channel for your squad:**
-   - Create a new Team called "My Squads" (or reuse an existing one)
-   - Add a channel, e.g., `#squad-myproject`
+1. **Create a channel for your crew:**
+   - Create a new Team called "My Crews" (or reuse an existing one)
+   - Add a channel, e.g., `#crew-myproject`
 
 2. **Create a Workflows webhook:**
    - Open the channel, select the **+** (add a tab) or go to the **Workflows** app in Teams
@@ -64,7 +64,7 @@ Teams Workflows (Power Automate) webhooks are the recommended approach. Office 3
    - **Build your own:** Use the community reference as a starting point
    - **Search the MCP marketplace:** Look for Teams-compatible servers at https://mcpmarket.com
 
-4. **Configure Squad:**
+4. **Configure Crew:**
    
    Create or edit `.vscode/mcp.json` in your workspace:
    ```json
@@ -84,7 +84,7 @@ Teams Workflows (Power Automate) webhooks are the recommended approach. Office 3
    Replace `/absolute/path/to/teams-webhook-mcp.js` with the path to your downloaded or created MCP server script. Replace the `TEAMS_WEBHOOK_URL` value with the URL from step 2.
 
 5. **Use it:**
-   - Start a Squad session with `copilot squad`
+   - Start a Crew session with `copilot crew`
    - When an agent needs input, your Teams channel lights up
 
 ---
@@ -102,7 +102,7 @@ iMessage is built into macOS. If you're on a Mac, this is the fastest personal s
    - Search https://mcpmarket.com for "imessage" or compatible MCP servers
    - Follow its setup steps
 
-3. **Configure Squad:**
+3. **Configure Crew:**
    - Edit `.vscode/mcp.json`:
    ```json
    {
@@ -121,7 +121,7 @@ iMessage is built into macOS. If you're on a Mac, this is the fastest personal s
    Replace `/absolute/path/to/imessage-mcp.js` with the actual path to your downloaded MCP server script.
 
 4. **Test:**
-   - Start a Squad session
+   - Start a Crew session
    - When agents need input, it appears in Messages on your phone
 
 **Limitation:** iMessage only works on Mac. If you use Windows, Linux, or CI environments, use Teams or webhook instead.
@@ -144,12 +144,12 @@ https://www.npmjs.com/package/mcp-notifications supports Discord, Slack, Teams, 
 
 1. **Get your Discord webhook:**
    - In Discord, right-click a channel → "Edit channel" → "Integrations" → "Webhooks"
-   - "New Webhook" → name it "Squad"
+   - "New Webhook" → name it "Crew"
    - Copy the webhook URL
 
 #### Add MCP Server for Github Copilot CLI
 
-1. **Configure Squad from Github Copilot CLI:**
+1. **Configure Crew from Github Copilot CLI:**
 
     ```bash
     /mcp add notifications
@@ -260,7 +260,7 @@ Session still running. Come back to the terminal to decide next steps.
 ```
 
 **Anatomy:**
-- **Agent emoji + name** — who pinged you (matches your squad's cast)
+- **Agent emoji + name** — who pinged you (matches your crew's cast)
 - **Context** — why (decision, blocked, complete, etc.)
 - **What to do** — specific action (check issue, review logs, come back to terminal)
 - **Link** — clickable GitHub issue, PR, or breadcrumb to your session
@@ -308,11 +308,11 @@ During quiet hours, notifications queue locally and are batched into a morning d
 
 ### Testing Your Setup
 
-To test without running a full Squad session:
+To test without running a full Crew session:
 
 ```bash
 # Once your MCP server is configured, trigger a test notification:
-copilot squad test-notification --agent Keaton --reason blocked
+copilot crew test-notification --agent Keaton --reason blocked
 ```
 
 This fires a sample notification through your configured server so you can verify delivery and formatting.
@@ -336,7 +336,7 @@ This fires a sample notification through your configured server so you can verif
    - Copilot reads `.vscode/mcp.json` at startup — changes require a restart
 
 4. **Check agent logs:**
-   - In your Squad session, ask agents to log the notification call: `check the human-notification skill logs`
+   - In your Crew session, ask agents to log the notification call: `check the human-notification skill logs`
    - This surfaces any errors from the MCP server
 
 ### Notifications are too frequent
@@ -359,7 +359,7 @@ Use the `NOTIFY_*` environment variables (see Configuration above) to disable no
 
 ## Architecture Notes
 
-The `human-notification` skill lives in `.copilot/skills/squad-human-notification/SKILL.md`. Agents read it before working and decide whether to ping you. You can edit the skill directly if you want to:
+The `human-notification` skill lives in `.copilot/skills/crew-human-notification/SKILL.md`. Agents read it before working and decide whether to ping you. You can edit the skill directly if you want to:
 
 - Add custom notification logic for your team
 - Change when agents decide to ping (e.g., always notify on errors)

@@ -18,13 +18,13 @@ import {
   SkillRegistry,
   selectResponseTier,
   StreamingPipeline,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 import type {
   CastMember,
   AgentRole,
   ResponseTier,
-  SquadConfig,
-} from '@bradygaster/squad-sdk';
+  CrewConfig,
+} from '@blacklite/crew-sdk';
 
 // ============================================================================
 // Core types (contract — the extracted module must export these)
@@ -58,9 +58,9 @@ interface AgentState {
 // Core logic (mirrors index.ts — will become imports after refactor)
 // ============================================================================
 
-const DEMO_CONFIG: SquadConfig = {
+const DEMO_CONFIG: CrewConfig = {
   version: '1.0',
-  team: { name: 'Pipeline Demo Squad' },
+  team: { name: 'Pipeline Demo Crew' },
   routing: {
     rules: [
       { pattern: 'security|audit|vulnerability', agents: ['Hockney'], tier: 'full' },
@@ -214,7 +214,7 @@ describe('CostTracker — per-agent accumulation', () => {
     const formatted = tracker.formatSummary();
     expect(formatted).toContain('Keyser');
     expect(formatted).toContain('McManus');
-    expect(formatted).toContain('Squad Cost Summary');
+    expect(formatted).toContain('Crew Cost Summary');
   });
 
   it('produces zero totals when no usage recorded', () => {

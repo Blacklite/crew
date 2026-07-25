@@ -1,7 +1,7 @@
 /**
- * Cost-Aware Router — Squad SDK Sample
+ * Cost-Aware Router — Crew SDK Sample
  *
- * Demonstrates how Squad selects response tiers based on task complexity,
+ * Demonstrates how Crew selects response tiers based on task complexity,
  * tracks costs per-agent with budget warnings, and produces a final report.
  *
  * Run:  npm run dev
@@ -12,13 +12,13 @@ import {
   selectResponseTier,
   getTier,
   MODELS,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
 import type {
   ResponseTier,
   TierName,
-  SquadConfig,
-} from '@bradygaster/squad-sdk';
+  CrewConfig,
+} from '@blacklite/crew-sdk';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Terminal helpers
@@ -177,7 +177,7 @@ const TASKS: Task[] = [
 // Config (minimal — just enough for selectResponseTier)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const config: SquadConfig = {
+const config: CrewConfig = {
   version: '0.8.0',
   team: { name: 'MVP Summit Demo' },
   routing: {
@@ -250,7 +250,7 @@ async function main(): Promise<void> {
   console.log();
   console.log(`${c.bold}${c.cyan}  ┌──────────────────────────────────────────────────────────────┐${c.reset}`);
   console.log(`${c.bold}${c.cyan}  │                                                              │${c.reset}`);
-  console.log(`${c.bold}${c.cyan}  │   ${c.white}Squad SDK — Cost-Aware Router Demo${c.cyan}                        │${c.reset}`);
+  console.log(`${c.bold}${c.cyan}  │   ${c.white}Crew SDK — Cost-Aware Router Demo${c.cyan}                        │${c.reset}`);
   console.log(`${c.bold}${c.cyan}  │   ${c.dim}Tier selection · Budget tracking · Cost breakdowns${c.cyan}${c.bold}          │${c.reset}`);
   console.log(`${c.bold}${c.cyan}  │                                                              │${c.reset}`);
   console.log(`${c.bold}${c.cyan}  └──────────────────────────────────────────────────────────────┘${c.reset}`);

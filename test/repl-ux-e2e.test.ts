@@ -1,12 +1,12 @@
 /**
  * REPL UX End-to-End Tests
  *
- * Spawns the real Squad CLI via child_process and verifies what humans actually see.
+ * Spawns the real Crew CLI via child_process and verifies what humans actually see.
  * No mocks — these tests exercise the CLI binary and capture real terminal output.
  *
  * E2E tests — REPL UX validation
  *
- * @see .squad/agents/breedan/charter.md
+ * @see .crew/agents/breedan/charter.md
  */
 
 import { describe, it, expect, afterEach, beforeEach } from 'vitest';
@@ -18,7 +18,7 @@ import { resolve } from 'node:path';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const CLI_ENTRY = resolve(process.cwd(), 'packages/squad-cli/dist/cli-entry.js');
+const CLI_ENTRY = resolve(process.cwd(), 'packages/crew-cli/dist/cli-entry.js');
 
 /** Strip ANSI escape codes for clean text comparison. */
 function stripAnsi(text: string): string {
@@ -101,7 +101,7 @@ describe('REPL UX E2E — What Users Actually See', { timeout: 30_000 }, () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = mkdtempSync(join(tmpdir(), 'squad-e2e-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'crew-e2e-'));
   });
 
   afterEach(() => {
@@ -116,36 +116,36 @@ describe('REPL UX E2E — What Users Actually See', { timeout: 30_000 }, () => {
   // Test 1: First Run — No Team Exists
   // ────────────────────────────────────────────────────────────────────────
   describe('First Run — No Team Exists', () => {
-    // Isolate from any real global squad on the host machine so the CLI
-    // takes the "no squad anywhere" code-path (welcome banner, exit 0).
-    const noGlobalSquadEnv = () => ({
+    // Isolate from any real global crew on the host machine so the CLI
+    // takes the "no crew anywhere" code-path (welcome banner, exit 0).
+    const noGlobalCrewEnv = () => ({
       APPDATA: tempDir,
       LOCALAPPDATA: tempDir,
       XDG_CONFIG_HOME: tempDir,
     });
 
-    it('shows welcome message when no .squad/ exists', async () => {
-      const result = await runCli([], { cwd: tempDir, env: noGlobalSquadEnv() });
+    it('shows welcome message when no .crew/ exists', async () => {
+      const result = await runCli([], { cwd: tempDir, env: noGlobalCrewEnv() });
       const output = stripAnsi(result.combined);
 
-      // Non-TTY: CLI shows either "Welcome to Squad" (no squad found)
-      // or "requires an interactive terminal" (if a global squad is detected)
-      expect(output).toMatch(/Welcome to Squad|requires an interactive terminal/);
+      // Non-TTY: CLI shows either "Welcome to Crew" (no crew found)
+      // or "requires an interactive terminal" (if a global crew is detected)
+      expect(output).toMatch(/Welcome to Crew|requires an interactive terminal/);
     });
 
     it('banner appears exactly once (not duplicated)', async () => {
-      const result = await runCli([], { cwd: tempDir, env: noGlobalSquadEnv() });
+      const result = await runCli([], { cwd: tempDir, env: noGlobalCrewEnv() });
       const output = stripAnsi(result.combined);
 
-      // Non-TTY: expect either "Welcome to Squad" or TTY error, appearing once
-      const bannerMatches = output.match(/Welcome to Squad/g);
+      // Non-TTY: expect either "Welcome to Crew" or TTY error, appearing once
+      const bannerMatches = output.match(/Welcome to Crew/g);
       const ttyMatches = output.match(/requires an interactive terminal/g);
       const totalMatches = (bannerMatches?.length ?? 0) + (ttyMatches?.length ?? 0);
       expect(totalMatches, 'Banner or TTY message should appear exactly once').toBe(1);
     });
 
     it('no "coordinator:" label in user-visible output', async () => {
-      const result = await runCli([], { cwd: tempDir, env: noGlobalSquadEnv() });
+      const result = await runCli([], { cwd: tempDir, env: noGlobalCrewEnv() });
       const output = stripAnsi(result.combined);
 
       // "coordinator:" should never appear outside debug mode
@@ -153,35 +153,35 @@ describe('REPL UX E2E — What Users Actually See', { timeout: 30_000 }, () => {
     });
 
     it('init prompt/suggestion is visible and prominent', async () => {
-      const result = await runCli([], { cwd: tempDir, env: noGlobalSquadEnv() });
+      const result = await runCli([], { cwd: tempDir, env: noGlobalCrewEnv() });
       const output = stripAnsi(result.combined);
 
-      // In non-TTY without squad: shows "squad init" and "Get started"
-      // In non-TTY with squad detected: shows TTY requirement or "Loading Squad shell"
+      // In non-TTY without crew: shows "crew init" and "Get started"
+      // In non-TTY with crew detected: shows TTY requirement or "Loading Crew shell"
       // When process hangs (enters interactive mode), output may only have loading message
       if (output.length > 0) {
-        expect(output).toMatch(/squad init|squad --preview|Loading Squad shell|Welcome/);
+        expect(output).toMatch(/crew init|crew --preview|Loading Crew shell|Welcome/);
       }
     });
 
     it('no SQLite ExperimentalWarning in output', async () => {
-      const result = await runCli([], { cwd: tempDir, env: noGlobalSquadEnv() });
+      const result = await runCli([], { cwd: tempDir, env: noGlobalCrewEnv() });
       const combined = stripAnsi(result.combined);
 
       expect(combined).not.toContain('ExperimentalWarning');
     });
 
     it('no "Resumed session" message on first run', async () => {
-      const result = await runCli([], { cwd: tempDir, env: noGlobalSquadEnv() });
+      const result = await runCli([], { cwd: tempDir, env: noGlobalCrewEnv() });
       const output = stripAnsi(result.combined);
 
       expect(output).not.toMatch(/Resumed session/i);
     });
 
     it('exits cleanly with code 0, 1, or null (killed by timeout if interactive)', async () => {
-      const result = await runCli([], { cwd: tempDir, env: noGlobalSquadEnv() });
+      const result = await runCli([], { cwd: tempDir, env: noGlobalCrewEnv() });
 
-      // Exit 0 when no squad (welcome message), exit 1 when TTY required,
+      // Exit 0 when no crew (welcome message), exit 1 when TTY required,
       // null when process hangs in interactive mode and is killed by timeout
       expect([0, 1, null]).toContain(result.exitCode);
     });
@@ -205,7 +205,7 @@ describe('REPL UX E2E — What Users Actually See', { timeout: 30_000 }, () => {
       expect(stripAnsi(result.stdout)).not.toContain('ExperimentalWarning');
     });
 
-    it('no ExperimentalWarning on first-run (no .squad/)', async () => {
+    it('no ExperimentalWarning on first-run (no .crew/)', async () => {
       const result = await runCli([], { cwd: tempDir });
 
       expect(stripAnsi(result.stderr)).not.toContain('ExperimentalWarning');
@@ -238,28 +238,28 @@ describe('REPL UX E2E — What Users Actually See', { timeout: 30_000 }, () => {
       const result = await runCli(['--help']);
       const output = stripAnsi(result.stdout);
 
-      // Help screen shows "squad v{VERSION}" — should appear once
-      const versionMatches = output.match(/squad\s+v\d+\.\d+\.\d+/gi);
+      // Help screen shows "crew v{VERSION}" — should appear once
+      const versionMatches = output.match(/crew\s+v\d+\.\d+\.\d+/gi);
       expect(versionMatches, 'Version banner must appear exactly once').toHaveLength(1);
     });
 
     it('first-run welcome appears exactly once', async () => {
-      // Isolate from host global squad so CLI takes the first-run path
+      // Isolate from host global crew so CLI takes the first-run path
       const noGlobalEnv = { APPDATA: tempDir, LOCALAPPDATA: tempDir, XDG_CONFIG_HOME: tempDir };
       const result = await runCli([], { cwd: tempDir, env: noGlobalEnv });
       const output = stripAnsi(result.combined);
 
       // Non-TTY: welcome appears once, TTY error appears once, or
-      // process may enter interactive mode and output "Loading Squad shell..."
-      const welcomeMatches = output.match(/Welcome to Squad/g);
+      // process may enter interactive mode and output "Loading Crew shell..."
+      const welcomeMatches = output.match(/Welcome to Crew/g);
       const ttyMatches = output.match(/requires an interactive terminal/g);
-      const loadingMatches = output.match(/Loading Squad shell/g);
+      const loadingMatches = output.match(/Loading Crew shell/g);
       const total = (welcomeMatches?.length ?? 0) + (ttyMatches?.length ?? 0) + (loadingMatches?.length ?? 0);
       expect(total, 'Welcome, TTY, or Loading message must appear at least once').toBeGreaterThanOrEqual(1);
     });
 
     it('no duplicate "Your AI agent team" tagline', async () => {
-      // Isolate from host global squad so CLI takes the first-run path
+      // Isolate from host global crew so CLI takes the first-run path
       const noGlobalEnv = { APPDATA: tempDir, LOCALAPPDATA: tempDir, XDG_CONFIG_HOME: tempDir };
       const result = await runCli([], { cwd: tempDir, env: noGlobalEnv });
       const output = stripAnsi(result.combined);
@@ -277,29 +277,29 @@ describe('REPL UX E2E — What Users Actually See', { timeout: 30_000 }, () => {
   // Test 4: Message Labels
   // ────────────────────────────────────────────────────────────────────────
   describe('Message Labels', () => {
-    it('--help output uses "Squad" not "coordinator" in user-facing text', async () => {
+    it('--help output uses "Crew" not "coordinator" in user-facing text', async () => {
       const result = await runCli(['--help']);
       const output = stripAnsi(result.stdout);
 
-      // Help text should reference "squad" the product, not "coordinator"
-      expect(output.toLowerCase()).toContain('squad');
+      // Help text should reference "crew" the product, not "coordinator"
+      expect(output.toLowerCase()).toContain('crew');
       expect(output).not.toMatch(/\bcoordinator\b/i);
     });
 
-    it('first-run message uses "Squad" branding', async () => {
+    it('first-run message uses "Crew" branding', async () => {
       const result = await runCli([], { cwd: tempDir });
       const output = stripAnsi(result.combined);
 
-      expect(output).toContain('Squad');
+      expect(output).toContain('Crew');
       expect(output).not.toMatch(/\bcoordinator\b/i);
     });
 
-    it('error messages use "squad" not "coordinator"', async () => {
+    it('error messages use "crew" not "coordinator"', async () => {
       const result = await runCli(['nonexistent-command-xyz']);
       const output = stripAnsi(result.combined);
 
-      // Error output should reference "squad help", not "coordinator"
-      expect(output).toMatch(/squad/i);
+      // Error output should reference "crew help", not "coordinator"
+      expect(output).toMatch(/crew/i);
       expect(output).not.toMatch(/\bcoordinator\b/i);
     });
   });
@@ -335,12 +335,12 @@ describe('REPL UX E2E — What Users Actually See', { timeout: 30_000 }, () => {
   // Test 6: Work gating without team (supplemental)
   // ────────────────────────────────────────────────────────────────────────
   describe('Work gating without team', () => {
-    it('status command mentions no squad when run in empty dir', async () => {
+    it('status command mentions no crew when run in empty dir', async () => {
       const result = await runCli(['status'], { cwd: tempDir });
       const output = stripAnsi(result.combined);
 
-      // Status should indicate no squad found, or show active squad status
-      expect(output).toMatch(/not found|no squad|no .squad|Active squad/i);
+      // Status should indicate no crew found, or show active crew status
+      expect(output).toMatch(/not found|no crew|no .crew|Active crew/i);
     });
 
     it('doctor command works in empty dir without crashing', async () => {

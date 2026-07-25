@@ -1,7 +1,7 @@
 # Skill Discovery — SDK Sample PRD
 
 ## Overview
-Agents that learn. Demonstrate the skill lifecycle: create a skill definition, load skills from disk, match them to tasks, and watch confidence grow as agents use them. Low confidence → Medium → High. This shows how Squad encodes domain knowledge in code, not prompts.
+Agents that learn. Demonstrate the skill lifecycle: create a skill definition, load skills from disk, match them to tasks, and watch confidence grow as agents use them. Low confidence → Medium → High. This shows how Crew encodes domain knowledge in code, not prompts.
 
 ## Target Audience
 Teams building evolving AI agents. Anyone needing transparent, auditable learning — track which skills were matched, at what confidence, and how confidence changed over time.
@@ -73,12 +73,12 @@ import {
   SkillRegistry, 
   loadSkillsFromDirectory,
   parseSkillFile 
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 const registry = new SkillRegistry();
-const skillsDir = '.squad/skills';
+const skillsDir = '.crew/skills';
 
 // Load all SKILL.md files
 const skills = await loadSkillsFromDirectory(skillsDir);
@@ -192,7 +192,7 @@ for (const [skillId, history] of skillConfidenceHistory.entries()) {
 
 ## User Experience
 
-1. Squad loads skill library from `.squad/skills/` directory
+1. Crew loads skill library from `.crew/skills/` directory
 2. User submits task: "Implement OAuth2 PKCE for React"
 3. SDK matches task to skills using trigger keywords and role affinity
 4. Terminal displays ranked matches:
@@ -235,11 +235,11 @@ for (const [skillId, history] of skillConfidenceHistory.entries()) {
 # Navigate to samples/skill-discovery
 npm install
 
-# Create sample skills in .squad/skills/
-mkdir -p .squad/skills
+# Create sample skills in .crew/skills/
+mkdir -p .crew/skills
 
 # Add sample SKILL.md files
-cat > .squad/skills/oauth2-pkce.md << 'EOF'
+cat > .crew/skills/oauth2-pkce.md << 'EOF'
 ---
 id: oauth2-pkce
 title: OAuth2 PKCE Implementation

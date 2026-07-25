@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
- * Autonomous Pipeline — Squad SDK Showcase Demo
+ * Autonomous Pipeline — Crew SDK Showcase Demo
  *
- * A self-contained terminal application demonstrating the full Squad runtime:
+ * A self-contained terminal application demonstrating the full Crew runtime:
  * CastingEngine, CostTracker, TelemetryCollector, SkillRegistry,
  * StreamingPipeline, response-tier selection, and OTel observability.
  *
@@ -19,7 +19,7 @@ import {
   SkillRegistry,
   selectResponseTier,
   StreamingPipeline,
-  initSquadTelemetry,
+  initCrewTelemetry,
   getTracer,
   getMeter,
   recordAgentSpawn,
@@ -29,15 +29,15 @@ import {
   recordSessionCreated,
   recordSessionClosed,
   VERSION,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 import type {
   CastMember,
   AgentRole,
   ResponseTier,
-  SquadConfig,
+  CrewConfig,
   TierContext,
-  SquadTelemetryHandle,
-} from '@bradygaster/squad-sdk';
+  CrewTelemetryHandle,
+} from '@blacklite/crew-sdk';
 import chalk from 'chalk';
 
 // ============================================================================
@@ -94,7 +94,7 @@ interface MemoryEntry {
 const BANNER = `
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                ║
-║   ${chalk.bold.cyan('⚡ SQUAD AUTONOMOUS PIPELINE')}                               ║
+║   ${chalk.bold.cyan('⚡ CREW AUTONOMOUS PIPELINE')}                               ║
 ║   ${chalk.dim('Multi-agent task orchestration showcase')}                       ║
 ║                                                                ║
 ║   ${chalk.dim('SDK version:')} ${chalk.yellow(`v${VERSION}`).padEnd(52)}║
@@ -122,12 +122,12 @@ const TASK_STATUS_ICONS: Record<TaskStatus, string> = {
 };
 
 // ============================================================================
-// Minimal SquadConfig for tier selection demo
+// Minimal CrewConfig for tier selection demo
 // ============================================================================
 
-const DEMO_CONFIG: SquadConfig = {
+const DEMO_CONFIG: CrewConfig = {
   version: '1.0',
-  team: { name: 'Pipeline Demo Squad' },
+  team: { name: 'Pipeline Demo Crew' },
   routing: {
     rules: [
       { pattern: 'security|audit|vulnerability', agents: ['Hockney'], tier: 'full' },
@@ -455,7 +455,7 @@ function printFinalReport(
   }
 
   console.log();
-  console.log(chalk.dim(`  Squad SDK v${VERSION} · github.com/bradygaster/squad-pr`));
+  console.log(chalk.dim(`  Crew SDK v${VERSION} · github.com/Blacklite/crew-pr`));
   console.log();
 }
 
@@ -513,7 +513,7 @@ function findNextTask(tasks: PipelineTask[], role: AgentRole): PipelineTask | un
   return tasks.find((t) => t.status === 'queued' && t.requiredRole === role);
 }
 
-/** Simulate the squad_route pattern — generates a follow-up task. */
+/** Simulate the crew_route pattern — generates a follow-up task. */
 function maybeRouteFollowUp(
   task: PipelineTask,
   agent: AgentState,
@@ -525,7 +525,7 @@ function maybeRouteFollowUp(
     timeline.push({
       timestamp: Date.now(),
       agent: agent.member.name,
-      event: `squad_route → Fenster: "Write tests for auth endpoints"`,
+      event: `crew_route → Fenster: "Write tests for auth endpoints"`,
       icon: '🔀',
     });
   }
@@ -543,13 +543,13 @@ function maybeRouteFollowUp(
     timeline.push({
       timestamp: Date.now(),
       agent: agent.member.name,
-      event: `squad_route → McManus: "${followUp.title}"`,
+      event: `crew_route → McManus: "${followUp.title}"`,
       icon: '🔀',
     });
   }
 }
 
-/** Simulate the squad_decide pattern. */
+/** Simulate the crew_decide pattern. */
 function maybeRecordDecision(
   task: PipelineTask,
   agent: AgentState,
@@ -565,7 +565,7 @@ function maybeRecordDecision(
     timeline.push({
       timestamp: Date.now(),
       agent: agent.member.name,
-      event: 'squad_decide: "Use JWT with RS256 signing"',
+      event: 'crew_decide: "Use JWT with RS256 signing"',
       icon: '📋',
     });
   }
@@ -578,7 +578,7 @@ function maybeRecordDecision(
     timeline.push({
       timestamp: Date.now(),
       agent: agent.member.name,
-      event: 'squad_decide: "Add request-ID headers"',
+      event: 'crew_decide: "Add request-ID headers"',
       icon: '📋',
     });
   }
@@ -591,13 +591,13 @@ function maybeRecordDecision(
     timeline.push({
       timestamp: Date.now(),
       agent: agent.member.name,
-      event: 'squad_decide: "Monthly JWT key rotation"',
+      event: 'crew_decide: "Monthly JWT key rotation"',
       icon: '📋',
     });
   }
 }
 
-/** Simulate the squad_memory pattern. */
+/** Simulate the crew_memory pattern. */
 function maybeRecordMemory(
   task: PipelineTask,
   agent: AgentState,
@@ -613,7 +613,7 @@ function maybeRecordMemory(
     timeline.push({
       timestamp: Date.now(),
       agent: agent.member.name,
-      event: 'squad_memory: "Token refresh returns 401"',
+      event: 'crew_memory: "Token refresh returns 401"',
       icon: '🧠',
     });
   }
@@ -626,7 +626,7 @@ function maybeRecordMemory(
     timeline.push({
       timestamp: Date.now(),
       agent: agent.member.name,
-      event: 'squad_memory: "Avatar S3 presigned URLs"',
+      event: 'crew_memory: "Avatar S3 presigned URLs"',
       icon: '🧠',
     });
   }
@@ -639,7 +639,7 @@ function maybeRecordMemory(
     timeline.push({
       timestamp: Date.now(),
       agent: agent.member.name,
-      event: 'squad_memory: "Pool size 20 optimal"',
+      event: 'crew_memory: "Pool size 20 optimal"',
       icon: '🧠',
     });
   }
@@ -650,7 +650,7 @@ function maybeRecordMemory(
 // ============================================================================
 
 function emitOTelMetrics(agent: AgentState, task: PipelineTask, durationMs: number, cost: ReturnType<typeof simulateCost>): void {
-  const tracer = getTracer('squad-pipeline-demo');
+  const tracer = getTracer('crew-pipeline-demo');
   const span = tracer.startSpan('pipeline.task.execute', {
     attributes: {
       'agent.name': agent.member.name,
@@ -685,13 +685,13 @@ export async function runPipeline(): Promise<void> {
   const startTime = Date.now();
 
   // ── OTel initialization (connects to Aspire if endpoint is configured) ──
-  let telemetryHandle: SquadTelemetryHandle | undefined;
+  let telemetryHandle: CrewTelemetryHandle | undefined;
   const otelEndpoint = process.env['OTEL_EXPORTER_OTLP_ENDPOINT'];
   if (otelEndpoint) {
-    telemetryHandle = initSquadTelemetry({
+    telemetryHandle = initCrewTelemetry({
       endpoint: otelEndpoint,
-      serviceName: 'squad-pipeline-demo',
-    } as Parameters<typeof initSquadTelemetry>[0]);
+      serviceName: 'crew-pipeline-demo',
+    } as Parameters<typeof initCrewTelemetry>[0]);
     console.log(chalk.green(`  ✅ OTel connected → ${otelEndpoint}`));
   }
 
@@ -720,7 +720,7 @@ export async function runPipeline(): Promise<void> {
 
   registerDemoSkills(skillRegistry);
 
-  telemetry.collectEvent({ name: 'squad.init', properties: { agents: cast.length, sample: 'autonomous-pipeline' } });
+  telemetry.collectEvent({ name: 'crew.init', properties: { agents: cast.length, sample: 'autonomous-pipeline' } });
 
   // ── Build agent states ──
   const agents: AgentState[] = cast.map((member, i) => {
@@ -728,7 +728,7 @@ export async function runPipeline(): Promise<void> {
     streaming.attachToSession(sessionId);
     recordSessionCreated();
     recordAgentSpawn(member.name);
-    telemetry.collectEvent({ name: 'squad.agent.spawn', properties: { agent: member.name, role: member.role } });
+    telemetry.collectEvent({ name: 'crew.agent.spawn', properties: { agent: member.name, role: member.role } });
     return {
       member,
       status: 'idle' as AgentStatus,
@@ -879,13 +879,13 @@ export async function runPipeline(): Promise<void> {
         icon: '✅',
       });
 
-      // Trigger squad_route / squad_decide / squad_memory patterns
+      // Trigger crew_route / crew_decide / crew_memory patterns
       maybeRouteFollowUp(task, agent, tasks, timeline);
       maybeRecordDecision(task, agent, decisions, timeline);
       maybeRecordMemory(task, agent, memories, timeline);
 
       telemetry.collectEvent({
-        name: 'squad.run',
+        name: 'crew.run',
         properties: {
           agent: agent.member.name,
           task: task.id,
@@ -919,7 +919,7 @@ export async function runPipeline(): Promise<void> {
   });
 
   telemetry.collectEvent({
-    name: 'squad.run',
+    name: 'crew.run',
     properties: {
       totalTasks: tasks.length,
       totalAgents: agents.length,

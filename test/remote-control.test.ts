@@ -1,5 +1,5 @@
 /**
- * Tests for Squad Remote Control
+ * Tests for Crew Remote Control
  * - RemoteBridge: WebSocket server, history, passthrough, sessions API
  * - Protocol: serialization, parsing
  * - Security: auth, rate limiting, session expiry, connection limits
@@ -19,11 +19,11 @@ import {
   RC_PROTOCOL_VERSION,
   serializeEvent,
   parseCommand,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
 describe('Protocol', () => {
   it('serializes events to JSON', () => {
-    const event = { type: 'status' as const, version: '1.0', repo: 'test', branch: 'main', machine: 'PC', squadDir: '.squad', connectedAt: '2026-01-01' };
+    const event = { type: 'status' as const, version: '1.0', repo: 'test', branch: 'main', machine: 'PC', crewDir: '.crew', connectedAt: '2026-01-01' };
     const json = serializeEvent(event);
     expect(JSON.parse(json)).toEqual(event);
   });
@@ -55,7 +55,7 @@ describe('RemoteBridge', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
   };
 
   beforeEach(async () => {
@@ -294,7 +294,7 @@ describe('Security — Authentication', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
   };
 
   beforeEach(() => { bridge = new RemoteBridge(config); });
@@ -435,7 +435,7 @@ describe('Security — Connection Limits', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
   };
 
   beforeEach(() => { bridge = new RemoteBridge(config); });
@@ -506,7 +506,7 @@ describe('Security — HTTP Rate Limiting', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
   };
 
   beforeEach(() => { bridge = new RemoteBridge(config); });
@@ -542,7 +542,7 @@ describe('Security — Origin Validation', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
   };
 
   beforeEach(() => { bridge = new RemoteBridge(config); });
@@ -605,7 +605,7 @@ describe('Security — ACP Method Allowlist', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
   };
 
   beforeEach(() => { bridge = new RemoteBridge(config); });
@@ -673,7 +673,7 @@ describe('Secret Redaction (via replay)', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
     enableReplay: true,
   };
 
@@ -844,7 +844,7 @@ describe('Static File Serving', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
   };
 
   beforeEach(() => { bridge = new RemoteBridge(config); });
@@ -922,7 +922,7 @@ describe('Client Commands', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
     onPrompt: (text: string) => { receivedPrompts.push(text); },
     onDirectMessage: (agentName: string, text: string) => { receivedDirect.push({ agent: agentName, text }); },
     onCommand: (name: string, args?: string[]) => { receivedCommands.push({ name, args }); },
@@ -1002,7 +1002,7 @@ describe('Client Commands', () => {
 describe('Tunnel Utilities', () => {
   // Test getGitInfo and getMachineId (these don't need devtunnel installed)
   it('getMachineId returns hostname', async () => {
-    const { getMachineId } = await import('../packages/squad-cli/src/cli/commands/rc-tunnel.js');
+    const { getMachineId } = await import('../packages/crew-cli/src/cli/commands/rc-tunnel.js');
     const id = getMachineId();
     expect(id).toBe(os.hostname());
     expect(typeof id).toBe('string');
@@ -1010,7 +1010,7 @@ describe('Tunnel Utilities', () => {
   });
 
   it('getGitInfo returns repo and branch from CWD', async () => {
-    const { getGitInfo } = await import('../packages/squad-cli/src/cli/commands/rc-tunnel.js');
+    const { getGitInfo } = await import('../packages/crew-cli/src/cli/commands/rc-tunnel.js');
     const info = getGitInfo(process.cwd());
     expect(info).toHaveProperty('repo');
     expect(info).toHaveProperty('branch');
@@ -1019,14 +1019,14 @@ describe('Tunnel Utilities', () => {
   });
 
   it('getGitInfo returns "unknown" for non-git directories', async () => {
-    const { getGitInfo } = await import('../packages/squad-cli/src/cli/commands/rc-tunnel.js');
+    const { getGitInfo } = await import('../packages/crew-cli/src/cli/commands/rc-tunnel.js');
     const info = getGitInfo(os.tmpdir());
     expect(info.repo).toBe('unknown');
     expect(info.branch).toBe('unknown');
   });
 
   it('isDevtunnelAvailable returns a boolean', async () => {
-    const { isDevtunnelAvailable } = await import('../packages/squad-cli/src/cli/commands/rc-tunnel.js');
+    const { isDevtunnelAvailable } = await import('../packages/crew-cli/src/cli/commands/rc-tunnel.js');
     const result = isDevtunnelAvailable();
     expect(typeof result).toBe('boolean');
   });
@@ -1093,7 +1093,7 @@ describe('Error Handling', () => {
     repo: 'test-repo',
     branch: 'main',
     machine: 'TEST-PC',
-    squadDir: '.squad',
+    crewDir: '.crew',
   };
 
   beforeEach(() => { bridge = new RemoteBridge(config); });
@@ -1257,7 +1257,7 @@ describe('Error Handling', () => {
     const auditPath = bridge.getAuditLogPath();
     expect(auditPath).toContain('.cli-tunnel');
     expect(auditPath).toContain('audit');
-    expect(auditPath).toContain('squad-audit-');
+    expect(auditPath).toContain('crew-audit-');
   });
 });
 
@@ -1270,7 +1270,7 @@ describe('Replay Buffer', () => {
 
   it('does not replay when enableReplay is false', async () => {
     bridge = new RemoteBridge({
-      port: 0, maxHistory: 100, repo: 'test', branch: 'main', machine: 'TEST', squadDir: '.squad',
+      port: 0, maxHistory: 100, repo: 'test', branch: 'main', machine: 'TEST', crewDir: '.crew',
       enableReplay: false,
     });
     const port = await bridge.start();
@@ -1291,7 +1291,7 @@ describe('Replay Buffer', () => {
 
   it('caps replay buffer at 2000 events', async () => {
     bridge = new RemoteBridge({
-      port: 0, maxHistory: 100, repo: 'test', branch: 'main', machine: 'TEST', squadDir: '.squad',
+      port: 0, maxHistory: 100, repo: 'test', branch: 'main', machine: 'TEST', crewDir: '.crew',
       enableReplay: true,
     });
     const port = await bridge.start();

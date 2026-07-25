@@ -1,68 +1,68 @@
 # SDK Reference
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Complete reference for `@bradygaster/squad-sdk` — the programmatic API for Squad.
+Complete reference for `@blacklite/crew-sdk` — the programmatic API for Crew.
 
 > **See also:** [API Reference](api-reference.md) — Complete auto-generated reference with full type signatures for all exports.
 
 ```bash
-npm install @bradygaster/squad-sdk
+npm install @blacklite/crew-sdk
 ```
 
 All imports work from the barrel export:
 
 ```typescript
-import { resolveSquad, loadConfig, SquadCoordinator, defineTool } from '@bradygaster/squad-sdk';
+import { resolveCrew, loadConfig, CrewCoordinator, defineTool } from '@blacklite/crew-sdk';
 ```
 
 ---
 
 ## Resolution
 
-Find `.squad/` directories on disk.
+Find `.crew/` directories on disk.
 
 | Function | Description |
 |----------|-------------|
-| `resolveSquad(startPath?)` | Find `.squad/` walking up from `startPath` (throws if not found) |
-| `resolveGlobalSquadPath()` | Get personal squad directory path (platform-specific) |
-| `ensureSquadPath(startPath?)` | Like `resolveSquad`, but creates `.squad/` if missing |
+| `resolveCrew(startPath?)` | Find `.crew/` walking up from `startPath` (throws if not found) |
+| `resolveGlobalCrewPath()` | Get personal crew directory path (platform-specific) |
+| `ensureCrewPath(startPath?)` | Like `resolveCrew`, but creates `.crew/` if missing |
 
 ```typescript
-const squadPath = resolveSquad();                // '/home/user/project/.squad'
-const globalPath = resolveGlobalSquadPath();      // Platform-specific: ~/.config/squad/ (Linux), ~/Library/Application Support/squad/ (macOS), %APPDATA%\squad\ (Windows)
-const safePath = ensureSquadPath();               // Creates if needed
+const crewPath = resolveCrew();                // '/home/user/project/.crew'
+const globalPath = resolveGlobalCrewPath();      // Platform-specific: ~/.config/crew/ (Linux), ~/Library/Application Support/crew/ (macOS), %APPDATA%\crew\ (Windows)
+const safePath = ensureCrewPath();               // Creates if needed
 ```
 
 ---
 
 ## Configuration
 
-### `loadConfig(squadPath): Promise<ConfigLoadResult>`
+### `loadConfig(crewPath): Promise<ConfigLoadResult>`
 
-Load and validate Squad configuration asynchronously.
+Load and validate Crew configuration asynchronously.
 
 ```typescript
-const config = await loadConfig('./.squad');
+const config = await loadConfig('./.crew');
 config.team.name;           // Team name
 Object.keys(config.agents); // Agent names
 config.routing.workTypes;   // Routing rules
 ```
 
-### `loadConfigSync(squadPath): ConfigLoadResult`
+### `loadConfigSync(crewPath): ConfigLoadResult`
 
 Synchronous version for scripts and CLI tools.
 
-### `defineConfig(partial): SquadConfig`
+### `defineConfig(partial): CrewConfig`
 
 Create a typed config with defaults and editor autocomplete:
 
 ```typescript
-// squad.config.ts
-import { defineConfig } from '@bradygaster/squad-sdk';
+// crew.config.ts
+import { defineConfig } from '@blacklite/crew-sdk';
 
 export default defineConfig({
-  team: { name: 'my-squad', root: '.squad' },
+  team: { name: 'my-crew', root: '.crew' },
   agents: {
     backend: { model: 'claude-sonnet-4', tools: ['route', 'memory', 'decision'] },
   },
@@ -106,7 +106,7 @@ interface AgentConfig {
 
 Type-safe team configuration with runtime validation. Each builder accepts a config object, validates it, and returns the typed value.
 
-> **New in Phase 1** — SDK-First Mode lets you define teams in TypeScript instead of manually maintaining markdown. Run `squad build` to generate `.squad/` files.
+> **New in Phase 1** — SDK-First Mode lets you define teams in TypeScript instead of manually maintaining markdown. Run `crew build` to generate `.crew/` files.
 
 See [SDK-First Mode Guide](../sdk-first-mode.md) for comprehensive documentation and examples.
 
@@ -116,7 +116,7 @@ Define team metadata, members, and project context.
 
 ```typescript
 const team = defineTeam({
-  name: 'Platform Squad',
+  name: 'Platform Crew',
   description: 'Full-stack engineering team',
   projectContext: 'React/Node monorepo, TypeScript strict mode',
   members: ['@edie', '@mcmanus', '@fenster'],
@@ -244,7 +244,7 @@ Define governance hooks — write paths, blocked commands, PII scrubbing.
 
 ```typescript
 const hooks = defineHooks({
-  allowedWritePaths: ['src/**', 'test/**', '.squad/**'],
+  allowedWritePaths: ['src/**', 'test/**', '.crew/**'],
   blockedCommands: ['rm -rf /', 'DROP TABLE'],
   maxAskUser: 3,
   scrubPii: true,
@@ -298,7 +298,7 @@ Define OpenTelemetry configuration for observability.
 const telemetry = defineTelemetry({
   enabled: true,
   endpoint: 'http://localhost:4317',
-  serviceName: 'squad-prod',
+  serviceName: 'crew-prod',
   sampleRate: 1.0,
   aspireDefaults: true,
 });
@@ -318,12 +318,12 @@ interface TelemetryDefinition {
 
 ---
 
-### `defineSquad(config): SquadSDKConfig`
+### `defineCrew(config): CrewSDKConfig`
 
 Compose all builders into a single SDK config.
 
 ```typescript
-export default defineSquad({
+export default defineCrew({
   version: '1.0.0',
   team: defineTeam({ /* ... */ }),
   agents: [defineAgent({ /* ... */ })],
@@ -334,7 +334,7 @@ export default defineSquad({
 **Type:**
 
 ```typescript
-interface SquadSDKConfig {
+interface CrewSDKConfig {
   readonly version?: string;
   readonly team: TeamDefinition;
   readonly agents: readonly AgentDefinition[];
@@ -348,14 +348,14 @@ interface SquadSDKConfig {
 
 ---
 
-## SquadClient
+## CrewClient
 
 Wraps `@github/copilot-sdk` with lifecycle management and auto-reconnection.
 
 ```typescript
-import { SquadClient } from '@bradygaster/squad-sdk';
+import { CrewClient } from '@blacklite/crew-sdk';
 
-const client = new SquadClient({
+const client = new CrewClient({
   port: 3000,
   auth: { token: process.env.COPILOT_TOKEN },
   reconnection: { maxRetries: 5, backoffMs: 1000 },
@@ -366,19 +366,19 @@ await client.connect();
 
 **Connection states:** `disconnected → connecting → connected → reconnecting → error`
 
-### SquadClientWithPool
+### CrewClientWithPool
 
-Production-ready client composing `SquadClient`, `SessionPool`, and `EventBus`:
+Production-ready client composing `CrewClient`, `SessionPool`, and `EventBus`:
 
 ```typescript
-import { SquadClientWithPool } from '@bradygaster/squad-sdk';
+import { CrewClientWithPool } from '@blacklite/crew-sdk';
 
-const squad = new SquadClientWithPool({
+const crew = new CrewClientWithPool({
   client: clientOptions,
   pool: { maxConcurrent: 10, idleTimeout: 60_000 },
 });
 
-const session = await squad.createSession({ agent: 'backend' });
+const session = await crew.createSession({ agent: 'backend' });
 const response = await session.sendMessage('Implement the /users endpoint');
 await session.destroy();
 ```
@@ -391,12 +391,12 @@ await session.destroy();
 
 Central routing and orchestration engine.
 
-### `SquadCoordinator`
+### `CrewCoordinator`
 
 ```typescript
-import { SquadCoordinator } from '@bradygaster/squad-sdk';
+import { CrewCoordinator } from '@blacklite/crew-sdk';
 
-const coordinator = new SquadCoordinator({ teamRoot: './.squad', enableParallel: true });
+const coordinator = new CrewCoordinator({ teamRoot: './.crew', enableParallel: true });
 await coordinator.initialize();
 
 const decision = await coordinator.route('refactor the API');
@@ -432,11 +432,11 @@ tier.toolset;       // Available tools
 Typed pub/sub for session lifecycle events:
 
 ```typescript
-squad.events.on('session.created', (event) => {
+crew.events.on('session.created', (event) => {
   console.log(`Session ${event.sessionId} started`);
 });
 
-squad.events.on('session.status_changed', (event) => {
+crew.events.on('session.status_changed', (event) => {
   if (event.payload.status === 'error') { /* handle */ }
 });
 ```
@@ -447,10 +447,10 @@ squad.events.on('session.status_changed', (event) => {
 
 ## Tools & Hooks
 
-### `defineTool<TArgs>(config): SquadTool<TArgs>`
+### `defineTool<TArgs>(config): CrewTool<TArgs>`
 
 ```typescript
-import { defineTool } from '@bradygaster/squad-sdk';
+import { defineTool } from '@blacklite/crew-sdk';
 
 const myTool = defineTool<{ query: string }>({
   name: 'search_docs',
@@ -470,36 +470,36 @@ const myTool = defineTool<{ query: string }>({
 ### `ToolRegistry`
 
 ```typescript
-import { ToolRegistry } from '@bradygaster/squad-sdk/tools';
-import type { FanOutDependencies } from '@bradygaster/squad-sdk/coordinator';
+import { ToolRegistry } from '@blacklite/crew-sdk/tools';
+import type { FanOutDependencies } from '@blacklite/crew-sdk/coordinator';
 
-const registry = new ToolRegistry('./.squad');
+const registry = new ToolRegistry('./.crew');
 registry.getTools();                                    // All tools
-registry.getToolsForAgent(['squad_route', 'squad_decide']); // Agent-specific
-registry.getTool('squad_route');                         // Single lookup
+registry.getToolsForAgent(['crew_route', 'crew_decide']); // Agent-specific
+registry.getTool('crew_route');                         // Single lookup
 ```
 
-**Constructor:** `new ToolRegistry(squadRoot?, sessionPoolGetter?, storage?, state?, fanOutDepsGetter?)`
+**Constructor:** `new ToolRegistry(crewRoot?, sessionPoolGetter?, storage?, state?, fanOutDepsGetter?)`
 
-- `fanOutDepsGetter` — Required for `squad_route` to create sessions via `spawnParallel`. Returns a `FanOutDependencies` object (from `@bradygaster/squad-sdk/coordinator`). Without it, `squad_route` returns `error: 'fan-out-deps-unavailable'`.
-- `state` — When provided, `squad_route` validates that the target agent exists in the roster before spawning.
+- `fanOutDepsGetter` — Required for `crew_route` to create sessions via `spawnParallel`. Returns a `FanOutDependencies` object (from `@blacklite/crew-sdk/coordinator`). Without it, `crew_route` returns `error: 'fan-out-deps-unavailable'`.
+- `state` — When provided, `crew_route` validates that the target agent exists in the roster before spawning.
 
 **Built-in tools:**
 
 | Tool | Purpose |
 |------|---------|
-| `squad_route` | Route a task to another agent (requires `fanOutDepsGetter`) |
-| `squad_decide` | Write decisions to the inbox |
-| `squad_memory` | Append to agent history |
-| `squad_status` | Query session pool state |
-| `squad_skill` | Read/write agent skills |
+| `crew_route` | Route a task to another agent (requires `fanOutDepsGetter`) |
+| `crew_decide` | Write decisions to the inbox |
+| `crew_memory` | Append to agent history |
+| `crew_status` | Query session pool state |
+| `crew_skill` | Read/write agent skills |
 
 ### HookPipeline
 
 Intercept tool calls before (`PreToolUseHook`) and after (`PostToolUseHook`) execution:
 
 ```typescript
-import { HookPipeline, type PreToolUseHook } from '@bradygaster/squad-sdk';
+import { HookPipeline, type PreToolUseHook } from '@blacklite/crew-sdk';
 
 const auditHook: PreToolUseHook = async (toolName, params, context) => {
   console.log(`Agent ${context.agentId} calling ${toolName}`);
@@ -522,7 +522,7 @@ pipeline.addPreHook(auditHook);
 
 ```typescript
 const result = await onboardAgent({
-  teamRoot: './.squad',
+  teamRoot: './.crew',
   agentName: 'data-analyst',
   role: 'backend',
   displayName: 'Dana — Data Analyst',
@@ -534,7 +534,7 @@ const result = await onboardAgent({
 ### `CastingEngine`
 
 ```typescript
-import { CastingEngine } from '@bradygaster/squad-sdk';
+import { CastingEngine } from '@blacklite/crew-sdk';
 
 const engine = new CastingEngine({ universes: ['The Wire'], activeUniverse: 'The Wire' });
 const members = await engine.castTeam([
@@ -549,7 +549,7 @@ const members = await engine.castTeam([
 ## Runtime Constants
 
 ```typescript
-import { MODELS, TIMEOUTS, AGENT_ROLES } from '@bradygaster/squad-sdk';
+import { MODELS, TIMEOUTS, AGENT_ROLES } from '@blacklite/crew-sdk';
 
 MODELS.premium;  // ['claude-opus-4.6', 'gpt-5.2', ...]
 MODELS.standard; // ['claude-sonnet-4.5', 'gpt-5.1', ...]
@@ -567,10 +567,10 @@ TIMEOUTS.coordinatorRouteMs; // 5000
 Share skills, decisions, and routing across teams.
 
 ```typescript
-import { readUpstreamConfig, resolveUpstreams, buildInheritedContextBlock } from '@bradygaster/squad-sdk';
+import { readUpstreamConfig, resolveUpstreams, buildInheritedContextBlock } from '@blacklite/crew-sdk';
 
-const config = await readUpstreamConfig('./.squad');
-const resolved = await resolveUpstreams(config, './.squad');
+const config = await readUpstreamConfig('./.crew');
+const resolved = await resolveUpstreams(config, './.crew');
 const contextBlock = buildInheritedContextBlock(resolved);
 ```
 
@@ -583,11 +583,11 @@ const contextBlock = buildInheritedContextBlock(resolved);
 ### Quick Setup
 
 ```typescript
-import { initSquadTelemetry } from '@bradygaster/squad-sdk';
+import { initCrewTelemetry } from '@blacklite/crew-sdk';
 
-const telemetry = await initSquadTelemetry({
+const telemetry = await initCrewTelemetry({
   endpoint: 'http://localhost:4318',
-  serviceName: 'my-squad',
+  serviceName: 'my-crew',
   eventBus: myEventBus,
 });
 
@@ -598,7 +598,7 @@ await telemetry.shutdown();
 ### Low-Level Control
 
 ```typescript
-import { initializeOTel, shutdownOTel, getTracer, getMeter } from '@bradygaster/squad-sdk';
+import { initializeOTel, shutdownOTel, getTracer, getMeter } from '@blacklite/crew-sdk';
 
 await initializeOTel({ endpoint: 'http://localhost:4318' });
 
@@ -618,7 +618,7 @@ await shutdownOTel();
 
 ## Error Classes
 
-All errors extend `SquadError` with severity, category, and recoverability:
+All errors extend `CrewError` with severity, category, and recoverability:
 
 | Error | When |
 |-------|------|
@@ -637,21 +637,21 @@ All errors extend `SquadError` with severity, category, and recoverability:
 
 | Export | Type | Module |
 |--------|------|--------|
-| `resolveSquad` | function | resolution |
-| `resolveGlobalSquadPath` | function | resolution |
-| `ensureSquadPath` | function | resolution |
+| `resolveCrew` | function | resolution |
+| `resolveGlobalCrewPath` | function | resolution |
+| `ensureCrewPath` | function | resolution |
 | `MODELS` | constant | runtime/constants |
 | `TIMEOUTS` | constant | runtime/constants |
 | `AGENT_ROLES` | constant | runtime/constants |
 | `loadConfig` / `loadConfigSync` | function | config |
 | `onboardAgent` | function | agents |
 | `CastingEngine` / `CastingHistory` | class | casting |
-| `SquadCoordinator` | class | coordinator |
+| `CrewCoordinator` | class | coordinator |
 | `selectResponseTier` / `getTier` | function | coordinator |
 | `defineTool` / `ToolRegistry` | function/class | tools |
 | `initializeOTel` / `shutdownOTel` | function | runtime/otel |
 | `getTracer` / `getMeter` | function | runtime/otel |
-| `initSquadTelemetry` | function | runtime/otel-init |
+| `initCrewTelemetry` | function | runtime/otel-init |
 
 ---
 

@@ -7,11 +7,11 @@ import {
   detectPlatformFromUrl,
   parseGitHubRemote,
   parseAzureDevOpsRemote,
-} from '../packages/squad-sdk/src/platform/detect.js';
-import { detectWorkItemSource } from '../packages/squad-sdk/src/platform/detect.js';
-import { getRalphScanCommands } from '../packages/squad-sdk/src/platform/ralph-commands.js';
-import { mapPlannerTaskToWorkItem } from '../packages/squad-sdk/src/platform/planner.js';
-import type { PlatformType, WorkItem, PullRequest, WorkItemSource, HybridPlatformConfig, PlatformAdapter } from '../packages/squad-sdk/src/platform/types.js';
+} from '../packages/crew-sdk/src/platform/detect.js';
+import { detectWorkItemSource } from '../packages/crew-sdk/src/platform/detect.js';
+import { getRalphScanCommands } from '../packages/crew-sdk/src/platform/ralph-commands.js';
+import { mapPlannerTaskToWorkItem } from '../packages/crew-sdk/src/platform/planner.js';
+import type { PlatformType, WorkItem, PullRequest, WorkItemSource, HybridPlatformConfig, PlatformAdapter } from '../packages/crew-sdk/src/platform/types.js';
 
 // ─── Platform Detection from URL ───────────────────────────────────────
 
@@ -61,8 +61,8 @@ describe('detectPlatformFromUrl', () => {
 
 describe('parseGitHubRemote', () => {
   it('parses HTTPS URL with .git suffix', () => {
-    const result = parseGitHubRemote('https://github.com/bradygaster/squad.git');
-    expect(result).toEqual({ owner: 'bradygaster', repo: 'squad' });
+    const result = parseGitHubRemote('https://github.com/Blacklite/crew.git');
+    expect(result).toEqual({ owner: 'Blacklite', repo: 'crew' });
   });
 
   it('parses HTTPS URL without .git suffix', () => {
@@ -197,14 +197,14 @@ describe('WorkItem type', () => {
       id: 42,
       title: 'Fix login bug',
       state: 'active',
-      tags: ['squad:alice', 'bug'],
+      tags: ['crew:alice', 'bug'],
       assignedTo: 'Alice',
       url: 'https://example.com/work-items/42',
     };
     expect(wi.id).toBe(42);
     expect(wi.title).toBe('Fix login bug');
     expect(wi.state).toBe('active');
-    expect(wi.tags).toEqual(['squad:alice', 'bug']);
+    expect(wi.tags).toEqual(['crew:alice', 'bug']);
     expect(wi.assignedTo).toBe('Alice');
     expect(wi.url).toContain('42');
   });
@@ -286,12 +286,12 @@ describe('PlatformAdapter createWorkItem interface', () => {
     const wi = await mockAdapter.createWorkItem({
       title: 'New feature request',
       description: 'Build the thing',
-      tags: ['squad', 'squad:untriaged'],
+      tags: ['crew', 'crew:untriaged'],
       type: 'User Story',
     });
     expect(wi.id).toBe(99);
     expect(wi.title).toBe('New feature request');
-    expect(wi.tags).toEqual(['squad', 'squad:untriaged']);
+    expect(wi.tags).toEqual(['crew', 'crew:untriaged']);
   });
 
   it('createWorkItem works with minimal options (title only)', async () => {
@@ -405,12 +405,12 @@ describe('getRalphScanCommands', () => {
 
     it('returns gh issue list for untriaged', () => {
       expect(cmds.listUntriaged).toContain('gh issue list');
-      expect(cmds.listUntriaged).toContain('squad:untriaged');
+      expect(cmds.listUntriaged).toContain('crew:untriaged');
     });
 
     it('returns gh issue list for assigned', () => {
       expect(cmds.listAssigned).toContain('gh issue list');
-      expect(cmds.listAssigned).toContain('squad:{member}');
+      expect(cmds.listAssigned).toContain('crew:{member}');
     });
 
     it('returns gh pr list for open PRs', () => {
@@ -445,12 +445,12 @@ describe('getRalphScanCommands', () => {
 
     it('returns az boards query for untriaged', () => {
       expect(cmds.listUntriaged).toContain('az boards query');
-      expect(cmds.listUntriaged).toContain('squad:untriaged');
+      expect(cmds.listUntriaged).toContain('crew:untriaged');
     });
 
     it('returns az boards query for assigned', () => {
       expect(cmds.listAssigned).toContain('az boards query');
-      expect(cmds.listAssigned).toContain('squad:{member}');
+      expect(cmds.listAssigned).toContain('crew:{member}');
     });
 
     it('returns az repos pr list for open PRs', () => {
@@ -557,7 +557,7 @@ describe('PlannerAdapter', () => {
 
   it('PlannerAdapter can be constructed with a plan ID', async () => {
     // Import the class to verify construction (no Graph calls)
-    const { PlannerAdapter } = await import('../packages/squad-sdk/src/platform/planner.js');
+    const { PlannerAdapter } = await import('../packages/crew-sdk/src/platform/planner.js');
     const adapter = new PlannerAdapter('rYe_WFgqUUqnSTZfpMdKcZUAER1P');
     expect(adapter.type).toBe('planner');
   });
@@ -574,10 +574,10 @@ describe('mapPlannerTaskToWorkItem', () => {
       bucketId: 'bucket-1',
       assignments: {},
     };
-    const wi = mapPlannerTaskToWorkItem(task, 'squad:untriaged');
+    const wi = mapPlannerTaskToWorkItem(task, 'crew:untriaged');
     expect(wi.title).toBe('Implement login page');
     expect(wi.state).toBe('active');
-    expect(wi.tags).toEqual(['squad:untriaged']);
+    expect(wi.tags).toEqual(['crew:untriaged']);
     expect(wi.url).toContain('abc123');
   });
 
@@ -601,8 +601,8 @@ describe('mapPlannerTaskToWorkItem', () => {
       bucketId: 'b1',
       assignments: {},
     };
-    const wi = mapPlannerTaskToWorkItem(task, 'squad:riker');
-    expect(wi.tags).toEqual(['squad:riker']);
+    const wi = mapPlannerTaskToWorkItem(task, 'crew:riker');
+    expect(wi.tags).toEqual(['crew:riker']);
   });
 
   it('generates a numeric id from string task id', () => {
@@ -613,7 +613,7 @@ describe('mapPlannerTaskToWorkItem', () => {
       bucketId: 'b',
       assignments: {},
     };
-    const wi = mapPlannerTaskToWorkItem(task, 'squad:untriaged');
+    const wi = mapPlannerTaskToWorkItem(task, 'crew:untriaged');
     expect(typeof wi.id).toBe('number');
     expect(wi.id).toBeGreaterThanOrEqual(0);
   });
@@ -630,16 +630,16 @@ describe('mapPlannerTaskToWorkItem', () => {
 // ─── Bucket-to-Tag Mapping ────────────────────────────────────────────
 
 describe('Planner bucket-to-tag mapping', () => {
-  it('squad:untriaged bucket maps to untriaged tag', () => {
+  it('crew:untriaged bucket maps to untriaged tag', () => {
     const task = { id: 't1', title: 'New', percentComplete: 0, bucketId: 'b-untriaged', assignments: {} };
-    const wi = mapPlannerTaskToWorkItem(task, 'squad:untriaged');
-    expect(wi.tags).toContain('squad:untriaged');
+    const wi = mapPlannerTaskToWorkItem(task, 'crew:untriaged');
+    expect(wi.tags).toContain('crew:untriaged');
   });
 
-  it('squad:member bucket maps to member assignment tag', () => {
+  it('crew:member bucket maps to member assignment tag', () => {
     const task = { id: 't2', title: 'Assigned', percentComplete: 0, bucketId: 'b-riker', assignments: {} };
-    const wi = mapPlannerTaskToWorkItem(task, 'squad:riker');
-    expect(wi.tags).toContain('squad:riker');
+    const wi = mapPlannerTaskToWorkItem(task, 'crew:riker');
+    expect(wi.tags).toContain('crew:riker');
   });
 
   it('Done bucket maps correctly', () => {
@@ -750,7 +750,7 @@ describe('AzureDevOpsAdapter work item config', () => {
   // exported interface and constructor shape via the type system + factory.
 
   it('AdoWorkItemConfig type is exported from platform index', async () => {
-    const mod = await import('../packages/squad-sdk/src/platform/index.js');
+    const mod = await import('../packages/crew-sdk/src/platform/index.js');
     // The type is export-only (interface), but AzureDevOpsAdapter is exported as a class
     expect(mod.AzureDevOpsAdapter).toBeDefined();
   });
@@ -758,14 +758,14 @@ describe('AzureDevOpsAdapter work item config', () => {
   it('AzureDevOpsAdapter constructor accepts 4th workItemConfig param', async () => {
     // Type-level test: verify the constructor accepts the config without ts errors.
     // We can't actually call it (needs az CLI), but we verify the signature exists.
-    const { AzureDevOpsAdapter: AdoCtor } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { AzureDevOpsAdapter: AdoCtor } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     expect(AdoCtor).toBeDefined();
     expect(AdoCtor.length).toBeGreaterThanOrEqual(3); // at least 3 required params
   });
 
   it('readAdoConfig returns undefined when no config file exists', async () => {
-    // createPlatformAdapter reads .squad/config.json — test that a non-ADO repo works
-    const { createPlatformAdapter } = await import('../packages/squad-sdk/src/platform/index.js');
+    // createPlatformAdapter reads .crew/config.json — test that a non-ADO repo works
+    const { createPlatformAdapter } = await import('../packages/crew-sdk/src/platform/index.js');
     expect(createPlatformAdapter).toBeDefined();
   });
 });
@@ -773,7 +773,7 @@ describe('AzureDevOpsAdapter work item config', () => {
 describe('ADO config.json ado section schema', () => {
   it('all AdoWorkItemConfig fields are optional', () => {
     // Empty object is valid — all fields fall back to defaults
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {};
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {};
     expect(config.org).toBeUndefined();
     expect(config.project).toBeUndefined();
     expect(config.defaultWorkItemType).toBeUndefined();
@@ -782,7 +782,7 @@ describe('ADO config.json ado section schema', () => {
   });
 
   it('accepts full ADO config with all fields', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       org: 'contoso',
       project: 'WorkItems',
       defaultWorkItemType: 'Scenario',
@@ -798,7 +798,7 @@ describe('ADO config.json ado section schema', () => {
 
   it('supports cross-project config (repo and work items in different projects)', () => {
     // This is the critical enterprise scenario
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       org: 'enterprise-org',
       project: 'planning-project',  // work items here
       // repo lives in 'engineering-project' — parsed from git remote
@@ -813,7 +813,7 @@ describe('ADO config.json ado section schema', () => {
 describe('getAvailableWorkItemTypes fallback', () => {
   it('returns fallback types when az CLI is not available', async () => {
     // getAvailableWorkItemTypes catches errors and returns defaults
-    const { getAvailableWorkItemTypes } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { getAvailableWorkItemTypes } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const types = getAvailableWorkItemTypes('nonexistent-org', 'nonexistent-project');
     expect(Array.isArray(types)).toBe(true);
     expect(types.length).toBeGreaterThanOrEqual(3);
@@ -823,7 +823,7 @@ describe('getAvailableWorkItemTypes fallback', () => {
   });
 
   it('fallback types are all enabled (not disabled)', async () => {
-    const { getAvailableWorkItemTypes } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { getAvailableWorkItemTypes } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const types = getAvailableWorkItemTypes('no-org', 'no-proj');
     for (const t of types) {
       expect(t.disabled).toBe(false);
@@ -831,7 +831,7 @@ describe('getAvailableWorkItemTypes fallback', () => {
   });
 
   it('fallback types have non-empty names and descriptions', async () => {
-    const { getAvailableWorkItemTypes } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { getAvailableWorkItemTypes } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const types = getAvailableWorkItemTypes('no-org', 'no-proj');
     for (const t of types) {
       expect(t.name.length).toBeGreaterThan(0);
@@ -842,26 +842,26 @@ describe('getAvailableWorkItemTypes fallback', () => {
 
 describe('validateWorkItemType', () => {
   it('validates "User Story" against fallback types', async () => {
-    const { validateWorkItemType } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { validateWorkItemType } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const result = validateWorkItemType('no-org', 'no-proj', 'User Story');
     expect(result.valid).toBe(true);
     expect(result.available).toContain('User Story');
   });
 
   it('validates "Bug" against fallback types', async () => {
-    const { validateWorkItemType } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { validateWorkItemType } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const result = validateWorkItemType('no-org', 'no-proj', 'Bug');
     expect(result.valid).toBe(true);
   });
 
   it('validates "Task" against fallback types', async () => {
-    const { validateWorkItemType } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { validateWorkItemType } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const result = validateWorkItemType('no-org', 'no-proj', 'Task');
     expect(result.valid).toBe(true);
   });
 
   it('rejects unknown type against fallback types', async () => {
-    const { validateWorkItemType } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { validateWorkItemType } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const result = validateWorkItemType('no-org', 'no-proj', 'InvalidType');
     expect(result.valid).toBe(false);
     expect(result.available.length).toBeGreaterThanOrEqual(3);
@@ -869,7 +869,7 @@ describe('validateWorkItemType', () => {
 
   it('is case-insensitive', { timeout: 10_000 }, async () => {
 
-    const { validateWorkItemType } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { validateWorkItemType } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const lower = validateWorkItemType('no-org', 'no-proj', 'user story');
     const upper = validateWorkItemType('no-org', 'no-proj', 'USER STORY');
     expect(lower.valid).toBe(true);
@@ -877,7 +877,7 @@ describe('validateWorkItemType', () => {
   });
 
   it('returns available types list even when invalid', async () => {
-    const { validateWorkItemType } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { validateWorkItemType } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const result = validateWorkItemType('no-org', 'no-proj', 'Nonexistent');
     expect(result.valid).toBe(false);
     expect(result.available).toEqual(expect.arrayContaining(['User Story', 'Bug', 'Task']));
@@ -886,7 +886,7 @@ describe('validateWorkItemType', () => {
 
 describe('WorkItemTypeInfo interface', () => {
   it('has required shape with name, description, disabled', async () => {
-    const { getAvailableWorkItemTypes } = await import('../packages/squad-sdk/src/platform/azure-devops.js');
+    const { getAvailableWorkItemTypes } = await import('../packages/crew-sdk/src/platform/azure-devops.js');
     const types = getAvailableWorkItemTypes('x', 'y');
     for (const t of types) {
       expect(typeof t.name).toBe('string');
@@ -899,7 +899,7 @@ describe('WorkItemTypeInfo interface', () => {
 describe('AdoWorkItemConfig defaultWorkItemType cascade', () => {
   it('options.type takes priority over config default', () => {
     // Simulate the cascade logic from createWorkItem
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       defaultWorkItemType: 'Scenario',
     };
     const optionsType = 'Bug';
@@ -908,7 +908,7 @@ describe('AdoWorkItemConfig defaultWorkItemType cascade', () => {
   });
 
   it('config.defaultWorkItemType used when options.type is undefined', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       defaultWorkItemType: 'Scenario',
     };
     const optionsType: string | undefined = undefined;
@@ -917,14 +917,14 @@ describe('AdoWorkItemConfig defaultWorkItemType cascade', () => {
   });
 
   it('falls back to "User Story" when both are undefined', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {};
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {};
     const optionsType: string | undefined = undefined;
     const resolved = optionsType ?? config.defaultWorkItemType ?? 'User Story';
     expect(resolved).toBe('User Story');
   });
 
   it('empty string type in config is treated as set (does not fall through)', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       defaultWorkItemType: '',
     };
     const optionsType: string | undefined = undefined;
@@ -936,7 +936,7 @@ describe('AdoWorkItemConfig defaultWorkItemType cascade', () => {
 
 describe('ADO area path and iteration path cascade', () => {
   it('explicit areaPath overrides config areaPath', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       areaPath: 'Project\\Default',
     };
     const optionsAreaPath = 'Project\\Override';
@@ -945,7 +945,7 @@ describe('ADO area path and iteration path cascade', () => {
   });
 
   it('config areaPath used when not provided in options', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       areaPath: 'Project\\Team Alpha',
     };
     const optionsAreaPath: string | undefined = undefined;
@@ -954,7 +954,7 @@ describe('ADO area path and iteration path cascade', () => {
   });
 
   it('explicit iterationPath overrides config iterationPath', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       iterationPath: 'Project\\Sprint 1',
     };
     const optionsIterationPath = 'Project\\Sprint 2';
@@ -963,7 +963,7 @@ describe('ADO area path and iteration path cascade', () => {
   });
 
   it('config iterationPath used when not provided in options', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {
       iterationPath: 'Project\\Sprint 3',
     };
     const optionsIterationPath: string | undefined = undefined;
@@ -972,14 +972,14 @@ describe('ADO area path and iteration path cascade', () => {
   });
 
   it('undefined when neither options nor config provide areaPath', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {};
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {};
     const optionsAreaPath: string | undefined = undefined;
     const resolved = optionsAreaPath ?? config.areaPath;
     expect(resolved).toBeUndefined();
   });
 
   it('undefined when neither options nor config provide iterationPath', () => {
-    const config: import('../packages/squad-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {};
+    const config: import('../packages/crew-sdk/src/platform/azure-devops.js').AdoWorkItemConfig = {};
     const optionsIterationPath: string | undefined = undefined;
     const resolved = optionsIterationPath ?? config.iterationPath;
     expect(resolved).toBeUndefined();
@@ -1083,35 +1083,35 @@ describe('ADO config.json read/write round-trip', () => {
 
 describe('ADO exports from platform index', () => {
   it('exports getAvailableWorkItemTypes function', async () => {
-    const mod = await import('../packages/squad-sdk/src/platform/index.js');
+    const mod = await import('../packages/crew-sdk/src/platform/index.js');
     expect(typeof mod.getAvailableWorkItemTypes).toBe('function');
   });
 
   it('exports validateWorkItemType function', async () => {
-    const mod = await import('../packages/squad-sdk/src/platform/index.js');
+    const mod = await import('../packages/crew-sdk/src/platform/index.js');
     expect(typeof mod.validateWorkItemType).toBe('function');
   });
 
   it('getAvailableWorkItemTypes returns array from index re-export', async () => {
-    const mod = await import('../packages/squad-sdk/src/platform/index.js');
+    const mod = await import('../packages/crew-sdk/src/platform/index.js');
     const types = mod.getAvailableWorkItemTypes('test-org', 'test-proj');
     expect(Array.isArray(types)).toBe(true);
     expect(types.length).toBeGreaterThan(0);
   });
 });
 
-// ─── createPlatformAdapter with .squad/config.json GitHub override ─────
+// ─── createPlatformAdapter with .crew/config.json GitHub override ─────
 
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { execSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 
-describe('createPlatformAdapter with .squad/config.json github override', () => {
+describe('createPlatformAdapter with .crew/config.json github override', () => {
   let tempDir: string;
 
   function setupTempRepo(): string {
-    tempDir = mkdtempSync(join(tmpdir(), 'squad-test-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'crew-test-'));
     // Initialize a git repo with a GitHub remote (fallback detection target)
     execSync('git init', { cwd: tempDir, stdio: 'ignore' });
     execSync('git remote add origin https://github.com/fallbackowner/fallbackrepo.git', { cwd: tempDir, stdio: 'ignore' });
@@ -1124,17 +1124,17 @@ describe('createPlatformAdapter with .squad/config.json github override', () => 
     }
   }
 
-  it('uses owner/repo from .squad/config.json when present', async () => {
+  it('uses owner/repo from .crew/config.json when present', async () => {
     const repoRoot = setupTempRepo();
     try {
-      // Write .squad/config.json with github override
-      const squadDir = join(repoRoot, '.squad');
-      mkdirSync(squadDir, { recursive: true });
-      writeFileSync(join(squadDir, 'config.json'), JSON.stringify({
+      // Write .crew/config.json with github override
+      const crewDir = join(repoRoot, '.crew');
+      mkdirSync(crewDir, { recursive: true });
+      writeFileSync(join(crewDir, 'config.json'), JSON.stringify({
         github: { owner: 'testowner', repo: 'testrepo' }
       }));
 
-      const { createPlatformAdapter } = await import('../packages/squad-sdk/src/platform/index.js');
+      const { createPlatformAdapter } = await import('../packages/crew-sdk/src/platform/index.js');
       const adapter = createPlatformAdapter(repoRoot);
 
       // Should be a GitHubAdapter with the config values, not the remote values
@@ -1150,12 +1150,12 @@ describe('createPlatformAdapter with .squad/config.json github override', () => 
   it('falls back to git remote when github key is absent', async () => {
     const repoRoot = setupTempRepo();
     try {
-      // Write .squad/config.json WITHOUT github key
-      const squadDir = join(repoRoot, '.squad');
-      mkdirSync(squadDir, { recursive: true });
-      writeFileSync(join(squadDir, 'config.json'), JSON.stringify({ version: 1 }));
+      // Write .crew/config.json WITHOUT github key
+      const crewDir = join(repoRoot, '.crew');
+      mkdirSync(crewDir, { recursive: true });
+      writeFileSync(join(crewDir, 'config.json'), JSON.stringify({ version: 1 }));
 
-      const { createPlatformAdapter } = await import('../packages/squad-sdk/src/platform/index.js');
+      const { createPlatformAdapter } = await import('../packages/crew-sdk/src/platform/index.js');
       const adapter = createPlatformAdapter(repoRoot);
 
       expect(adapter).toBeDefined();
@@ -1169,13 +1169,13 @@ describe('createPlatformAdapter with .squad/config.json github override', () => 
   it('falls back to git remote when github key is malformed (missing repo)', async () => {
     const repoRoot = setupTempRepo();
     try {
-      const squadDir = join(repoRoot, '.squad');
-      mkdirSync(squadDir, { recursive: true });
-      writeFileSync(join(squadDir, 'config.json'), JSON.stringify({
+      const crewDir = join(repoRoot, '.crew');
+      mkdirSync(crewDir, { recursive: true });
+      writeFileSync(join(crewDir, 'config.json'), JSON.stringify({
         github: { owner: 'testowner' } // missing repo
       }));
 
-      const { createPlatformAdapter } = await import('../packages/squad-sdk/src/platform/index.js');
+      const { createPlatformAdapter } = await import('../packages/crew-sdk/src/platform/index.js');
       const adapter = createPlatformAdapter(repoRoot);
 
       expect(adapter).toBeDefined();
@@ -1189,13 +1189,13 @@ describe('createPlatformAdapter with .squad/config.json github override', () => 
   it('falls back to git remote when github key is malformed (non-string values)', async () => {
     const repoRoot = setupTempRepo();
     try {
-      const squadDir = join(repoRoot, '.squad');
-      mkdirSync(squadDir, { recursive: true });
-      writeFileSync(join(squadDir, 'config.json'), JSON.stringify({
+      const crewDir = join(repoRoot, '.crew');
+      mkdirSync(crewDir, { recursive: true });
+      writeFileSync(join(crewDir, 'config.json'), JSON.stringify({
         github: { owner: 123, repo: true }
       }));
 
-      const { createPlatformAdapter } = await import('../packages/squad-sdk/src/platform/index.js');
+      const { createPlatformAdapter } = await import('../packages/crew-sdk/src/platform/index.js');
       const adapter = createPlatformAdapter(repoRoot);
 
       expect(adapter).toBeDefined();
@@ -1209,11 +1209,11 @@ describe('createPlatformAdapter with .squad/config.json github override', () => 
   it('falls back to git remote when config.json is invalid JSON', async () => {
     const repoRoot = setupTempRepo();
     try {
-      const squadDir = join(repoRoot, '.squad');
-      mkdirSync(squadDir, { recursive: true });
-      writeFileSync(join(squadDir, 'config.json'), '{ not valid json !!!');
+      const crewDir = join(repoRoot, '.crew');
+      mkdirSync(crewDir, { recursive: true });
+      writeFileSync(join(crewDir, 'config.json'), '{ not valid json !!!');
 
-      const { createPlatformAdapter } = await import('../packages/squad-sdk/src/platform/index.js');
+      const { createPlatformAdapter } = await import('../packages/crew-sdk/src/platform/index.js');
       const adapter = createPlatformAdapter(repoRoot);
 
       expect(adapter).toBeDefined();
@@ -1224,10 +1224,10 @@ describe('createPlatformAdapter with .squad/config.json github override', () => 
     }
   });
 
-  it('falls back to git remote when no .squad/config.json exists', async () => {
+  it('falls back to git remote when no .crew/config.json exists', async () => {
     const repoRoot = setupTempRepo();
     try {
-      const { createPlatformAdapter } = await import('../packages/squad-sdk/src/platform/index.js');
+      const { createPlatformAdapter } = await import('../packages/crew-sdk/src/platform/index.js');
       const adapter = createPlatformAdapter(repoRoot);
 
       expect(adapter).toBeDefined();

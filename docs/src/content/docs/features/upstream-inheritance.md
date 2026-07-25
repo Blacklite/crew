@@ -1,18 +1,18 @@
 # Upstream Inheritance
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Upstream inheritance lets you declare external Squad sources (from repositories, local directories, or exports) and automatically inherit their context at session start. Share practices across teams, organizations, and projects without duplicating configuration.
+Upstream inheritance lets you declare external Crew sources (from repositories, local directories, or exports) and automatically inherit their context at session start. Share practices across teams, organizations, and projects without duplicating configuration.
 
 ## How it works
 
 At session start, the coordinator reads all declared upstreams from `upstream.json` and makes their context available to every agent:
 
 - **Skills** — `.copilot/skills/*/SKILL.md`
-- **Decisions** — `.squad/decisions.md`
-- **Wisdom** — `.squad/identity/wisdom.md`
-- **Casting policy** — `.squad/casting/policy.json`
-- **Routing** — `.squad/routing.md`
+- **Decisions** — `.crew/decisions.md`
+- **Wisdom** — `.crew/identity/wisdom.md`
+- **Casting policy** — `.crew/casting/policy.json`
+- **Routing** — `.crew/routing.md`
 
 **Resolution order:** Later entries override earlier ones. Layer upstreams from org → team → repo, with each level adding or overriding as needed.
 
@@ -20,32 +20,32 @@ At session start, the coordinator reads all declared upstreams from `upstream.js
 
 | Type | Example | Use case |
 |------|---------|----------|
-| **local** | `../org-practices/.squad/` | Sibling repo, shared drive, monorepo package |
-| **git** | `https://github.com/acme/platform-squad.git` | Public/private team repo (with credentials) |
-| **export** | `./exports/squad-export.json` | Snapshot for offline use or version pinning |
+| **local** | `../org-practices/.crew/` | Sibling repo, shared drive, monorepo package |
+| **git** | `https://github.com/acme/platform-crew.git` | Public/private team repo (with credentials) |
+| **export** | `./exports/crew-export.json` | Snapshot for offline use or version pinning |
 
 ## Quick start
 
 **Local upstream:**
 
 ```bash
-squad upstream add ../org-practices/.squad
-squad upstream list
-# org-practices → local: /path/to/org-practices/.squad (never synced)
+crew upstream add ../org-practices/.crew
+crew upstream list
+# org-practices → local: /path/to/org-practices/.crew (never synced)
 ```
 
 **Git upstream:**
 
 ```bash
-squad upstream add https://github.com/acme/platform-squad.git --name platform --ref main
-squad upstream sync platform
+crew upstream add https://github.com/acme/platform-crew.git --name platform --ref main
+crew upstream sync platform
 ```
 
 **Export snapshot:**
 
 ```bash
-squad export-config --output ./exports/snapshot.json
-squad upstream add ./exports/snapshot.json --name snapshot
+crew export-config --output ./exports/snapshot.json
+crew upstream add ./exports/snapshot.json --name snapshot
 ```
 
 ## Troubleshooting
@@ -56,47 +56,47 @@ Ensure the URL is correct and you have access. For private repos, use SSH (`git@
 
 ### Local upstream not found
 
-Verify the path exists: `ls ../shared/.squad`. Use absolute paths if relative paths fail.
+Verify the path exists: `ls ../shared/.crew`. Use absolute paths if relative paths fail.
 
 ### Agents don't see inherited context
 
 ```bash
 # Verify upstreams are configured
-squad upstream list
+crew upstream list
 
 # Sync and validate sources
-squad upstream sync
+crew upstream sync
 
 # Restart your session (resolution happens at session start)
 ```
 
-For git upstreams, check `.squad/_upstream_repos/{name}` exists.
+For git upstreams, check `.crew/_upstream_repos/{name}` exists.
 
 ### Cached clone out of date
 
 ```bash
-squad upstream sync <name>
+crew upstream sync <name>
 ```
 
 Then start a new session.
 
 ### Conflicting upstreams
 
-Later entries in `upstream.json` override earlier ones. Check order with `squad upstream list`. Reorder with `remove` + `add` if needed.
+Later entries in `upstream.json` override earlier ones. Check order with `crew upstream list`. Reorder with `remove` + `add` if needed.
 
 ## CLI Reference
 
-### `squad upstream add <source>`
+### `crew upstream add <source>`
 
 Add a new upstream source.
 
 **Signature:**
 ```
-squad upstream add <source> [--name <name>] [--ref <branch>]
+crew upstream add <source> [--name <name>] [--ref <branch>]
 ```
 
 **Arguments:**
-- `<source>` — File path, git URL, or export JSON file. Squad auto-detects the type.
+- `<source>` — File path, git URL, or export JSON file. Crew auto-detects the type.
 
 **Options:**
 - `--name <name>` — Display name (optional; defaults to repo/dir name)
@@ -106,81 +106,81 @@ squad upstream add <source> [--name <name>] [--ref <branch>]
 
 Local directory:
 ```bash
-squad upstream add ../shared-squad --name shared
+crew upstream add ../shared-crew --name shared
 ```
 
 Git repository:
 ```bash
-squad upstream add https://github.com/acme/platform-squad.git --name platform --ref main
+crew upstream add https://github.com/acme/platform-crew.git --name platform --ref main
 ```
 
 Export file:
 ```bash
-squad upstream add ./exports/org-snapshot.json --name org-snapshot
+crew upstream add ./exports/org-snapshot.json --name org-snapshot
 ```
 
 **What happens:**
-- Reads `upstream.json` from `.squad/`
+- Reads `upstream.json` from `.crew/`
 - Detects source type (local, git, export)
-- For git sources: auto-clones to `.squad/_upstream_repos/{name}`
-- Adds entry to `.squad/upstream.json`
+- For git sources: auto-clones to `.crew/_upstream_repos/{name}`
+- Adds entry to `.crew/upstream.json`
 - For local/export: coordinator reads live at session start (no sync needed)
 
-### `squad upstream remove <name>`
+### `crew upstream remove <name>`
 
 Remove an upstream by name.
 
 **Signature:**
 ```
-squad upstream remove <name>
+crew upstream remove <name>
 ```
 
 **Examples:**
 ```bash
-squad upstream remove platform
+crew upstream remove platform
 ```
 
 **What happens:**
-- Removes entry from `.squad/upstream.json`
-- Deletes cached clone from `.squad/_upstream_repos/{name}` if it exists
+- Removes entry from `.crew/upstream.json`
+- Deletes cached clone from `.crew/_upstream_repos/{name}` if it exists
 
-### `squad upstream list`
+### `crew upstream list`
 
 Show all configured upstreams.
 
 **Signature:**
 ```
-squad upstream list
+crew upstream list
 ```
 
 **Output example:**
 ```
 Configured upstreams:
 
-  platform  →  git: https://github.com/acme/platform-squad.git (ref: main)  (synced 2026-02-22)
-  shared    →  local: /home/alice/shared-squad  (never synced)
+  platform  →  git: https://github.com/acme/platform-crew.git (ref: main)  (synced 2026-02-22)
+  shared    →  local: /home/alice/shared-crew  (never synced)
   snapshot  →  export: ./exports/org-snapshot.json  (synced 2026-02-22)
 ```
 
-### `squad upstream sync [name]`
+### `crew upstream sync [name]`
 
 Update cached clones for git upstreams, or validate paths for local/export upstreams.
 
 **Signature:**
 ```
-squad upstream sync [name]
+crew upstream sync [name]
 ```
 
 **Examples:**
 
 Sync all:
 ```bash
-squad upstream sync
+crew upstream sync
 ```
 
 Sync one:
 ```bash
-squad upstream sync platform
+crew upstream sync platform
 ```
 
 **What happens:**
@@ -254,38 +254,38 @@ interface UpstreamResolution {
 
 ### Functions
 
-#### `readUpstreamConfig(squadDir: string): UpstreamConfig | null`
+#### `readUpstreamConfig(crewDir: string): UpstreamConfig | null`
 
-Read and parse `upstream.json` from a squad directory.
+Read and parse `upstream.json` from a crew directory.
 
 **Returns:** `null` if file doesn't exist or is invalid.
 
 **Example:**
 ```typescript
-import { readUpstreamConfig } from '@bradygaster/squad-sdk';
+import { readUpstreamConfig } from '@blacklite/crew-sdk';
 
-const config = readUpstreamConfig('.squad');
+const config = readUpstreamConfig('.crew');
 if (config) {
   console.log(`Found ${config.upstreams.length} upstreams`);
 }
 ```
 
-#### `resolveUpstreams(squadDir: string): UpstreamResolution | null`
+#### `resolveUpstreams(crewDir: string): UpstreamResolution | null`
 
 Resolve all upstream sources declared in `upstream.json`.
 
 For each upstream:
-- **local**: reads directly from the source's `.squad/`
-- **git**: reads from `.squad/_upstream_repos/{name}/` (must be cloned first)
+- **local**: reads directly from the source's `.crew/`
+- **git**: reads from `.crew/_upstream_repos/{name}/` (must be cloned first)
 - **export**: reads from the JSON file
 
 **Returns:** `null` if no `upstream.json` exists. If a source can't be reached, that upstream is included with empty content (no error thrown).
 
 **Example:**
 ```typescript
-import { resolveUpstreams } from '@bradygaster/squad-sdk';
+import { resolveUpstreams } from '@blacklite/crew-sdk';
 
-const resolution = resolveUpstreams('.squad');
+const resolution = resolveUpstreams('.crew');
 if (resolution) {
   for (const upstream of resolution.upstreams) {
     console.log(`${upstream.name}: ${upstream.skills.length} skills`);
@@ -331,11 +331,11 @@ Build a user-facing display for session start greeting.
 
 **Problem:** Multiple teams need consistent agent definitions, decisions, and casting policy without duplicating configuration.
 
-**Solution:** Create a central Squad repo (platform-squad) with shared context. Product teams add it as an upstream.
+**Solution:** Create a central Crew repo (platform-crew) with shared context. Product teams add it as an upstream.
 
 ```bash
-# In platform-squad repo
-.squad/
+# In platform-crew repo
+.crew/
   decisions.md
   casting/policy.json
   skills/
@@ -343,10 +343,10 @@ Build a user-facing display for session start greeting.
     backend-engineer/SKILL.md
 
 # In product-a repo
-squad upstream add https://github.com/acme/platform-squad.git --name platform --ref main
+crew upstream add https://github.com/acme/platform-crew.git --name platform --ref main
 ```
 
-**Outcome:** Platform team updates practices once. All product teams inherit changes at next `squad upstream sync`. Product teams can layer their own skills or override decisions as needed.
+**Outcome:** Platform team updates practices once. All product teams inherit changes at next `crew upstream sync`. Product teams can layer their own skills or override decisions as needed.
 
 **Also works for:**
 - Open-source frameworks with community plugins
@@ -362,7 +362,7 @@ squad upstream add https://github.com/acme/platform-squad.git --name platform --
 
 ```bash
 # In shared-domain repo
-.squad/
+.crew/
   skills/
     domain-modeler/SKILL.md
     database-engineer/SKILL.md
@@ -370,7 +370,7 @@ squad upstream add https://github.com/acme/platform-squad.git --name platform --
   routing.md
 
 # In user-service, order-service, payment-service repos
-squad upstream add https://github.com/acme/shared-domain.git --name domain
+crew upstream add https://github.com/acme/shared-domain.git --name domain
 ```
 
 **Outcome:** All agents across services understand the domain model. Domain conventions change once; each service pulls independently. Services stay decoupled with consistency.
@@ -385,7 +385,7 @@ squad upstream add https://github.com/acme/shared-domain.git --name domain
 
 ```bash
 # In acme-unified-practices repo (post-acquisition example)
-.squad/
+.crew/
   decisions.md        # Merged decision framework
   casting/policy.json # Unified roles
   skills/
@@ -393,7 +393,7 @@ squad upstream add https://github.com/acme/shared-domain.git --name domain
     acquired-engineer/SKILL.md
 
 # In both original and acquired product repos
-squad upstream add https://github.com/acme/acme-unified-practices.git --name unified
+crew upstream add https://github.com/acme/acme-unified-practices.git --name unified
 ```
 
 **Outcome:** Teams work independently while culturally aligned. Agents understand both traditions. Gradual convergence without painful rewrites.
@@ -405,6 +405,6 @@ squad upstream add https://github.com/acme/acme-unified-practices.git --name uni
 ## Next Steps
 
 - **Read more:** See `docs/guide/casting.md` for how inherited casting policy shapes agent behavior
-- **Set up**: Run `squad upstream add <source>` to add your first upstream
-- **Share:** Export your Squad config with `squad export-config` for others to inherit
-- **Iterate:** Update your upstream and run `squad upstream sync` to pull changes across all consuming projects
+- **Set up**: Run `crew upstream add <source>` to add your first upstream
+- **Share:** Export your Crew config with `crew export-config` for others to inherit
+- **Iterate:** Update your upstream and run `crew upstream sync` to pull changes across all consuming projects

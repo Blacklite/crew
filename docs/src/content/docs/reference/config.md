@@ -1,32 +1,32 @@
 # Configuration Reference
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this:**
 ```
-squad init
+crew init
 ```
-That's it. Squad works out of the box. Everything below is optional.
+That's it. Crew works out of the box. Everything below is optional.
 
 ---
 
-## squad.config.ts
+## crew.config.ts
 
 For type-safe SDK-First configuration, create this at your project root:
 
 ```typescript
 import {
-  defineSquad,
+  defineCrew,
   defineTeam,
   defineAgent,
   defineRouting,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
-export default defineSquad({
+export default defineCrew({
   version: '1.0.0',
   team: defineTeam({
-    name: 'my-squad',
+    name: 'my-crew',
     description: 'My project team',
     members: ['@edie', '@mcmanus'],
   }),
@@ -54,16 +54,16 @@ export default defineSquad({
 });
 ```
 
-Each builder (`defineSquad()`, `defineTeam()`, `defineAgent()`, etc.) validates your config at runtime with type-safe error messages. Edit your `.ts` file, then run `squad build` to generate `.squad/` markdown.
+Each builder (`defineCrew()`, `defineTeam()`, `defineAgent()`, etc.) validates your config at runtime with type-safe error messages. Edit your `.ts` file, then run `crew build` to generate `.crew/` markdown.
 
-**Or start with markdown:** `squad init` creates a markdown-only squad with no config file needed.
+**Or start with markdown:** `crew init` creates a markdown-only crew with no config file needed.
 
 ---
 
-## .squad/ Directory
+## .crew/ Directory
 
 ```
-.squad/
+.crew/
 ├── team.md              # Who's on the team
 ├── routing.md           # Work routing rules
 ├── decisions.md         # Architectural decisions (shared memory)
@@ -85,49 +85,49 @@ Commit this directory. It's your team's brain. Anyone who clones the repo gets t
 
 ---
 
-## .squad/ — Required vs Optional Files
+## .crew/ — Required vs Optional Files
 
-`squad init` creates a working team. Here's what's required and what's optional.
+`crew init` creates a working team. Here's what's required and what's optional.
 
 ### Required Files
 
-These are always created by `squad init`. The loader expects them.
+These are always created by `crew init`. The loader expects them.
 
 | File | Purpose | Can You Edit? |
 |------|---------|---------------|
-| `.squad/team.md` | Team roster — loader requires it | Yes |
-| `.squad/decisions.md` | Shared decision log — agents read before work | Yes (append only) |
-| `.squad/routing.md` | Work assignment rules | Yes |
-| `.squad/ceremonies.md` | Team meeting definitions | Yes |
-| `.squad/config.json` | SDK settings (teamRoot, version) | Rarely |
-| `.squad/agents/{name}/charter.md` | Agent identity — compiled at spawn | Yes |
-| `.squad/agents/{name}/history.md` | Agent learnings — grows over time | Append only |
-| `.squad/identity/now.md` | Current team focus | Auto-updated |
-| `.squad/identity/wisdom.md` | Accumulated team patterns | Auto-updated |
+| `.crew/team.md` | Team roster — loader requires it | Yes |
+| `.crew/decisions.md` | Shared decision log — agents read before work | Yes (append only) |
+| `.crew/routing.md` | Work assignment rules | Yes |
+| `.crew/ceremonies.md` | Team meeting definitions | Yes |
+| `.crew/config.json` | SDK settings (teamRoot, version) | Rarely |
+| `.crew/agents/{name}/charter.md` | Agent identity — compiled at spawn | Yes |
+| `.crew/agents/{name}/history.md` | Agent learnings — grows over time | Append only |
+| `.crew/identity/now.md` | Current team focus | Auto-updated |
+| `.crew/identity/wisdom.md` | Accumulated team patterns | Auto-updated |
 | `.gitattributes` | Merge drivers for append-only files | Merge rules only |
 
 ### Optional Files
 
 These are created only when you opt in during init.
 
-- **`.squad/templates/`** — SDK templates, overwritten on upgrade
+- **`.crew/templates/`** — SDK templates, overwritten on upgrade
 - **`.github/workflows/*.yml`** — CI/CD workflows (opt-in: `--include-workflows`)
 - **`.copilot/mcp-config.json`** — MCP server config (opt-in: `--include-mcp-config`)
 
-> ⚠️ **Hard rule:** Squad NEVER writes temp files, logs, or memory to your repo root. All team state lives in `.squad/` only. Your project tree stays clean.
+> ⚠️ **Hard rule:** Crew NEVER writes temp files, logs, or memory to your repo root. All team state lives in `.crew/` only. Your project tree stays clean.
 
 ### Quick Recovery
 
 ```bash
-squad doctor                        # Check for issues
-rm -rf .squad && squad init         # Full reset (back up agents/decisions first)
+crew doctor                        # Check for issues
+rm -rf .crew && crew init         # Full reset (back up agents/decisions first)
 ```
 
 ---
 
 ## Routing Rules
 
-Control which agent gets which work. Edit `.squad/routing.md` or configure in `squad.config.ts`:
+Control which agent gets which work. Edit `.crew/routing.md` or configure in `crew.config.ts`:
 
 ```markdown
 # Routing Rules
@@ -158,7 +158,7 @@ routing: {
 
 ## Model Configuration
 
-17 models across three tiers. Squad picks the right one, or you override:
+17 models across three tiers. Crew picks the right one, or you override:
 
 | Tier | Models | Use Case |
 |------|--------|----------|
@@ -181,11 +181,11 @@ Resolution order: user override → charter → task auto-select → config defa
 
 ## Resolution Order
 
-Squad finds `.squad/` by walking up:
+Crew finds `.crew/` by walking up:
 
-1. Current directory (`./.squad/`)
+1. Current directory (`./.crew/`)
 2. Parent directories (up to project root)
-3. Personal squad directory (platform-specific: `~/.config/squad/` on Linux, `~/Library/Application Support/squad/` on macOS, `%APPDATA%\squad\` on Windows)
+3. Personal crew directory (platform-specific: `~/.config/crew/` on Linux, `~/Library/Application Support/crew/` on macOS, `%APPDATA%\crew\` on Windows)
 4. Global CLI default (fallback)
 
 First match wins.
@@ -196,7 +196,7 @@ First match wins.
 
 | Variable | Purpose |
 |----------|---------|
-| `SQUAD_CLIENT` | Detected client (`cli` or `vscode`) |
+| `CREW_CLIENT` | Detected client (`cli` or `vscode`) |
 | `COPILOT_TOKEN` | Auth token for SDK usage |
 
 ---

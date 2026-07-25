@@ -1,4 +1,4 @@
-# Squad on Large Codebases
+# Crew on Large Codebases
 
 **Try this to understand before changing:**
 ```
@@ -10,13 +10,13 @@ This is a 200k line codebase — help me understand the architecture before we s
 Route all payment code work to the specialist who knows that domain
 ```
 
-Squad handles scale: each agent gets their own 200K context window, routing ensures only the right agent looks at relevant code. No loading everything — just what's needed.
+Crew handles scale: each agent gets their own 200K context window, routing ensures only the right agent looks at relevant code. No loading everything — just what's needed.
 
 ---
 
 ## 1. The Scale Problem
 
-How Squad handles scale. Agents work in their own 200K context windows. Routing ensures only the right agent looks at code.
+How Crew handles scale. Agents work in their own 200K context windows. Routing ensures only the right agent looks at code.
 
 Large codebases overwhelm most AI tools:
 
@@ -25,7 +25,7 @@ Large codebases overwhelm most AI tools:
 - **Deep module trees** — agents get lost in the structure
 - **Multiple services** — monorepos with 10+ services
 
-Squad doesn't try to load everything. Instead, **each agent gets its own 200K token context window**, and **routing ensures only the right agent works on relevant code**.
+Crew doesn't try to load everything. Instead, **each agent gets its own 200K token context window**, and **routing ensures only the right agent works on relevant code**.
 
 ---
 
@@ -37,7 +37,7 @@ When you give a task:
 > Team, add a payment processing feature.
 ```
 
-Squad spawns multiple agents **in parallel**, each with their own context:
+Crew spawns multiple agents **in parallel**, each with their own context:
 
 ```
 🏗️ Neo      — 200K token context (reviewing architecture)
@@ -83,7 +83,7 @@ When you say:
 
 The coordinator routes to Morpheus. **Only Morpheus** looks at backend code.
 
-This is how Squad scales — **selective loading**, not brute-force context.
+This is how Crew scales — **selective loading**, not brute-force context.
 
 ---
 

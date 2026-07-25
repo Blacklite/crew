@@ -1,6 +1,6 @@
 # SQLite StorageProvider sample
 
-This sample demonstrates `SQLiteStorageProvider` from `@bradygaster/squad-sdk` — a portable, single-file storage backend powered by [sql.js](https://github.com/nicolewhite/sql.js/) (SQLite compiled to WASM). No native dependencies required.
+This sample demonstrates `SQLiteStorageProvider` from `@blacklite/crew-sdk` — a portable, single-file storage backend powered by [sql.js](https://github.com/nicolewhite/sql.js/) (SQLite compiled to WASM). No native dependencies required.
 
 ## Prerequisites
 
@@ -31,7 +31,7 @@ This sample demonstrates `SQLiteStorageProvider` from `@bradygaster/squad-sdk` �
 
    ```bash
    npm run demo:keep
-   # Then inspect: sqlite3 squad-demo.db "SELECT path FROM files;"
+   # Then inspect: sqlite3 crew-demo.db "SELECT path FROM files;"
    # Clean up when done: npm run clean
    ```
 
@@ -46,7 +46,7 @@ This sample demonstrates `SQLiteStorageProvider` from `@bradygaster/squad-sdk` �
 
 ## How it works
 
-The demo creates a `SQLiteStorageProvider` backed by a local `squad-demo.db` file. Under the hood, sql.js runs a full SQLite engine compiled to WebAssembly — no native binaries or platform-specific compilation needed. Files are stored as rows in a `files(path, content, updated_at)` table, with paths treated as virtual keys (not filesystem paths).
+The demo creates a `SQLiteStorageProvider` backed by a local `crew-demo.db` file. Under the hood, sql.js runs a full SQLite engine compiled to WebAssembly — no native binaries or platform-specific compilation needed. Files are stored as rows in a `files(path, content, updated_at)` table, with paths treated as virtual keys (not filesystem paths).
 
 The script walks through every `StorageProvider` operation: write, read, list, stat, append, copy, rename, and delete. It then proves persistence by creating a **second** provider instance from the same database file and reading data back.
 
@@ -60,18 +60,18 @@ At the end, the demo removes the `.db` file so you start clean each run. Pass `-
 ╚══════════════════════════════════════════════╝
 
 ── 1. Write Files ────────────────────────────────
-✓ Provider initialized (db: ./squad-demo.db)
+✓ Provider initialized (db: ./crew-demo.db)
 ✓ Wrote team.md (138 bytes)
 ✓ Wrote routing.md (52 bytes)
 ✓ Wrote agents/flight/charter.md (254 bytes)
 
 ── 2. Read Files ─────────────────────────────────
-✓ team.md → "# Squad Team" …
+✓ team.md → "# Crew Team" …
 ✓ routing.md → "# Routing Rules" …
 ✓ agents/flight/charter.md → "# FLIGHT — Commander" …
 
 ── 3. List Directory ─────────────────────────────
-squad/ entries: [config.json]
+crew/ entries: [config.json]
 agents/ entries: [flight]
 agents/flight/ entries: [charter.md]
 
@@ -100,14 +100,14 @@ agents/flight/ entries: [charter.md]
 ✓ Deleted team-archive.md (exists=false)
 
 ── 9. Persistence ────────────────────────────────
-✓ DB file on disk: ./squad-demo.db (12288 bytes)
+✓ DB file on disk: ./crew-demo.db (12288 bytes)
 ✓ Created new provider instance from same DB
-✓ team.md from new instance: "# Squad Team" …
+✓ team.md from new instance: "# Crew Team" …
 ✓ routing.md from new instance: "# Routing Rules" …
 ✓ Data persists across provider instances!
 
 ── Cleanup ────────────────────────────────────────
-✓ Removed ./squad-demo.db (use --keep to preserve)
+✓ Removed ./crew-demo.db (use --keep to preserve)
 
 ✅ All demos completed successfully!
 ```
@@ -132,14 +132,14 @@ agents/flight/ entries: [charter.md]
 
 | Scenario | Why SQLite fits |
 | --- | --- |
-| Portable single-file storage | One `.db` file contains all squad data — easy to copy, back up, or share |
+| Portable single-file storage | One `.db` file contains all crew data — easy to copy, back up, or share |
 | Embedded applications | No filesystem layout required; everything lives in one file |
 | Testing with persistence | Swap in a fresh `.db` per test run for isolated, repeatable tests |
 | Environments without filesystem access | Virtual paths mean you can run in containers or serverless with minimal volume mounts |
 
 ## Next steps
 
-- Explore the [StorageProvider interface](../../packages/squad-sdk/src/storage/storage-provider.ts) for the full API contract
+- Explore the [StorageProvider interface](../../packages/crew-sdk/src/storage/storage-provider.ts) for the full API contract
 - See `InMemoryStorageProvider` for a zero-persistence alternative
 - See `FSStorageProvider` for traditional filesystem-backed storage
-- Check the [squad-sdk README](../../packages/squad-sdk/README.md) for more SDK features
+- Check the [crew-sdk README](../../packages/crew-sdk/README.md) for more SDK features

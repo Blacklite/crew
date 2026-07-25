@@ -14,7 +14,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { FSStorageProvider } from '../packages/squad-sdk/src/storage/fs-storage-provider.js';
+import { FSStorageProvider } from '../packages/crew-sdk/src/storage/fs-storage-provider.js';
 import {
   LocalMemoryStore,
   MemPalaceMemoryProvider,
@@ -23,14 +23,14 @@ import {
   type MemoryProvider,
   type MemoryProviderSearchResult,
   type MemoryProviderStatus,
-} from '../packages/squad-sdk/src/memory/index.js';
+} from '../packages/crew-sdk/src/memory/index.js';
 
 const roots: string[] = [];
 
 function testRoot(prefix: string): string {
   const root = path.join(process.cwd(), `.test-${prefix}-${randomUUID()}`);
   roots.push(root);
-  fs.mkdirSync(path.join(root, '.squad'), { recursive: true });
+  fs.mkdirSync(path.join(root, '.crew'), { recursive: true });
   return root;
 }
 
@@ -249,8 +249,8 @@ describe('LocalMemoryStore with registered providers', () => {
     });
 
     expect(result.stored).toBe(true);
-    // Local store wrote the file (path is .squad-relative, join with root to resolve)
-    expect(result.path).toContain('.squad');
+    // Local store wrote the file (path is .crew-relative, join with root to resolve)
+    expect(result.path).toContain('.crew');
     expect(fs.existsSync(path.join(root, result.path!))).toBe(true);
 
     // Both providers received the write
@@ -479,7 +479,7 @@ describe('LocalMemoryStore with registered providers', () => {
       enabled: false,
       actor: 'test',
     });
-    const configPath = path.join(root, '.squad', 'memory', 'config.json');
+    const configPath = path.join(root, '.crew', 'memory', 'config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8')) as {
       policy: { auditMaxBytes: number; auditMaxArchives: number };
     };
@@ -493,8 +493,8 @@ describe('LocalMemoryStore with registered providers', () => {
       requestedClass: 'LOCAL',
     });
 
-    expect(fs.existsSync(path.join(root, '.squad', 'memory', 'audit.1.jsonl'))).toBe(true);
-    expect(fs.existsSync(path.join(root, '.squad', 'memory', 'audit.jsonl'))).toBe(true);
+    expect(fs.existsSync(path.join(root, '.crew', 'memory', 'audit.1.jsonl'))).toBe(true);
+    expect(fs.existsSync(path.join(root, '.crew', 'memory', 'audit.jsonl'))).toBe(true);
   });
 
   it('blocks unsafe indexed paths during local search', async () => {
@@ -505,7 +505,7 @@ describe('LocalMemoryStore with registered providers', () => {
       title: 'Safe memory',
       requestedClass: 'LOCAL',
     });
-    const indexPath = path.join(root, '.squad', 'memory', 'index.json');
+    const indexPath = path.join(root, '.crew', 'memory', 'index.json');
     const index = JSON.parse(fs.readFileSync(indexPath, 'utf8')) as Array<Record<string, string>>;
     index[0]!.path = '../outside.md';
     fs.writeFileSync(indexPath, `${JSON.stringify(index, null, 2)}\n`);
@@ -532,7 +532,7 @@ describe('LocalMemoryStore — concurrent writes and index integrity', () => {
     expect(r1.id).not.toBe(r2.id);
 
     // Both entries must survive in the persisted index.
-    const indexPath = path.join(root, '.squad', 'memory', 'index.json');
+    const indexPath = path.join(root, '.crew', 'memory', 'index.json');
     const index = JSON.parse(fs.readFileSync(indexPath, 'utf8')) as Array<{ id: string; status: string }>;
     const activeIds = index.filter(e => e.status === 'active').map(e => e.id);
     expect(activeIds).toContain(r1.id!);
@@ -553,7 +553,7 @@ describe('LocalMemoryStore — concurrent writes and index integrity', () => {
     const ids = new Set(results.map(r => r.id));
     expect(ids.size).toBe(N);
 
-    const indexPath = path.join(root, '.squad', 'memory', 'index.json');
+    const indexPath = path.join(root, '.crew', 'memory', 'index.json');
     const index = JSON.parse(fs.readFileSync(indexPath, 'utf8')) as Array<{ id: string; status: string }>;
     const activeIds = new Set(index.filter(e => e.status === 'active').map(e => e.id));
     for (const id of ids) {
@@ -570,7 +570,7 @@ describe('LocalMemoryStore — corrupted index.json handling', () => {
     await store.write({ content: 'Baseline memory.', title: 'Baseline', requestedClass: 'LOCAL' });
 
     // Corrupt the index.
-    const indexPath = path.join(root, '.squad', 'memory', 'index.json');
+    const indexPath = path.join(root, '.crew', 'memory', 'index.json');
     fs.writeFileSync(indexPath, '{ this is: not valid JSON }');
 
     // A subsequent write must throw, not silently reset to empty.
@@ -584,7 +584,7 @@ describe('LocalMemoryStore — corrupted index.json handling', () => {
     const store = new LocalMemoryStore(new FSStorageProvider(), root);
     await store.write({ content: 'Baseline memory.', title: 'Baseline', requestedClass: 'LOCAL' });
 
-    const indexPath = path.join(root, '.squad', 'memory', 'index.json');
+    const indexPath = path.join(root, '.crew', 'memory', 'index.json');
     const corruptContent = '{ this is: not valid JSON }';
     fs.writeFileSync(indexPath, corruptContent);
 
@@ -601,7 +601,7 @@ describe('LocalMemoryStore — corrupted index.json handling', () => {
     const store = new LocalMemoryStore(new FSStorageProvider(), root);
     await store.write({ content: 'Baseline memory.', title: 'Baseline', requestedClass: 'LOCAL' });
 
-    const indexPath = path.join(root, '.squad', 'memory', 'index.json');
+    const indexPath = path.join(root, '.crew', 'memory', 'index.json');
     fs.writeFileSync(indexPath, JSON.stringify({ entries: [] }));
 
     await expect(
@@ -627,7 +627,7 @@ describe('LocalMemoryStore — delete tombstone ordering', () => {
     const deleted = await store.delete(id!);
     expect(deleted).toBe(true);
 
-    const tombstonePath = path.join(root, '.squad', 'memory', 'tombstones', `${id}.json`);
+    const tombstonePath = path.join(root, '.crew', 'memory', 'tombstones', `${id}.json`);
     expect(fs.existsSync(tombstonePath)).toBe(true);
 
     const tombstone = JSON.parse(fs.readFileSync(tombstonePath, 'utf8')) as {
@@ -680,7 +680,7 @@ describe('LocalMemoryStore — delete tombstone ordering', () => {
     await expect(store.delete(id!)).rejects.toThrow('Simulated source delete failure');
 
     // Tombstone must exist (written before the source delete).
-    const tombstonePath = path.join(root, '.squad', 'memory', 'tombstones', `${id}.json`);
+    const tombstonePath = path.join(root, '.crew', 'memory', 'tombstones', `${id}.json`);
     expect(fs.existsSync(tombstonePath)).toBe(true);
   });
 });

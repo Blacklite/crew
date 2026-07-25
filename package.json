@@ -1,23 +1,23 @@
 {
-  "name": "@bradygaster/squad",
-  "version": "0.11.0",
+  "name": "@blacklite/crew",
+  "version": "0.11.0-build.1",
   "private": true,
-  "description": "Squad — Programmable multi-agent runtime for GitHub Copilot, built on @github/copilot-sdk",
+  "description": "Crew — Programmable multi-agent runtime for GitHub Copilot and Claude Code",
   "type": "module",
   "workspaces": [
     "packages/*"
   ],
   "dependencies": {
-    "@bradygaster/squad-sdk": "file:packages/squad-sdk"
+    "@blacklite/crew-sdk": "file:packages/crew-sdk"
   },
   "overrides": {
-    "@bradygaster/squad-cli": {
-      "@bradygaster/squad-sdk": "$@bradygaster/squad-sdk"
+    "@blacklite/crew-cli": {
+      "@blacklite/crew-sdk": "$@blacklite/crew-sdk"
     }
   },
   "scripts": {
     "prebuild": "node scripts/bump-build.mjs && node scripts/sync-skill-templates.mjs && node scripts/sync-templates.mjs",
-    "build": "npm run build -w packages/squad-sdk && npm run build -w packages/squad-cli",
+    "build": "npm run build -w packages/crew-sdk && npm run build -w packages/crew-cli",
     "sync-templates": "node scripts/sync-templates.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -25,11 +25,11 @@
     "experiment:memory-value": "node scripts/measure-memory-value.mjs",
     "experiment:real-cli-ab": "node scripts/real-cli-ab.js",
     "bench:cold-start": "node scripts/measure-cold-start.mjs",
-    "lint": "tsc --noEmit -p packages/squad-sdk/tsconfig.json && tsc --noEmit -p packages/squad-cli/tsconfig.json",
+    "lint": "tsc --noEmit -p packages/crew-sdk/tsconfig.json && tsc --noEmit -p packages/crew-cli/tsconfig.json",
     "lint:eslint": "eslint packages/ test/",
     "lint:docs": "markdownlint-cli2 && cspell --no-progress --dot \"docs/src/content/**/*.md\" \"README.md\"",
-    "dev:link": "npm run build && cd packages/squad-sdk && npm link && cd ../squad-cli && npm link",
-    "dev:unlink": "cd packages/squad-cli && npm unlink && cd ../squad-sdk && npm unlink",
+    "dev:link": "npm run build && cd packages/crew-sdk && npm link && cd ../crew-cli && npm link",
+    "dev:unlink": "cd packages/crew-cli && npm unlink && cd ../crew-sdk && npm unlink",
     "docs:api": "node scripts/generate-api-docs.mjs",
     "docs:build": "npm run docs:api && cd docs && npm run build",
     "docs:dev": "cd docs && npm run dev",
@@ -59,16 +59,16 @@
   "keywords": [
     "copilot",
     "multi-agent",
-    "squad",
+    "crew",
     "sdk"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/bradygaster/squad#readme",
+  "homepage": "https://github.com/Blacklite/crew#readme",
   "bugs": {
-    "url": "https://github.com/bradygaster/squad/issues"
+    "url": "https://github.com/Blacklite/crew/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bradygaster/squad.git"
+    "url": "https://github.com/Blacklite/crew.git"
   }
 }

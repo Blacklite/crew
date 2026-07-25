@@ -14,13 +14,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import React from 'react';
 import { render } from 'ink-testing-library';
-import { App } from '../packages/squad-cli/src/cli/shell/components/App.js';
-import type { ShellApi, AppProps } from '../packages/squad-cli/src/cli/shell/components/App.js';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import { parseInput } from '../packages/squad-cli/src/cli/shell/router.js';
-import { executeCommand } from '../packages/squad-cli/src/cli/shell/commands.js';
-import type { ParsedInput } from '../packages/squad-cli/src/cli/shell/router.js';
+import { App } from '../packages/crew-cli/src/cli/shell/components/App.js';
+import type { ShellApi, AppProps } from '../packages/crew-cli/src/cli/shell/components/App.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import { parseInput } from '../packages/crew-cli/src/cli/shell/router.js';
+import { executeCommand } from '../packages/crew-cli/src/cli/shell/commands.js';
+import type { ParsedInput } from '../packages/crew-cli/src/cli/shell/router.js';
 
 const h = React.createElement;
 
@@ -69,7 +69,7 @@ function renderApp(options: {
   const props: AppProps = {
     registry,
     renderer,
-    teamRoot: '/tmp/fake-squad-root',
+    teamRoot: '/tmp/fake-crew-root',
     version: '0.0.0-test',
     onReady,
     onDispatch: options.onDispatch,

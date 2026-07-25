@@ -4,7 +4,7 @@ import {
   TaskSpawnBackend,
   type CreateSessionFn,
   type SpawnHandle,
-} from '@bradygaster/squad-sdk/coordinator';
+} from '@blacklite/crew-sdk/coordinator';
 
 describe('spawn backends', () => {
   it('TaskSpawnBackend creates a real session and sends the initial prompt', async () => {
@@ -32,7 +32,7 @@ describe('spawn backends', () => {
     });
     expect(createSession).toHaveBeenCalledWith({
       model: 'claude-sonnet-4.5',
-      clientName: 'squad-agent-fenster',
+      clientName: 'crew-agent-fenster',
       reasoningEffort: 'high',
     });
     expect(sendMessage).toHaveBeenCalledWith({

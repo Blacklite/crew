@@ -1,38 +1,38 @@
 # Self Upgrade
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-**Try this to upgrade Squad CLI:**
+**Try this to upgrade Crew CLI:**
 ```bash
-squad upgrade --self
+crew upgrade --self
 ```
 
 **Try this to upgrade to latest insider build:**
 ```bash
-squad upgrade --self --insider
+crew upgrade --self --insider
 ```
 
 **Try this to upgrade both CLI and repo templates:**
 ```bash
-squad upgrade --self && squad upgrade
+crew upgrade --self && crew upgrade
 ```
 
-Squad can upgrade itself to the latest stable or insider release, then automatically refresh your repo templates. Insider builds are published from the `dev` branch to the npm `insider` dist-tag.
+Crew can upgrade itself to the latest stable or insider release, then automatically refresh your repo templates. Insider builds are published from the `dev` branch to the npm `insider` dist-tag.
 
 ---
 
 ## What It Does
 
-`squad upgrade --self` upgrades the Squad CLI package to the latest stable release:
+`crew upgrade --self` upgrades the Crew CLI package to the latest stable release:
 
 1. **Detects package manager** — auto-detects npm, pnpm, or yarn based on lock files
-2. **Upgrades package** — runs `npm install -g @bradygaster/squad@latest` (or pnpm/yarn equivalent)
-3. **Runs repo upgrade** — automatically runs `squad upgrade` to apply new templates
+2. **Upgrades package** — runs `npm install -g @blacklite/crew@latest` (or pnpm/yarn equivalent)
+3. **Runs repo upgrade** — automatically runs `crew upgrade` to apply new templates
 
 **Result:**
-- Squad CLI upgraded to latest stable
-- Your repo's `.squad/` templates refreshed with latest version
+- Crew CLI upgraded to latest stable
+- Your repo's `.crew/` templates refreshed with latest version
 - All in one command
 
 ---
@@ -42,17 +42,17 @@ Squad can upgrade itself to the latest stable or insider release, then automatic
 ### Upgrade to Latest Stable
 
 ```bash
-squad upgrade --self
+crew upgrade --self
 ```
 
 **Output:**
 ```
-🔄 Upgrading Squad CLI...
+🔄 Upgrading Crew CLI...
    Detected package manager: npm
-   Running: npm install -g @bradygaster/squad@latest
+   Running: npm install -g @blacklite/crew@latest
 
-✅ Squad CLI upgraded to v0.8.0
-   Running: squad upgrade (to refresh repo templates)
+✅ Crew CLI upgraded to v0.8.0
+   Running: crew upgrade (to refresh repo templates)
 
 ✅ Repo templates upgraded to v0.8.0
 ```
@@ -62,7 +62,7 @@ squad upgrade --self
 ### Upgrade to Latest Insider
 
 ```bash
-squad upgrade --self --insider
+crew upgrade --self --insider
 ```
 
 **What's different:**
@@ -72,12 +72,12 @@ squad upgrade --self --insider
 
 **Output:**
 ```
-🔄 Upgrading Squad CLI (insider)...
+🔄 Upgrading Crew CLI (insider)...
    Detected package manager: pnpm
-   Running: pnpm add -g @bradygaster/squad@insider
+   Running: pnpm add -g @blacklite/crew@insider
 
-✅ Squad CLI upgraded to v0.9.0-insider.3
-   Running: squad upgrade (to refresh repo templates)
+✅ Crew CLI upgraded to v0.9.0-insider.3
+   Running: crew upgrade (to refresh repo templates)
 
 ✅ Repo templates upgraded to v0.9.0-insider.3
 ```
@@ -86,14 +86,14 @@ squad upgrade --self --insider
 
 ## Package Manager Auto-Detection
 
-Squad auto-detects your package manager based on lock files in the current directory:
+Crew auto-detects your package manager based on lock files in the current directory:
 
 | Lock File | Detected Manager | Command Used |
 |-----------|------------------|--------------|
-| `pnpm-lock.yaml` | pnpm | `pnpm add -g @bradygaster/squad@latest` |
-| `yarn.lock` | Yarn | `yarn global add @bradygaster/squad@latest` |
-| `package-lock.json` | npm | `npm install -g @bradygaster/squad@latest` |
-| *(none)* | npm (fallback) | `npm install -g @bradygaster/squad@latest` |
+| `pnpm-lock.yaml` | pnpm | `pnpm add -g @blacklite/crew@latest` |
+| `yarn.lock` | Yarn | `yarn global add @blacklite/crew@latest` |
+| `package-lock.json` | npm | `npm install -g @blacklite/crew@latest` |
+| *(none)* | npm (fallback) | `npm install -g @blacklite/crew@latest` |
 
 **Notes:**
 - Detection runs in current working directory
@@ -104,7 +104,7 @@ Squad auto-detects your package manager based on lock files in the current direc
 
 ## Auto-Refresh Repo Templates
 
-After upgrading the CLI, `squad upgrade --self` automatically runs `squad upgrade` to refresh your repo's `.squad/` templates. This ensures:
+After upgrading the CLI, `crew upgrade --self` automatically runs `crew upgrade` to refresh your repo's `.crew/` templates. This ensures:
 
 - Built-in skills updated to latest versions
 - Charter templates refreshed
@@ -116,7 +116,7 @@ After upgrading the CLI, `squad upgrade --self` automatically runs `squad upgrad
 If you want to upgrade the CLI without refreshing repo templates:
 
 ```bash
-squad upgrade --self --skip-repo-upgrade
+crew upgrade --self --skip-repo-upgrade
 ```
 
 *(This flag may not exist yet — just showing the pattern. For now, self-upgrade always runs repo upgrade.)*
@@ -135,7 +135,7 @@ If upgrade fails with permission denied:
 
 1. **Use sudo (macOS/Linux):**
    ```bash
-   sudo squad upgrade --self
+   sudo crew upgrade --self
    ```
 
 2. **Fix npm permissions:**
@@ -156,27 +156,27 @@ If upgrade fails with permission denied:
 
 ## Version Check
 
-Check current Squad version:
+Check current Crew version:
 
 ```bash
-squad --version
+crew --version
 ```
 
 **Output:**
 ```
-@bradygaster/squad v0.8.0
+@blacklite/crew v0.8.0
 ```
 
 Check if a newer version is available:
 
 ```bash
-npm outdated -g @bradygaster/squad
+npm outdated -g @blacklite/crew
 ```
 
 **Output:**
 ```
 Package             Current  Wanted  Latest  Location
-@bradygaster/squad  0.7.5    0.8.0   0.8.0   global
+@blacklite/crew  0.7.5    0.8.0   0.8.0   global
 ```
 
 ---
@@ -184,7 +184,7 @@ Package             Current  Wanted  Latest  Location
 ## Checking Update Status Programmatically
 
 ```bash
-squad update-check --json
+crew update-check --json
 ```
 
 Reads the same cache the background startup check maintains and prints it as structured JSON, without making a network call:
@@ -213,10 +213,10 @@ This gives editor extensions, coordinator instructions, and CI scripts a stable 
 ```
 Current: 0.9.6-insider.2 (insider channel)
 Latest:  0.9.7-insider.1
-Update available. Run `squad upgrade --self` to install.
+Update available. Run `crew upgrade --self` to install.
 ```
 
-Honors `SQUAD_NO_UPDATE_CHECK=1` — exits `0` with no output (or `{}` with `--json`) and never calls the network.
+Honors `CREW_NO_UPDATE_CHECK=1` — exits `0` with no output (or `{}` with `--json`) and never calls the network.
 
 ---
 
@@ -229,7 +229,7 @@ Honors `SQUAD_NO_UPDATE_CHECK=1` — exits `0` with no output (or `{}` with `--j
 
 **When to use insider:**
 - You want to test upcoming features
-- You're contributing to Squad development
+- You're contributing to Crew development
 - You need a bug fix before the next stable release
 
 **When to use stable:**
@@ -245,17 +245,17 @@ Honors `SQUAD_NO_UPDATE_CHECK=1` — exits `0` with no output (or `{}` with `--j
 
 1. **Check current version:**
    ```bash
-   squad --version
+   crew --version
    ```
 
 2. **Upgrade CLI to latest stable:**
    ```bash
-   squad upgrade --self
+   crew upgrade --self
    ```
 
 3. **Verify new version:**
    ```bash
-   squad --version
+   crew --version
    ```
 
 4. **Repo templates auto-refreshed** — no extra step needed
@@ -275,25 +275,25 @@ Honors `SQUAD_NO_UPDATE_CHECK=1` — exits `0` with no output (or `{}` with `--j
 ## Sample Prompts
 
 ```
-squad upgrade --self
+crew upgrade --self
 ```
 
-Upgrades Squad CLI to latest stable and refreshes repo templates.
+Upgrades Crew CLI to latest stable and refreshes repo templates.
 
 ```
-squad upgrade --self --insider
+crew upgrade --self --insider
 ```
 
-Upgrades Squad CLI to latest insider/prerelease build.
+Upgrades Crew CLI to latest insider/prerelease build.
 
 ```
-squad --version
+crew --version
 ```
 
-Checks current Squad CLI version.
+Checks current Crew CLI version.
 
 ```
-npm outdated -g @bradygaster/squad
+npm outdated -g @blacklite/crew
 ```
 
 Checks if a newer version is available without upgrading.

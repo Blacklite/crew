@@ -1,5 +1,5 @@
 /**
- * Repo Sync tests — export/import Squad configuration to/from GitHub repos
+ * Repo Sync tests — export/import Crew configuration to/from GitHub repos
  */
 
 import { describe, it, expect, vi } from 'vitest';
@@ -8,8 +8,8 @@ import {
   importFromRepo,
   parseRepoString,
   validateRepoPath,
-} from '@bradygaster/squad-sdk/sharing';
-import type { RepoSyncOperations } from '@bradygaster/squad-sdk/sharing';
+} from '@blacklite/crew-sdk/sharing';
+import type { RepoSyncOperations } from '@blacklite/crew-sdk/sharing';
 
 // ── Mock operations ────────────────────────────────────────────────
 
@@ -66,8 +66,8 @@ describe('parseRepoString', () => {
 
 describe('validateRepoPath', () => {
   it('accepts relative paths', () => {
-    expect(() => validateRepoPath('.squad/squad-export.json')).not.toThrow();
-    expect(() => validateRepoPath('configs/squad.json')).not.toThrow();
+    expect(() => validateRepoPath('.crew/crew-export.json')).not.toThrow();
+    expect(() => validateRepoPath('configs/crew.json')).not.toThrow();
   });
 
   it('rejects absolute paths', () => {
@@ -96,13 +96,13 @@ describe('exportToRepo', () => {
 
     expect(result.success).toBe(true);
     expect(result.message).toContain('myorg/config');
-    expect(files['myorg/config/.squad/squad-export.json']).toBeDefined();
-    expect(files['myorg/config/.squad/squad-export.json']!.content).toBe(bundle);
+    expect(files['myorg/config/.crew/crew-export.json']).toBeDefined();
+    expect(files['myorg/config/.crew/crew-export.json']!.content).toBe(bundle);
   });
 
   it('updates existing file (uses SHA)', async () => {
     const files: Record<string, { content: string; sha: string }> = {
-      'myorg/config/.squad/squad-export.json': { content: '{"old": true}', sha: 'oldsha123' },
+      'myorg/config/.crew/crew-export.json': { content: '{"old": true}', sha: 'oldsha123' },
     };
     const ops = createMockOps(files);
     const putSpy = vi.spyOn(ops, 'putFile');
@@ -111,7 +111,7 @@ describe('exportToRepo', () => {
     await exportToRepo(bundle, { owner: 'myorg', repo: 'config' }, { ops });
 
     expect(putSpy).toHaveBeenCalledWith(
-      'myorg', 'config', '.squad/squad-export.json',
+      'myorg', 'config', '.crew/crew-export.json',
       bundle, expect.any(String), 'oldsha123', undefined,
     );
   });
@@ -124,7 +124,7 @@ describe('exportToRepo', () => {
     await exportToRepo(bundle, { owner: 'a', repo: 'b', branch: 'dev' }, { ops });
 
     expect(putSpy).toHaveBeenCalledWith(
-      'a', 'b', '.squad/squad-export.json',
+      'a', 'b', '.crew/crew-export.json',
       bundle, expect.any(String), undefined, 'dev',
     );
   });
@@ -146,7 +146,7 @@ describe('importFromRepo', () => {
   it('fetches bundle from default path', async () => {
     const bundleData = JSON.stringify({ version: '1.0', agents: {}, casting: {}, skills: [] });
     const files = {
-      'myorg/config/.squad/squad-export.json': { content: bundleData, sha: 'sha456' },
+      'myorg/config/.crew/crew-export.json': { content: bundleData, sha: 'sha456' },
     };
     const ops = createMockOps(files);
 
@@ -161,7 +161,7 @@ describe('importFromRepo', () => {
 
     await expect(
       importFromRepo({ owner: 'myorg', repo: 'config' }, { ops })
-    ).rejects.toThrow('No Squad export found');
+    ).rejects.toThrow('No Crew export found');
   });
 
   it('respects branch option', async () => {
@@ -172,7 +172,7 @@ describe('importFromRepo', () => {
       await importFromRepo({ owner: 'a', repo: 'b', branch: 'feat' }, { ops });
     } catch { /* expected not found */ }
 
-    expect(getSpy).toHaveBeenCalledWith('a', 'b', '.squad/squad-export.json', 'feat');
+    expect(getSpy).toHaveBeenCalledWith('a', 'b', '.crew/crew-export.json', 'feat');
   });
 
   it('respects custom path', async () => {

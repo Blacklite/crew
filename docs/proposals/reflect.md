@@ -1,6 +1,6 @@
 # Proposal: Reflect Skill
 
-**Issue:** bradygaster/squad#621
+**Issue:** Blacklite/crew#621
 **Author:** tamirdresher
 **Date:** 2026-03-26
 **Status:** Proposal
@@ -45,15 +45,15 @@ A structured reflection protocol triggered by failure or feedback events:
   in-flight corrections before the outcome is known)
 - **Complements** error-recovery skill (recover handles the failure response; reflect captures
   the learning to prevent recurrence)
-- **Integrates** with .squad/decisions.md for persistent pattern learnings
+- **Integrates** with .crew/decisions.md for persistent pattern learnings
 - **No code changes** — template-only
 
 ---
 
 ## What Changes
 
-- New skill: packages/squad-cli/templates/skills/reflect/SKILL.md
-- New skill: packages/squad-sdk/templates/skills/reflect/SKILL.md
+- New skill: packages/crew-cli/templates/skills/reflect/SKILL.md
+- New skill: packages/crew-sdk/templates/skills/reflect/SKILL.md
 - New changeset: .changeset/reflect-skill.md
 
 ## What Stays the Same
@@ -75,4 +75,4 @@ A structured reflection protocol triggered by failure or feedback events:
 
 ## References
 
-- Issue: bradygaster/squad#621
+- Issue: Blacklite/crew#621

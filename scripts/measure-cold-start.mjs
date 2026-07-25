@@ -2,12 +2,12 @@
 /**
  * scripts/measure-cold-start.mjs
  *
- * Measure CLI cold-start latency for `squad --version` and `squad help`
+ * Measure CLI cold-start latency for `crew --version` and `crew help`
  * over N runs.
  *
  * Why this script exists
  * ----------------------
- * The squad-cli entry point (packages/squad-cli/src/cli-entry.ts, ~28 KB)
+ * The crew-cli entry point (packages/crew-cli/src/cli-entry.ts, ~28 KB)
  * has many top-level imports plus postinstall ESM patches that affect
  * cold-start latency. v0.8.23 added lazy imports for some commands; this
  * script lets us see whether further deferral helps.
@@ -34,7 +34,7 @@ import { performance } from 'node:perf_hooks';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const REPO_ROOT = resolvePath(__dirname, '..');
-const CLI_ENTRY = resolvePath(REPO_ROOT, 'packages/squad-cli/dist/cli-entry.js');
+const CLI_ENTRY = resolvePath(REPO_ROOT, 'packages/crew-cli/dist/cli-entry.js');
 
 const DEFAULT_COMMANDS = [
   ['--version'],
@@ -69,7 +69,7 @@ function printHelp() {
       '  --json            Emit JSON instead of a formatted table',
       '  -h, --help        Show this help',
       '',
-      'Note: requires `npm run build` to have produced packages/squad-cli/dist/.',
+      'Note: requires `npm run build` to have produced packages/crew-cli/dist/.',
       '',
     ].join('\n'),
   );
@@ -99,7 +99,7 @@ function timeSingleRun(args) {
       if (code !== 0) {
         // Some help/version paths may exit non-zero on errors; surface stderr
         // but still record the timing so users see what happened.
-        stderr.write(`(exit ${code} from squad ${args.join(' ')}): ${stderrBuf.trim()}\n`);
+        stderr.write(`(exit ${code} from crew ${args.join(' ')}): ${stderrBuf.trim()}\n`);
       }
       resolveP({ elapsed, code });
     });
@@ -146,7 +146,7 @@ async function main() {
   const results = [];
   let anyFailures = false;
   for (const args of DEFAULT_COMMANDS) {
-    const label = `squad ${args.join(' ')}`;
+    const label = `crew ${args.join(' ')}`;
     const timings = [];
     let failures = 0;
     for (let i = 0; i < opts.runs; i++) {

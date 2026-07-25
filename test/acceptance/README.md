@@ -1,6 +1,6 @@
 # E2E Acceptance Tests
 
-This directory contains end-to-end acceptance tests for the Squad CLI using a Gherkin-style BDD approach.
+This directory contains end-to-end acceptance tests for the Crew CLI using a Gherkin-style BDD approach.
 
 ## Structure
 
@@ -44,7 +44,7 @@ Create `test/acceptance/features/my-feature.feature`:
 Feature: My new feature
 
   Scenario: User runs my command
-    When I run "squad my-command"
+    When I run "crew my-command"
     Then the output contains "Success"
     And the exit code is 0
 ```
@@ -62,10 +62,10 @@ runFeature(join(featuresDir, 'my-feature.feature'), registry);
 Available steps:
 
 **Given:**
-- `Given the current directory has a ".squad" directory`
+- `Given the current directory has a ".crew" directory`
 
 **When:**
-- `When I run "squad [args]"`
+- `When I run "crew [args]"`
 
 **Then:**
 - `Then the output contains "text"`
@@ -93,7 +93,7 @@ registerStep(
 
 Uses `child_process.spawn` with pipes (not node-pty) for cross-platform compatibility. Key features:
 
-- Spawns CLI: `node packages/squad-cli/dist/cli-entry.js [args]`
+- Spawns CLI: `node packages/crew-cli/dist/cli-entry.js [args]`
 - Captures stdout/stderr in append-only buffer
 - ANSI code stripping for clean assertions
 - Environment control (TERM=dumb, NO_COLOR=1)

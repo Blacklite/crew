@@ -10,20 +10,20 @@ const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'workflows');
 
 // The three CI/CD workflows Kobayashi is building
 const CI_CD_WORKFLOWS = [
-  'squad-ci.yml',
-  'squad-preview.yml',
-  'squad-release.yml',
+  'crew-ci.yml',
+  'crew-preview.yml',
+  'crew-release.yml',
 ];
 
-// Squad-framework workflows that ARE installed during init
+// Crew-framework workflows that ARE installed during init
 const FRAMEWORK_WORKFLOWS = [
-  'squad-heartbeat.yml',
-  'squad-triage.yml',
-  'squad-issue-assign.yml',
-  'sync-squad-labels.yml',
+  'crew-heartbeat.yml',
+  'crew-triage.yml',
+  'crew-issue-assign.yml',
+  'sync-crew-labels.yml',
 ];
 
-function runSquad(args, cwd) {
+function runCrew(args, cwd) {
   try {
     const result = execFileSync(process.execPath, [CLI, ...args], {
       cwd,
@@ -41,7 +41,7 @@ function runSquad(args, cwd) {
 }
 
 function makeTempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'squad-wf-test-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'crew-wf-test-'));
 }
 
 function cleanDir(dir) {
@@ -50,8 +50,8 @@ function cleanDir(dir) {
   } catch {}
 }
 
-function initSquad(dir) {
-  const result = runSquad([], dir);
+function initCrew(dir) {
+  const result = runCrew([], dir);
   assert.equal(result.exitCode, 0, `init should succeed: ${result.stdout}`);
   return result;
 }
@@ -82,7 +82,7 @@ function getAllTemplateWorkflows() {
   return fs.readdirSync(TEMPLATES_DIR).filter(f => f.endsWith('.yml'));
 }
 
-describe('CI/CD workflow templates (squad-ci, squad-preview, squad-release)', () => {
+describe('CI/CD workflow templates (crew-ci, crew-preview, crew-release)', () => {
   let tmpDir;
 
   beforeEach(() => {
@@ -126,7 +126,7 @@ describe('CI/CD workflow templates (squad-ci, squad-preview, squad-release)', ()
           t.skip(`${file} template not yet created`);
           return;
         }
-        initSquad(tmpDir);
+        initCrew(tmpDir);
         const dest = path.join(tmpDir, '.github', 'workflows', file);
         assert.ok(fs.existsSync(dest), `${file} should exist in .github/workflows/ after init`);
       });
@@ -140,7 +140,7 @@ describe('CI/CD workflow templates (squad-ci, squad-preview, squad-release)', ()
           t.skip(`${file} template not yet created`);
           return;
         }
-        initSquad(tmpDir);
+        initCrew(tmpDir);
         const dest = path.join(tmpDir, '.github', 'workflows', file);
         assert.ok(!fs.existsSync(dest), `${file} should NOT be installed by init`);
       });
@@ -154,8 +154,8 @@ describe('CI/CD workflow templates (squad-ci, squad-preview, squad-release)', ()
           t.skip(`${file} template not yet created`);
           return;
         }
-        initSquad(tmpDir);
-        const result = runSquad(['upgrade'], tmpDir);
+        initCrew(tmpDir);
+        const result = runCrew(['upgrade'], tmpDir);
         assert.equal(result.exitCode, 0, `upgrade should succeed: ${result.stdout}`);
         const dest = path.join(tmpDir, '.github', 'workflows', file);
         assert.ok(fs.existsSync(dest), `${file} should exist after upgrade`);
@@ -175,13 +175,13 @@ describe('CI/CD workflow templates (squad-ci, squad-preview, squad-release)', ()
       // workflows are copied verbatim (matching the template byte-for-byte).
       fs.writeFileSync(path.join(tmpDir, 'package.json'), '{"name":"test","version":"1.0.0"}\n');
 
-      initSquad(tmpDir);
+      initCrew(tmpDir);
       const dest = path.join(tmpDir, '.github', 'workflows', firstTemplate);
 
       // Simulate a stale/modified file
       fs.writeFileSync(dest, '# stale content\n');
 
-      const result = runSquad(['upgrade'], tmpDir);
+      const result = runCrew(['upgrade'], tmpDir);
       assert.equal(result.exitCode, 0, `upgrade should succeed: ${result.stdout}`);
 
       const after = fs.readFileSync(dest, 'utf8');
@@ -201,66 +201,66 @@ describe('CI/CD workflow templates (squad-ci, squad-preview, squad-release)', ()
           t.skip(`${file} template not yet created`);
           return;
         }
-        initSquad(tmpDir);
+        initCrew(tmpDir);
         assertValidWorkflowYaml(path.join(tmpDir, '.github', 'workflows', file));
       });
     }
   });
 
   describe('expected trigger configurations', () => {
-    it('squad-ci.yml triggers on pull_request', (t) => {
-      const templatePath = path.join(TEMPLATES_DIR, 'squad-ci.yml');
+    it('crew-ci.yml triggers on pull_request', (t) => {
+      const templatePath = path.join(TEMPLATES_DIR, 'crew-ci.yml');
       if (!fs.existsSync(templatePath)) {
-        t.skip('squad-ci.yml template not yet created');
+        t.skip('crew-ci.yml template not yet created');
         return;
       }
       const content = fs.readFileSync(templatePath, 'utf8');
       assert.ok(
         content.includes('pull_request'),
-        'squad-ci.yml should trigger on pull_request'
+        'crew-ci.yml should trigger on pull_request'
       );
     });
 
-    it('squad-ci.yml triggers on push', (t) => {
-      const templatePath = path.join(TEMPLATES_DIR, 'squad-ci.yml');
+    it('crew-ci.yml triggers on push', (t) => {
+      const templatePath = path.join(TEMPLATES_DIR, 'crew-ci.yml');
       if (!fs.existsSync(templatePath)) {
-        t.skip('squad-ci.yml template not yet created');
+        t.skip('crew-ci.yml template not yet created');
         return;
       }
       const content = fs.readFileSync(templatePath, 'utf8');
       assert.ok(
         content.includes('push'),
-        'squad-ci.yml should trigger on push'
+        'crew-ci.yml should trigger on push'
       );
     });
 
-    it('squad-release.yml triggers on push to main', (t) => {
-      const templatePath = path.join(TEMPLATES_DIR, 'squad-release.yml');
+    it('crew-release.yml triggers on push to main', (t) => {
+      const templatePath = path.join(TEMPLATES_DIR, 'crew-release.yml');
       if (!fs.existsSync(templatePath)) {
-        t.skip('squad-release.yml template not yet created');
+        t.skip('crew-release.yml template not yet created');
         return;
       }
       const content = fs.readFileSync(templatePath, 'utf8');
       assert.ok(
         content.includes('push'),
-        'squad-release.yml should trigger on push'
+        'crew-release.yml should trigger on push'
       );
       assert.ok(
         content.includes('main'),
-        'squad-release.yml should reference main branch'
+        'crew-release.yml should reference main branch'
       );
     });
 
-    it('squad-preview.yml references preview branch', (t) => {
-      const templatePath = path.join(TEMPLATES_DIR, 'squad-preview.yml');
+    it('crew-preview.yml references preview branch', (t) => {
+      const templatePath = path.join(TEMPLATES_DIR, 'crew-preview.yml');
       if (!fs.existsSync(templatePath)) {
-        t.skip('squad-preview.yml template not yet created');
+        t.skip('crew-preview.yml template not yet created');
         return;
       }
       const content = fs.readFileSync(templatePath, 'utf8');
       assert.ok(
         content.includes('preview'),
-        'squad-preview.yml should reference preview branch'
+        'crew-preview.yml should reference preview branch'
       );
     });
   });
@@ -274,7 +274,7 @@ describe('CI/CD workflow templates (squad-ci, squad-preview, squad-release)', ()
         return; // nothing to test
       }
 
-      initSquad(tmpDir);
+      initCrew(tmpDir);
 
       for (const file of presentTemplates) {
         const dest = path.join(tmpDir, '.github', 'workflows', file);
@@ -295,7 +295,7 @@ describe('CI/CD workflow templates (squad-ci, squad-preview, squad-release)', ()
       // project-type-sensitive workflows are copied verbatim from templates.
       fs.writeFileSync(path.join(tmpDir, 'package.json'), '{"name":"test","version":"1.0.0"}\n');
 
-      initSquad(tmpDir);
+      initCrew(tmpDir);
 
       for (const file of allTemplates) {
         const src = fs.readFileSync(path.join(TEMPLATES_DIR, file), 'utf8');

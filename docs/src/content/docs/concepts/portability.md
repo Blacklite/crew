@@ -1,9 +1,9 @@
 # Portability & Extensions
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Your squad isn't locked to one repo, one editor, or one set of tools. Export a trained team and import it somewhere else. Install plugins for instant expertise. Inherit org-wide practices from upstream repos. Wire up MCP servers so agents can talk to anything.
+Your crew isn't locked to one repo, one editor, or one set of tools. Export a trained team and import it somewhere else. Install plugins for instant expertise. Inherit org-wide practices from upstream repos. Wire up MCP servers so agents can talk to anything.
 
 ---
 
@@ -25,7 +25,7 @@ Add the platform team's repo as an upstream source
 
 ## How It Works
 
-Squad is designed to be **portable by default**. Four systems make this possible:
+Crew is designed to be **portable by default**. Four systems make this possible:
 
 | System | What It Does |
 |--------|-------------|
@@ -35,7 +35,7 @@ Squad is designed to be **portable by default**. Four systems make this possible
 | **MCP Servers** | Extend agents with external services (GitHub, Trello, notifications) |
 
 ```
-Your Repo (.squad/)
+Your Repo (.crew/)
     ↑ inherits from
 Upstream Sources (org repo, sibling repo, export snapshot)
     ↑ enhanced by
@@ -48,13 +48,13 @@ MCP Servers (GitHub, Teams, Trello, Aspire, etc.)
 
 ## Export & Import
 
-Squad teams are portable. Export your trained agents, casting state, skills, and decisions to a single JSON file.
+Crew teams are portable. Export your trained agents, casting state, skills, and decisions to a single JSON file.
 
 ### Export
 
 ```bash
-squad export                          # creates squad-export.json
-squad export --out ./backups/team.json  # custom path
+crew export                          # creates crew-export.json
+crew export --out ./backups/team.json  # custom path
 ```
 
 ### What's Included
@@ -72,13 +72,13 @@ Skills are fully portable — they export and import with perfect fidelity.
 ### Import
 
 ```bash
-squad import squad-export.json
+crew import crew-export.json
 ```
 
-If `.squad/` already exists, Squad warns you and stops. Use `--force` to archive the existing team and replace it:
+If `.crew/` already exists, Crew warns you and stops. Use `--force` to archive the existing team and replace it:
 
 ```bash
-squad import squad-export.json --force
+crew import crew-export.json --force
 ```
 
 Nothing is deleted — the current team moves to an archive.
@@ -126,7 +126,7 @@ Or use the command:
 /plugin install awesome-copilot/react-component-library
 ```
 
-Squad downloads the bundle, merges agent templates into `.squad/agents/`, adds skills to `.copilot/skills/`, updates `decisions.md`, and seeds agents with the new knowledge.
+Crew downloads the bundle, merges agent templates into `.crew/agents/`, adds skills to `.copilot/skills/`, updates `decisions.md`, and seeds agents with the new knowledge.
 
 ### Managing Marketplaces
 
@@ -157,29 +157,29 @@ my-team-plugins/
 └── README.md
 ```
 
-Register it with `squad` and your team can install from it.
+Register it with `crew` and your team can install from it.
 
 ---
 
 ## Upstream Inheritance
 
-Declare external Squad sources and automatically inherit their context at session start. Knowledge flows down from org → team → repo without duplicating configuration.
+Declare external Crew sources and automatically inherit their context at session start. Knowledge flows down from org → team → repo without duplicating configuration.
 
 ### Three Source Types
 
 | Type | Example | Use Case |
 |------|---------|----------|
-| **local** | `../org-practices/.squad/` | Sibling repo, monorepo package |
-| **git** | `https://github.com/acme/platform-squad.git` | Public or private org repo |
+| **local** | `../org-practices/.crew/` | Sibling repo, monorepo package |
+| **git** | `https://github.com/acme/platform-crew.git` | Public or private org repo |
 | **export** | `./exports/snapshot.json` | Offline use or version pinning |
 
 ### What Gets Inherited
 
 - **Skills** — all `.copilot/skills/*/SKILL.md` files
-- **Decisions** — `.squad/decisions.md`
-- **Wisdom** — `.squad/identity/wisdom.md`
-- **Casting Policy** — `.squad/casting/policy.json`
-- **Routing** — `.squad/routing.md`
+- **Decisions** — `.crew/decisions.md`
+- **Wisdom** — `.crew/identity/wisdom.md`
+- **Casting Policy** — `.crew/casting/policy.json`
+- **Routing** — `.crew/routing.md`
 
 ### Closest-Wins Resolution
 
@@ -188,39 +188,39 @@ Org-level upstream
     ↓
 Team-level upstream
     ↓
-Repo config (local .squad/)
+Repo config (local .crew/)
     ↓
 Agent instance
 ```
 
-Upstreams are read in order from `upstream.json` — **later entries override earlier ones** for the same content type. Your local `.squad/` always wins.
+Upstreams are read in order from `upstream.json` — **later entries override earlier ones** for the same content type. Your local `.crew/` always wins.
 
 ### Quick Start
 
 ```bash
 # Local upstream
-squad upstream add ../org-practices/.squad --name org
+crew upstream add ../org-practices/.crew --name org
 
 # Git upstream
-squad upstream add https://github.com/acme/platform-squad.git --name platform --ref main
+crew upstream add https://github.com/acme/platform-crew.git --name platform --ref main
 
 # Export snapshot
-squad upstream add ./exports/snapshot.json --name snapshot
+crew upstream add ./exports/snapshot.json --name snapshot
 
 # List configured upstreams
-squad upstream list
+crew upstream list
 
 # Sync git upstreams
-squad upstream sync
+crew upstream sync
 ```
 
-Git upstreams clone to `.squad/_upstream_repos/{name}` (auto-added to `.gitignore`). Local and export upstreams are read live at session start — no sync needed.
+Git upstreams clone to `.crew/_upstream_repos/{name}` (auto-added to `.gitignore`). Local and export upstreams are read live at session start — no sync needed.
 
 ---
 
 ## MCP Setup
 
-MCP (Model Context Protocol) servers extend Squad with external services. Agents discover and use MCP tools automatically — no per-agent configuration required.
+MCP (Model Context Protocol) servers extend Crew with external services. Agents discover and use MCP tools automatically — no per-agent configuration required.
 
 ### Configuration
 
@@ -266,7 +266,7 @@ Agents discover tools at spawn time and use them naturally during work. See [Git
 
 ## VS Code Integration
 
-Squad runs identically in VS Code — same `.squad/` state, same agents, same decisions. Initialize with CLI, open in VS Code, and everything just works.
+Crew runs identically in VS Code — same `.crew/` state, same agents, same decisions. Initialize with CLI, open in VS Code, and everything just works.
 
 ### Key Differences from CLI
 
@@ -279,7 +279,7 @@ Squad runs identically in VS Code — same `.squad/` state, same agents, same de
 
 ### What's the Same
 
-- Same `.squad/` directory and state
+- Same `.crew/` directory and state
 - Same team roster, skills, and decisions
 - Parallel execution works (multiple agents per turn)
 - MCP tools are inherited from workspace config
@@ -298,7 +298,7 @@ Squad runs identically in VS Code — same `.squad/` state, same agents, same de
 - Export before running `upgrade` — it's your rollback point.
 - The export JSON is human-readable — inspect it to see exactly what your team knows.
 - Imported agents keep their names and universe casting.
-- Commit `.squad/` after importing so everyone who clones the repo gets the team.
+- Commit `.crew/` after importing so everyone who clones the repo gets the team.
 - Order matters in `upstream.json` — later entries override earlier ones. Use `remove` + `add` to reorder.
 
 ---
@@ -309,13 +309,13 @@ Squad runs identically in VS Code — same `.squad/` state, same agents, same de
 export the current team
 ```
 
-Creates a `squad-export.json` snapshot of the entire team.
+Creates a `crew-export.json` snapshot of the entire team.
 
 ```
-import squad-export.json into this repo
+import crew-export.json into this repo
 ```
 
-Imports a team snapshot into the current project's `.squad/` directory.
+Imports a team snapshot into the current project's `.crew/` directory.
 
 ```
 install the azure-infrastructure plugin for the DevOps agent
@@ -342,7 +342,7 @@ show me all configured MCP servers and which ones are working
 Tests each MCP server and reports status.
 
 ```
-squad upstream sync
+crew upstream sync
 ```
 
 Updates all git upstream clones and validates local/export paths.

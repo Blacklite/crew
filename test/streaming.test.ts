@@ -4,9 +4,9 @@ import {
   type StreamDelta,
   type UsageEvent,
   type ReasoningDelta,
-} from '@bradygaster/squad-sdk/runtime/streaming';
-import { CostTracker } from '@bradygaster/squad-sdk/runtime/cost-tracker';
-import { EventBus } from '@bradygaster/squad-sdk/runtime/event-bus';
+} from '@blacklite/crew-sdk/runtime/streaming';
+import { CostTracker } from '@blacklite/crew-sdk/runtime/cost-tracker';
+import { EventBus } from '@blacklite/crew-sdk/runtime/event-bus';
 
 // ============================================================================
 // StreamingPipeline
@@ -346,7 +346,7 @@ describe('CostTracker', () => {
     });
 
     const output = tracker.formatSummary();
-    expect(output).toContain('Squad Cost Summary');
+    expect(output).toContain('Crew Cost Summary');
     expect(output).toContain('keaton');
     expect(output).toContain('claude-opus-4');
     expect(output).toContain('500');

@@ -4,9 +4,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import type { SquadConfig } from '@bradygaster/squad-sdk/config';
-import type { MarketplaceManifest } from '@bradygaster/squad-sdk/marketplace';
-import { ManifestCategory } from '@bradygaster/squad-sdk/marketplace';
+import type { CrewConfig } from '@blacklite/crew-sdk/config';
+import type { MarketplaceManifest } from '@blacklite/crew-sdk/marketplace';
+import { ManifestCategory } from '@blacklite/crew-sdk/marketplace';
 import {
   searchMarketplace,
   validateEntry,
@@ -14,21 +14,21 @@ import {
   type MarketplaceEntry,
   type MarketplaceIndex,
   type MarketplaceSearchQuery,
-} from '@bradygaster/squad-sdk/marketplace';
+} from '@blacklite/crew-sdk/marketplace';
 import {
   MarketplaceBrowser,
   formatEntryList,
   formatEntryDetails,
   type MarketplaceFetcher,
-} from '@bradygaster/squad-sdk/marketplace';
-import { MarketplaceBackend } from '@bradygaster/squad-sdk/marketplace';
+} from '@blacklite/crew-sdk/marketplace';
+import { MarketplaceBackend } from '@blacklite/crew-sdk/marketplace';
 import {
   validateRemoteAgent,
   quarantineAgent,
   generateSecurityReport,
   SECURITY_RULES,
   type RemoteAgentDefinition,
-} from '@bradygaster/squad-sdk/marketplace';
+} from '@blacklite/crew-sdk/marketplace';
 
 // --- Helpers ---
 
@@ -40,7 +40,7 @@ function makeManifest(overrides: Partial<MarketplaceManifest> = {}): Marketplace
     author: overrides.author ?? 'test-author',
     repository: overrides.repository ?? 'https://github.com/test/repo',
     categories: overrides.categories ?? [ManifestCategory.Development],
-    tags: overrides.tags ?? ['test', 'squad'],
+    tags: overrides.tags ?? ['test', 'crew'],
     icon: overrides.icon ?? 'icon.png',
     screenshots: overrides.screenshots ?? ['s1.png'],
     pricing: overrides.pricing ?? { model: 'free' },
@@ -74,10 +74,10 @@ function makeIndex(entries: MarketplaceEntry[] = []): MarketplaceIndex {
   };
 }
 
-function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
+function makeConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
   return {
     version: '0.6.0',
-    team: overrides.team ?? { name: 'Test Squad', description: 'A test team' },
+    team: overrides.team ?? { name: 'Test Crew', description: 'A test team' },
     routing: overrides.routing ?? { rules: [], fallbackBehavior: 'coordinator' },
     models: overrides.models ?? {
       default: 'claude-sonnet-4',
@@ -262,7 +262,7 @@ describe('MarketplaceEntry schema', () => {
   describe('generateEntryFromConfig', () => {
     it('should generate entry from config', () => {
       const entry = generateEntryFromConfig(makeConfig());
-      expect(entry.id).toBe('test-squad');
+      expect(entry.id).toBe('test-crew');
       expect(entry.manifest.version).toBe('0.6.0');
       expect(entry.stats.downloads).toBe(0);
       expect(entry.verified).toBe(false);
@@ -471,7 +471,7 @@ describe('Security — validateRemoteAgent', () => {
       charter: 'You are a helpful developer agent.',
       tools: ['edit', 'terminal'],
     };
-    const report = validateRemoteAgent(agent, 'https://marketplace.squad.dev');
+    const report = validateRemoteAgent(agent, 'https://marketplace.crew.dev');
     expect(report.passed).toBe(true);
     expect(report.riskScore).toBeLessThan(30);
   });
@@ -495,7 +495,7 @@ describe('Security — validateRemoteAgent', () => {
       charter: 'Normal charter.',
       tools: ['edit', 'shell', 'exec'],
     };
-    const report = validateRemoteAgent(agent, 'https://marketplace.squad.dev');
+    const report = validateRemoteAgent(agent, 'https://marketplace.crew.dev');
     expect(report.passed).toBe(false);
     expect(report.blocked.some((b) => b.includes('Suspicious tool'))).toBe(true);
   });
@@ -507,7 +507,7 @@ describe('Security — validateRemoteAgent', () => {
       charter: 'Contact admin at admin@example.com for help.',
       tools: [],
     };
-    const report = validateRemoteAgent(agent, 'https://marketplace.squad.dev');
+    const report = validateRemoteAgent(agent, 'https://marketplace.crew.dev');
     expect(report.warnings.some((w) => w.includes('PII'))).toBe(true);
   });
 
@@ -518,7 +518,7 @@ describe('Security — validateRemoteAgent', () => {
       charter: 'This agent has unrestricted access to all resources.',
       tools: [],
     };
-    const report = validateRemoteAgent(agent, 'https://marketplace.squad.dev');
+    const report = validateRemoteAgent(agent, 'https://marketplace.crew.dev');
     expect(report.warnings.some((w) => w.includes('broad'))).toBe(true);
   });
 
@@ -530,14 +530,14 @@ describe('Security — validateRemoteAgent', () => {
 
   it('should warn on missing charter', () => {
     const agent: RemoteAgentDefinition = { name: 'x', role: 'dev', tools: [] };
-    const report = validateRemoteAgent(agent, 'https://marketplace.squad.dev');
+    const report = validateRemoteAgent(agent, 'https://marketplace.crew.dev');
     expect(report.warnings.some((w) => w.includes('charter'))).toBe(true);
   });
 
   it('should warn on excessive tools', () => {
     const tools = Array.from({ length: 20 }, (_, i) => `tool-${i}`);
     const agent: RemoteAgentDefinition = { name: 'x', role: 'dev', charter: 'ok', tools };
-    const report = validateRemoteAgent(agent, 'https://marketplace.squad.dev');
+    const report = validateRemoteAgent(agent, 'https://marketplace.crew.dev');
     expect(report.warnings.some((w) => w.includes('tools'))).toBe(true);
   });
 

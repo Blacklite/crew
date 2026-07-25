@@ -1,15 +1,15 @@
 ---
 title: Dual-Mode Deployment — Pod-Aware Capabilities
-description: Run Squad in either agent-per-node or squad-per-pod deployment modes with pod-specific machine capability manifests, controlled by SQUAD_POD_ID and SQUAD_DEPLOYMENT_MODE env vars.
+description: Run Crew in either agent-per-node or crew-per-pod deployment modes with pod-specific machine capability manifests, controlled by CREW_POD_ID and CREW_DEPLOYMENT_MODE env vars.
 ---
 
 # Dual-Mode Deployment — Pod-Aware Capabilities
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Dual-mode deployment extends [Capability Routing](/squad/docs/features/capability-routing/) to support both classic single-machine setups and modern containerized/Kubernetes deployments where multiple Squad pods may share an organization's workload — each with potentially different machine capabilities.
+Dual-mode deployment extends [Capability Routing](/crew/docs/features/capability-routing/) to support both classic single-machine setups and modern containerized/Kubernetes deployments where multiple Crew pods may share an organization's workload — each with potentially different machine capabilities.
 
-It introduces two environment variables and a pod-specific manifest lookup pattern so the same Squad config can run identically in either deployment shape.
+It introduces two environment variables and a pod-specific manifest lookup pattern so the same Crew config can run identically in either deployment shape.
 
 ---
 
@@ -17,18 +17,18 @@ It introduces two environment variables and a pod-specific manifest lookup patte
 
 | Mode | What it means | Capability manifest |
 |------|---------------|---------------------|
-| **`agent-per-node`** (default) | One Squad instance per machine; the machine's capabilities are the squad's capabilities | `.squad/machine-capabilities.json` (shared) |
-| **`squad-per-pod`** | Multiple Squad pods may run on different machines/containers, each with potentially different capabilities | `.squad/machine-capabilities-{podId}.json` (pod-specific) with fallback chain |
+| **`agent-per-node`** (default) | One Crew instance per machine; the machine's capabilities are the crew's capabilities | `.crew/machine-capabilities.json` (shared) |
+| **`crew-per-pod`** | Multiple Crew pods may run on different machines/containers, each with potentially different capabilities | `.crew/machine-capabilities-{podId}.json` (pod-specific) with fallback chain |
 
-Choose the mode via the `SQUAD_DEPLOYMENT_MODE` environment variable:
+Choose the mode via the `CREW_DEPLOYMENT_MODE` environment variable:
 
 ```bash
 # Classic single-machine setup (default)
-export SQUAD_DEPLOYMENT_MODE=agent-per-node
+export CREW_DEPLOYMENT_MODE=agent-per-node
 
 # Kubernetes / multi-pod setup
-export SQUAD_DEPLOYMENT_MODE=squad-per-pod
-export SQUAD_POD_ID=worker-1
+export CREW_DEPLOYMENT_MODE=crew-per-pod
+export CREW_POD_ID=worker-1
 ```
 
 If neither is set, the SDK defaults to `agent-per-node` for backward compatibility.
@@ -37,32 +37,32 @@ If neither is set, the SDK defaults to `agent-per-node` for backward compatibili
 
 ## Environment variables
 
-### `SQUAD_DEPLOYMENT_MODE`
+### `CREW_DEPLOYMENT_MODE`
 
 | Value | Behavior |
 |-------|----------|
 | `agent-per-node` | Single shared `machine-capabilities.json` |
-| `squad-per-pod` | Pod-specific manifests with fallback chain |
+| `crew-per-pod` | Pod-specific manifests with fallback chain |
 | (unset) | Same as `agent-per-node` |
 
-### `SQUAD_POD_ID`
+### `CREW_POD_ID`
 
-Pod identifier used to construct the pod-specific manifest path. Required when `SQUAD_DEPLOYMENT_MODE=squad-per-pod`; ignored otherwise.
+Pod identifier used to construct the pod-specific manifest path. Required when `CREW_DEPLOYMENT_MODE=crew-per-pod`; ignored otherwise.
 
 ```bash
-SQUAD_POD_ID=worker-1          # → .squad/machine-capabilities-worker-1.json
-SQUAD_POD_ID=gpu-pool-node-3   # → .squad/machine-capabilities-gpu-pool-node-3.json
+CREW_POD_ID=worker-1          # → .crew/machine-capabilities-worker-1.json
+CREW_POD_ID=gpu-pool-node-3   # → .crew/machine-capabilities-gpu-pool-node-3.json
 ```
 
 ---
 
-## The fallback chain (squad-per-pod mode)
+## The fallback chain (crew-per-pod mode)
 
-When `SQUAD_DEPLOYMENT_MODE=squad-per-pod` AND `SQUAD_POD_ID` is set, the SDK looks up capabilities in this order:
+When `CREW_DEPLOYMENT_MODE=crew-per-pod` AND `CREW_POD_ID` is set, the SDK looks up capabilities in this order:
 
-1. **`.squad/machine-capabilities-{podId}.json`** — pod-specific (highest priority)
-2. **`.squad/machine-capabilities.json`** — shared fallback for capabilities that apply to all pods
-3. **`~/.squad/machine-capabilities.json`** — user-home fallback (rarely useful in container deployments)
+1. **`.crew/machine-capabilities-{podId}.json`** — pod-specific (highest priority)
+2. **`.crew/machine-capabilities.json`** — shared fallback for capabilities that apply to all pods
+3. **`~/.crew/machine-capabilities.json`** — user-home fallback (rarely useful in container deployments)
 4. **`null`** — opt-out; capability routing falls back to label-only routing
 
 The first manifest that exists is loaded; the search stops there (no merging). If you need different pods to see different capability sets, give each its own pod-specific file. If you need a shared baseline plus pod-specific additions, merge at the deployment-config level (Helm, Kustomize, etc.) — the SDK doesn't merge automatically.
@@ -71,16 +71,16 @@ The first manifest that exists is loaded; the search stops there (no merging). I
 
 ## SDK programmatic access
 
-The new exports from `@bradygaster/squad-sdk/ralph/capabilities`:
+The new exports from `@blacklite/crew-sdk/ralph/capabilities`:
 
 ```typescript
 import {
   getDeploymentMode,
   getPodId,
   type DeploymentMode,
-} from '@bradygaster/squad-sdk/ralph/capabilities';
+} from '@blacklite/crew-sdk/ralph/capabilities';
 
-const mode: DeploymentMode = getDeploymentMode();  // 'agent-per-node' | 'squad-per-pod'
+const mode: DeploymentMode = getDeploymentMode();  // 'agent-per-node' | 'crew-per-pod'
 const podId: string | undefined = getPodId();       // e.g. 'worker-1', or undefined
 ```
 
@@ -90,14 +90,14 @@ These are pure env-var readers. They don't cache or memoize — each call reads 
 
 ## Typical Kubernetes deployment shape
 
-In a KEDA-scaled deployment (see [KEDA Scaling](/squad/docs/features/keda-scaling/)), each scaled pod gets a unique `SQUAD_POD_ID` from the pod's name or hash:
+In a KEDA-scaled deployment (see [KEDA Scaling](/crew/docs/features/keda-scaling/)), each scaled pod gets a unique `CREW_POD_ID` from the pod's name or hash:
 
 ```yaml
 # Deployment env block
 env:
-  - name: SQUAD_DEPLOYMENT_MODE
-    value: squad-per-pod
-  - name: SQUAD_POD_ID
+  - name: CREW_DEPLOYMENT_MODE
+    value: crew-per-pod
+  - name: CREW_POD_ID
     valueFrom:
       fieldRef:
         fieldPath: metadata.name
@@ -106,7 +106,7 @@ env:
 The pod's mounted volume contains per-pod manifests baked in by the image build or pulled from a ConfigMap, e.g.:
 
 ```
-/app/.squad/
+/app/.crew/
 ├── machine-capabilities.json           # shared baseline (CPU, memory)
 ├── machine-capabilities-gpu-pool-node-1.json   # extends baseline with GPU
 ├── machine-capabilities-gpu-pool-node-2.json   # same shape
@@ -127,6 +127,6 @@ Pods scheduled onto GPU nodes load a manifest declaring GPU capability; pods on 
 
 ## See also
 
-- [Capability Routing](/squad/docs/features/capability-routing/) — the broader machine-capability system
-- [KEDA Scaling](/squad/docs/features/keda-scaling/) — autoscaling Squad pods on demand
-- [Labels](/squad/docs/features/labels/) — `needs:*` label conventions used for capability matching
+- [Capability Routing](/crew/docs/features/capability-routing/) — the broader machine-capability system
+- [KEDA Scaling](/crew/docs/features/keda-scaling/) — autoscaling Crew pods on demand
+- [Labels](/crew/docs/features/labels/) — `needs:*` label conventions used for capability matching

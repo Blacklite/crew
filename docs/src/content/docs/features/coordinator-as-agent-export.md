@@ -1,55 +1,55 @@
 ---
 title: Coordinator-as-Agent Export
-description: Compile your squad's coordinator into a repo-native Copilot custom agent file with squad export agent.
+description: Compile your crew's coordinator into a repo-native Copilot custom agent file with crew export agent.
 ---
 
 # Coordinator-as-Agent Export
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 **Try this to generate a coordinator agent:**
 ```bash
-squad export agent
+crew export agent
 ```
 
 **Try this for CI drift detection:**
 ```bash
-squad export agent --check
+crew export agent --check
 ```
 
 **Try this for live development:**
 ```bash
-squad export agent --watch
+crew export agent --watch
 ```
 
-`squad export agent` compiles your `.squad/` state — team roster, routing rules, ceremony triggers, agent charters — into a single repository-native Copilot custom agent at `.github/agents/squad.md`. The generated file works across **every** Copilot surface (CLI, VS Code, GitHub Desktop, github.com) without requiring the Squad runtime installed.
+`crew export agent` compiles your `.crew/` state — team roster, routing rules, ceremony triggers, agent charters — into a single repository-native Copilot custom agent at `.github/agents/crew.md`. The generated file works across **every** Copilot surface (CLI, VS Code, GitHub Desktop, github.com) without requiring the Crew runtime installed.
 
-This is the "ship Squad as a portable agent" path. Use it when you want collaborators or downstream repos to get the benefit of your squad's setup with **zero install** — they just check out the repo and the agent is available.
+This is the "ship Crew as a portable agent" path. Use it when you want collaborators or downstream repos to get the benefit of your crew's setup with **zero install** — they just check out the repo and the agent is available.
 
 ---
 
 ## When to use it
 
-| Scenario | Use `squad export agent`? |
+| Scenario | Use `crew export agent`? |
 |----------|-----------------------|
 | You want collaborators to use your team's coordinator without installing the CLI | ✅ Yes |
 | You want a portable, version-controlled snapshot of your coordinator behavior | ✅ Yes |
-| You want CI to enforce that `.github/agents/squad.md` stays in sync with `.squad/` | ✅ Yes — use `--check` |
-| You need full Squad runtime features (Scribe, Ralph, MCP state tools, ceremonies) | ❌ No — install the CLI |
-| You want to share state (decisions, history) not just coordinator behavior | ❌ No — use [`squad export`](/squad/docs/features/export-import/) (snapshot mode) |
+| You want CI to enforce that `.github/agents/crew.md` stays in sync with `.crew/` | ✅ Yes — use `--check` |
+| You need full Crew runtime features (Scribe, Ralph, MCP state tools, ceremonies) | ❌ No — install the CLI |
+| You want to share state (decisions, history) not just coordinator behavior | ❌ No — use [`crew export`](/crew/docs/features/export-import/) (snapshot mode) |
 
-The exported coordinator agent has access to the team's roster and routing logic but does NOT include the live Squad runtime. Sub-agents in the exported coordinator will be dispatched via Copilot's native `task` tool, not via Squad's full spawn machinery.
+The exported coordinator agent has access to the team's roster and routing logic but does NOT include the live Crew runtime. Sub-agents in the exported coordinator will be dispatched via Copilot's native `task` tool, not via Crew's full spawn machinery.
 
 ---
 
 ## Commands
 
-### `squad export agent`
+### `crew export agent`
 
-Generate or update `.github/agents/squad.md` from your current `.squad/` state:
+Generate or update `.github/agents/crew.md` from your current `.crew/` state:
 
 ```bash
-$ squad export agent
+$ crew export agent
 
 🔧 Compiling coordinator agent...
    - Read team.md (8 members)
@@ -57,69 +57,69 @@ $ squad export agent
    - Read ceremonies.md (3 ceremonies)
    - Loaded 8 agent charters
    - Compiled prompt: 12,847 tokens (under 14k soft budget — full mode)
-   - Wrote .github/agents/squad.md (38,294 bytes)
+   - Wrote .github/agents/crew.md (38,294 bytes)
 
-✓ Coordinator exported to .github/agents/squad.md
+✓ Coordinator exported to .github/agents/crew.md
 ```
 
-The output is a self-contained Copilot custom-agent file with proper YAML frontmatter and a compiled coordinator prompt. Anyone in the repo can now run `copilot --agent squad` and get the coordinator's behavior.
+The output is a self-contained Copilot custom-agent file with proper YAML frontmatter and a compiled coordinator prompt. Anyone in the repo can now run `copilot --agent crew` and get the coordinator's behavior.
 
-### `squad export agent --watch`
+### `crew export agent --watch`
 
-Re-export on every change to `.squad/`. Useful during active team development when you want the exported agent file to track your edits:
+Re-export on every change to `.crew/`. Useful during active team development when you want the exported agent file to track your edits:
 
 ```bash
-$ squad export agent --watch
-👀 Watching .squad/ for changes...
-✓ .github/agents/squad.md up to date
+$ crew export agent --watch
+👀 Watching .crew/ for changes...
+✓ .github/agents/crew.md up to date
 
-[edit .squad/routing.md]
-🔄 .squad/routing.md changed — re-exporting...
-✓ .github/agents/squad.md updated (38,401 bytes)
+[edit .crew/routing.md]
+🔄 .crew/routing.md changed — re-exporting...
+✓ .github/agents/crew.md updated (38,401 bytes)
 ```
 
 Press `Ctrl+C` to stop.
 
-### `squad export agent --check`
+### `crew export agent --check`
 
-Verify that `.github/agents/squad.md` is in sync with the current `.squad/` state. Exits with non-zero if drift is detected. Use this in CI to enforce "if you change `.squad/`, you must re-run `squad export agent`":
+Verify that `.github/agents/crew.md` is in sync with the current `.crew/` state. Exits with non-zero if drift is detected. Use this in CI to enforce "if you change `.crew/`, you must re-run `crew export agent`":
 
 ```bash
-$ squad export agent --check
+$ crew export agent --check
 
-✓ .github/agents/squad.md is up to date
+✓ .github/agents/crew.md is up to date
 
 # Or, on drift:
 
 ✗ Drift detected:
-   .squad/routing.md changed but .github/agents/squad.md not regenerated.
-   Run 'squad export agent' to update.
+   .crew/routing.md changed but .github/agents/crew.md not regenerated.
+   Run 'crew export agent' to update.
 exit 1
 ```
 
-### `squad export agent --dry-run`
+### `crew export agent --dry-run`
 
 Preview what would be written without actually writing the file:
 
 ```bash
-$ squad export agent --dry-run
+$ crew export agent --dry-run
 
-🔍 DRY RUN — would write to .github/agents/squad.md:
+🔍 DRY RUN — would write to .github/agents/crew.md:
    Size: 38,294 bytes
    Prompt tokens: ~12,847
    Mode: full
    Frontmatter:
-     name: squad
+     name: crew
      description: ...
    No changes made.
 ```
 
-### `squad export agent --compact`
+### `crew export agent --compact`
 
 Force compact mode even if the prompt fits within the soft budget. Useful for keeping the generated file lean intentionally:
 
 ```bash
-squad export agent --compact
+crew export agent --compact
 ```
 
 Compact mode omits some optional sections (extended examples, on-demand reference pointers) and is the default when the prompt would otherwise exceed the soft token budget.
@@ -135,7 +135,7 @@ The exporter adapts automatically to your team size:
 | **Full** | ≤8 members AND prompt < 14k tokens | Full charters inlined, all routing tables, complete ceremony definitions |
 | **Compact** | Prompt 14k–20k tokens OR `--compact` flag | Condensed charters, abbreviated examples, on-demand references |
 | **Lazy-load** | >8 members OR roster > 3k tokens | Coordinator instructed to load charters on demand at dispatch time |
-| **(fails)** | Prompt > 20k hard budget | Fails with diagnostics — suggests removing rarely-used members or splitting the squad |
+| **(fails)** | Prompt > 20k hard budget | Fails with diagnostics — suggests removing rarely-used members or splitting the crew |
 
 These thresholds protect against generating a coordinator file that's too large for the LLM's context budget. If you hit the hard limit, the exporter prints actionable diagnostics:
 
@@ -146,9 +146,9 @@ These thresholds protect against generating a coordinator file that's too large 
     - Routing table: 24 entries
   
   Suggestions:
-    - Remove rarely-spawned members from .squad/team.md
+    - Remove rarely-spawned members from .crew/team.md
     - Trim agent charter narrative sections (target: 1,500 tokens/charter)
-    - Split into multiple squads (see Multiple Squads docs)
+    - Split into multiple crews (see Multiple Crews docs)
     - Use --compact to drop ~2k tokens
 ```
 
@@ -158,9 +158,9 @@ These thresholds protect against generating a coordinator file that's too large 
 
 The exporter is conservative about what it writes:
 
-- **Won't overwrite user-owned agent files.** If `.github/agents/squad.md` exists and lacks the generated-file marker comment header, the export fails unless you pass `--force`.
-- **Detects legacy `squad.agent.md` collisions.** The classic Squad CLI installation puts the coordinator at `.github/agents/squad.agent.md`. The export warns if both files would exist, and `squad init`/`squad upgrade` skip writing `squad.agent.md` when an exported `squad.md` is present.
-- **Generated files are marked.** The output starts with `<!-- generated by squad export agent — do not edit -->` so the file is unambiguous.
+- **Won't overwrite user-owned agent files.** If `.github/agents/crew.md` exists and lacks the generated-file marker comment header, the export fails unless you pass `--force`.
+- **Detects legacy `crew.agent.md` collisions.** The classic Crew CLI installation puts the coordinator at `.github/agents/crew.agent.md`. The export warns if both files would exist, and `crew init`/`crew upgrade` skip writing `crew.agent.md` when an exported `crew.md` is present.
+- **Generated files are marked.** The output starts with `<!-- generated by crew export agent — do not edit -->` so the file is unambiguous.
 - **`--check` mode never mutates.** Safe to run on every CI build.
 
 ---
@@ -170,11 +170,11 @@ The exporter is conservative about what it writes:
 The pattern most teams use:
 
 ```yaml
-# .github/workflows/squad-drift-check.yml
-name: Squad drift check
+# .github/workflows/crew-drift-check.yml
+name: Crew drift check
 on:
   pull_request:
-    paths: ['.squad/**', '.github/agents/squad.md']
+    paths: ['.crew/**', '.github/agents/crew.md']
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -182,25 +182,25 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: '22' }
-      - run: npm install -g @bradygaster/squad-cli
-      - run: squad export agent --check
+      - run: npm install -g @blacklite/crew-cli
+      - run: crew export agent --check
 ```
 
-If anyone changes `.squad/` without re-exporting, the PR fails CI with a clear message.
+If anyone changes `.crew/` without re-exporting, the PR fails CI with a clear message.
 
 ---
 
 ## What gets compiled into the exported agent
 
-The exporter loads these sources from your `.squad/`:
+The exporter loads these sources from your `.crew/`:
 
 | File | Used for |
 |------|----------|
-| `.squad/team.md` | Roster — agent names, roles, charter paths |
-| `.squad/routing.md` | Work-type → agent and module-ownership mappings |
-| `.squad/ceremonies.md` | Auto-trigger definitions for design review, retro, etc. |
-| `.squad/config.json` | State backend selection, model preferences |
-| `.squad/agents/{name}/charter.md` | Per-agent role definitions (inlined or referenced based on budget mode) |
+| `.crew/team.md` | Roster — agent names, roles, charter paths |
+| `.crew/routing.md` | Work-type → agent and module-ownership mappings |
+| `.crew/ceremonies.md` | Auto-trigger definitions for design review, retro, etc. |
+| `.crew/config.json` | State backend selection, model preferences |
+| `.crew/agents/{name}/charter.md` | Per-agent role definitions (inlined or referenced based on budget mode) |
 
 These get rendered into the output as:
 
@@ -218,20 +218,20 @@ What's NOT compiled in:
 
 ## Architecture (for the curious)
 
-The export pipeline lives at `packages/squad-sdk/src/repo-native/`:
+The export pipeline lives at `packages/crew-sdk/src/repo-native/`:
 
-1. **Context loader** — parses `.squad/` files into a typed IR
+1. **Context loader** — parses `.crew/` files into a typed IR
 2. **Prompt compiler** — renders the coordinator prompt with budget enforcement
 3. **Frontmatter renderer** — emits valid custom-agent YAML
 4. **File writer** — handles safety checks and atomic write
 
-You can use the SDK module directly if you want to embed coordinator export into your own tooling — see `@bradygaster/squad-sdk/repo-native`.
+You can use the SDK module directly if you want to embed coordinator export into your own tooling — see `@blacklite/crew-sdk/repo-native`.
 
 ---
 
 ## See also
 
-- [Export & Import](/squad/docs/features/export-import/) — full state snapshots (different from this)
-- [Self Upgrade](/squad/docs/features/self-upgrade/) — keeping the CLI itself updated
-- [Multiple Squads](/squad/docs/scenarios/multiple-squads/) — when one team gets too large
-- [Team Setup](/squad/docs/features/team-setup/) — composing the team that gets exported
+- [Export & Import](/crew/docs/features/export-import/) — full state snapshots (different from this)
+- [Self Upgrade](/crew/docs/features/self-upgrade/) — keeping the CLI itself updated
+- [Multiple Crews](/crew/docs/scenarios/multiple-crews/) — when one team gets too large
+- [Team Setup](/crew/docs/features/team-setup/) — composing the team that gets exported

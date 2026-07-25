@@ -4,8 +4,8 @@
  * The postinstall patcher used to stop at the first search root that
  * contained vscode-jsonrpc / copilot-sdk. On a global install that root is
  * the global package's own node_modules (already patched), so the consumer
- * repo's node_modules was never reached and `squad doctor` kept failing.
- * These tests pin the all-roots behavior and the `squad upgrade` wiring.
+ * repo's node_modules was never reached and `crew doctor` kept failing.
+ * These tests pin the all-roots behavior and the `crew upgrade` wiring.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -15,10 +15,10 @@ import { pathToFileURL } from 'url';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { randomBytes } from 'crypto';
-import { ensureEsmImportsPatched } from '@bradygaster/squad-cli/core/upgrade';
+import { ensureEsmImportsPatched } from '@blacklite/crew-cli/core/upgrade';
 
 const SCRIPT_URL = pathToFileURL(
-  join(process.cwd(), 'packages', 'squad-cli', 'scripts', 'patch-esm-imports.mjs'),
+  join(process.cwd(), 'packages', 'crew-cli', 'scripts', 'patch-esm-imports.mjs'),
 ).href;
 
 interface PatcherModule {
@@ -122,7 +122,7 @@ describe('patch-esm-imports — all-roots patching (#1190)', () => {
   });
 });
 
-describe('ensureEsmImportsPatched — squad upgrade wiring (#1190)', () => {
+describe('ensureEsmImportsPatched — crew upgrade wiring (#1190)', () => {
   beforeEach(async () => {
     if (existsSync(TEST_ROOT)) {
       await rm(TEST_ROOT, { recursive: true, force: true });

@@ -2,14 +2,14 @@
  * TDD test for CI Hardening Phase 3 item A1:
  * Concurrency controls on all event-driven workflows.
  *
- * Validates that squad-ci, squad-heartbeat, squad-triage,
- * squad-label-enforce, and squad-issue-assign workflows all have
+ * Validates that crew-ci, crew-heartbeat, crew-triage,
+ * crew-label-enforce, and crew-issue-assign workflows all have
  * concurrency settings to prevent resource waste and race conditions.
  *
- * Scope: .github/workflows/ only (squad repo CI).
+ * Scope: .github/workflows/ only (crew repo CI).
  * Template workflows for customer repos are a separate product concern.
  *
- * Refs: diberry/squad#122 (Phase 3 item A1)
+ * Refs: diberry/crew#122 (Phase 3 item A1)
  */
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
@@ -21,24 +21,24 @@ const WORKFLOWS_DIR = path.join(REPO_ROOT, '.github', 'workflows');
 
 // Workflows that must have concurrency controls (per issue #122 item A1)
 const CONCURRENCY_REQUIRED_WORKFLOWS = [
-  'squad-ci.yml',
-  'squad-heartbeat.yml',
-  'squad-triage.yml',
-  'squad-label-enforce.yml',
-  'squad-issue-assign.yml',
+  'crew-ci.yml',
+  'crew-heartbeat.yml',
+  'crew-triage.yml',
+  'crew-label-enforce.yml',
+  'crew-issue-assign.yml',
 ];
 
 // Issue-triggered workflows must use github.event.issue.number for unique concurrency groups
 const ISSUE_TRIGGERED_WORKFLOWS = [
-  'squad-heartbeat.yml',
-  'squad-triage.yml',
-  'squad-label-enforce.yml',
-  'squad-issue-assign.yml',
+  'crew-heartbeat.yml',
+  'crew-triage.yml',
+  'crew-label-enforce.yml',
+  'crew-issue-assign.yml',
 ];
 
 // PR-triggered workflows use github.ref (unique per PR)
 const PR_TRIGGERED_WORKFLOWS = [
-  'squad-ci.yml',
+  'crew-ci.yml',
 ];
 
 function readWorkflow(filename) {

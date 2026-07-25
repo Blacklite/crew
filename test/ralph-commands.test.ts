@@ -9,7 +9,7 @@ import { describe, it, expect } from 'vitest';
 import {
   getRalphScanCommands,
   type RalphCommands,
-} from '../packages/squad-sdk/src/platform/ralph-commands.js';
+} from '../packages/crew-sdk/src/platform/ralph-commands.js';
 
 const COMMAND_KEYS: (keyof RalphCommands)[] = [
   'listUntriaged',
@@ -45,8 +45,8 @@ describe('getRalphScanCommands', () => {
       expect(cmds.createWorkItem).toContain('gh issue create');
     });
 
-    it('filters untriaged issues by squad:untriaged label', () => {
-      expect(cmds.listUntriaged).toContain('squad:untriaged');
+    it('filters untriaged issues by crew:untriaged label', () => {
+      expect(cmds.listUntriaged).toContain('crew:untriaged');
     });
   });
 
@@ -75,7 +75,7 @@ describe('getRalphScanCommands', () => {
 
     it('uses WIQL queries for work item filtering', () => {
       expect(cmds.listUntriaged).toContain('wiql');
-      expect(cmds.listUntriaged).toContain('squad:untriaged');
+      expect(cmds.listUntriaged).toContain('crew:untriaged');
     });
   });
 

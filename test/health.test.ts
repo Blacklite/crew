@@ -8,10 +8,10 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { HealthMonitor, type HealthCheckResult, type HealthMonitorConfig } from '../packages/squad-sdk/src/runtime/health.js';
+import { HealthMonitor, type HealthCheckResult, type HealthMonitorConfig } from '../packages/crew-sdk/src/runtime/health.js';
 
 // ============================================================================
-// Mock SquadClient
+// Mock CrewClient
 // ============================================================================
 
 function createMockClient(overrides: {

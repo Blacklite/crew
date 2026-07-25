@@ -8,7 +8,7 @@
  * and the worktree reference must not claim shared-worktree concurrency
  * is safe for untracked files.
  *
- * Canonical source: .squad-templates/
+ * Canonical source: .crew-templates/
  */
 
 import { describe, it, expect } from 'vitest';
@@ -24,13 +24,13 @@ function readTemplate(relPath: string): string {
 }
 
 describe('shared-worktree spawn warning contract (#1014)', () => {
-  const squadTemplate = readTemplate('.squad-templates/squad.agent.md');
-  const worktreeReference = readTemplate('.squad-templates/worktree-reference.md');
+  const crewTemplate = readTemplate('.crew-templates/crew.agent.md');
+  const worktreeReference = readTemplate('.crew-templates/worktree-reference.md');
 
   it('keeps the shared-worktree guard inside the Parallel Fan-Out section', () => {
-    const fanOut = squadTemplate.slice(
-      squadTemplate.indexOf('### Parallel Fan-Out'),
-      squadTemplate.indexOf('### Shared File Architecture'),
+    const fanOut = crewTemplate.slice(
+      crewTemplate.indexOf('### Parallel Fan-Out'),
+      crewTemplate.indexOf('### Shared File Architecture'),
     );
 
     expect(fanOut).toContain('**Shared-worktree guard.**');
@@ -41,7 +41,7 @@ describe('shared-worktree spawn warning contract (#1014)', () => {
   });
 
   it('warns about stash/clean/restore specifically', () => {
-    expect(squadTemplate).toContain('stash, clean, restore');
+    expect(crewTemplate).toContain('stash, clean, restore');
   });
 
   it('worktree reference no longer claims shared-worktree concurrency is safe for untracked files', () => {
@@ -50,10 +50,10 @@ describe('shared-worktree spawn warning contract (#1014)', () => {
 
   it('all governed copies of the coordinator template carry the guard', () => {
     const copies = [
-      '.github/agents/squad.agent.md',
-      'templates/squad.agent.md.template',
-      'packages/squad-cli/templates/squad.agent.md.template',
-      'packages/squad-sdk/templates/squad.agent.md.template',
+      '.github/agents/crew.agent.md',
+      'templates/crew.agent.md.template',
+      'packages/crew-cli/templates/crew.agent.md.template',
+      'packages/crew-sdk/templates/crew.agent.md.template',
     ];
     for (const copy of copies) {
       expect(readTemplate(copy), `${copy} is missing the shared-worktree guard`).toContain(

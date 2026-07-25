@@ -1,14 +1,14 @@
 version: 2
 updates:
   - package-ecosystem: "nuget"
-    directory: "/src/Squad.Agents.AI"
+    directory: "/src/Crew.Agents.AI"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "08:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "squad:belanna"]
+    labels: ["dependencies", "crew:belanna"]
     commit-message:
       prefix: "deps"
     groups:
@@ -30,14 +30,14 @@ updates:
           - "version-update:semver-major"
 
   - package-ecosystem: "nuget"
-    directory: "/test/Squad.Agents.AI.Tests"
+    directory: "/test/Crew.Agents.AI.Tests"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "08:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "squad:belanna"]
+    labels: ["dependencies", "crew:belanna"]
     commit-message:
       prefix: "deps"
     groups:
@@ -67,7 +67,7 @@ updates:
       time: "08:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "squad:belanna"]
+    labels: ["dependencies", "crew:belanna"]
     commit-message:
       prefix: "deps"
     groups:
@@ -76,16 +76,16 @@ updates:
           - "minor"
           - "patch"
 
-  # npm — Squad CLI package
+  # npm — Crew CLI package
   - package-ecosystem: "npm"
-    directory: "/packages/squad-cli"
+    directory: "/packages/crew-cli"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "08:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "squad:belanna"]
+    labels: ["dependencies", "crew:belanna"]
     commit-message:
       prefix: "deps"
     groups:
@@ -94,16 +94,16 @@ updates:
           - "minor"
           - "patch"
 
-  # npm — Squad SDK package
+  # npm — Crew SDK package
   - package-ecosystem: "npm"
-    directory: "/packages/squad-sdk"
+    directory: "/packages/crew-sdk"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "08:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "squad:belanna"]
+    labels: ["dependencies", "crew:belanna"]
     commit-message:
       prefix: "deps"
     groups:
@@ -121,7 +121,7 @@ updates:
       time: "08:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "squad:belanna"]
+    labels: ["dependencies", "crew:belanna"]
     commit-message:
       prefix: "deps"
     groups:
@@ -145,7 +145,7 @@ updates:
       time: "08:00"
       timezone: "Etc/UTC"
     open-pull-requests-limit: 5
-    labels: ["dependencies", "squad:belanna"]
+    labels: ["dependencies", "crew:belanna"]
     commit-message:
       prefix: "ci"
     groups:

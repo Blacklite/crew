@@ -1,6 +1,6 @@
 # Release Checklist
 
-This document outlines the steps for preparing and shipping Squad releases. Follow the appropriate checklist based on the release type.
+This document outlines the steps for preparing and shipping Crew releases. Follow the appropriate checklist based on the release type.
 
 ## Pre-Release Steps (All Releases)
 
@@ -18,7 +18,7 @@ This document outlines the steps for preparing and shipping Squad releases. Foll
 
 ### Steps
 
-1. Create patch branch: `git checkout -b squad/patch-{version}`
+1. Create patch branch: `git checkout -b crew/patch-{version}`
 2. Update `package.json` version: increment patch number (e.g., 0.4.2 → 0.4.3)
 3. Add `CHANGELOG.md` entry with date:
    ```markdown
@@ -28,7 +28,7 @@ This document outlines the steps for preparing and shipping Squad releases. Foll
    - Description of fix
    ```
 4. Commit: `git commit -m "chore: v0.4.3 patch release"`
-5. Push and create PR: `git push origin squad/patch-{version}`
+5. Push and create PR: `git push origin crew/patch-{version}`
 6. Get review and merge to `dev`
 7. Merge `dev` → `main`
 8. CI automatically creates GitHub release
@@ -39,13 +39,13 @@ This document outlines the steps for preparing and shipping Squad releases. Foll
 
 ### Steps
 
-1. Create release branch: `git checkout -b squad/{issue}-release-hardening`
+1. Create release branch: `git checkout -b crew/{issue}-release-hardening`
 2. Update `package.json` version: increment minor number (e.g., 0.4.2 → 0.5.0)
 3. Update all affected workflow files and templates:
-   - `.github/workflows/squad-preview.yml`
-   - `.github/workflows/squad-release.yml`
-   - `templates/workflows/squad-preview.yml`
-   - `templates/workflows/squad-release.yml`
+   - `.github/workflows/crew-preview.yml`
+   - `.github/workflows/crew-release.yml`
+   - `templates/workflows/crew-preview.yml`
+   - `templates/workflows/crew-release.yml`
 4. Add `CHANGELOG.md` entry with new features:
    ```markdown
    ## [0.5.0] — Unreleased
@@ -56,7 +56,7 @@ This document outlines the steps for preparing and shipping Squad releases. Foll
    ```
 5. Test all changes locally and in CI
 6. Commit: `git commit -m "chore: v0.5.0 release hardening — version bump, CI validation, docs"`
-7. Push and create PR: `git push origin squad/{issue}-release-hardening`
+7. Push and create PR: `git push origin crew/{issue}-release-hardening`
 8. Get review and merge to `dev`
 9. Merge `dev` → `main`
 10. CI automatically creates GitHub release
@@ -67,7 +67,7 @@ This document outlines the steps for preparing and shipping Squad releases. Foll
 
 ### Steps
 
-1. Create release branch: `git checkout -b squad/major-{version}-release`
+1. Create release branch: `git checkout -b crew/major-{version}-release`
 2. Update `package.json` version: increment major number (e.g., 0.4.2 → 1.0.0)
 3. Add migration guide if needed (breaking changes documentation)
 4. Update all affected files (same as minor release)
@@ -93,14 +93,14 @@ This document outlines the steps for preparing and shipping Squad releases. Foll
 
 The following checks run automatically in CI (no manual action required):
 
-### In `squad-preview.yml` (Preview Branch)
+### In `crew-preview.yml` (Preview Branch)
 
 - Runs full test suite
-- Validates no `.ai-team/` or `.squad/` files are tracked
+- Validates no `.ai-team/` or `.crew/` files are tracked
 - Validates package.json contains a version
 - **NEW:** Validates version consistency with CHANGELOG.md
 
-### In `squad-release.yml` (Main Branch)
+### In `crew-release.yml` (Main Branch)
 
 - Runs full test suite
 - Reads version from package.json
@@ -115,7 +115,7 @@ The following checks run automatically in CI (no manual action required):
 - **CHANGELOG.md must have entry** for every release version (validated in CI)
 - **Version consistency** between `package.json` and CHANGELOG.md is enforced
 - **All tests must pass** before release can proceed
-- **No `.ai-team/` or `.squad/` files** on preview or main branches
+- **No `.ai-team/` or `.crew/` files** on preview or main branches
 
 ## References
 

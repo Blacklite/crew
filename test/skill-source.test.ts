@@ -12,8 +12,8 @@ import {
   SkillSourceRegistry,
   type SkillSource,
   type SkillManifest,
-} from '@bradygaster/squad-sdk/skills';
-import type { GitHubFetcher } from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/skills';
+import type { GitHubFetcher } from '@blacklite/crew-sdk/config';
 
 // --- Helpers ---
 
@@ -46,7 +46,7 @@ Run containers with docker compose.
 `;
 
 function createTempDir(): string {
-  const dir = path.join(process.env.TEMP || '/tmp', `squad-test-${randomUUID()}`);
+  const dir = path.join(process.env.TEMP || '/tmp', `crew-test-${randomUUID()}`);
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 }
@@ -145,8 +145,8 @@ describe('LocalSkillSource', () => {
     expect(content).toBeNull();
   });
 
-  it('should fall back to legacy .squad/skills/ when .copilot/skills/ is absent', async () => {
-    const legacyDir = path.join(tempDir, '.squad', 'skills', 'legacy-skill');
+  it('should fall back to legacy .crew/skills/ when .copilot/skills/ is absent', async () => {
+    const legacyDir = path.join(tempDir, '.crew', 'skills', 'legacy-skill');
     fs.mkdirSync(legacyDir, { recursive: true });
     fs.writeFileSync(path.join(legacyDir, 'SKILL.md'), SKILL_MD_MINIMAL);
 

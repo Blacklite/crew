@@ -16,7 +16,7 @@
         "policy-aspire-config",
         "policy-headed-browser"
       ],
-      "baselineContextBytes": 942,
+      "baselineContextBytes": 939,
       "governedContextBytes": 251,
       "baselinePrecision": 0.125,
       "governedPrecision": 0.5,
@@ -44,8 +44,8 @@
         "local-memory-governance",
         "local-teams-reporting"
       ],
-      "baselineContextBytes": 942,
-      "governedContextBytes": 620,
+      "baselineContextBytes": 939,
+      "governedContextBytes": 617,
       "baselinePrecision": 0.25,
       "governedPrecision": 0.4,
       "baselineRecall": 1,
@@ -69,7 +69,7 @@
         "policy-aspire-config",
         "policy-headed-browser"
       ],
-      "baselineContextBytes": 942,
+      "baselineContextBytes": 939,
       "governedContextBytes": 251,
       "baselinePrecision": 0.125,
       "governedPrecision": 0.5,
@@ -96,8 +96,8 @@
         "local-memory-diagnostics",
         "local-teams-reporting"
       ],
-      "baselineContextBytes": 942,
-      "governedContextBytes": 479,
+      "baselineContextBytes": 939,
+      "governedContextBytes": 476,
       "baselinePrecision": 0.125,
       "governedPrecision": 0.25,
       "baselineRecall": 1,
@@ -106,11 +106,11 @@
       "governedDecisionConsistent": true
     }
   ],
-  "baselineContextBytes": 3768,
-  "governedContextBytes": 1601,
-  "baselineEstimatedTokens": 942,
-  "governedEstimatedTokens": 401,
-  "contextReductionPercent": 57.510615711252655,
+  "baselineContextBytes": 3756,
+  "governedContextBytes": 1595,
+  "baselineEstimatedTokens": 939,
+  "governedEstimatedTokens": 399,
+  "contextReductionPercent": 57.5346112886049,
   "baselinePrecision": 0.15625,
   "governedPrecision": 0.4125,
   "baselineRecall": 1,

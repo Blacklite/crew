@@ -14,10 +14,10 @@ import {
   generateLoopFile,
   runLoop,
   type LoopConfig,
-} from '../../packages/squad-cli/src/cli/commands/loop.js';
-import { detectSquadDir } from '../../packages/squad-cli/src/cli/core/detect-squad-dir.js';
-import { createDefaultRegistry } from '../../packages/squad-cli/src/cli/commands/watch/index.js';
-import { parseRoster } from '@bradygaster/squad-sdk/ralph/triage';
+} from '../../packages/crew-cli/src/cli/commands/loop.js';
+import { detectCrewDir } from '../../packages/crew-cli/src/cli/core/detect-crew-dir.js';
+import { createDefaultRegistry } from '../../packages/crew-cli/src/cli/commands/watch/index.js';
+import { parseRoster } from '@blacklite/crew-sdk/ralph/triage';
 
 // ── Module Mocks (hoisted by vitest) ─────────────────────────────
 
@@ -30,20 +30,20 @@ vi.mock('node:child_process', () => ({
   execFile: vi.fn(),
 }));
 
-vi.mock('../../packages/squad-cli/src/cli/core/detect-squad-dir.js', () => ({
-  detectSquadDir: vi.fn(),
+vi.mock('../../packages/crew-cli/src/cli/core/detect-crew-dir.js', () => ({
+  detectCrewDir: vi.fn(),
 }));
 
-vi.mock('../../packages/squad-cli/src/cli/commands/watch/index.js', () => ({
+vi.mock('../../packages/crew-cli/src/cli/commands/watch/index.js', () => ({
   createDefaultRegistry: vi.fn(),
   CapabilityRegistry: vi.fn(),
 }));
 
-vi.mock('@bradygaster/squad-sdk/platform', () => ({
+vi.mock('@blacklite/crew-sdk/platform', () => ({
   createPlatformAdapter: vi.fn(),
 }));
 
-vi.mock('@bradygaster/squad-sdk/ralph/triage', () => ({
+vi.mock('@blacklite/crew-sdk/ralph/triage', () => ({
   parseRoster: vi.fn(),
 }));
 
@@ -200,7 +200,7 @@ describe('generateLoopFile', () => {
   beforeAll(async () => {
     const realFs = await vi.importActual<typeof import('node:fs')>('node:fs');
     templateContent = realFs.readFileSync(
-      path.resolve('packages/squad-cli/templates/loop.md'),
+      path.resolve('packages/crew-cli/templates/loop.md'),
       'utf-8',
     ) as string;
   });
@@ -288,9 +288,9 @@ describe('runLoop', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    vi.mocked(detectSquadDir).mockReturnValue({
-      path: path.resolve(DEST, '.squad'),
-      name: '.squad',
+    vi.mocked(detectCrewDir).mockReturnValue({
+      path: path.resolve(DEST, '.crew'),
+      name: '.crew',
       isLegacy: false,
     });
   });
@@ -309,7 +309,7 @@ describe('runLoop', () => {
     await runLoop(DEST, defaultOptions);
 
     expect(console.log).toHaveBeenCalledWith(
-      expect.stringContaining('squad loop --init'),
+      expect.stringContaining('crew loop --init'),
     );
   });
 

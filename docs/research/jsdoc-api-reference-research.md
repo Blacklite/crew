@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-The Squad SDK has moderate JSDoc coverage (~60–80% across major modules) with room for improvement, particularly in type/interface definitions. **TypeDoc + markdown plugin** is the recommended approach for auto-generating API reference docs—it integrates seamlessly with the existing plain Astro 5 setup (no Starlight migration needed), works with Pagefind search, and requires minimal setup overhead. Estimated effort: **1–2 weeks** to achieve production-ready docs covering the SDK and CLI.
+The Crew SDK has moderate JSDoc coverage (~60–80% across major modules) with room for improvement, particularly in type/interface definitions. **TypeDoc + markdown plugin** is the recommended approach for auto-generating API reference docs—it integrates seamlessly with the existing plain Astro 5 setup (no Starlight migration needed), works with Pagefind search, and requires minimal setup overhead. Estimated effort: **1–2 weeks** to achieve production-ready docs covering the SDK and CLI.
 
 ---
 
@@ -12,8 +12,8 @@ The Squad SDK has moderate JSDoc coverage (~60–80% across major modules) with 
 
 | Module | Exports | JSDoc Blocks | Coverage |
 |--------|---------|--------------|----------|
-| **state/domain-types.ts** (StorageProvider interface, SquadState) | 21 | 17 | 81% |
-| **coordinator/coordinator.ts** (SquadCoordinator) | 5 | 16 | 320%* |
+| **state/domain-types.ts** (StorageProvider interface, CrewState) | 21 | 17 | 81% |
+| **coordinator/coordinator.ts** (CrewCoordinator) | 5 | 16 | 320%* |
 | **config/schema.ts** (Config validation) | 12 | 1 | 8% |
 | **runtime/config.ts** (Core types) | 26 | 86 | 331%* |
 | **agents/lifecycle.ts** (Agent lifecycle) | 5 | 34 | 680%* |
@@ -22,7 +22,7 @@ The Squad SDK has moderate JSDoc coverage (~60–80% across major modules) with 
 
 ### Key Findings
 
-- **136 TypeScript source files** in packages/squad-sdk/src/
+- **136 TypeScript source files** in packages/crew-sdk/src/
 - **Barrel exports** in index.ts are well-documented with type imports and descriptions
 - **Domain types** (Phase 2 state layer) have good inline JSDoc on interfaces
 - **Config schema** needs attention—many exports lack JSDoc (8% coverage)
@@ -41,7 +41,7 @@ The Squad SDK has moderate JSDoc coverage (~60–80% across major modules) with 
 
 The new state/ module (Phase 2, PR #481) is well-positioned for API docs:
 - **StorageProvider interface** — fully typed, clear contract
-- **SquadState (domain types)** — 81% JSDoc coverage with good inline descriptions
+- **CrewState (domain types)** — 81% JSDoc coverage with good inline descriptions
 - **AgentHandle, CollectionEntityMap** — clearly typed
 - **Domain types** (Agent, Decision, TeamConfig, etc.) — each has inline JSDoc
 - **State I/O layer** — documented but lacks @param/@return tags on functions
@@ -100,12 +100,12 @@ docs/src/content/docs/reference/
   └── api/                     (TypeDoc-generated, one-time setup)
       ├── index.md            (generated modules index)
       ├── classes/
-      │   ├── SquadCoordinator.md
-      │   ├── SquadState.md
+      │   ├── CrewCoordinator.md
+      │   ├── CrewState.md
       │   └── StorageProvider.md
       ├── interfaces/
       │   ├── Agent.md
-      │   ├── SquadConfig.md
+      │   ├── CrewConfig.md
       │   └── ...
       ├── functions/
       │   └── ... (exported utility functions)
@@ -116,10 +116,10 @@ docs/src/content/docs/reference/
 ### URL Structure
 
 \\\
-https://bradygaster.github.io/squad/reference/api-reference/     (overview page)
-https://bradygaster.github.io/squad/reference/api/               (index)
-https://bradygaster.github.io/squad/reference/api/classes/squad-coordinator/
-https://bradygaster.github.io/squad/reference/api/interfaces/agent/
+https://blacklite.github.io/crew/reference/api-reference/     (overview page)
+https://blacklite.github.io/crew/reference/api/               (index)
+https://blacklite.github.io/crew/reference/api/classes/crew-coordinator/
+https://blacklite.github.io/crew/reference/api/interfaces/agent/
 \\\
 
 ### Build Workflow
@@ -157,7 +157,7 @@ pm run build automatically runs TypeDoc before Astro build.
 
 \\\json
 {
-  "entryPoints": ["./packages/squad-sdk/src/index.ts"],
+  "entryPoints": ["./packages/crew-sdk/src/index.ts"],
   "out": "./docs/src/content/docs/reference/api",
   "plugin": ["typedoc-plugin-markdown"],
   "pluginPages": {
@@ -170,7 +170,7 @@ pm run build automatically runs TypeDoc before Astro build.
   "excludePrivate": true,
   "excludeInternal": true,
   "excludeExternals": true,
-  "tsconfig": "./packages/squad-sdk/tsconfig.json",
+  "tsconfig": "./packages/crew-sdk/tsconfig.json",
   "gitRevision": "main",
   "readme": "none"
 }
@@ -183,7 +183,7 @@ pm run build automatically runs TypeDoc before Astro build.
 **Verify:**
 \\\ash
 npm run build
-grep "classes/squad-coordinator" dist/.pagefind/pagefind.json
+grep "classes/crew-coordinator" dist/.pagefind/pagefind.json
 \\\
 
 ---
@@ -234,7 +234,7 @@ grep "classes/squad-coordinator" dist/.pagefind/pagefind.json
 The Phase 2 state layer (PR #481) is **API-docs ready**:
 
 - **StorageProvider interface** — strict contract, all methods documented inline
-- **SquadState entry point** — 9 exported types with clear domain semantics
+- **CrewState entry point** — 9 exported types with clear domain semantics
 - **Collection map** — AgentHandle, CollectionEntityMap clearly defined
 - **Domain types** — Agent, Decision, HistoryEntry, TeamConfig all have JSDoc
 - **Error handling** — StateError, NotFoundError, WriteConflictError defined
@@ -272,7 +272,7 @@ The Phase 2 state layer (PR #481) is **API-docs ready**:
 
 ### Result
 
-Users can search: "StorageProvider", "SquadState", "parseCharter", etc. → immediate results in /squad/ search.
+Users can search: "StorageProvider", "CrewState", "parseCharter", etc. → immediate results in /crew/ search.
 
 ---
 

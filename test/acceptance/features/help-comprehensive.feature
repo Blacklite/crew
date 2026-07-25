@@ -1,7 +1,7 @@
 Feature: Help comprehensive
 
   Scenario: Help lists all core commands
-    When I run "squad help"
+    When I run "crew help"
     Then the output contains "Usage:"
     And the output contains "Commands:"
     And the output contains "init"
@@ -11,7 +11,7 @@ Feature: Help comprehensive
     And the exit code is 0
 
   Scenario: Help includes flags section
-    When I run "squad help"
+    When I run "crew help"
     Then the output contains "Flags"
     And the output contains "--version"
     And the output contains "--help"

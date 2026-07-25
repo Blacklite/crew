@@ -4,10 +4,10 @@ import { join } from 'node:path';
 import { execSync, execFileSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { tmpdir } from 'node:os';
-import { WorktreeBackend, GitNotesBackend, OrphanBranchBackend, TwoLayerBackend, CircuitBreaker, GitExecError, resolveStateBackend, validateStateKey, StateBackendStorageAdapter, verifyStateBackend, _resetGitNotesMigrationWarnForTesting, _resetExternalStubMigrationWarnForTesting } from '../packages/squad-sdk/src/state-backend.js';
-import type { StateBackend, StateBackendType } from '../packages/squad-sdk/src/state-backend.js';
-import { resolveSquadState, clearResolveSquadCache } from '../packages/squad-sdk/src/resolution.js';
-import { ToolRegistry } from '../packages/squad-sdk/src/tools/index.js';
+import { WorktreeBackend, GitNotesBackend, OrphanBranchBackend, TwoLayerBackend, CircuitBreaker, GitExecError, resolveStateBackend, validateStateKey, StateBackendStorageAdapter, verifyStateBackend, _resetGitNotesMigrationWarnForTesting, _resetExternalStubMigrationWarnForTesting } from '../packages/crew-sdk/src/state-backend.js';
+import type { StateBackend, StateBackendType } from '../packages/crew-sdk/src/state-backend.js';
+import { resolveCrewState, clearResolveCrewCache } from '../packages/crew-sdk/src/resolution.js';
+import { ToolRegistry } from '../packages/crew-sdk/src/tools/index.js';
 
 const TMP = join(process.cwd(), `.test-state-backend-${randomBytes(4).toString('hex')}`);
 function git(args: string, cwd = TMP): string {
@@ -20,23 +20,23 @@ function initRepo(): void {
 }
 
 describe('WorktreeBackend', () => {
-  const squadDir = () => join(TMP, '.squad');
-  beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); mkdirSync(squadDir(), { recursive: true }); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  const crewDir = () => join(TMP, '.crew');
+  beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); mkdirSync(crewDir(), { recursive: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
   it('read/write/exists round-trip', () => {
-    const b = new WorktreeBackend(squadDir());
+    const b = new WorktreeBackend(crewDir());
     expect(b.exists('team.md')).toBe(false); expect(b.read('team.md')).toBeUndefined();
     b.write('team.md', '# Team\n'); expect(b.exists('team.md')).toBe(true); expect(b.read('team.md')).toBe('# Team\n');
   });
   it('list returns directory entries', () => {
-    const b = new WorktreeBackend(squadDir());
+    const b = new WorktreeBackend(crewDir());
     b.write('agents/data.md', '# Data'); b.write('agents/picard.md', '# Picard');
     expect(b.list('agents')).toContain('data.md'); expect(b.list('agents')).toContain('picard.md');
   });
-  it('list returns empty for non-existent directory', () => { expect(new WorktreeBackend(squadDir()).list('nonexistent')).toEqual([]); });
-  it('name is local', () => { expect(new WorktreeBackend(squadDir()).name).toBe('local'); });
+  it('list returns empty for non-existent directory', () => { expect(new WorktreeBackend(crewDir()).list('nonexistent')).toEqual([]); });
+  it('name is local', () => { expect(new WorktreeBackend(crewDir()).name).toBe('local'); });
   it('delete on a directory key removes the whole subtree', () => {
-    const b = new WorktreeBackend(squadDir());
+    const b = new WorktreeBackend(crewDir());
     b.write('agents/x/history/log.md', 'entry');
     b.write('agents/other.md', 'keep');
     expect(b.delete('agents/x')).toBe(true);
@@ -47,7 +47,7 @@ describe('WorktreeBackend', () => {
 
 describe('GitNotesBackend', () => {
   beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
   it('read returns undefined when no note exists', () => { expect(new GitNotesBackend(TMP).read('team.md')).toBeUndefined(); });
   it('write then read round-trip', () => { const b = new GitNotesBackend(TMP); b.write('team.md', '# Team Config'); expect(b.read('team.md')).toBe('# Team Config'); });
   it('exists reflects write state', () => { const b = new GitNotesBackend(TMP); expect(b.exists('d/i/t.md')).toBe(false); b.write('d/i/t.md', 'x'); expect(b.exists('d/i/t.md')).toBe(true); });
@@ -90,12 +90,12 @@ describe('GitNotesBackend', () => {
 
 describe('OrphanBranchBackend', () => {
   beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
   it('read returns undefined when branch does not exist', () => { expect(new OrphanBranchBackend(TMP).read('team.md')).toBeUndefined(); });
   it('write creates orphan branch', { timeout: 15_000 }, () => {
     const b = new OrphanBranchBackend(TMP); b.write('team.md', '# Team'); expect(b.read('team.md')).toBe('# Team');
-    expect(git('branch')).toContain('squad-state');
-    let common = true; try { git('merge-base HEAD squad-state'); } catch { common = false; } expect(common).toBe(false);
+    expect(git('branch')).toContain('crew-state');
+    let common = true; try { git('merge-base HEAD crew-state'); } catch { common = false; } expect(common).toBe(false);
   });
   it('exists reflects write state', { timeout: 10_000 }, () => { const b = new OrphanBranchBackend(TMP); expect(b.exists('c.json')).toBe(false); b.write('c.json', '{}'); expect(b.exists('c.json')).toBe(true); });
   it('write to nested path', { timeout: 10_000 }, () => { const b = new OrphanBranchBackend(TMP); b.write('d/i/x.md', 'D'); expect(b.read('d/i/x.md')).toBe('D'); });
@@ -111,38 +111,38 @@ describe('OrphanBranchBackend', () => {
 });
 
 describe('resolveStateBackend()', () => {
-  const squadDir = () => join(TMP, '.squad');
-  beforeEach(() => { clearResolveSquadCache(); _resetGitNotesMigrationWarnForTesting(); _resetExternalStubMigrationWarnForTesting(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(squadDir(), { recursive: true }); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
-  it('defaults to local', () => { expect(resolveStateBackend(squadDir(), TMP).name).toBe('local'); });
+  const crewDir = () => join(TMP, '.crew');
+  beforeEach(() => { clearResolveCrewCache(); _resetGitNotesMigrationWarnForTesting(); _resetExternalStubMigrationWarnForTesting(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(crewDir(), { recursive: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  it('defaults to local', () => { expect(resolveStateBackend(crewDir(), TMP).name).toBe('local'); });
   it('reads stateBackend from config.json (git-notes migrates to two-layer)', () => {
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
-    expect(resolveStateBackend(squadDir(), TMP).name).toBe('two-layer');
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
+    expect(resolveStateBackend(crewDir(), TMP).name).toBe('two-layer');
   });
   it('CLI override wins over config', () => {
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
-    expect(resolveStateBackend(squadDir(), TMP, 'orphan').name).toBe('orphan');
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
+    expect(resolveStateBackend(crewDir(), TMP, 'orphan').name).toBe('orphan');
   });
   it('falls back on invalid type', () => {
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'bad' }));
-    expect(resolveStateBackend(squadDir(), TMP).name).toBe('local');
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'bad' }));
+    expect(resolveStateBackend(crewDir(), TMP).name).toBe('local');
   });
-  it('falls back on malformed JSON', () => { writeFileSync(join(squadDir(), 'config.json'), 'bad'); expect(resolveStateBackend(squadDir(), TMP).name).toBe('local'); });
-  it('external-stub returns local stub', () => { expect(resolveStateBackend(squadDir(), TMP, 'external-stub').name).toBe('local'); });
-  it('legacy external alias migrates to external-stub (local)', () => { expect(resolveStateBackend(squadDir(), TMP, 'external' as any).name).toBe('local'); });
-  it('legacy worktree alias accepted', () => { expect(resolveStateBackend(squadDir(), TMP, 'worktree' as any).name).toBe('local'); });
+  it('falls back on malformed JSON', () => { writeFileSync(join(crewDir(), 'config.json'), 'bad'); expect(resolveStateBackend(crewDir(), TMP).name).toBe('local'); });
+  it('external-stub returns local stub', () => { expect(resolveStateBackend(crewDir(), TMP, 'external-stub').name).toBe('local'); });
+  it('legacy external alias migrates to external-stub (local)', () => { expect(resolveStateBackend(crewDir(), TMP, 'external' as any).name).toBe('local'); });
+  it('legacy worktree alias accepted', () => { expect(resolveStateBackend(crewDir(), TMP, 'worktree' as any).name).toBe('local'); });
   it('all valid types accepted', () => {
-    for (const t of ['local', 'external-stub', 'orphan', 'two-layer'] as const) expect(resolveStateBackend(squadDir(), TMP, t)).toBeDefined();
+    for (const t of ['local', 'external-stub', 'orphan', 'two-layer'] as const) expect(resolveStateBackend(crewDir(), TMP, t)).toBeDefined();
   });
   it('legacy git-notes migrates to two-layer', () => {
-    expect(resolveStateBackend(squadDir(), TMP, 'git-notes' as any).name).toBe('two-layer');
+    expect(resolveStateBackend(crewDir(), TMP, 'git-notes' as any).name).toBe('two-layer');
   });
   it('git-notes deprecation warning fires exactly once per process across repeated calls (Bug C)', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {
-      resolveStateBackend(squadDir(), TMP, 'git-notes' as any);
-      resolveStateBackend(squadDir(), TMP, 'git-notes' as any);
-      resolveStateBackend(squadDir(), TMP, 'git-notes' as any);
+      resolveStateBackend(crewDir(), TMP, 'git-notes' as any);
+      resolveStateBackend(crewDir(), TMP, 'git-notes' as any);
+      resolveStateBackend(crewDir(), TMP, 'git-notes' as any);
       // Warn should fire on the FIRST call only, never again.
       expect(warnSpy).toHaveBeenCalledTimes(1);
       expect(warnSpy.mock.calls[0][0]).toContain("'git-notes' is deprecated");
@@ -153,9 +153,9 @@ describe('resolveStateBackend()', () => {
   it('external deprecation warning fires exactly once per process across repeated calls', () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {
-      resolveStateBackend(squadDir(), TMP, 'external' as any);
-      resolveStateBackend(squadDir(), TMP, 'external' as any);
-      resolveStateBackend(squadDir(), TMP, 'external' as any);
+      resolveStateBackend(crewDir(), TMP, 'external' as any);
+      resolveStateBackend(crewDir(), TMP, 'external' as any);
+      resolveStateBackend(crewDir(), TMP, 'external' as any);
       // The deprecation warning fires on the FIRST call only; the per-call
       // "is a stub" warning from createBackend still fires every time.
       const deprecations = warnSpy.mock.calls.filter((c) => String(c[0]).includes("renamed to 'external-stub'"));
@@ -165,16 +165,16 @@ describe('resolveStateBackend()', () => {
     }
   });
   it('soft-falls-back to local when an explicit git-native backend is unavailable', () => {
-    const nonGitRoot = join(tmpdir(), `.squad-state-non-git-${randomBytes(4).toString('hex')}`);
-    const nonGitSquad = join(nonGitRoot, '.squad');
-    mkdirSync(nonGitSquad, { recursive: true });
-    writeFileSync(join(nonGitSquad, 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'two-layer' }));
+    const nonGitRoot = join(tmpdir(), `.crew-state-non-git-${randomBytes(4).toString('hex')}`);
+    const nonGitCrew = join(nonGitRoot, '.crew');
+    mkdirSync(nonGitCrew, { recursive: true });
+    writeFileSync(join(nonGitCrew, 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'two-layer' }));
 
     try {
       // Bug B fix: resolveStateBackend no longer throws when a git-native backend
       // fails; it emits a console.warn and falls back to WorktreeBackend ('local').
-      expect(() => resolveStateBackend(nonGitSquad, nonGitRoot)).not.toThrow();
-      const backend = resolveStateBackend(nonGitSquad, nonGitRoot);
+      expect(() => resolveStateBackend(nonGitCrew, nonGitRoot)).not.toThrow();
+      const backend = resolveStateBackend(nonGitCrew, nonGitRoot);
       expect(backend.name).toBe('local');
     } finally {
       rmSync(nonGitRoot, { recursive: true, force: true });
@@ -228,7 +228,7 @@ describe('State Backend: validateStateKey', () => {
 
 describe('State Backend: Key injection blocked at backend level', () => {
   beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   it('GitNotesBackend rejects path traversal in write', () => {
     const b = new GitNotesBackend(TMP);
@@ -261,9 +261,9 @@ describe('State Backend: Key injection blocked at backend level', () => {
   });
 
   it('WorktreeBackend normalizes and rejects traversal in write', () => {
-    const squadDir = join(TMP, '.squad');
-    mkdirSync(squadDir, { recursive: true });
-    const b = new WorktreeBackend(squadDir);
+    const crewDir = join(TMP, '.crew');
+    mkdirSync(crewDir, { recursive: true });
+    const b = new WorktreeBackend(crewDir);
     // WorktreeBackend uses path.join which handles traversal, but normalizeKey now validates
     expect(() => b.write('../../../etc/passwd', 'pwned')).toThrow('. or ..');
   });
@@ -274,30 +274,30 @@ describe('State Backend: Key injection blocked at backend level', () => {
 // ============================================================================
 
 describe('WorktreeBackend delete/append', () => {
-  const squadDir = () => join(TMP, '.squad');
-  beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); mkdirSync(squadDir(), { recursive: true }); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  const crewDir = () => join(TMP, '.crew');
+  beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); mkdirSync(crewDir(), { recursive: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   it('delete removes an existing file and returns true', () => {
-    const b = new WorktreeBackend(squadDir());
+    const b = new WorktreeBackend(crewDir());
     b.write('decisions.md', '# Decisions');
     expect(b.delete('decisions.md')).toBe(true);
     expect(b.exists('decisions.md')).toBe(false);
   });
 
   it('delete returns false for non-existent file', () => {
-    const b = new WorktreeBackend(squadDir());
+    const b = new WorktreeBackend(crewDir());
     expect(b.delete('nonexistent.md')).toBe(false);
   });
 
   it('append creates file if it does not exist', () => {
-    const b = new WorktreeBackend(squadDir());
+    const b = new WorktreeBackend(crewDir());
     b.append('log.md', 'line 1\n');
     expect(b.read('log.md')).toBe('line 1\n');
   });
 
   it('append adds to existing content', () => {
-    const b = new WorktreeBackend(squadDir());
+    const b = new WorktreeBackend(crewDir());
     b.write('log.md', 'line 1\n');
     b.append('log.md', 'line 2\n');
     expect(b.read('log.md')).toBe('line 1\nline 2\n');
@@ -306,7 +306,7 @@ describe('WorktreeBackend delete/append', () => {
 
 describe('GitNotesBackend delete/append', () => {
   beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   it('delete removes a key from the blob', { timeout: 15_000 }, () => {
     const b = new GitNotesBackend(TMP);
@@ -338,7 +338,7 @@ describe('GitNotesBackend delete/append', () => {
 
 describe('OrphanBranchBackend delete/append', () => {
   beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   it('delete removes a file from the orphan branch', { timeout: 15_000 }, () => {
     const b = new OrphanBranchBackend(TMP);
@@ -402,42 +402,42 @@ describe('OrphanBranchBackend delete/append', () => {
   });
 });
 
-describe('resolveSquadState()', () => {
-  const squadDir = () => join(TMP, '.squad');
-  beforeEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(squadDir(), { recursive: true }); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+describe('resolveCrewState()', () => {
+  const crewDir = () => join(TMP, '.crew');
+  beforeEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(crewDir(), { recursive: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
-  it('returns null when no squad dir exists', () => {
-    rmSync(squadDir(), { recursive: true, force: true });
-    expect(resolveSquadState(TMP)).toBeNull();
+  it('returns null when no crew dir exists', () => {
+    rmSync(crewDir(), { recursive: true, force: true });
+    expect(resolveCrewState(TMP)).toBeNull();
   });
 
   it('returns context with local backend by default', () => {
-    writeFileSync(join(squadDir(), 'team.md'), '# Team');
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.' }));
-    const ctx = resolveSquadState(TMP);
+    writeFileSync(join(crewDir(), 'team.md'), '# Team');
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.' }));
+    const ctx = resolveCrewState(TMP);
     expect(ctx).not.toBeNull();
     expect(ctx!.backend.name).toBe('local');
-    expect(ctx!.paths.projectDir).toBe(squadDir());
+    expect(ctx!.paths.projectDir).toBe(crewDir());
   });
 
   it('respects stateBackend in config.json (git-notes migrates to two-layer)', () => {
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
-    const ctx = resolveSquadState(TMP);
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
+    const ctx = resolveCrewState(TMP);
     expect(ctx).not.toBeNull();
     expect(ctx!.backend.name).toBe('two-layer');
   });
 
   it('CLI override wins over config', () => {
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
-    const ctx = resolveSquadState(TMP, 'orphan');
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
+    const ctx = resolveCrewState(TMP, 'orphan');
     expect(ctx).not.toBeNull();
     expect(ctx!.backend.name).toBe('orphan');
   });
 
   it('repoRoot uses git rev-parse --show-toplevel, not path.resolve parent', () => {
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.' }));
-    const ctx = resolveSquadState(TMP);
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.' }));
+    const ctx = resolveCrewState(TMP);
     expect(ctx).not.toBeNull();
     // repoRoot should match the actual git toplevel, which is TMP
     const expected = execSync('git rev-parse --show-toplevel', { cwd: TMP, encoding: 'utf-8' }).trim();
@@ -446,8 +446,8 @@ describe('resolveSquadState()', () => {
   });
 
   it('returns FSStorageProvider for local backend', () => {
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.' }));
-    const ctx = resolveSquadState(TMP);
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.' }));
+    const ctx = resolveCrewState(TMP);
     expect(ctx).not.toBeNull();
     expect(ctx!.storage).toBeDefined();
     // Local backend should use FSStorageProvider, not the adapter
@@ -455,8 +455,8 @@ describe('resolveSquadState()', () => {
   });
 
   it('returns StateBackendStorageAdapter for two-layer backend (via git-notes migration)', () => {
-    writeFileSync(join(squadDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
-    const ctx = resolveSquadState(TMP);
+    writeFileSync(join(crewDir(), 'config.json'), JSON.stringify({ version: 1, teamRoot: '.', stateBackend: 'git-notes' }));
+    const ctx = resolveCrewState(TMP);
     expect(ctx).not.toBeNull();
     expect(ctx!.storage.constructor.name).toBe('StateBackendStorageAdapter');
   });
@@ -467,13 +467,13 @@ describe('resolveSquadState()', () => {
 // ============================================================================
 
 describe('StateBackendStorageAdapter', () => {
-  const squadDir = () => join(TMP, '.squad');
-  beforeEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(squadDir(), { recursive: true }); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  const crewDir = () => join(TMP, '.crew');
+  beforeEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(crewDir(), { recursive: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   it('readSync/writeSync/existsSync round-trip via git-notes', () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     expect(adapter.existsSync('team.md')).toBe(false);
     adapter.writeSync('team.md', '# Team');
     expect(adapter.existsSync('team.md')).toBe(true);
@@ -482,7 +482,7 @@ describe('StateBackendStorageAdapter', () => {
 
   it('listSync returns backend entries', () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     adapter.writeSync('agents/data.md', '# Data');
     adapter.writeSync('agents/picard.md', '# Picard');
     const entries = adapter.listSync('agents');
@@ -492,17 +492,17 @@ describe('StateBackendStorageAdapter', () => {
 
   it('appendSync via adapter', () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     adapter.writeSync('log.md', 'line 1\n');
     adapter.appendSync('log.md', 'line 2\n');
     expect(adapter.readSync('log.md')).toBe('line 1\nline 2\n');
   });
 
-  it('toRelative strips absolute squad dir prefix', () => {
+  it('toRelative strips absolute crew dir prefix', () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     // Write via absolute path, read via relative — should work
-    const absPath = join(squadDir(), 'decisions.md');
+    const absPath = join(crewDir(), 'decisions.md');
     adapter.writeSync(absPath, '# Decisions');
     expect(adapter.readSync('decisions.md')).toBe('# Decisions');
   });
@@ -514,7 +514,7 @@ describe('StateBackendStorageAdapter', () => {
     // lower-case for the prefix comparison only.
     //
     // We cannot easily mock process.platform here, but we CAN exercise the
-    // lower-case comparison branch by constructing a squadDir path that differs
+    // lower-case comparison branch by constructing a crewDir path that differs
     // only in drive-letter case from the filePath argument (simulating the real
     // Windows scenario by treating the test paths as opaque strings the way
     // path.resolve does on the host OS).
@@ -522,7 +522,7 @@ describe('StateBackendStorageAdapter', () => {
     // On non-Windows hosts path.isAbsolute returns false for Windows-style paths,
     // so we test the relative-path normalisation path instead.
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
 
     // Relative paths must always come back normalised (no backslashes) regardless
     // of platform — this is the safe cross-platform subset of the fix.
@@ -531,31 +531,31 @@ describe('StateBackendStorageAdapter', () => {
     expect(adapter.readSync('sub/dir/file.md')).toBe('backslash test');
   });
 
-  it('toRelative throws for absolute paths outside squadDir (Bug F)', () => {
+  it('toRelative throws for absolute paths outside crewDir (Bug F)', () => {
     if (process.platform !== 'win32') {
       // Only absolute paths starting with / are unambiguous on POSIX
       const backend = new GitNotesBackend(TMP);
-      const adapter = new StateBackendStorageAdapter(backend, squadDir());
-      // A path outside squadDir should throw, not silently return an absolute
+      const adapter = new StateBackendStorageAdapter(backend, crewDir());
+      // A path outside crewDir should throw, not silently return an absolute
       // path as a git-notes key (which would corrupt the notes namespace).
-      expect(() => adapter.writeSync('/tmp/outside-squad.md', 'data')).toThrow(
-        /toRelative: path is outside squadDir/
+      expect(() => adapter.writeSync('/tmp/outside-crew.md', 'data')).toThrow(
+        /toRelative: path is outside crewDir/
       );
     } else {
       // On Windows use a different drive to guarantee "outside"
       const backend = new GitNotesBackend(TMP);
-      const adapter = new StateBackendStorageAdapter(backend, squadDir());
-      // Use a drive letter that is guaranteed to differ from squadDir
+      const adapter = new StateBackendStorageAdapter(backend, crewDir());
+      // Use a drive letter that is guaranteed to differ from crewDir
       const outsidePath = 'Z:\\outside\\file.md';
       expect(() => adapter.writeSync(outsidePath, 'data')).toThrow(
-        /toRelative: path is outside squadDir/
+        /toRelative: path is outside crewDir/
       );
     }
   });
 
   it('deleteSync removes entries', () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     adapter.writeSync('temp.md', 'data');
     expect(adapter.existsSync('temp.md')).toBe(true);
     adapter.deleteSync('temp.md');
@@ -564,7 +564,7 @@ describe('StateBackendStorageAdapter', () => {
 
   it('async read/write round-trip', async () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     await adapter.write('async.md', '# Async');
     expect(await adapter.read('async.md')).toBe('# Async');
     expect(await adapter.exists('async.md')).toBe(true);
@@ -572,7 +572,7 @@ describe('StateBackendStorageAdapter', () => {
 
   it('stat returns size and isDirectory false for files', async () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     adapter.writeSync('s.md', 'hello');
     const st = await adapter.stat('s.md');
     expect(st).toBeDefined();
@@ -582,7 +582,7 @@ describe('StateBackendStorageAdapter', () => {
 
   it('stat returns undefined for non-existent path', async () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     expect(await adapter.stat('nope.md')).toBeUndefined();
   });
 
@@ -590,14 +590,14 @@ describe('StateBackendStorageAdapter', () => {
   // list+delete pass left nested keys behind — deleteDir must walk the
   // full subtree on every backend.
   const deleteDirBackends: Array<[string, () => StateBackend]> = [
-    ['worktree', () => new WorktreeBackend(squadDir())],
+    ['worktree', () => new WorktreeBackend(crewDir())],
     ['git-notes', () => new GitNotesBackend(TMP)],
     ['orphan', () => new OrphanBranchBackend(TMP)],
     ['two-layer', () => new TwoLayerBackend(TMP)],
   ];
   for (const [name, makeBackend] of deleteDirBackends) {
     it(`deleteDir removes nested subtrees (${name})`, { timeout: 30_000 }, async () => {
-      const adapter = new StateBackendStorageAdapter(makeBackend(), squadDir());
+      const adapter = new StateBackendStorageAdapter(makeBackend(), crewDir());
       for (const key of ['a/b/c', 'a/b/d', 'a/b/e/f', 'a/b/e/g/h', 'a/other']) {
         adapter.writeSync(key, `content of ${key}`);
       }
@@ -612,7 +612,7 @@ describe('StateBackendStorageAdapter', () => {
   }
 
   it('deleteDirSync removes nested subtrees (git-notes)', () => {
-    const adapter = new StateBackendStorageAdapter(new GitNotesBackend(TMP), squadDir());
+    const adapter = new StateBackendStorageAdapter(new GitNotesBackend(TMP), crewDir());
     adapter.writeSync('a/b/c', 'x');
     adapter.writeSync('a/b/e/g/h', 'y');
     adapter.writeSync('a/other', 'keep');
@@ -624,7 +624,7 @@ describe('StateBackendStorageAdapter', () => {
 
   it('deleteDir removes a git-notes key that is both a file and a directory prefix', async () => {
     const backend = new GitNotesBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
     // Flat-key stores allow 'a/b' to be a leaf AND a directory prefix at once.
     backend.write('a/b', 'leaf');
     backend.write('a/b/c', 'nested');
@@ -635,75 +635,75 @@ describe('StateBackendStorageAdapter', () => {
 });
 
 describe('ToolRegistry state tools with git-native backend', () => {
-  const squadDir = () => join(TMP, '.squad');
-  beforeEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(squadDir(), { recursive: true }); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  const crewDir = () => join(TMP, '.crew');
+  beforeEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(crewDir(), { recursive: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   it('writes mutable state through the adapter without touching the worktree', { timeout: 20_000 }, async () => {
     const backend = new OrphanBranchBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
 
-    const write = registry.getTool('squad_state_write')!;
-    const read = registry.getTool('squad_state_read')!;
+    const write = registry.getTool('crew_state_write')!;
+    const read = registry.getTool('crew_state_read')!;
     const result = await write.handler({ key: 'agents/data/history.md', content: '# Data\n\n## Learnings\n' });
 
     expect(result.resultType).toBe('success');
     expect(backend.read('agents/data/history.md')).toBe('# Data\n\n## Learnings\n');
-    expect(existsSync(join(squadDir(), 'agents', 'data', 'history.md'))).toBe(false);
+    expect(existsSync(join(crewDir(), 'agents', 'data', 'history.md'))).toBe(false);
     expect(git('status --porcelain')).toBe('');
 
-    const readResult = await read.handler({ key: '.squad/agents/data/history.md' });
+    const readResult = await read.handler({ key: '.crew/agents/data/history.md' });
     expect(readResult.resultType).toBe('success');
     expect(readResult.textResultForLlm).toContain('## Learnings');
   });
 
-  it('only strips the .squad prefix for real .squad-relative keys', { timeout: 20_000 }, async () => {
+  it('only strips the .crew prefix for real .crew-relative keys', { timeout: 20_000 }, async () => {
     const backend = new OrphanBranchBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
-    const list = registry.getTool('squad_state_list')!;
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
+    const list = registry.getTool('crew_state_list')!;
 
-    backend.write('.squadata/runtime-check.md', 'not a .squad prefix\n');
-    expect(backend.read('.squadata/runtime-check.md')).toBe('not a .squad prefix\n');
+    backend.write('.crewata/runtime-check.md', 'not a .crew prefix\n');
+    expect(backend.read('.crewata/runtime-check.md')).toBe('not a .crew prefix\n');
     expect(backend.read('ata/runtime-check.md')).toBeUndefined();
 
-    const listResult = await list.handler({ dir: '.squadata' });
+    const listResult = await list.handler({ dir: '.crewata' });
     expect(listResult.resultType).toBe('success');
     expect(listResult.textResultForLlm).toContain('runtime-check.md');
   });
 
   it('rejects static config mutations through runtime state tools', { timeout: 20_000 }, async () => {
     const backend = new OrphanBranchBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
-    const write = registry.getTool('squad_state_write')!;
-    const append = registry.getTool('squad_state_append')!;
-    const del = registry.getTool('squad_state_delete')!;
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
+    const write = registry.getTool('crew_state_write')!;
+    const append = registry.getTool('crew_state_append')!;
+    const del = registry.getTool('crew_state_delete')!;
 
     await expect(write.handler({ key: 'config.json', content: '{}' })).resolves.toMatchObject({ resultType: 'failure' });
     await expect(append.handler({ key: 'team.md', content: 'bad' })).resolves.toMatchObject({ resultType: 'failure' });
     await expect(del.handler({ key: 'agents/data/charter.md' })).resolves.toMatchObject({ resultType: 'failure' });
     await expect(write.handler({ key: 'skills/reviewer/SKILL.md', content: 'bad' })).resolves.toMatchObject({ resultType: 'failure' });
-    await expect(write.handler({ key: '.squadata/runtime-check.md', content: 'bad' })).resolves.toMatchObject({ resultType: 'failure' });
+    await expect(write.handler({ key: '.crewata/runtime-check.md', content: 'bad' })).resolves.toMatchObject({ resultType: 'failure' });
     expect(backend.read('config.json')).toBeUndefined();
     expect(backend.read('team.md')).toBeUndefined();
   });
 
   it('allows only approved runtime state mutation paths through state tools', { timeout: 20_000 }, async () => {
     const backend = new OrphanBranchBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
-    const write = registry.getTool('squad_state_write')!;
-    const append = registry.getTool('squad_state_append')!;
-    const del = registry.getTool('squad_state_delete')!;
-    const health = registry.getTool('squad_state_health')!;
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
+    const write = registry.getTool('crew_state_write')!;
+    const append = registry.getTool('crew_state_append')!;
+    const del = registry.getTool('crew_state_delete')!;
+    const health = registry.getTool('crew_state_health')!;
 
     await expect(write.handler({ key: 'decisions.md', content: '# Decisions\n' })).resolves.toMatchObject({ resultType: 'success' });
     await expect(write.handler({ key: 'sessions/session-1/state.md', content: 'ok\n' })).resolves.toMatchObject({ resultType: 'success' });
     await expect(write.handler({ key: '.scratch/notes.md', content: 'ok\n' })).resolves.toMatchObject({ resultType: 'success' });
     await expect(append.handler({ key: 'agents/data/history.md', content: 'Learned via state tools.\n' })).resolves.toMatchObject({ resultType: 'success' });
-    await expect(del.handler({ key: '.squad/sessions/session-1/state.md' })).resolves.toMatchObject({ resultType: 'success' });
+    await expect(del.handler({ key: '.crew/sessions/session-1/state.md' })).resolves.toMatchObject({ resultType: 'success' });
     await expect(health.handler({})).resolves.toMatchObject({ resultType: 'success' });
 
     expect(backend.read('decisions.md')).toBe('# Decisions\n');
@@ -712,31 +712,31 @@ describe('ToolRegistry state tools with git-native backend', () => {
     expect(backend.read('sessions/session-1/state.md')).toBeUndefined();
   });
 
-  it('routes existing squad_decide writes through configured backend storage', { timeout: 20_000 }, async () => {
+  it('routes existing crew_decide writes through configured backend storage', { timeout: 20_000 }, async () => {
     const backend = new OrphanBranchBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
-    const decide = registry.getTool('squad_decide')!;
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
+    const decide = registry.getTool('crew_decide')!;
 
     const result = await decide.handler({
       author: 'scribe',
       summary: 'Use runtime state API',
-      body: 'Mutable Squad state must be persisted through runtime-owned state tools.',
+      body: 'Mutable Crew state must be persisted through runtime-owned state tools.',
     });
 
     expect(result.resultType).toBe('success');
     expect(backend.list('decisions/inbox')).toHaveLength(1);
-    expect(existsSync(join(squadDir(), 'decisions', 'inbox'))).toBe(false);
+    expect(existsSync(join(crewDir(), 'decisions', 'inbox'))).toBe(false);
     expect(git('status --porcelain')).toBe('');
   });
 
   // Regression test for NEW-4: MCP tool layer writing empty blob (e69de29bb) when
   // content is missing from the JSON-RPC payload (args.content === undefined at runtime).
-  it('squad_state_write with undefined content returns failure, does not write empty blob (NEW-4)', { timeout: 20_000 }, async () => {
+  it('crew_state_write with undefined content returns failure, does not write empty blob (NEW-4)', { timeout: 20_000 }, async () => {
     const backend = new OrphanBranchBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
-    const write = registry.getTool('squad_state_write')!;
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
+    const write = registry.getTool('crew_state_write')!;
 
     // Simulate MCP payload where content is missing (parseObject returns {} missing 'content').
     // Cast to any to bypass TypeScript's type checking, as the MCP layer does at runtime.
@@ -749,11 +749,11 @@ describe('ToolRegistry state tools with git-native backend', () => {
     expect(git('status --porcelain')).toBe('');
   });
 
-  it('squad_state_write with valid content writes correct non-empty content (NEW-4)', { timeout: 20_000 }, async () => {
+  it('crew_state_write with valid content writes correct non-empty content (NEW-4)', { timeout: 20_000 }, async () => {
     const backend = new OrphanBranchBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
-    const write = registry.getTool('squad_state_write')!;
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
+    const write = registry.getTool('crew_state_write')!;
 
     const content = '# Scribe History\n\n## Session 1\nCompleted replay without branch choreography.\n';
     const result = await write.handler({ key: 'agents/scribe/history.md', content });
@@ -764,12 +764,12 @@ describe('ToolRegistry state tools with git-native backend', () => {
     expect(backend.read('agents/scribe/history.md')).not.toBe('');
   });
 
-  it('squad_state_append with undefined content returns failure, does not corrupt existing content (NEW-4)', { timeout: 20_000 }, async () => {
+  it('crew_state_append with undefined content returns failure, does not corrupt existing content (NEW-4)', { timeout: 20_000 }, async () => {
     const backend = new OrphanBranchBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
-    const write = registry.getTool('squad_state_write')!;
-    const append = registry.getTool('squad_state_append')!;
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
+    const write = registry.getTool('crew_state_write')!;
+    const append = registry.getTool('crew_state_append')!;
 
     await write.handler({ key: 'agents/data/history.md', content: '# Data\n' });
 
@@ -783,9 +783,9 @@ describe('ToolRegistry state tools with git-native backend', () => {
 });
 
 describe('downloaded session replay regressions', () => {
-  const squadDir = () => join(TMP, '.squad');
-  beforeEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(squadDir(), { recursive: true }); });
-  afterEach(() => { clearResolveSquadCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
+  const crewDir = () => join(TMP, '.crew');
+  beforeEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(crewDir(), { recursive: true }); });
+  afterEach(() => { clearResolveCrewCache(); if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   async function createRuntimeTools(): Promise<{
     backend: TwoLayerBackend;
@@ -799,18 +799,18 @@ describe('downloaded session replay regressions', () => {
     decide: NonNullable<ReturnType<ToolRegistry['getTool']>>;
   }> {
     const backend = new TwoLayerBackend(TMP);
-    const adapter = new StateBackendStorageAdapter(backend, squadDir());
-    const registry = new ToolRegistry(squadDir(), undefined, adapter);
+    const adapter = new StateBackendStorageAdapter(backend, crewDir());
+    const registry = new ToolRegistry(crewDir(), undefined, adapter);
     return {
       backend,
       registry,
-      stateWrite: registry.getTool('squad_state_write')!,
-      stateAppend: registry.getTool('squad_state_append')!,
-      stateRead: registry.getTool('squad_state_read')!,
-      stateList: registry.getTool('squad_state_list')!,
-      stateDelete: registry.getTool('squad_state_delete')!,
-      stateHealth: registry.getTool('squad_state_health')!,
-      decide: registry.getTool('squad_decide')!,
+      stateWrite: registry.getTool('crew_state_write')!,
+      stateAppend: registry.getTool('crew_state_append')!,
+      stateRead: registry.getTool('crew_state_read')!,
+      stateList: registry.getTool('crew_state_list')!,
+      stateDelete: registry.getTool('crew_state_delete')!,
+      stateHealth: registry.getTool('crew_state_health')!,
+      decide: registry.getTool('crew_decide')!,
     };
   }
 
@@ -825,23 +825,23 @@ describe('downloaded session replay regressions', () => {
       'templates/spawn-reference.md',
       'templates/after-agent-reference.md',
       'templates/scribe-charter.md',
-      '.squad-templates/spawn-reference.md',
-      '.squad-templates/after-agent-reference.md',
-      '.squad-templates/scribe-charter.md',
-      '.github/agents/squad.agent.md',
-      'templates/squad.agent.md.template',
-      '.squad-templates/squad.agent.md',
-      'packages/squad-cli/templates/squad.agent.md.template',
-      'packages/squad-sdk/templates/squad.agent.md.template',
+      '.crew-templates/spawn-reference.md',
+      '.crew-templates/after-agent-reference.md',
+      '.crew-templates/scribe-charter.md',
+      '.github/agents/crew.agent.md',
+      'templates/crew.agent.md.template',
+      '.crew-templates/crew.agent.md',
+      'packages/crew-cli/templates/crew.agent.md.template',
+      'packages/crew-sdk/templates/crew.agent.md.template',
     ];
     const forbiddenFragments = [
       'write-note.ps1',
       'git notes --ref',
-      'git checkout squad-state',
-      'git checkout HEAD -- .squad',
+      'git checkout crew-state',
+      'git checkout HEAD -- .crew',
       'git reset HEAD --',
-      "refs/notes/squad/*",
-      'git push origin squad-state',
+      "refs/notes/crew/*",
+      'git push origin crew-state',
       'Scribe handles orphan',
       'Preserve backend-specific state protocol rules',
     ];
@@ -856,7 +856,7 @@ describe('downloaded session replay regressions', () => {
     const spawnReference = readFileSync(join(process.cwd(), 'templates/spawn-reference.md'), 'utf-8');
     expect(spawnReference).toContain('Runtime State Tools');
     expect(spawnReference).toContain('The runtime routes those calls to the configured backend');
-    expect(spawnReference).toContain('squad_decide');
+    expect(spawnReference).toContain('crew_decide');
   });
 
   it('replays the failed two-layer flow through state tools without dirtying or moving the worktree', { timeout: 30_000 }, async () => {
@@ -887,13 +887,13 @@ describe('downloaded session replay regressions', () => {
     expect(await stateWrite.handler({ key: 'log/2026-01-01T00-00-session.md', content: 'Scribe merged replay decision through state tools.\n' })).toMatchObject({ resultType: 'success' });
     expect(await stateAppend.handler({ key: 'agents/scribe/history.md', content: 'Merged replay decision without touching git state by hand.\n' })).toMatchObject({ resultType: 'success' });
 
-    const decisions = await stateRead.handler({ key: '.squad/decisions.md' });
+    const decisions = await stateRead.handler({ key: '.crew/decisions.md' });
     expect(decisions.resultType).toBe('success');
     expect(decisions.textResultForLlm).toContain('Two-layer state belongs to runtime tools');
     expect(backend.list('decisions/inbox')).toEqual([]);
-    expect(existsSync(join(squadDir(), 'decisions.md'))).toBe(false);
-    expect(existsSync(join(squadDir(), 'agents', 'kobayashi', 'history.md'))).toBe(false);
-    expect(existsSync(join(squadDir(), 'log', '2026-01-01T00-00-session.md'))).toBe(false);
+    expect(existsSync(join(crewDir(), 'decisions.md'))).toBe(false);
+    expect(existsSync(join(crewDir(), 'agents', 'kobayashi', 'history.md'))).toBe(false);
+    expect(existsSync(join(crewDir(), 'log', '2026-01-01T00-00-session.md'))).toBe(false);
     expectWorktreeUnmoved(initialBranch, initialHead);
   });
 
@@ -904,7 +904,7 @@ describe('downloaded session replay regressions', () => {
         expect(await tools.decide.handler({
           author: 'coordinator',
           summary: 'Always use runtime state tools',
-          body: 'Capture user directives through squad_decide instead of writing inbox files by hand.',
+          body: 'Capture user directives through crew_decide instead of writing inbox files by hand.',
         })).toMatchObject({ resultType: 'success' });
         const inbox = await tools.stateList.handler({ dir: 'decisions/inbox' });
         expect(inbox.resultType).toBe('success');
@@ -915,10 +915,10 @@ describe('downloaded session replay regressions', () => {
       name: 'spawned agent history update',
       run: async (tools: Awaited<ReturnType<typeof createRuntimeTools>>) => {
         expect(await tools.stateWrite.handler({ key: 'agents/data/history.md', content: '# Data\n\n## Learnings\n' })).toMatchObject({ resultType: 'success' });
-        expect(await tools.stateAppend.handler({ key: 'agents/data/history.md', content: '\n### Replay\nSpawn prompt used squad_state_append.\n' })).toMatchObject({ resultType: 'success' });
-        const history = await tools.stateRead.handler({ key: '.squad/agents/data/history.md' });
+        expect(await tools.stateAppend.handler({ key: 'agents/data/history.md', content: '\n### Replay\nSpawn prompt used crew_state_append.\n' })).toMatchObject({ resultType: 'success' });
+        const history = await tools.stateRead.handler({ key: '.crew/agents/data/history.md' });
         expect(history.resultType).toBe('success');
-        expect(history.textResultForLlm).toContain('Spawn prompt used squad_state_append');
+        expect(history.textResultForLlm).toContain('Spawn prompt used crew_state_append');
       },
     },
     {
@@ -970,7 +970,7 @@ describe('downloaded session replay regressions', () => {
 
     await run(tools);
 
-    expect(existsSync(squadDir())).toBe(true);
+    expect(existsSync(crewDir())).toBe(true);
     expectWorktreeUnmoved(initialBranch, initialHead);
   });
 });
@@ -1041,12 +1041,12 @@ describe('CircuitBreaker', () => {
 });
 
 describe('verifyStateBackend()', () => {
-  const squadDir = () => join(TMP, '.squad');
-  beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(squadDir(), { recursive: true }); });
+  const crewDir = () => join(TMP, '.crew');
+  beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); mkdirSync(crewDir(), { recursive: true }); });
   afterEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   it('worktree backend passes verification', () => {
-    const backend = new WorktreeBackend(squadDir());
+    const backend = new WorktreeBackend(crewDir());
     const result = verifyStateBackend(backend);
     expect(result.ok).toBe(true);
     expect(result.error).toBeUndefined();
@@ -1160,72 +1160,72 @@ describe('TwoLayerBackend.promoteNotes / readNote / observability', () => {
   it('promoteNotes moves promote_to_permanent notes to orphan and removes source', () => {
     const b = new TwoLayerBackend(TMP);
     const sha = addCommit('feature.ts');
-    addNote('squad/picard', sha, { promote_to_permanent: true, decision: 'ship it' });
+    addNote('crew/picard', sha, { promote_to_permanent: true, decision: 'ship it' });
 
-    const result = b.promoteNotes('squad/picard');
+    const result = b.promoteNotes('crew/picard');
 
     expect(result.promoted).toHaveLength(1);
-    expect(result.promoted[0]).toBe(`promoted/squad/picard/${sha}.json`);
+    expect(result.promoted[0]).toBe(`promoted/crew/picard/${sha}.json`);
     expect(result.archived).toHaveLength(0);
     expect(result.skipped).toBe(0);
 
     // Orphan layer received the payload.
-    const stored = b.orphan.read(`promoted/squad/picard/${sha}.json`);
+    const stored = b.orphan.read(`promoted/crew/picard/${sha}.json`);
     expect(stored).toBeDefined();
     expect(JSON.parse(stored!).decision).toBe('ship it');
 
     // Source note was removed.
-    expect(() => git(`notes --ref=squad/picard show ${sha}`)).toThrow();
+    expect(() => git(`notes --ref=crew/picard show ${sha}`)).toThrow();
   }, 30000);
 
   it('promoteNotes copies archive_on_close notes to orphan archive/ without removing source', () => {
     const b = new TwoLayerBackend(TMP);
     const sha = addCommit('research.ts');
-    addNote('squad/research', sha, { archive_on_close: true, notes: 'investigation log' });
+    addNote('crew/research', sha, { archive_on_close: true, notes: 'investigation log' });
 
-    const result = b.promoteNotes('squad/research');
+    const result = b.promoteNotes('crew/research');
 
     expect(result.archived).toHaveLength(1);
-    expect(result.archived[0]).toBe(`archive/squad/research/${sha}.json`);
+    expect(result.archived[0]).toBe(`archive/crew/research/${sha}.json`);
     expect(result.promoted).toHaveLength(0);
     expect(result.skipped).toBe(0);
 
     // Orphan layer received the archive.
-    const stored = b.orphan.read(`archive/squad/research/${sha}.json`);
+    const stored = b.orphan.read(`archive/crew/research/${sha}.json`);
     expect(stored).toBeDefined();
     expect(JSON.parse(stored!).notes).toBe('investigation log');
 
     // Source note is KEPT (archive = copy).
-    expect(git(`notes --ref=squad/research show ${sha}`)).toContain('investigation log');
+    expect(git(`notes --ref=crew/research show ${sha}`)).toContain('investigation log');
   }, 30000);
 
   it('promoteNotes skips notes without either flag', () => {
     const b = new TwoLayerBackend(TMP);
     const sha = addCommit('chat.ts');
-    addNote('squad/data', sha, { ephemeral: true, message: 'just a thought' });
+    addNote('crew/data', sha, { ephemeral: true, message: 'just a thought' });
 
-    const result = b.promoteNotes('squad/data');
+    const result = b.promoteNotes('crew/data');
 
     expect(result.promoted).toHaveLength(0);
     expect(result.archived).toHaveLength(0);
     expect(result.skipped).toBe(1);
 
     // Source note is left in place.
-    expect(git(`notes --ref=squad/data show ${sha}`)).toContain('just a thought');
+    expect(git(`notes --ref=crew/data show ${sha}`)).toContain('just a thought');
   }, 30000);
 
   it('readNote returns null when no note exists', () => {
     const b = new TwoLayerBackend(TMP);
     const sha = git('rev-parse HEAD');
-    expect(b.readNote('squad/picard', sha)).toBeNull();
+    expect(b.readNote('crew/picard', sha)).toBeNull();
   });
 
   it('readNote returns parsed JSON when note exists', () => {
     const b = new TwoLayerBackend(TMP);
     const sha = git('rev-parse HEAD');
-    addNote('squad/picard', sha, { type: 'decision', body: 'approved' });
+    addNote('crew/picard', sha, { type: 'decision', body: 'approved' });
 
-    const parsed = b.readNote('squad/picard', sha) as { type: string; body: string };
+    const parsed = b.readNote('crew/picard', sha) as { type: string; body: string };
     expect(parsed).toEqual({ type: 'decision', body: 'approved' });
   });
 
@@ -1273,7 +1273,7 @@ describe('tryUpdateRef (CAS primitive)', () => {
   afterEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); });
 
   it('succeeds when ref is at the expected SHA', async () => {
-    const { _tryUpdateRefForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _tryUpdateRefForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     const headSha = git('rev-parse HEAD');
     // Create a target ref pointing at HEAD, then CAS-update it to itself.
     git(`update-ref refs/test/cas ${headSha}`);
@@ -1282,7 +1282,7 @@ describe('tryUpdateRef (CAS primitive)', () => {
   });
 
   it('returns ok:false with stderr on CAS conflict (expected-old mismatch)', async () => {
-    const { _tryUpdateRefForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _tryUpdateRefForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     const headSha = git('rev-parse HEAD');
     git(`update-ref refs/test/cas2 ${headSha}`);
     // Lie about the expected old SHA -> CAS must reject.
@@ -1293,7 +1293,7 @@ describe('tryUpdateRef (CAS primitive)', () => {
   });
 
   it('returns ok:false when creating a ref that already exists (expected-old = null)', async () => {
-    const { _tryUpdateRefForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _tryUpdateRefForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     const headSha = git('rev-parse HEAD');
     git(`update-ref refs/test/cas3 ${headSha}`);
     // null expectedOld -> tryUpdateRef sends 40 zeros == "must not exist".
@@ -1302,7 +1302,7 @@ describe('tryUpdateRef (CAS primitive)', () => {
   });
 
   it('throws (not returns) on non-CAS failures (e.g., bogus SHA)', async () => {
-    const { _tryUpdateRefForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _tryUpdateRefForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     // Reference a non-existent object — this is a real git error, not a CAS conflict.
     expect(() => _tryUpdateRefForTesting('refs/test/cas4', 'deadbeef'.repeat(5), null, TMP)).toThrow();
   });
@@ -1311,7 +1311,7 @@ describe('tryUpdateRef (CAS primitive)', () => {
 describe('GitNotesBackend CAS retry semantics', () => {
   beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); });
   afterEach(async () => {
-    const { _setCasInjectorForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _setCasInjectorForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     _setCasInjectorForTesting(null);
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
   });
@@ -1334,7 +1334,7 @@ describe('GitNotesBackend CAS retry semantics', () => {
     // Seed the notes ref with one key.
     const b = new GitNotesBackend(TMP);
     b.write('seed.md', 'S');
-    const refBefore = git('rev-parse refs/notes/squad');
+    const refBefore = git('rev-parse refs/notes/crew');
 
     // Out-of-band advance: another writer added a key while we weren't looking.
     // Build the new note via plumbing (use execFileSync to bypass cmd.exe `^` escaping).
@@ -1346,7 +1346,7 @@ describe('GitNotesBackend CAS retry semantics', () => {
     const blobSha = execSync('git hash-object -w --stdin', { cwd: TMP, encoding: 'utf-8', input: newJson }).trim();
     const treeSha = execSync('git mktree', { cwd: TMP, encoding: 'utf-8', input: `100644 blob ${blobSha}\t${anchor}\n` }).trim();
     const newCommit = execSync(`git commit-tree ${treeSha} -p ${refBefore} -m "oob"`, { cwd: TMP, encoding: 'utf-8' }).trim();
-    git(`update-ref refs/notes/squad ${newCommit} ${refBefore}`);
+    git(`update-ref refs/notes/crew ${newCommit} ${refBefore}`);
 
     // SDK writes again. Under old `notes add -f` this would clobber outOfBand.md.
     // Under CAS the rebuild reads the latest tip and preserves OOB.
@@ -1357,13 +1357,13 @@ describe('GitNotesBackend CAS retry semantics', () => {
   });
 
   it('converges after exactly one CAS conflict via injector', { timeout: 20_000 }, async () => {
-    const { _setCasInjectorForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _setCasInjectorForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     const b = new GitNotesBackend(TMP);
     b.write('seed.md', 'S');
 
     let injectCount = 0;
     _setCasInjectorForTesting((ref) => {
-      if (ref !== 'refs/notes/squad') return null;
+      if (ref !== 'refs/notes/crew') return null;
       if (injectCount++ < 1) return { ok: false, stderr: 'simulated CAS mismatch' };
       return null; // subsequent attempts go through to real git
     });
@@ -1375,13 +1375,13 @@ describe('GitNotesBackend CAS retry semantics', () => {
   });
 
   it('converges after 4 CAS conflicts (right at the retry budget edge)', { timeout: 20_000 }, async () => {
-    const { _setCasInjectorForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _setCasInjectorForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     const b = new GitNotesBackend(TMP);
     b.write('seed.md', 'S');
 
     let injectCount = 0;
     _setCasInjectorForTesting((ref) => {
-      if (ref !== 'refs/notes/squad') return null;
+      if (ref !== 'refs/notes/crew') return null;
       if (injectCount++ < 4) return { ok: false, stderr: 'simulated CAS mismatch' };
       return null; // 5th attempt goes through
     });
@@ -1392,12 +1392,12 @@ describe('GitNotesBackend CAS retry semantics', () => {
   });
 
   it('throws StateBackendConcurrencyError after exhausting all 5 attempts', { timeout: 20_000 }, async () => {
-    const { _setCasInjectorForTesting, StateBackendConcurrencyError } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _setCasInjectorForTesting, StateBackendConcurrencyError } = await import('../packages/crew-sdk/src/state-backend.js');
     const b = new GitNotesBackend(TMP);
     b.write('seed.md', 'S');
 
     _setCasInjectorForTesting((ref) => {
-      if (ref !== 'refs/notes/squad') return null;
+      if (ref !== 'refs/notes/crew') return null;
       return { ok: false, stderr: 'simulated nonstop CAS mismatch' };
     });
 
@@ -1412,7 +1412,7 @@ describe('GitNotesBackend CAS retry semantics', () => {
 describe('OrphanBranchBackend CAS retry semantics', () => {
   beforeEach(() => { if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true }); initRepo(); });
   afterEach(async () => {
-    const { _setCasInjectorForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _setCasInjectorForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     _setCasInjectorForTesting(null);
     if (existsSync(TMP)) rmSync(TMP, { recursive: true, force: true });
   });
@@ -1420,7 +1420,7 @@ describe('OrphanBranchBackend CAS retry semantics', () => {
   it('write rebuilds on top of out-of-band branch advancement', { timeout: 20_000 }, () => {
     const b = new OrphanBranchBackend(TMP);
     b.write('seed.md', 'S');
-    const refBefore = git('rev-parse refs/heads/squad-state');
+    const refBefore = git('rev-parse refs/heads/crew-state');
 
     // Out-of-band: append a new file to the orphan branch via plumbing.
     // Use array-form execFileSync to bypass cmd.exe interpreting `^` in `^{tree}`.
@@ -1430,7 +1430,7 @@ describe('OrphanBranchBackend CAS retry semantics', () => {
     existingTree.push(`100644 blob ${blobSha}\toutOfBand.md`);
     const newTree = execSync('git mktree', { cwd: TMP, encoding: 'utf-8', input: existingTree.join('\n') + '\n' }).trim();
     const newCommit = execSync(`git commit-tree ${newTree} -p ${refBefore} -m "oob"`, { cwd: TMP, encoding: 'utf-8' }).trim();
-    git(`update-ref refs/heads/squad-state ${newCommit} ${refBefore}`);
+    git(`update-ref refs/heads/crew-state ${newCommit} ${refBefore}`);
 
     b.write('postBand.md', 'P');
     expect(b.read('seed.md')).toBe('S');
@@ -1439,13 +1439,13 @@ describe('OrphanBranchBackend CAS retry semantics', () => {
   });
 
   it('converges after one CAS conflict via injector', { timeout: 20_000 }, async () => {
-    const { _setCasInjectorForTesting } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _setCasInjectorForTesting } = await import('../packages/crew-sdk/src/state-backend.js');
     const b = new OrphanBranchBackend(TMP);
     b.write('seed.md', 'S');
 
     let injectCount = 0;
     _setCasInjectorForTesting((ref) => {
-      if (ref !== 'refs/heads/squad-state') return null;
+      if (ref !== 'refs/heads/crew-state') return null;
       if (injectCount++ < 1) return { ok: false, stderr: 'simulated CAS mismatch' };
       return null;
     });
@@ -1456,12 +1456,12 @@ describe('OrphanBranchBackend CAS retry semantics', () => {
   });
 
   it('throws StateBackendConcurrencyError after exhausting all 5 attempts on write', { timeout: 20_000 }, async () => {
-    const { _setCasInjectorForTesting, StateBackendConcurrencyError } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _setCasInjectorForTesting, StateBackendConcurrencyError } = await import('../packages/crew-sdk/src/state-backend.js');
     const b = new OrphanBranchBackend(TMP);
     b.write('seed.md', 'S');
 
     _setCasInjectorForTesting((ref) => {
-      if (ref !== 'refs/heads/squad-state') return null;
+      if (ref !== 'refs/heads/crew-state') return null;
       return { ok: false, stderr: 'simulated nonstop CAS mismatch' };
     });
 
@@ -1472,12 +1472,12 @@ describe('OrphanBranchBackend CAS retry semantics', () => {
   });
 
   it('delete throws StateBackendConcurrencyError after exhausting retries', { timeout: 20_000 }, async () => {
-    const { _setCasInjectorForTesting, StateBackendConcurrencyError } = await import('../packages/squad-sdk/src/state-backend.js');
+    const { _setCasInjectorForTesting, StateBackendConcurrencyError } = await import('../packages/crew-sdk/src/state-backend.js');
     const b = new OrphanBranchBackend(TMP);
     b.write('seed.md', 'S');
 
     _setCasInjectorForTesting((ref) => {
-      if (ref !== 'refs/heads/squad-state') return null;
+      if (ref !== 'refs/heads/crew-state') return null;
       return { ok: false, stderr: 'simulated nonstop CAS mismatch' };
     });
 

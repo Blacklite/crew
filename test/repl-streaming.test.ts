@@ -16,8 +16,8 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import {
   parseCoordinatorResponse,
   SessionRegistry,
-} from '../packages/squad-cli/src/cli/shell/index.js';
-import { TIMEOUTS } from '../packages/squad-sdk/src/runtime/constants.js';
+} from '../packages/crew-cli/src/cli/shell/index.js';
+import { TIMEOUTS } from '../packages/crew-sdk/src/runtime/constants.js';
 
 // ============================================================================
 // Types & mock factories
@@ -25,7 +25,7 @@ import { TIMEOUTS } from '../packages/squad-sdk/src/runtime/constants.js';
 
 type EventHandler = (event: { type: string; [key: string]: unknown }) => void;
 
-interface MockSquadSession {
+interface MockCrewSession {
   sendMessage: ReturnType<typeof vi.fn>;
   sendAndWait: ReturnType<typeof vi.fn>;
   on: ReturnType<typeof vi.fn>;
@@ -42,10 +42,10 @@ interface MockSquadSession {
  * Create a mock session that simulates SDK streaming behaviour.
  * `sendAndWait` resolves only after all deltas have been emitted.
  */
-function createStreamingMockSession(deltas: string[]): MockSquadSession {
+function createStreamingMockSession(deltas: string[]): MockCrewSession {
   const listeners = new Map<string, Set<EventHandler>>();
 
-  const session: MockSquadSession = {
+  const session: MockCrewSession = {
     sessionId: 'mock-session-1',
     _listeners: listeners,
 
@@ -86,10 +86,10 @@ function createStreamingMockSession(deltas: string[]): MockSquadSession {
  * Create a mock session that only has sendMessage (no sendAndWait).
  * Deltas are emitted asynchronously after sendMessage resolves.
  */
-function createLegacyMockSession(deltas: string[]): MockSquadSession {
+function createLegacyMockSession(deltas: string[]): MockCrewSession {
   const listeners = new Map<string, Set<EventHandler>>();
 
-  const session: MockSquadSession = {
+  const session: MockCrewSession = {
     sessionId: 'mock-legacy-1',
     _listeners: listeners,
 
@@ -139,7 +139,7 @@ function createLegacyMockSession(deltas: string[]): MockSquadSession {
  * This tests the core send-then-accumulate pipeline.
  */
 async function simulateDispatch(
-  session: MockSquadSession,
+  session: MockCrewSession,
   message: string,
 ): Promise<string> {
   let accumulated = '';
@@ -312,7 +312,7 @@ describe('REPL Streaming — sendMessage → accumulated → parseCoordinatorRes
 
   it('fallback path resolves on idle event instead of turn_end', async () => {
     const listeners = new Map<string, Set<EventHandler>>();
-    const session: MockSquadSession = {
+    const session: MockCrewSession = {
       sessionId: 'idle-test',
       _listeners: listeners,
       on: vi.fn((event: string, handler: EventHandler) => {
@@ -393,7 +393,7 @@ function extractDelta(event: { type: string; [key: string]: unknown }): string {
  * Like simulateDispatch but uses the fixed extractDelta (deltaContent-aware).
  */
 async function simulateDispatchFixed(
-  session: MockSquadSession,
+  session: MockCrewSession,
   message: string,
 ): Promise<string> {
   let accumulated = '';
@@ -432,10 +432,10 @@ async function simulateDispatchFixed(
 /**
  * Create a mock session that emits deltaContent (SDK actual format).
  */
-function createDeltaContentMockSession(deltas: string[]): MockSquadSession {
+function createDeltaContentMockSession(deltas: string[]): MockCrewSession {
   const listeners = new Map<string, Set<EventHandler>>();
 
-  const session: MockSquadSession = {
+  const session: MockCrewSession = {
     sessionId: 'mock-dc-session',
     _listeners: listeners,
 
@@ -484,7 +484,7 @@ function createDeltaContentMockSession(deltas: string[]): MockSquadSession {
  * including the fallback path when sendAndWait returns data but deltas are empty.
  */
 async function simulateDispatchWithFallback(
-  session: MockSquadSession,
+  session: MockCrewSession,
   message: string,
 ): Promise<string> {
   let accumulated = '';
@@ -544,16 +544,16 @@ function normalizeEvent(sdkEvent: { type: string; data?: Record<string, unknown>
     'session.idle': 'idle',
     'session.error': 'error',
   };
-  const squadType = REVERSE_EVENT_MAP[sdkEvent.type] ?? sdkEvent.type;
+  const crewType = REVERSE_EVENT_MAP[sdkEvent.type] ?? sdkEvent.type;
   return {
-    type: squadType,
+    type: crewType,
     ...(sdkEvent.data ?? {}),
   };
 }
 
 describe('dispatchToCoordinator flow', () => {
   it('coordinator session receives streaming: true config', async () => {
-    // Mock SquadClient.createSession to verify config
+    // Mock CrewClient.createSession to verify config
     const createSessionSpy = vi.fn(async (config: Record<string, unknown>) => {
       // Return a mock session
       return createStreamingMockSession(['DIRECT: OK']);
@@ -653,9 +653,9 @@ describe('dispatchToCoordinator flow', () => {
     expect(result).toBe('streamed');
   });
 
-  // SQUAD_DEBUG env var is not yet implemented in the dispatch pipeline.
+  // CREW_DEBUG env var is not yet implemented in the dispatch pipeline.
   // This test documents the gap — when the feature is added, remove the skip.
-  it.todo('SQUAD_DEBUG env var enables diagnostic logging');
+  it.todo('CREW_DEBUG env var enables diagnostic logging');
 });
 
 describe('CopilotSessionAdapter event normalization', () => {
@@ -678,9 +678,9 @@ describe('CopilotSessionAdapter event normalization', () => {
       ['session.idle', 'idle'],
       ['session.error', 'error'],
     ];
-    for (const [sdkType, squadType] of mappings) {
+    for (const [sdkType, crewType] of mappings) {
       const normalized = normalizeEvent({ type: sdkType });
-      expect(normalized.type).toBe(squadType);
+      expect(normalized.type).toBe(crewType);
     }
   });
 

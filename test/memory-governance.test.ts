@@ -2,31 +2,31 @@ import { afterEach, describe, expect, it } from 'vitest';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { FSStorageProvider } from '../packages/squad-sdk/src/storage/fs-storage-provider.js';
+import { FSStorageProvider } from '../packages/crew-sdk/src/storage/fs-storage-provider.js';
 import {
   ensureMemoryGovernanceDefaults,
   LocalMemoryStore,
   type CopilotMemoryProviderClient,
   type CopilotMemoryProviderWriteRequest,
-} from '../packages/squad-sdk/src/memory/index.js';
-import { runMemoryCommand } from '../packages/squad-cli/src/cli/commands/memory.js';
-import { ensureMemoryGovernanceUpgradeDefaults } from '../packages/squad-cli/src/cli/core/upgrade.js';
+} from '../packages/crew-sdk/src/memory/index.js';
+import { runMemoryCommand } from '../packages/crew-cli/src/cli/commands/memory.js';
+import { ensureMemoryGovernanceUpgradeDefaults } from '../packages/crew-cli/src/cli/core/upgrade.js';
 
 const roots: string[] = [];
 
 function testRoot(prefix: string): string {
   const root = path.join(process.cwd(), `.test-${prefix}-${randomUUID()}`);
   roots.push(root);
-  fs.mkdirSync(path.join(root, '.squad'), { recursive: true });
+  fs.mkdirSync(path.join(root, '.crew'), { recursive: true });
   return root;
 }
 
 function readMemoryIndex(root: string): Array<Record<string, unknown>> {
-  return JSON.parse(fs.readFileSync(path.join(root, '.squad', 'memory', 'index.json'), 'utf8')) as Array<Record<string, unknown>>;
+  return JSON.parse(fs.readFileSync(path.join(root, '.crew', 'memory', 'index.json'), 'utf8')) as Array<Record<string, unknown>>;
 }
 
-function writeSquadConfig(root: string, config: Record<string, unknown>): void {
-  fs.writeFileSync(path.join(root, '.squad', 'config.json'), `${JSON.stringify(config, null, 2)}\n`);
+function writeCrewConfig(root: string, config: Record<string, unknown>): void {
+  fs.writeFileSync(path.join(root, '.crew', 'config.json'), `${JSON.stringify(config, null, 2)}\n`);
 }
 
 afterEach(() => {
@@ -40,9 +40,9 @@ describe('memory governance defaults', () => {
     const root = testRoot('memory-defaults');
     const storage = new FSStorageProvider();
     const first = await ensureMemoryGovernanceDefaults(storage, root);
-    expect(first).toContain(path.join('.squad', 'memory', 'config.json'));
+    expect(first).toContain(path.join('.crew', 'memory', 'config.json'));
 
-    const configPath = path.join(root, '.squad', 'memory', 'config.json');
+    const configPath = path.join(root, '.crew', 'memory', 'config.json');
     fs.writeFileSync(configPath, '{"version":1,"custom":true}\n');
 
     const second = await ensureMemoryGovernanceDefaults(storage, root);
@@ -53,9 +53,9 @@ describe('memory governance defaults', () => {
   it('upgrade scaffolding is idempotent and non-overwriting', () => {
     const root = testRoot('memory-upgrade');
     const first = ensureMemoryGovernanceUpgradeDefaults(root);
-    expect(first).toContain(path.join('.squad', 'memory', 'config.json'));
+    expect(first).toContain(path.join('.crew', 'memory', 'config.json'));
 
-    const configPath = path.join(root, '.squad', 'memory', 'config.json');
+    const configPath = path.join(root, '.crew', 'memory', 'config.json');
     fs.writeFileSync(configPath, '{"version":1,"defaultProvider":"local","note":"keep"}\n');
 
     const second = ensureMemoryGovernanceUpgradeDefaults(root);
@@ -77,7 +77,7 @@ describe('LocalMemoryStore', () => {
 
     expect(result.stored).toBe(false);
     expect(result.classification.class).toBe('FORBIDDEN');
-    expect(fs.readdirSync(path.join(root, '.squad', 'memory', 'local'))).toHaveLength(0);
+    expect(fs.readdirSync(path.join(root, '.crew', 'memory', 'local'))).toHaveLength(0);
     const audit = await store.auditLog();
     expect(audit).toHaveLength(1);
     expect(JSON.stringify(audit)).not.toContain('super-secret-value');
@@ -114,7 +114,7 @@ describe('LocalMemoryStore', () => {
     expect(result.stored).toBe(false);
     expect(result.classification.class).toBe('FORBIDDEN');
     expect(result.classification.reason).toContain('private customer data');
-    expect(fs.readdirSync(path.join(root, '.squad', 'memory', 'local'))).toHaveLength(0);
+    expect(fs.readdirSync(path.join(root, '.crew', 'memory', 'local'))).toHaveLength(0);
   });
 
   it('rejects unreviewed vulnerability notes before persistence', async () => {
@@ -130,7 +130,7 @@ describe('LocalMemoryStore', () => {
     expect(result.stored).toBe(false);
     expect(result.classification.class).toBe('FORBIDDEN');
     expect(result.classification.reason).toContain('unreviewed vulnerability');
-    expect(fs.readdirSync(path.join(root, '.squad', 'memory', 'local'))).toHaveLength(0);
+    expect(fs.readdirSync(path.join(root, '.crew', 'memory', 'local'))).toHaveLength(0);
   });
 
   it('audits explicit classify calls without storing classified content', async () => {
@@ -153,7 +153,7 @@ describe('LocalMemoryStore', () => {
     const root = testRoot('memory-load-guidance');
     const store = new LocalMemoryStore(new FSStorageProvider(), root);
 
-    await expect(store.classify({ content: 'Always use the Squad memory governance provider.' }))
+    await expect(store.classify({ content: 'Always use the Crew memory governance provider.' }))
       .resolves.toMatchObject({ class: 'POLICY', loadGuidance: 'ALWAYS' });
     await expect(store.classify({ content: 'Remember this stable implementation note.' }))
       .resolves.toMatchObject({ class: 'LOCAL', loadGuidance: 'ON-DEMAND' });
@@ -188,7 +188,7 @@ describe('LocalMemoryStore', () => {
     });
 
     expect(write.stored).toBe(true);
-    expect(write.path).toContain(path.join('.squad', 'memory', 'local'));
+    expect(write.path).toContain(path.join('.crew', 'memory', 'local'));
 
     const results = await store.search('Vitest');
     expect(results).toHaveLength(1);
@@ -200,7 +200,7 @@ describe('LocalMemoryStore', () => {
 
     const audit = await store.auditLog();
     expect(audit.map(r => r.action)).toEqual(['write', 'search', 'delete', 'search']);
-    expect(fs.existsSync(path.join(root, '.squad', 'memory', 'tombstones', `${write.id}.json`))).toBe(true);
+    expect(fs.existsSync(path.join(root, '.crew', 'memory', 'tombstones', `${write.id}.json`))).toBe(true);
   });
 
   it('routes decisions to the decision inbox and supports promotion', async () => {
@@ -216,8 +216,8 @@ describe('LocalMemoryStore', () => {
     const promoted = await store.promote(local.id!, 'DECISION', 'scribe');
 
     expect(promoted.stored).toBe(true);
-    expect(promoted.path).toContain(path.join('.squad', 'decisions', 'inbox'));
-    expect(fs.readdirSync(path.join(root, '.squad', 'decisions', 'inbox'))).toHaveLength(1);
+    expect(promoted.path).toContain(path.join('.crew', 'decisions', 'inbox'));
+    expect(fs.readdirSync(path.join(root, '.crew', 'decisions', 'inbox'))).toHaveLength(1);
   });
 
   it('links superseded entries forward while preserving archive tombstone metadata', async () => {
@@ -258,7 +258,7 @@ describe('LocalMemoryStore', () => {
       loadGuidance: 'ARCHIVE',
       supersededBy: promoted.id,
     });
-    const tombstone = JSON.parse(fs.readFileSync(path.join(root, '.squad', 'memory', 'tombstones', `${local.id}.json`), 'utf8'));
+    const tombstone = JSON.parse(fs.readFileSync(path.join(root, '.crew', 'memory', 'tombstones', `${local.id}.json`), 'utf8'));
     expect(tombstone).toMatchObject({
       id: local.id,
       previousStatus: 'superseded',
@@ -355,7 +355,7 @@ describe('LocalMemoryStore', () => {
   it('recognizes manually configured provider=copilot but fails closed without invoking host client', async () => {
     const root = testRoot('memory-provider-real-copilot-configured');
     await ensureMemoryGovernanceDefaults(new FSStorageProvider(), root);
-    const configPath = path.join(root, '.squad', 'memory', 'config.json');
+    const configPath = path.join(root, '.crew', 'memory', 'config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     fs.writeFileSync(configPath, JSON.stringify({ ...config, defaultProvider: 'copilot' }, null, 2) + '\n');
 
@@ -407,7 +407,7 @@ describe('LocalMemoryStore', () => {
   it('rejects forbidden search before provider=copilot availability handling', async () => {
     const root = testRoot('memory-provider-real-copilot-forbidden-search');
     await ensureMemoryGovernanceDefaults(new FSStorageProvider(), root);
-    const configPath = path.join(root, '.squad', 'memory', 'config.json');
+    const configPath = path.join(root, '.crew', 'memory', 'config.json');
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     fs.writeFileSync(configPath, JSON.stringify({ ...config, defaultProvider: 'copilot' }, null, 2) + '\n');
     const store = new LocalMemoryStore(new FSStorageProvider(), root);
@@ -497,9 +497,9 @@ describe('LocalMemoryStore', () => {
     expect(diagnostics.join('\n')).not.toContain('never-log-this-value');
   });
 
-  it('CLI reads memory diagnostics log level from .squad/config.json without leaking content', async () => {
+  it('CLI reads memory diagnostics log level from .crew/config.json without leaking content', async () => {
     const root = testRoot('memory-cli-config-diagnostics');
-    writeSquadConfig(root, { memory: { logLevel: 'debug' } });
+    writeCrewConfig(root, { memory: { logLevel: 'debug' } });
 
     const output: string[] = [];
     const diagnostics: string[] = [];
@@ -536,29 +536,29 @@ describe('LocalMemoryStore', () => {
     expect(diagnostics.join('\n')).not.toContain('config-must-not-log-this-value');
   });
 
-  it('CLI environment log level overrides .squad/config.json memory diagnostics', async () => {
+  it('CLI environment log level overrides .crew/config.json memory diagnostics', async () => {
     const root = testRoot('memory-cli-env-over-config-diagnostics');
-    writeSquadConfig(root, { memory: { logLevel: 'debug' } });
+    writeCrewConfig(root, { memory: { logLevel: 'debug' } });
 
     const output: string[] = [];
     const diagnostics: string[] = [];
     const originalLog = console.log;
     const originalError = console.error;
-    const originalEnv = process.env['SQUAD_MEMORY_LOG_LEVEL'];
+    const originalEnv = process.env['CREW_MEMORY_LOG_LEVEL'];
     console.log = (value?: unknown) => {
       output.push(String(value));
     };
     console.error = (value?: unknown) => {
       diagnostics.push(String(value));
     };
-    process.env['SQUAD_MEMORY_LOG_LEVEL'] = 'info';
+    process.env['CREW_MEMORY_LOG_LEVEL'] = 'info';
     try {
       await runMemoryCommand(root, ['search', '--query', 'env-over-config-secret-query']);
     } finally {
       if (originalEnv === undefined) {
-        delete process.env['SQUAD_MEMORY_LOG_LEVEL'];
+        delete process.env['CREW_MEMORY_LOG_LEVEL'];
       } else {
-        process.env['SQUAD_MEMORY_LOG_LEVEL'] = originalEnv;
+        process.env['CREW_MEMORY_LOG_LEVEL'] = originalEnv;
       }
       console.log = originalLog;
       console.error = originalError;
@@ -570,29 +570,29 @@ describe('LocalMemoryStore', () => {
     expect(diagnostics.join('\n')).not.toContain('env-over-config-secret-query');
   });
 
-  it('CLI log-level switch overrides environment and .squad/config.json memory diagnostics', async () => {
+  it('CLI log-level switch overrides environment and .crew/config.json memory diagnostics', async () => {
     const root = testRoot('memory-cli-switch-overrides-diagnostics');
-    writeSquadConfig(root, { memory: { logLevel: 'debug' } });
+    writeCrewConfig(root, { memory: { logLevel: 'debug' } });
 
     const output: string[] = [];
     const diagnostics: string[] = [];
     const originalLog = console.log;
     const originalError = console.error;
-    const originalEnv = process.env['SQUAD_MEMORY_LOG_LEVEL'];
+    const originalEnv = process.env['CREW_MEMORY_LOG_LEVEL'];
     console.log = (value?: unknown) => {
       output.push(String(value));
     };
     console.error = (value?: unknown) => {
       diagnostics.push(String(value));
     };
-    process.env['SQUAD_MEMORY_LOG_LEVEL'] = 'error';
+    process.env['CREW_MEMORY_LOG_LEVEL'] = 'error';
     try {
       await runMemoryCommand(root, ['provider', '--log-level', 'info']);
     } finally {
       if (originalEnv === undefined) {
-        delete process.env['SQUAD_MEMORY_LOG_LEVEL'];
+        delete process.env['CREW_MEMORY_LOG_LEVEL'];
       } else {
-        process.env['SQUAD_MEMORY_LOG_LEVEL'] = originalEnv;
+        process.env['CREW_MEMORY_LOG_LEVEL'] = originalEnv;
       }
       console.log = originalLog;
       console.error = originalError;
@@ -682,7 +682,7 @@ describe('LocalMemoryStore', () => {
 
     await expect(store.delete('copilot-1', 'data')).resolves.toBe(true);
     expect(deletedIds).toEqual(['copilot-1']);
-    expect(fs.existsSync(path.join(root, '.squad', 'memory', 'tombstones', 'copilot-1.json'))).toBe(true);
+    expect(fs.existsSync(path.join(root, '.crew', 'memory', 'tombstones', 'copilot-1.json'))).toBe(true);
     const audit = await store.auditLog();
     expect(audit.map(r => r.action)).toEqual(['configure', 'write', 'search', 'delete']);
     expect(JSON.stringify(audit)).not.toContain('Safe semantic memory');

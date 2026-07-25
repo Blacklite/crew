@@ -1,0 +1,19 @@
+{
+  "name": "@crew-samples/hello-crew",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Hello Crew — beginner sample for @blacklite/crew-sdk",
+  "scripts": {
+    "start": "npx tsx index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@blacklite/crew-sdk": "file:../../packages/crew-sdk"
+  },
+  "devDependencies": {
+    "tsx": "^4.0.0",
+    "vitest": "^4.1.9",
+    "typescript": "^5.7.0"
+  }
+}

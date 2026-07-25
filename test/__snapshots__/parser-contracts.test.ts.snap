@@ -16,7 +16,7 @@ exports[`Snapshot tests > snapshot: parseCharterMarkdown against canonical chart
 ## What I Own
 
 - docs/proposals/
-- .squad/decisions.md
+- .crew/decisions.md
 
 ## Boundaries
 
@@ -42,7 +42,7 @@ Coordinate with Fenster on implementation, Hockney on test plans.
   },
   "modelPreference": "claude-opus-4.5",
   "ownership": "- docs/proposals/
-- .squad/decisions.md",
+- .crew/decisions.md",
 }
 `;
 

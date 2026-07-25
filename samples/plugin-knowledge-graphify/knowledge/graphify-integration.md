@@ -4,13 +4,13 @@ Graphify is the `safishamsi/graphify` knowledge graph tool for codebases and doc
 
 ## What this plugin contributes
 
-- A `knowledge` role declaration for teams that use Graphify alongside Squad.
-- Static guidance describing where Graphify fits in the Squad workflow.
+- A `knowledge` role declaration for teams that use Graphify alongside Crew.
+- Static guidance describing where Graphify fits in the Crew workflow.
 - Upstream metadata that points to the real repository and PyPI package.
 
 ## Real setup
 
-Install and configure Graphify outside the Squad plugin lifecycle:
+Install and configure Graphify outside the Crew plugin lifecycle:
 
 ```bash
 uv tool install graphifyy
@@ -29,6 +29,6 @@ Useful Graphify outputs include:
 
 ## Boundary
 
-This sample does not execute Graphify code. It is a declarative Squad plugin that installs static knowledge guidance under `.squad/knowledge/` and records external metadata only.
+This sample does not execute Graphify code. It is a declarative Crew plugin that installs static knowledge guidance under `.crew/knowledge/` and records external metadata only.
 
-Graphify's Copilot support is a separately installed skill/integration. Squad does not install `graphifyy`, run `graphify`, install Copilot skills, or treat Graphify as a memory provider.
+Graphify's Copilot support is a separately installed skill/integration. Crew does not install `graphifyy`, run `graphify`, install Copilot skills, or treat Graphify as a memory provider.

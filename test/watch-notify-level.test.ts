@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach, vi } from 'vitest';
-import { reportBoard } from '../packages/squad-cli/src/cli/commands/watch/index.js';
-import type { BoardState } from '../packages/squad-cli/src/cli/commands/watch/index.js';
+import { reportBoard } from '../packages/crew-cli/src/cli/commands/watch/index.js';
+import type { BoardState } from '../packages/crew-cli/src/cli/commands/watch/index.js';
 
 function emptyState(): BoardState {
   return { untriaged: 0, assigned: 0, drafts: 0, needsReview: 0, changesRequested: 0, ciFailures: 0, readyToMerge: 0, executed: 0 };

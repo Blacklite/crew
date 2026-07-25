@@ -20,7 +20,7 @@ Result persistence ensures the Coordinator archives every agent's work to disk b
 **Step 1: Immediate Write After `read_agent`**
 After calling `read_agent`, before any other processing, the Scribe writes:
 ```
-.squad/orchestration-log/{ISO8601-timestamp}-{agent-name}.md
+.crew/orchestration-log/{ISO8601-timestamp}-{agent-name}.md
 ```
 
 Example filename: `2026-04-08T14-23-45Z-API-Agent.md` (hyphens instead of colons for Windows compatibility)
@@ -64,7 +64,7 @@ This ensures results are safe even if the session crashes or context compacts mi
 
 ## Observable Behavior
 
-- `.squad/orchestration-log/` contains timestamped markdown files for every agent that ran
+- `.crew/orchestration-log/` contains timestamped markdown files for every agent that ran
 - Each file includes agent name, task, result summary, and files modified
 - If `read_agent` returns no response, Coordinator checks the filesystem for `history.md`, `decisions/`, and `output/` files written by the agent directly during its run
 - Session never loses agent results
@@ -72,7 +72,7 @@ This ensures results are safe even if the session crashes or context compacts mi
 ## Orchestration Log Location
 
 ```
-.squad/orchestration-log/
+.crew/orchestration-log/
 ├── 2026-04-08T14-23-45Z-API-Agent.md
 ├── 2026-04-08T14-35-12Z-Frontend-Agent.md
 └── 2026-04-08T14-50-00Z-Scribe.md
@@ -83,7 +83,7 @@ File naming: `{ISO8601-timestamp}-{agent-name}.md` (timestamps use hyphens inste
 ## Related Concepts
 
 - **Compaction Recovery** — Session state checkpoint that helps Coordinator resume after context is compacted
-- **Session State** — Lightweight checkpoint (`.squad/session-state.md`) that captures next action needed
+- **Session State** — Lightweight checkpoint (`.crew/session-state.md`) that captures next action needed
 
 ## See Also
 

@@ -1,0 +1,12 @@
+{
+  "name": "crew",
+  "version": "1.0.0",
+  "description": "Crew — Programmable multi-agent runtime for GitHub Copilot",
+  "capabilities": ["multi-agent", "copilot", "sdk", "cli"],
+  "contact": {
+    "repo": "Blacklite/crew",
+    "labels": ["crew"]
+  },
+  "accepts": ["issues", "prs"],
+  "skills": ["crew-conventions", "cli-wiring", "agent-collaboration"]
+}

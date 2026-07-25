@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-sdk": patch
+"@blacklite/crew-sdk": patch
 ---
 
-Harden squad observer change resolution against directory events, symlinks, and filesystem scan errors.
+Harden crew observer change resolution against directory events, symlinks, and filesystem scan errors.

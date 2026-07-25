@@ -21,35 +21,35 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { loadAgentCharter, buildAgentPrompt } from '../packages/squad-cli/src/cli/shell/spawn.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { loadAgentCharter, buildAgentPrompt } from '../packages/crew-cli/src/cli/shell/spawn.js';
 import {
   buildCoordinatorPrompt,
   parseCoordinatorResponse,
   formatConversationContext,
-} from '../packages/squad-cli/src/cli/shell/coordinator.js';
-import { ShellLifecycle } from '../packages/squad-cli/src/cli/shell/lifecycle.js';
-import { parseInput, parseDispatchTargets } from '../packages/squad-cli/src/cli/shell/router.js';
-import { executeCommand } from '../packages/squad-cli/src/cli/shell/commands.js';
-import { MemoryManager, DEFAULT_LIMITS } from '../packages/squad-cli/src/cli/shell/memory.js';
-import { createCompleter } from '../packages/squad-cli/src/cli/shell/autocomplete.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import type { ShellMessage } from '../packages/squad-cli/src/cli/shell/types.js';
+} from '../packages/crew-cli/src/cli/shell/coordinator.js';
+import { ShellLifecycle } from '../packages/crew-cli/src/cli/shell/lifecycle.js';
+import { parseInput, parseDispatchTargets } from '../packages/crew-cli/src/cli/shell/router.js';
+import { executeCommand } from '../packages/crew-cli/src/cli/shell/commands.js';
+import { MemoryManager, DEFAULT_LIMITS } from '../packages/crew-cli/src/cli/shell/memory.js';
+import { createCompleter } from '../packages/crew-cli/src/cli/shell/autocomplete.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import type { ShellMessage } from '../packages/crew-cli/src/cli/shell/types.js';
 
 const FIXTURES = join(process.cwd(), 'test-fixtures');
 
 // ============================================================================
-// Mock SquadClient and SquadSession
+// Mock CrewClient and CrewSession
 // ============================================================================
 
-interface MockSquadSession {
+interface MockCrewSession {
   sendMessage: ReturnType<typeof vi.fn>;
   on: ReturnType<typeof vi.fn>;
   off: ReturnType<typeof vi.fn>;
   close: ReturnType<typeof vi.fn>;
 }
 
-function createMockSession(): MockSquadSession {
+function createMockSession(): MockCrewSession {
   return {
     sendMessage: vi.fn().mockResolvedValue(undefined),
     on: vi.fn(),
@@ -79,7 +79,7 @@ function cleanDir(dir: string): void {
 
 function makeTeamMd(agents: Array<{ name: string; role: string; status?: string }>): string {
   const rows = agents
-    .map(a => `| ${a.name} | ${a.role} | \`.squad/agents/${a.name.toLowerCase()}/charter.md\` | ✅ ${a.status ?? 'Active'} |`)
+    .map(a => `| ${a.name} | ${a.role} | \`.crew/agents/${a.name.toLowerCase()}/charter.md\` | ✅ ${a.status ?? 'Active'} |`)
     .join('\n');
   return `# Team Manifest
 
@@ -97,14 +97,14 @@ ${rows}
 
 describe('coordinator.ts — buildCoordinatorPrompt', () => {
   it('uses custom teamPath when provided', async () => {
-    const customPath = join(FIXTURES, '.squad', 'team.md');
+    const customPath = join(FIXTURES, '.crew', 'team.md');
     const prompt = await buildCoordinatorPrompt({ teamRoot: '/fake', teamPath: customPath });
     expect(prompt).toContain('Hockney');
     expect(prompt).toContain('Fenster');
   });
 
   it('uses custom routingPath when provided', async () => {
-    const customPath = join(FIXTURES, '.squad', 'routing.md');
+    const customPath = join(FIXTURES, '.crew', 'routing.md');
     const prompt = await buildCoordinatorPrompt({ teamRoot: '/fake', routingPath: customPath });
     expect(prompt).toContain('Tests → Hockney');
   });
@@ -121,7 +121,7 @@ describe('coordinator.ts — buildCoordinatorPrompt', () => {
 
   it('includes all required prompt sections', async () => {
     const prompt = await buildCoordinatorPrompt({ teamRoot: FIXTURES });
-    expect(prompt).toContain('Squad Coordinator');
+    expect(prompt).toContain('Crew Coordinator');
     expect(prompt).toContain('Team Roster');
     expect(prompt).toContain('Routing Rules');
     expect(prompt).toContain('Response Format');
@@ -340,10 +340,10 @@ describe('spawn.ts — loadAgentCharter', () => {
     );
   });
 
-  it('throws when .squad/ does not exist and teamRoot not provided', async () => {
+  it('throws when .crew/ does not exist and teamRoot not provided', async () => {
     const originalCwd = process.cwd();
     try {
-      const tmpDir = makeTempDir('no-squad-');
+      const tmpDir = makeTempDir('no-crew-');
       process.chdir(tmpDir);
       await expect(loadAgentCharter('test')).rejects.toThrow(/No (team|charter) found/);
       cleanDir(tmpDir);
@@ -404,13 +404,13 @@ describe('lifecycle.ts — ShellLifecycle', () => {
     return new ShellLifecycle({ teamRoot, renderer, registry });
   }
 
-  it('throws when .squad/ does not exist', async () => {
+  it('throws when .crew/ does not exist', async () => {
     const lc = makeLifecycle(tmpDir);
     await expect(lc.initialize()).rejects.toThrow(/No team found/);
   });
 
   it('throws when team.md is missing', async () => {
-    fs.mkdirSync(join(tmpDir, '.squad'), { recursive: true });
+    fs.mkdirSync(join(tmpDir, '.crew'), { recursive: true });
     const lc = makeLifecycle(tmpDir);
     await expect(lc.initialize()).rejects.toThrow(/No team manifest found/);
   });
@@ -426,9 +426,9 @@ describe('lifecycle.ts — ShellLifecycle', () => {
   });
 
   it('discovers agents from team.md', async () => {
-    const squadDir = join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(join(squadDir, 'team.md'), makeTeamMd([
+    const crewDir = join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(join(crewDir, 'team.md'), makeTeamMd([
       { name: 'Fenster', role: 'Core Dev' },
       { name: 'Hockney', role: 'Tester' },
     ]));
@@ -439,9 +439,9 @@ describe('lifecycle.ts — ShellLifecycle', () => {
   });
 
   it('registers discovered agents in the registry', async () => {
-    const squadDir = join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(join(squadDir, 'team.md'), makeTeamMd([
+    const crewDir = join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(join(crewDir, 'team.md'), makeTeamMd([
       { name: 'Edie', role: 'TypeScript' },
     ]));
     const lc = makeLifecycle(tmpDir);
@@ -451,9 +451,9 @@ describe('lifecycle.ts — ShellLifecycle', () => {
   });
 
   it('handles team.md with no active agents', async () => {
-    const squadDir = join(tmpDir, '.squad');
-    fs.mkdirSync(squadDir, { recursive: true });
-    fs.writeFileSync(join(squadDir, 'team.md'), makeTeamMd([]));
+    const crewDir = join(tmpDir, '.crew');
+    fs.mkdirSync(crewDir, { recursive: true });
+    fs.writeFileSync(join(crewDir, 'team.md'), makeTeamMd([]));
     const lc = makeLifecycle(tmpDir);
     await lc.initialize();
     expect(lc.getDiscoveredAgents()).toHaveLength(0);
@@ -728,7 +728,7 @@ describe('commands.ts — executeCommand', () => {
     it('shows status with no agents', () => {
       const result = executeCommand('status', [], context);
       expect(result.handled).toBe(true);
-      expect(result.output).toContain('Squad Status');
+      expect(result.output).toContain('Crew Status');
       expect(result.output).toContain('Team:     0');
     });
 
@@ -1099,8 +1099,8 @@ describe('Error handling in shell operations', () => {
 describe('Error hardening — user-friendly messages with remediation hints', () => {
   // --- lifecycle.ts ---
 
-  it('lifecycle init error for missing .squad/ includes remediation hint', async () => {
-    const tmpDir = makeTempDir('no-squad-');
+  it('lifecycle init error for missing .crew/ includes remediation hint', async () => {
+    const tmpDir = makeTempDir('no-crew-');
     const lc = new ShellLifecycle({
       teamRoot: tmpDir,
       renderer: new ShellRenderer(),
@@ -1109,7 +1109,7 @@ describe('Error hardening — user-friendly messages with remediation hints', ()
     try {
       await lc.initialize();
     } catch (err: unknown) {
-      expect((err as Error).message).toContain('squad init');
+      expect((err as Error).message).toContain('crew init');
       expect((err as Error).message).not.toContain('Error:');
     }
     cleanDir(tmpDir);
@@ -1117,7 +1117,7 @@ describe('Error hardening — user-friendly messages with remediation hints', ()
 
   it('lifecycle init error for missing team.md includes remediation hint', async () => {
     const tmpDir = makeTempDir('no-team-');
-    fs.mkdirSync(join(tmpDir, '.squad'), { recursive: true });
+    fs.mkdirSync(join(tmpDir, '.crew'), { recursive: true });
     const lc = new ShellLifecycle({
       teamRoot: tmpDir,
       renderer: new ShellRenderer(),
@@ -1126,7 +1126,7 @@ describe('Error hardening — user-friendly messages with remediation hints', ()
     try {
       await lc.initialize();
     } catch (err: unknown) {
-      expect((err as Error).message).toContain('squad init');
+      expect((err as Error).message).toContain('crew init');
       expect((err as Error).message).toContain('No team manifest found');
     }
     cleanDir(tmpDir);
@@ -1143,15 +1143,15 @@ describe('Error hardening — user-friendly messages with remediation hints', ()
     }
   });
 
-  it('loadAgentCharter error for no .squad/ includes actionable hint', async () => {
-    const tmpDir = makeTempDir('no-squad-spawn-');
+  it('loadAgentCharter error for no .crew/ includes actionable hint', async () => {
+    const tmpDir = makeTempDir('no-crew-spawn-');
     const originalCwd = process.cwd();
     try {
       process.chdir(tmpDir);
       await loadAgentCharter('test');
     } catch (err: unknown) {
-      // Error may say "squad init" OR "charter.md exists" depending on resolveSquad()
-      expect((err as Error).message).toMatch(/squad init|charter\.md exists/);
+      // Error may say "crew init" OR "charter.md exists" depending on resolveCrew()
+      expect((err as Error).message).toMatch(/crew init|charter\.md exists/);
       expect((err as Error).message).not.toMatch(/^Error:/);
     } finally {
       process.chdir(originalCwd);
@@ -1161,9 +1161,9 @@ describe('Error hardening — user-friendly messages with remediation hints', ()
 
   // --- coordinator.ts ---
 
-  it('buildCoordinatorPrompt includes squad init hint in fallback text', async () => {
+  it('buildCoordinatorPrompt includes crew init hint in fallback text', async () => {
     const prompt = await buildCoordinatorPrompt({ teamRoot: '/nonexistent' });
-    expect(prompt).toContain('squad init');
+    expect(prompt).toContain('crew init');
   });
 
   // --- commands.ts ---
@@ -1210,7 +1210,7 @@ describe('Error hardening — user-friendly messages with remediation hints', ()
 
 describe('Dead session eviction', () => {
   it('agentSessions Map evicts entry on delete', () => {
-    const agentSessions = new Map<string, MockSquadSession>();
+    const agentSessions = new Map<string, MockCrewSession>();
     const session = createMockSession();
     agentSessions.set('TestAgent', session);
     expect(agentSessions.has('TestAgent')).toBe(true);
@@ -1222,7 +1222,7 @@ describe('Dead session eviction', () => {
   });
 
   it('next dispatch creates fresh session after eviction', () => {
-    const agentSessions = new Map<string, MockSquadSession>();
+    const agentSessions = new Map<string, MockCrewSession>();
     const deadSession = createMockSession();
     agentSessions.set('TestAgent', deadSession);
 
@@ -1241,7 +1241,7 @@ describe('Dead session eviction', () => {
   });
 
   it('coordinator session evicts on null assignment', () => {
-    let coordinatorSession: MockSquadSession | null = createMockSession();
+    let coordinatorSession: MockCrewSession | null = createMockSession();
     expect(coordinatorSession).not.toBeNull();
 
     // Simulate eviction

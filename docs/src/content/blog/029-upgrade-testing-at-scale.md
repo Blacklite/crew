@@ -1,11 +1,11 @@
 ---
 title: "How We Tested Our Upgrade Path Against 245 Strangers' Repos"
 date: 2026-03-23
-author: "Squad Team"
+author: "Crew Team"
 wave: 7
-tags: [squad, upgrade, testing, agents, quality]
+tags: [crew, upgrade, testing, agents, quality]
 status: published
-hero: "We used Squad's own fan-out capability to clone 23 real-world repos from GitHub and validate our upgrade command in 5 minutes flat."
+hero: "We used Crew's own fan-out capability to clone 23 real-world repos from GitHub and validate our upgrade command in 5 minutes flat."
 ---
 
 We shipped a big upgrade fix — 10 changes addressing 13 gaps our AI team found during an audit. The automated tests passed. 18 out of 18. Green across the board.
@@ -25,7 +25,7 @@ We build an AI agent framework. Our agents can fan out — multiple agents runni
 **Step 1: Find real-world installs.** We used GitHub's code search API to find every public repo with our tool installed:
 
 ```
-filename:squad.agent.md path:.github/agents
+filename:crew.agent.md path:.github/agents
 ```
 
 Result: **245 public repositories.** Real projects, real users, real configurations we'd never seen before.

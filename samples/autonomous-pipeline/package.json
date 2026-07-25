@@ -1,5 +1,5 @@
 {
-  "name": "@squad-samples/autonomous-pipeline",
+  "name": "@crew-samples/autonomous-pipeline",
   "version": "1.0.0",
   "private": true,
   "description": "Showcase demo — autonomous multi-agent pipeline with live terminal dashboard, cost tracking, telemetry, and OTel observability",
@@ -11,7 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@bradygaster/squad-sdk": "^0.8.0",
+    "@blacklite/crew-sdk": "^0.8.0",
     "chalk": "^5.4.0"
   },
   "devDependencies": {

@@ -14,9 +14,9 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import React from 'react';
 import { render } from 'ink-testing-library';
-import { wrapTableContent, renderMarkdownInline } from '../packages/squad-cli/src/cli/shell/components/MessageStream.js';
-import { MessageStream } from '../packages/squad-cli/src/cli/shell/components/MessageStream.js';
-import type { ShellMessage } from '../packages/squad-cli/src/cli/shell/types.js';
+import { wrapTableContent, renderMarkdownInline } from '../packages/crew-cli/src/cli/shell/components/MessageStream.js';
+import { MessageStream } from '../packages/crew-cli/src/cli/shell/components/MessageStream.js';
+import type { ShellMessage } from '../packages/crew-cli/src/cli/shell/types.js';
 
 const h = React.createElement;
 

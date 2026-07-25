@@ -1,15 +1,15 @@
 ---
-"@bradygaster/squad-sdk": minor
-"@bradygaster/squad-cli": minor
+"@blacklite/crew-sdk": minor
+"@blacklite/crew-cli": minor
 ---
 
 Move bundled skills from `.copilot/skills/` to `.github/skills/` so they're visible to all Copilot surfaces (closes #1126)
 
 ## Symptom (per #1126)
 
-Squad-bundled skills installed at `.copilot/skills/` are **invisible to every Copilot surface except Squad itself**:
+Crew-bundled skills installed at `.copilot/skills/` are **invisible to every Copilot surface except Crew itself**:
 - ❌ GitHub Copilot cloud agent
-- ❌ Copilot CLI (outside Squad sessions)
+- ❌ Copilot CLI (outside Crew sessions)
 - ❌ VS Code Copilot extension (agent mode)
 - ❌ `@copilot` coding agent on issues
 - ❌ Any future Copilot surface
@@ -18,14 +18,14 @@ Per the [official Agent Skills docs](https://docs.github.com/en/copilot/concepts
 
 ## Fix
 
-1. **`squad init`** writes bundled skills to `.github/skills/{name}/SKILL.md` (was `.copilot/skills/`).
-2. **`squad upgrade`** does the same AND auto-migrates legacy `.copilot/skills/{manifest-skill}/` into `.github/skills/{manifest-skill}/` (best-effort, preserves user-added non-manifest skills at `.copilot/skills/`, tombstones the legacy dir when empty).
+1. **`crew init`** writes bundled skills to `.github/skills/{name}/SKILL.md` (was `.copilot/skills/`).
+2. **`crew upgrade`** does the same AND auto-migrates legacy `.copilot/skills/{manifest-skill}/` into `.github/skills/{manifest-skill}/` (best-effort, preserves user-added non-manifest skills at `.copilot/skills/`, tombstones the legacy dir when empty).
 3. **`TEMPLATE_MANIFEST`** destinations rewritten: all 10 skill entries now target `../.github/skills/` instead of `../.copilot/skills/`.
-4. **`ENSURE_DIRECTORIES`** (upgrade.ts) updated so existing squads get `.github/skills/` created on upgrade.
-5. **squad.agent.md** narrative updated: 5-path scan order now lists `.github/skills/` as path #2 (Copilot CLI's canonical custom-skills location) and `.copilot/skills/` as path #3 (Legacy install path; `squad upgrade` migrates). Personal scope (`~/.copilot/skills/`) preserved as-is.
-6. **All other docs** (`spawn-reference.md`, `README.md`, `squad-commands` skill, `release-process` skill, `build.ts`, SDK type comments) updated to reference `.github/skills/` as the install destination.
+4. **`ENSURE_DIRECTORIES`** (upgrade.ts) updated so existing crews get `.github/skills/` created on upgrade.
+5. **crew.agent.md** narrative updated: 5-path scan order now lists `.github/skills/` as path #2 (Copilot CLI's canonical custom-skills location) and `.copilot/skills/` as path #3 (Legacy install path; `crew upgrade` migrates). Personal scope (`~/.copilot/skills/`) preserved as-is.
+6. **All other docs** (`spawn-reference.md`, `README.md`, `crew-commands` skill, `release-process` skill, `build.ts`, SDK type comments) updated to reference `.github/skills/` as the install destination.
 
-## Migration semantics (`squad upgrade`)
+## Migration semantics (`crew upgrade`)
 
 `migrateLegacyCopilotSkills()` runs **before** `syncAllSkills`:
 
@@ -41,7 +41,7 @@ All migration steps are best-effort with try/catch — disk-write failures don't
 ## Tests
 
 New regression tests:
-- `test/init.test.ts > should install Squad-bundled skills at .github/skills/...` — asserts canonical path, asserts legacy path is NOT created
+- `test/init.test.ts > should install Crew-bundled skills at .github/skills/...` — asserts canonical path, asserts legacy path is NOT created
 - `test/cli/upgrade.test.ts > should migrate manifest skills from .copilot/skills/ to .github/skills/` — asserts manifest skill moves, user-added skill preserved
 - `test/cli/upgrade.test.ts > should NOT clobber a customized .github/skills/{name} if the legacy copy exists` — asserts both-locations case tombstones legacy without losing the new
 
@@ -53,7 +53,7 @@ Updated existing tests:
 
 ## What's NOT changed (intentional)
 
-- **`.copilot/skills/` scan path stays in `squad.agent.md`'s 5-path skill discovery** — the coordinator still discovers user-added skills at the legacy location for backward compat; only Squad-installed (manifest) skills migrate.
+- **`.copilot/skills/` scan path stays in `crew.agent.md`'s 5-path skill discovery** — the coordinator still discovers user-added skills at the legacy location for backward compat; only Crew-installed (manifest) skills migrate.
 - **`~/.copilot/skills/` (personal scope) is unchanged** — that's Copilot CLI's official personal-skills location and remains valid.
 - **`test/skill-source.test.ts`, `test/skills-export-import.test.cjs`, `test/tools.test.ts`, `test/skill-script-loader.test.ts`** are NOT touched — they test the runtime skill loader and tool behavior, which still supports `.copilot/skills/` as a valid scan path.
 
@@ -65,4 +65,4 @@ Updated existing tests:
 ## Out of scope (separate follow-ups)
 
 - Backward-compat shim that adds a `.copilot/skills -> .github/skills` symlink. Not needed because users won't be looking at `.copilot/skills/` anymore once their tools find skills at `.github/skills/`. Filed as a follow-up if anyone reports broken muscle memory.
-- A `squad doctor --skills` check that warns when `.copilot/skills/` still has manifest skills after upgrade (suggesting the migration silently failed). Worth adding to the next maintenance pass.
+- A `crew doctor --skills` check that warns when `.copilot/skills/` still has manifest skills after upgrade (suggesting the migration silently failed). Worth adding to the next maintenance pass.

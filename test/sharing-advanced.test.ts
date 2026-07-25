@@ -12,7 +12,7 @@ import {
   clearVersionStore,
   type VersionPin,
   type AgentVersionResolver,
-} from '@bradygaster/squad-sdk/sharing';
+} from '@blacklite/crew-sdk/sharing';
 import {
   configureAgentRepo,
   listRepoAgents,
@@ -20,14 +20,14 @@ import {
   pushAgent,
   type AgentRepoConfig,
   type AgentRepoOperations,
-} from '@bradygaster/squad-sdk/sharing';
+} from '@blacklite/crew-sdk/sharing';
 import {
   AgentCache,
   DEFAULT_AGENT_TTL,
   DEFAULT_SKILL_TTL,
   type CacheEntry,
   type CacheStats,
-} from '@bradygaster/squad-sdk/sharing';
+} from '@blacklite/crew-sdk/sharing';
 import {
   detectConflicts,
   resolveConflicts,
@@ -35,9 +35,9 @@ import {
   type IncomingBundle,
   type Conflict,
   type ConflictStrategy,
-} from '@bradygaster/squad-sdk/sharing';
-import type { AgentDefinition } from '@bradygaster/squad-sdk/config';
-import type { SquadConfig } from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/sharing';
+import type { AgentDefinition } from '@blacklite/crew-sdk/config';
+import type { CrewConfig } from '@blacklite/crew-sdk/config';
 
 // ===== Helpers =====
 
@@ -54,10 +54,10 @@ function makeAgent(overrides: Partial<AgentDefinition> = {}): AgentDefinition {
   };
 }
 
-function makeConfig(overrides: Partial<SquadConfig> = {}): SquadConfig {
+function makeConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
   return {
     version: overrides.version ?? '0.6.0',
-    team: overrides.team ?? { name: 'Test Squad', description: 'A test squad' },
+    team: overrides.team ?? { name: 'Test Crew', description: 'A test crew' },
     routing: overrides.routing ?? { rules: [], fallbackBehavior: 'coordinator' },
     models: overrides.models ?? {
       default: 'claude-sonnet-4',
@@ -233,17 +233,17 @@ describe('Versioning (M5-6)', () => {
 describe('Agent Repo (M5-7)', () => {
   describe('configureAgentRepo', () => {
     it('should validate and return config with defaults', () => {
-      const config = configureAgentRepo({ owner: 'acme', repo: 'squad-team' });
+      const config = configureAgentRepo({ owner: 'acme', repo: 'crew-team' });
       expect(config.owner).toBe('acme');
-      expect(config.repo).toBe('squad-team');
+      expect(config.repo).toBe('crew-team');
       expect(config.branch).toBe('main');
-      expect(config.path).toBe('.squad/agents');
+      expect(config.path).toBe('.crew/agents');
     });
 
     it('should preserve custom branch and path', () => {
       const config = configureAgentRepo({
         owner: 'acme',
-        repo: 'squad',
+        repo: 'crew',
         branch: 'develop',
         path: 'custom/agents',
       });
@@ -262,7 +262,7 @@ describe('Agent Repo (M5-7)', () => {
     it('should preserve authentication config', () => {
       const config = configureAgentRepo({
         owner: 'acme',
-        repo: 'squad',
+        repo: 'crew',
         authentication: { type: 'token', token: 'ghp_xxx' },
       });
       expect(config.authentication?.type).toBe('token');
@@ -274,20 +274,20 @@ describe('Agent Repo (M5-7)', () => {
       const ops = makeOps(
         [{ name: 'verbal', type: 'dir' }, { name: 'fenster', type: 'dir' }],
         {
-          '.squad/agents/verbal/charter.md': CHARTER,
-          '.squad/agents/fenster/charter.md': '## Identity\n**Name:** Fenster\n**Role:** Architect',
+          '.crew/agents/verbal/charter.md': CHARTER,
+          '.crew/agents/fenster/charter.md': '## Identity\n**Name:** Fenster\n**Role:** Architect',
         },
       );
-      const config = configureAgentRepo({ owner: 'acme', repo: 'squad' });
+      const config = configureAgentRepo({ owner: 'acme', repo: 'crew' });
 
       const agents = await listRepoAgents(config, ops);
       expect(agents).toHaveLength(2);
-      expect(agents[0].source).toContain('github:acme/squad');
+      expect(agents[0].source).toContain('github:acme/crew');
     });
 
     it('should return empty for no agents', async () => {
       const ops = makeOps([], {});
-      const config = configureAgentRepo({ owner: 'acme', repo: 'squad' });
+      const config = configureAgentRepo({ owner: 'acme', repo: 'crew' });
 
       const agents = await listRepoAgents(config, ops);
       expect(agents).toHaveLength(0);
@@ -297,9 +297,9 @@ describe('Agent Repo (M5-7)', () => {
   describe('pullAgent', () => {
     it('should pull agent definition from repo', async () => {
       const ops = makeOps([], {
-        '.squad/agents/testbot/charter.md': CHARTER,
+        '.crew/agents/testbot/charter.md': CHARTER,
       });
-      const config = configureAgentRepo({ owner: 'acme', repo: 'squad' });
+      const config = configureAgentRepo({ owner: 'acme', repo: 'crew' });
 
       const agent = await pullAgent(config, 'testbot', ops);
       expect(agent).not.toBeNull();
@@ -310,10 +310,10 @@ describe('Agent Repo (M5-7)', () => {
 
     it('should include history when available', async () => {
       const ops = makeOps([], {
-        '.squad/agents/testbot/charter.md': CHARTER,
-        '.squad/agents/testbot/history.md': '# History',
+        '.crew/agents/testbot/charter.md': CHARTER,
+        '.crew/agents/testbot/history.md': '# History',
       });
-      const config = configureAgentRepo({ owner: 'acme', repo: 'squad' });
+      const config = configureAgentRepo({ owner: 'acme', repo: 'crew' });
 
       const agent = await pullAgent(config, 'testbot', ops);
       expect(agent!.history).toBe('# History');
@@ -321,7 +321,7 @@ describe('Agent Repo (M5-7)', () => {
 
     it('should return null for missing agent', async () => {
       const ops = makeOps([], {});
-      const config = configureAgentRepo({ owner: 'acme', repo: 'squad' });
+      const config = configureAgentRepo({ owner: 'acme', repo: 'crew' });
 
       const agent = await pullAgent(config, 'missing', ops);
       expect(agent).toBeNull();
@@ -331,7 +331,7 @@ describe('Agent Repo (M5-7)', () => {
   describe('pushAgent', () => {
     it('should push agent charter to repo', async () => {
       const ops = makeOps();
-      const config = configureAgentRepo({ owner: 'acme', repo: 'squad' });
+      const config = configureAgentRepo({ owner: 'acme', repo: 'crew' });
       const agent = makeAgent({ name: 'verbal', charter: '# Verbal charter' });
 
       const result = await pushAgent(config, agent, ops);
@@ -343,7 +343,7 @@ describe('Agent Repo (M5-7)', () => {
     it('should return errors on push failure', async () => {
       const ops = makeOps();
       ops.pushFile = vi.fn(async () => { throw new Error('Permission denied'); });
-      const config = configureAgentRepo({ owner: 'acme', repo: 'squad' });
+      const config = configureAgentRepo({ owner: 'acme', repo: 'crew' });
       const agent = makeAgent();
 
       const result = await pushAgent(config, agent, ops);
@@ -501,7 +501,7 @@ describe('Conflict Resolution (M5-9)', () => {
     it('should detect added fields', () => {
       const incoming: IncomingBundle = {
         version: '0.6.0',
-        config: { ...baseConfig, hooks: { scrubPii: true } } as Partial<SquadConfig>,
+        config: { ...baseConfig, hooks: { scrubPii: true } } as Partial<CrewConfig>,
       };
       const conflicts = detectConflicts(
         makeConfig({ hooks: undefined }),
@@ -564,7 +564,7 @@ describe('Conflict Resolution (M5-9)', () => {
     it('use-incoming should delete removed fields', () => {
       const existing = makeConfig();
       const conflicts: Conflict[] = [
-        { path: 'team.description', existingValue: 'A test squad', incomingValue: undefined, type: 'removed' },
+        { path: 'team.description', existingValue: 'A test crew', incomingValue: undefined, type: 'removed' },
       ];
       const result = resolveConflicts(existing, conflicts, 'use-incoming');
       expect(result.team.description).toBeUndefined();

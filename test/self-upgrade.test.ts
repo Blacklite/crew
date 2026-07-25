@@ -6,9 +6,9 @@ import { describe, it, expect, vi } from 'vitest';
 // - The function signature accepts insider flag
 // - The package name constant is correct
 
-describe('squad upgrade --self', () => {
+describe('crew upgrade --self', () => {
   it('UpgradeOptions includes self and insider flags', async () => {
-    const { runUpgrade } = await import('../packages/squad-cli/src/cli/core/upgrade.js');
+    const { runUpgrade } = await import('../packages/crew-cli/src/cli/core/upgrade.js');
     // Verify the function accepts the options without type error
     expect(typeof runUpgrade).toBe('function');
   });
@@ -18,7 +18,7 @@ describe('squad upgrade --self', () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const entrySource = fs.readFileSync(
-      path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli-entry.ts'),
+      path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli-entry.ts'),
       'utf-8',
     );
     expect(entrySource).toContain("args.includes('--self')");
@@ -30,7 +30,7 @@ describe('squad upgrade --self', () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const entrySource = fs.readFileSync(
-      path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli-entry.ts'),
+      path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli-entry.ts'),
       'utf-8',
     );
     expect(entrySource).toContain('--self');
@@ -41,10 +41,10 @@ describe('squad upgrade --self', () => {
     const fs = await import('node:fs');
     const path = await import('node:path');
     const upgradeSource = fs.readFileSync(
-      path.join(process.cwd(), 'packages', 'squad-cli', 'src', 'cli', 'core', 'upgrade.ts'),
+      path.join(process.cwd(), 'packages', 'crew-cli', 'src', 'cli', 'core', 'upgrade.ts'),
       'utf-8',
     );
-    expect(upgradeSource).toContain("@bradygaster/squad-cli");
+    expect(upgradeSource).toContain("@blacklite/crew-cli");
     expect(upgradeSource).toContain("'insider'");
     expect(upgradeSource).toContain("'latest'");
   });

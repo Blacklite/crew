@@ -1,15 +1,15 @@
-# Using Squad with the Aspire Dashboard
+# Using Crew with the Aspire Dashboard
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-> 📌 **Squad CLI only** — The Aspire dashboard integration requires the Squad CLI (`squad aspire`). It is not available when using GitHub Copilot CLI directly. Only Squad CLI commands emit OpenTelemetry data to the dashboard.
+> 📌 **Crew CLI only** — The Aspire dashboard integration requires the Crew CLI (`crew aspire`). It is not available when using GitHub Copilot CLI directly. Only Crew CLI commands emit OpenTelemetry data to the dashboard.
 
 **Try this:**
 ```
-squad aspire
+crew aspire
 ```
 
-Aspire is a free, open-source dashboard for observing any OpenTelemetry app — traces, metrics, logs, all in one place. Squad ships with an Aspire integration that streams all your telemetry (agent spawns, token usage, session metrics, errors) to the dashboard in real time.
+Aspire is a free, open-source dashboard for observing any OpenTelemetry app — traces, metrics, logs, all in one place. Crew ships with an Aspire integration that streams all your telemetry (agent spawns, token usage, session metrics, errors) to the dashboard in real time.
 
 ---
 
@@ -21,16 +21,16 @@ Aspire is not a .NET thing — it's a **standalone dashboard for any app that sp
 - **Metrics** — counters (agents spawned, tokens consumed), histograms (latency), gauges (active sessions)
 - **Resources** — grouping by service and environment
 
-Squad's OTel integration exports OTLP/gRPC (the only protocol Aspire understands), so you get instant visibility into what your agents are doing.
+Crew's OTel integration exports OTLP/gRPC (the only protocol Aspire understands), so you get instant visibility into what your agents are doing.
 
 ---
 
 ## 2. Launch the Aspire Container
 
-The easiest way is the built-in `squad aspire` command:
+The easiest way is the built-in `crew aspire` command:
 
 ```bash
-squad aspire
+crew aspire
 ```
 
 This will:
@@ -51,7 +51,7 @@ docker run -d \
 
 > ⚠️ **Both `AUTHMODE=Unsecured` flags are required for local dev.** Without `DASHBOARD__OTLP__AUTHMODE=Unsecured`, the OTLP endpoint rejects connections with: `API key from 'x-otlp-api-key' header is missing`. Without `DASHBOARD__FRONTEND__AUTHMODE=Unsecured`, the UI requires a login token.
 
-If you started the container yourself (without `squad aspire`) and you're seeing auth errors, stop it and re-run with the flags above. Or, if you prefer to keep API key auth, set a key on both sides:
+If you started the container yourself (without `crew aspire`) and you're seeing auth errors, stop it and re-run with the flags above. Or, if you prefer to keep API key auth, set a key on both sides:
 
 ```bash
 # Container side — set the expected API key
@@ -74,39 +74,39 @@ For local dev, unsecured mode is simplest. For shared environments, use an API k
 
 ---
 
-## 3. Connect Squad to Aspire
+## 3. Connect Crew to Aspire
 
-When you run Squad (via the CLI or SDK), set the OTLP endpoint:
+When you run Crew (via the CLI or SDK), set the OTLP endpoint:
 
 ### Option A: CLI (standalone)
 
 ```powershell
 $env:OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317"
-squad run
+crew run
 ```
 
 ```bash
 export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317"
-squad run "your prompt here"
+crew run "your prompt here"
 ```
 
 ### Option B: SDK (programmatic)
 
 ```typescript
-import { initSquadTelemetry, EventBus } from 'squad-sdk';
+import { initCrewTelemetry, EventBus } from 'crew-sdk';
 
 const bus = new EventBus();
-const telemetry = initSquadTelemetry({
+const telemetry = initCrewTelemetry({
   endpoint: 'http://localhost:4317',
   eventBus: bus,
 });
 
-// … run your squad …
+// … run your crew …
 
 await telemetry.shutdown();
 ```
 
-That's it. Squad will automatically:
+That's it. Crew will automatically:
 1. Initialize OpenTelemetry providers (tracing + metrics)
 2. Export all agent spawns, token usage, session metrics, and errors to Aspire
 3. Flush telemetry on shutdown
@@ -122,11 +122,11 @@ Open **http://localhost:18888** and navigate to:
 You'll see a list of spans for each operation. Examples:
 
 ```
-squad.init                 3ms      ✓
-squad.agent.spawn          250ms    ✓  (agent-name: "Lead")
-squad.agent.spawn          180ms    ✓  (agent-name: "Backend")
-squad.agent.error          5ms      ✗  (error: "timeout")
-squad.run                  2100ms   ✓
+crew.init                 3ms      ✓
+crew.agent.spawn          250ms    ✓  (agent-name: "Lead")
+crew.agent.spawn          180ms    ✓  (agent-name: "Backend")
+crew.agent.error          5ms      ✗  (error: "timeout")
+crew.run                  2100ms   ✓
 ```
 
 Each span has attributes:
@@ -142,20 +142,20 @@ Click a span to see full details (attributes, events, timing).
 You'll see gauges, counters, and histograms:
 
 **Counters:**
-- `squad.tokens.input` — total input tokens consumed
-- `squad.tokens.output` — total output tokens produced
-- `squad.agent.spawns` — total agents spawned
-- `squad.sessions.created` — total sessions created
+- `crew.tokens.input` — total input tokens consumed
+- `crew.tokens.output` — total output tokens produced
+- `crew.agent.spawns` — total agents spawned
+- `crew.sessions.created` — total sessions created
 
 **Gauges:**
-- `squad.agent.active` — currently active agent sessions
-- `squad.sessions.active` — currently active sessions
-- `squad.sessions.idle` — pooled sessions waiting for reuse
+- `crew.agent.active` — currently active agent sessions
+- `crew.sessions.active` — currently active sessions
+- `crew.sessions.idle` — pooled sessions waiting for reuse
 
 **Histograms:**
-- `squad.agent.duration` — agent task duration (ms)
-- `squad.response.ttft` — time to first token (ms)
-- `squad.response.duration` — total response duration (ms)
+- `crew.agent.duration` — agent task duration (ms)
+- `crew.response.ttft` — time to first token (ms)
+- `crew.response.duration` — total response duration (ms)
 
 ### Rework Rate Metrics (5th DORA)
 
@@ -163,16 +163,16 @@ PR rework rate instruments, exported alongside the core metrics above:
 
 | Instrument | Type | Unit | Description |
 |-----------|------|------|-------------|
-| `squad.rework.rate` | Gauge | % | Current rework rate percentage |
-| `squad.rework.cycles` | Histogram | — | Review cycles per PR |
-| `squad.rework.rejection_rate` | Gauge | % | Percentage of PRs with changes requested |
-| `squad.rework.time_ms` | Histogram | ms | Time spent in rework |
+| `crew.rework.rate` | Gauge | % | Current rework rate percentage |
+| `crew.rework.cycles` | Histogram | — | Review cycles per PR |
+| `crew.rework.rejection_rate` | Gauge | % | Percentage of PRs with changes requested |
+| `crew.rework.time_ms` | Histogram | ms | Time spent in rework |
 
 ### **Resources**
 
 Aspire groups all telemetry by service. You'll see:
-- `service.name` — "squad-cli" or your custom app name
-- `squad.version` — which version of Squad you're running
+- `service.name` — "crew-cli" or your custom app name
+- `crew.version` — which version of Crew you're running
 
 ---
 
@@ -180,25 +180,25 @@ Aspire groups all telemetry by service. You'll see:
 
 ### 1. Start Aspire
 ```bash
-squad aspire
+crew aspire
 ```
 
-### 2. Run Squad with telemetry
+### 2. Run Crew with telemetry
 ```bash
 export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
-squad run "Implement user registration with email verification"
+crew run "Implement user registration with email verification"
 ```
 
 ### 3. Watch in real time
 
 Refresh the Aspire dashboard. You'll see:
-- **Traces** section fills with `squad.agent.spawn`, `squad.init`, etc.
+- **Traces** section fills with `crew.agent.spawn`, `crew.init`, etc.
 - **Metrics** show counters ticking up for tokens consumed, agents spawned
 - **Latency** histogram shows how long agents took
 
 ### 4. Click a span
 
-Click `squad.agent.spawn` to see:
+Click `crew.agent.spawn` to see:
 ```
 Duration:     250ms
 Attributes:
@@ -225,7 +225,7 @@ docker run -d --name aspire-dashboard \
   mcr.microsoft.com/dotnet/aspire-dashboard:latest
 ```
 
-**Option B: Send the API key from Squad**
+**Option B: Send the API key from Crew**
 ```bash
 # Set both in your .env or shell:
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
@@ -258,7 +258,7 @@ If no telemetry appears in the Aspire dashboard, walk through this list:
    If you see `OtlpComposite was not authenticated` or `API key... is missing`, see the auth fix above.
 
 4. **Is the protocol correct?**
-   Squad exports OTLP/gRPC. Aspire only accepts gRPC on port 18889. If you see `UNIMPLEMENTED` or connection errors, confirm you're not accidentally using an OTLP/HTTP endpoint (port 4318).
+   Crew exports OTLP/gRPC. Aspire only accepts gRPC on port 18889. If you see `UNIMPLEMENTED` or connection errors, confirm you're not accidentally using an OTLP/HTTP endpoint (port 4318).
 
 5. **Firewall / network:**
    Port 4317 must be reachable between your app and the Docker host. On Docker Desktop (Windows/Mac), `localhost:4317` should work.
@@ -275,7 +275,7 @@ If no telemetry appears in the Aspire dashboard, walk through this list:
 
 ### Dashboard is slow or unresponsive
 
-- **Restart the container:** `squad aspire` (auto-stops and restarts)
+- **Restart the container:** `crew aspire` (auto-stops and restarts)
 - **Check Docker resources:** Aspire needs ~500MB RAM
 - **Look at logs:** `docker logs aspire-dashboard`
 
@@ -290,7 +290,7 @@ If no telemetry appears in the Aspire dashboard, walk through this list:
 ## 7. Stop Aspire
 
 ```bash
-squad aspire --stop
+crew aspire --stop
 ```
 
 Or manually:
@@ -306,7 +306,7 @@ docker rm aspire-dashboard
 - **Export metrics frequently:** Set `OTEL_METRIC_EXPORT_INTERVAL_MILLIS=1000` for near-real-time metric updates (default is 60s)
 - **Tag your service:** Customize the service name with `OTEL_SERVICE_NAME=my-app`
 - **Batch size:** Adjust `OTEL_BSP_MAX_QUEUE_SIZE` if you're emitting tons of spans
-- **Only export what you need:** If Squad is a tiny part of your app, filter traces by service name in Aspire UI
+- **Only export what you need:** If Crew is a tiny part of your app, filter traces by service name in Aspire UI
 
 ---
 
@@ -314,6 +314,6 @@ docker rm aspire-dashboard
 
 - [Aspire Documentation](https://aspire.dev)
 - [OpenTelemetry Protocol (OTLP)](https://opentelemetry.io/docs/specs/otel/protocol/)
-- [Squad SDK Reference](../reference/sdk.md) — detailed API documentation
+- [Crew SDK Reference](../reference/sdk.md) — detailed API documentation
 
-Aspire pairs perfectly with Squad: **watch your agents work in real time, catch performance issues early, and prove to yourself (and your team) that AI agents are deterministic and safe.**
+Aspire pairs perfectly with Crew: **watch your agents work in real time, catch performance issues early, and prove to yourself (and your team) that AI agents are deterministic and safe.**

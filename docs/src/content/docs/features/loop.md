@@ -1,20 +1,20 @@
 # Loop — Prompt-driven work loop
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 **Try this to initialize a loop:**
 ```
-squad loop --init
+crew loop --init
 ```
 
 **Try this to run your loop:**
 ```
-squad loop
+crew loop
 ```
 
 **Try this with monitoring:**
 ```
-squad loop --monitor-email --monitor-teams
+crew loop --monitor-email --monitor-teams
 ```
 
 Loop reads a `loop.md` prompt file and runs it as a continuous work loop. No GitHub issues needed — the prompt is the work driver. Each cycle, Loop sends the prompt to Copilot, collects the work, and loops again at your chosen interval.
@@ -30,7 +30,7 @@ The `loop.md` file contains:
 - **Frontmatter** — configuration (how often to loop, timeout, whether you've set up the loop)
 - **Prompt** — the actual work driver (what Copilot should do each cycle)
 
-When you run `squad loop`, it:
+When you run `crew loop`, it:
 
 1. Reads `loop.md`
 2. Checks that frontmatter is marked `configured: true`
@@ -56,14 +56,14 @@ By default, Loop requires:
 
 If you don't want to use `gh copilot`, pass `--agent-cmd` to provide an alternative agent command. In that case, `gh` and the Copilot extension are not required for the agent step.
 
-> **MCP auto-injection:** When using the default Copilot agent, `squad loop` automatically injects `--yolo --additional-mcp-config @.mcp.json` into every Copilot invocation. This ensures MCP tools are available in non-interactive (`-p`) mode. See [Copilot CLI MCP Trust Gate](./copilot-mcp-trust.md).
+> **MCP auto-injection:** When using the default Copilot agent, `crew loop` automatically injects `--yolo --additional-mcp-config @.mcp.json` into every Copilot invocation. This ensures MCP tools are available in non-interactive (`-p`) mode. See [Copilot CLI MCP Trust Gate](./copilot-mcp-trust.md).
 
 ## Getting started
 
 ### Step 1: Initialize your loop
 
 ```bash
-squad loop --init
+crew loop --init
 ```
 
 This creates a starter `loop.md` file in your project root:
@@ -78,7 +78,7 @@ description: "My work loop"
 
 # Work Loop Prompt
 
-You are a team member on this squad. Each cycle, you will:
+You are a team member on this crew. Each cycle, you will:
 
 1. Check for pending work
 2. Complete what you can within the timeout
@@ -128,7 +128,7 @@ description: "Monitor and fix failing CI"
 ### Step 4: Run the loop
 
 ```bash
-squad loop
+crew loop
 ```
 
 Loop will run your prompt every 10 minutes until you press Ctrl+C.
@@ -142,7 +142,7 @@ The YAML frontmatter at the top of `loop.md` controls Loop's behavior:
 | `configured` | boolean | Yes | `false` | Safety check — must be `true` to run. Prevents accidental execution of incomplete loops. |
 | `interval` | number | No | `10` | Minutes between cycles. Loop will wait this long after each cycle completes before running again. |
 | `timeout` | number | No | `30` | Max runtime in minutes for each cycle. If Copilot doesn't finish within this time, the cycle is marked incomplete and the next cycle starts. |
-| `description` | string | No | `"Squad Loop"` | Human-readable description of what this loop does. Shown in logs and status when `description` is omitted. |
+| `description` | string | No | `"Crew Loop"` | Human-readable description of what this loop does. Shown in logs and status when `description` is omitted. |
 
 Example:
 
@@ -218,7 +218,7 @@ timeout: 30
 description: "Work queue + monitoring + cleanup"
 ---
 
-# Daily Squad Loop
+# Daily Crew Loop
 
 Each cycle, in order:
 
@@ -233,77 +233,77 @@ Budget: 30 minutes per cycle. Start with most urgent work, drop to less urgent i
 
 ## Composing with capabilities
 
-Loop works with Squad's monitoring and bridge capabilities. Add flags to extend what Loop can see and do:
+Loop works with Crew's monitoring and bridge capabilities. Add flags to extend what Loop can see and do:
 
 ```bash
 # Monitor email for actionable items each cycle
-squad loop --monitor-email
+crew loop --monitor-email
 
 # Monitor Teams for action items each cycle
-squad loop --monitor-teams
+crew loop --monitor-teams
 
 # Both email and Teams
-squad loop --monitor-email --monitor-teams
+crew loop --monitor-email --monitor-teams
 
 # Enable self-pull (fetch latest code before each cycle)
-squad loop --self-pull
+crew loop --self-pull
 
 # Combine multiple capabilities
-squad loop --monitor-email --monitor-teams --self-pull
+crew loop --monitor-email --monitor-teams --self-pull
 ```
 
 When enabled, these capabilities are available inside your loop prompt as context. For example, with `--monitor-email`, your prompt can reference email alerts and action items.
 
 ## CLI reference
 
-All `squad loop` flags:
+All `crew loop` flags:
 
 | Flag | Type | Description | Example |
 |------|------|-------------|---------|
-| `--init` | boolean | Create a starter `loop.md` file | `squad loop --init` |
-| `--file <path>` | string | Path to loop file (default: `loop.md`) | `squad loop --file scripts/monitor.md` |
-| `--interval <N>` | number | Override loop interval in minutes | `squad loop --interval 3` |
-| `--timeout <N>` | number | Override cycle timeout in minutes | `squad loop --timeout 60` |
-| `--copilot-flags "..."` | string | Pass extra flags to Copilot CLI | `squad loop --copilot-flags "--model gpt-4"` |
-| `--agent-cmd <cmd>` | string | Custom agent command (advanced) | `squad loop --agent-cmd my-agent-wrapper` |
-| `--monitor-email` | boolean | Scan email for alerts each cycle | `squad loop --monitor-email` |
-| `--monitor-teams` | boolean | Scan Teams for action items each cycle | `squad loop --monitor-teams` |
-| `--self-pull` | boolean | Run `git fetch && git pull` before each cycle | `squad loop --self-pull` |
+| `--init` | boolean | Create a starter `loop.md` file | `crew loop --init` |
+| `--file <path>` | string | Path to loop file (default: `loop.md`) | `crew loop --file scripts/monitor.md` |
+| `--interval <N>` | number | Override loop interval in minutes | `crew loop --interval 3` |
+| `--timeout <N>` | number | Override cycle timeout in minutes | `crew loop --timeout 60` |
+| `--copilot-flags "..."` | string | Pass extra flags to Copilot CLI | `crew loop --copilot-flags "--model gpt-4"` |
+| `--agent-cmd <cmd>` | string | Custom agent command (advanced) | `crew loop --agent-cmd my-agent-wrapper` |
+| `--monitor-email` | boolean | Scan email for alerts each cycle | `crew loop --monitor-email` |
+| `--monitor-teams` | boolean | Scan Teams for action items each cycle | `crew loop --monitor-teams` |
+| `--self-pull` | boolean | Run `git fetch && git pull` before each cycle | `crew loop --self-pull` |
 
 ### Examples
 
 **Basic loop:**
 ```bash
-squad loop
+crew loop
 ```
 
 **Custom loop file:**
 ```bash
-squad loop --file scripts/cleanup.md
+crew loop --file scripts/cleanup.md
 ```
 
 **Faster interval:**
 ```bash
-squad loop --interval 3 --timeout 15
+crew loop --interval 3 --timeout 15
 ```
 
 **With monitoring:**
 ```bash
-squad loop --monitor-email --monitor-teams --self-pull
+crew loop --monitor-email --monitor-teams --self-pull
 ```
 
 **Override frontmatter with CLI:**
 ```bash
-squad loop --interval 2 --timeout 45
+crew loop --interval 2 --timeout 45
 ```
 
-CLI flags override frontmatter values. If your `loop.md` says `interval: 10` but you run `squad loop --interval 3`, Loop uses 3 minutes.
+CLI flags override frontmatter values. If your `loop.md` says `interval: 10` but you run `crew loop --interval 3`, Loop uses 3 minutes.
 
-> **Note:** Loop configuration is currently set via frontmatter in `loop.md` and CLI flags. `.squad/config.json` support is planned for a future release.
+> **Note:** Loop configuration is currently set via frontmatter in `loop.md` and CLI flags. `.crew/config.json` support is planned for a future release.
 
 ## Notes
 
 - Loop is session-scoped — it runs in your terminal and stops when you press Ctrl+C
 - Each cycle gets its own Copilot session; state is not preserved between cycles unless your prompt explicitly handles it
-- Loop respects `.squad/` team context: charters, routing, decisions, and directives are all available to the prompt
-- For fully unattended monitoring, use `squad watch` instead — it's designed for running in a separate terminal 24/7
+- Loop respects `.crew/` team context: charters, routing, decisions, and directives are all available to the prompt
+- For fully unattended monitoring, use `crew watch` instead — it's designed for running in a separate terminal 24/7

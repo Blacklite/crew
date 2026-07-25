@@ -1,6 +1,6 @@
 # GitLab Issues Mode
 
-> **🧪 Experimental.** GitLab Issues Mode is new. Commands, behavior, and integration details may change. [Feedback welcome.](https://github.com/bradygaster/squad/issues)
+> **🧪 Experimental.** GitLab Issues Mode is new. Commands, behavior, and integration details may change. [Feedback welcome.](https://github.com/Blacklite/crew/issues)
 
 **Try this to connect to your backlog:**
 ```
@@ -17,7 +17,7 @@ Work on issue #42
 There's review feedback on MR !24
 ```
 
-Squad connects to your GitLab repository, fetches issues from the backlog, routes work to the right agents, creates branches, implements changes, and opens Merge Requests — all from natural language requests.
+Crew connects to your GitLab repository, fetches issues from the backlog, routes work to the right agents, creates branches, implements changes, and opens Merge Requests — all from natural language requests.
 
 ---
 
@@ -34,7 +34,7 @@ Squad connects to your GitLab repository, fetches issues from the backlog, route
 > Connect to GitLab at https://gitlab.example.com/acme/recipe-app
 ```
 
-Squad stores the issue source in `team.md`. You only need to do this once per project.
+Crew stores the issue source in `team.md`. You only need to do this once per project.
 
 ---
 
@@ -44,7 +44,7 @@ Squad stores the issue source in `team.md`. You only need to do this once per pr
 > Show the backlog
 ```
 
-Squad fetches open issues via `glab issue list` and displays them in a table:
+Crew fetches open issues via `glab issue list` and displays them in a table:
 
 ```
 #   Title                        Labels        Assignee
@@ -95,7 +95,7 @@ The agent who opened the MR reads the review comments and addresses them. Commit
 > Merge MR !24
 ```
 
-Squad merges the MR, deletes the source branch, and closes the linked issue.
+Crew merges the MR, deletes the source branch, and closes the linked issue.
 
 ---
 
@@ -105,7 +105,7 @@ Squad merges the MR, deletes the source branch, and closes the linked issue.
 > What's left?
 ```
 
-Squad refreshes the backlog and shows remaining open issues.
+Crew refreshes the backlog and shows remaining open issues.
 
 ---
 
@@ -125,7 +125,7 @@ Squad refreshes the backlog and shows remaining open issues.
 
 ## GitLab CLI Quick Reference
 
-These are the `glab` commands Squad uses behind the scenes:
+These are the `glab` commands Crew uses behind the scenes:
 
 | Operation | Command |
 |-----------|---------|
@@ -159,8 +159,8 @@ For the full command reference, see the [official GitLab CLI documentation](http
 
 ## Tips
 
-- You don't need to assign issues to specific agents — Squad routes based on domain expertise.
-- If `glab` isn't authenticated, Squad will tell you. Run `glab auth login` first.
+- You don't need to assign issues to specific agents — Crew routes based on domain expertise.
+- If `glab` isn't authenticated, Crew will tell you. Run `glab auth login` first.
 - MR descriptions include `Closes #N` so merging automatically closes the linked issue, just like on GitHub.
 - See [GitLab Issues Walkthrough](../tour-gitlab-issues.md) for a step-by-step tour.
 
@@ -170,7 +170,7 @@ For the full command reference, see the [official GitLab CLI documentation](http
 connect to GitLab at https://gitlab.example.com/acme/recipe-app
 ```
 
-Links Squad to a GitLab repository for issue-driven development.
+Links Crew to a GitLab repository for issue-driven development.
 
 ```
 show the backlog

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { classifyIssue } from '../../packages/squad-cli/src/cli/commands/watch/index.js';
+import { classifyIssue } from '../../packages/crew-cli/src/cli/commands/watch/index.js';
 
 describe('classifyIssue - dispatch-mode categories', () => {
   it('classifies read-heavy keywords correctly', () => {

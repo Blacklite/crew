@@ -5,7 +5,7 @@
  * When casting was added to init, upgrade was not updated -- these tests
  * guard against that class of drift.
  *
- * @see https://github.com/bradygaster/squad/issues/822
+ * @see https://github.com/Blacklite/crew/issues/822
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -14,12 +14,12 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { randomBytes } from 'crypto';
 import { tmpdir } from 'os';
-import { runInit } from '@bradygaster/squad-cli/core/init';
+import { runInit } from '@blacklite/crew-cli/core/init';
 import {
   runUpgrade,
   ensureGitattributes,
   ensureDirectories,
-} from '@bradygaster/squad-cli/core/upgrade';
+} from '@blacklite/crew-cli/core/upgrade';
 
 const TEST_ROOT = join(
   tmpdir(),
@@ -28,16 +28,16 @@ const TEST_ROOT = join(
 
 /**
  * Directories that upgrade's ENSURE_DIRECTORIES must cover.
- * Derived from what init scaffolds (SDK initSquad).
+ * Derived from what init scaffolds (SDK initCrew).
  */
 const INIT_INFRASTRUCTURE_DIRS = [
-  '.squad/identity',
-  '.squad/orchestration-log',
-  '.squad/log',
-  '.squad/sessions',
-  '.squad/decisions/inbox',
-  '.squad/casting',
-  '.squad/agents',
+  '.crew/identity',
+  '.crew/orchestration-log',
+  '.crew/log',
+  '.crew/sessions',
+  '.crew/decisions/inbox',
+  '.crew/casting',
+  '.crew/agents',
   '.github/skills',
 ];
 
@@ -45,10 +45,10 @@ const INIT_INFRASTRUCTURE_DIRS = [
  * .gitattributes merge=union rules both paths must install.
  */
 const EXPECTED_GITATTRIBUTES_RULES = [
-  '.squad/decisions.md merge=union',
-  '.squad/agents/*/history.md merge=union',
-  '.squad/log/** merge=union',
-  '.squad/orchestration-log/** merge=union',
+  '.crew/decisions.md merge=union',
+  '.crew/agents/*/history.md merge=union',
+  '.crew/log/** merge=union',
+  '.crew/orchestration-log/** merge=union',
 ];
 
 /**
@@ -108,7 +108,7 @@ describe('Init / Upgrade parity', () => {
   it('upgrade scaffolds casting directory and init creates casting files', async () => {
     await runInit(TEST_ROOT);
 
-    const castingDir = join(TEST_ROOT, '.squad', 'casting');
+    const castingDir = join(TEST_ROOT, '.crew', 'casting');
     expect(existsSync(castingDir)).toBe(true);
 
     // Init should have created the three casting JSON files
@@ -135,14 +135,14 @@ describe('Init / Upgrade parity', () => {
     await runInit(TEST_ROOT);
 
     // Write sentinel values into user state files
-    const teamPath = join(TEST_ROOT, '.squad', 'team.md');
+    const teamPath = join(TEST_ROOT, '.crew', 'team.md');
     const sentinel = '<!-- USER_SENTINEL -->\n';
     if (existsSync(teamPath)) {
       await writeFile(teamPath, sentinel);
     }
 
     // Write a sentinel casting file
-    const registryPath = join(TEST_ROOT, '.squad', 'casting', 'registry.json');
+    const registryPath = join(TEST_ROOT, '.crew', 'casting', 'registry.json');
     const customRegistry = JSON.stringify({ agents: { sentinel: true } });
     if (existsSync(registryPath)) {
       await writeFile(registryPath, customRegistry);
@@ -163,14 +163,14 @@ describe('Init / Upgrade parity', () => {
     }
   });
   // -------------------------------------------------------------------------
-  // 4. Both paths create .squad/agents/
+  // 4. Both paths create .crew/agents/
   // -------------------------------------------------------------------------
-  it('both init and upgrade ensure .squad/agents/ exists', async () => {
-    // init creates .squad/agents/
+  it('both init and upgrade ensure .crew/agents/ exists', async () => {
+    // init creates .crew/agents/
     await runInit(TEST_ROOT);
-    expect(existsSync(join(TEST_ROOT, '.squad', 'agents'))).toBe(true);
+    expect(existsSync(join(TEST_ROOT, '.crew', 'agents'))).toBe(true);
 
-    // ENSURE_DIRECTORIES includes .squad/agents, so upgrade also covers it.
+    // ENSURE_DIRECTORIES includes .crew/agents, so upgrade also covers it.
     // Verify by checking that the full list of INIT_INFRASTRUCTURE_DIRS
     // is present after init + ensureDirectories.
     ensureDirectories(TEST_ROOT);

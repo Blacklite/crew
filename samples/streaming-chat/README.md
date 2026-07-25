@@ -18,14 +18,14 @@ To set up your token (for live mode):
 
 1. Install dependencies: `npm install`
 2. Choose a mode:
-   - **Demo mode** (no auth needed): `npm start` or `SQUAD_DEMO_MODE=true npm start`
+   - **Demo mode** (no auth needed): `npm start` or `CREW_DEMO_MODE=true npm start`
    - **Live mode** (requires GITHUB_TOKEN): Set your token, then `npm start`
 3. Type a message to chat with the agents
 
 ## What you'll learn
 
 - How to cast multiple agents with `CastingEngine` and create a session per agent
-- How `SquadClientWithPool` manages concurrent sessions with rate limiting
+- How `CrewClientWithPool` manages concurrent sessions with rate limiting
 - How to route messages to agents by keyword matching
 - How `StreamingPipeline` captures and displays token-by-token output in real time
 - How the `EventBus` emits and subscribes to session lifecycle events
@@ -39,7 +39,7 @@ The sample creates three agents: McManus (Backend), Kobayashi (Frontend), and Fe
 
 ```
   ╔═══════════════════════════════════════════════╗
-  ║   🎬  Squad Streaming Chat  ·  MVP Summit    ║
+  ║   🎬  Crew Streaming Chat  ·  MVP Summit    ║
   ╚═══════════════════════════════════════════════╝
 
   Cast:
@@ -80,4 +80,4 @@ Messages without keyword matches default to Backend.
 
 - Check [cost-aware-router](../cost-aware-router/README.md) to learn tier selection and budget tracking
 - See [rock-paper-scissors](../rock-paper-scissors/README.md) for advanced multi-agent competition with learning
-- Read the [Squad SDK documentation](../../README.md) for more routing and session patterns
+- Read the [Crew SDK documentation](../../README.md) for more routing and session patterns

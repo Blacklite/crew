@@ -2,7 +2,7 @@
  * Architectural Review Check — detects structural concerns in PRs.
  *
  * Checks for:
- * - Bootstrap area modifications (packages/squad-cli/src/cli/core/)
+ * - Bootstrap area modifications (packages/crew-cli/src/cli/core/)
  * - New/modified exports in package entry points
  * - Cross-package import violations (CLI ↔ SDK direct paths)
  * - Template file sync (changes in one template dir without others)
@@ -81,14 +81,14 @@ const diff = gitDiffContent();
 
 // 1. Bootstrap area modifications
 const bootstrapFiles = allChanged.filter((f) =>
-  f.startsWith('packages/squad-cli/src/cli/core/'),
+  f.startsWith('packages/crew-cli/src/cli/core/'),
 );
 if (bootstrapFiles.length > 0) {
   findings.push({
     category: 'bootstrap-area',
     severity: 'warning',
     message:
-      `${bootstrapFiles.length} file(s) in the bootstrap area (packages/squad-cli/src/cli/core/) were modified. ` +
+      `${bootstrapFiles.length} file(s) in the bootstrap area (packages/crew-cli/src/cli/core/) were modified. ` +
       'These files must maintain zero external dependencies. Review carefully.',
     files: bootstrapFiles,
   });
@@ -96,8 +96,8 @@ if (bootstrapFiles.length > 0) {
 
 // 2. Entry point export changes
 const entryPoints = [
-  'packages/squad-sdk/src/index.ts',
-  'packages/squad-cli/src/index.ts',
+  'packages/crew-sdk/src/index.ts',
+  'packages/crew-cli/src/index.ts',
 ];
 const changedEntryPoints = allChanged.filter((f) => entryPoints.includes(f));
 if (changedEntryPoints.length > 0) {
@@ -124,10 +124,10 @@ if (changedEntryPoints.length > 0) {
 
 // 3. Cross-package imports
 const cliFiles = allChanged.filter((f) =>
-  f.startsWith('packages/squad-cli/'),
+  f.startsWith('packages/crew-cli/'),
 );
 const sdkFiles = allChanged.filter((f) =>
-  f.startsWith('packages/squad-sdk/'),
+  f.startsWith('packages/crew-sdk/'),
 );
 
 const crossImportViolations = [];
@@ -137,8 +137,8 @@ for (const file of cliFiles) {
   const lines = content.split('\n');
   for (let i = 0; i < lines.length; i++) {
     if (
-      /from\s+['"].*squad-sdk\/src\//.test(lines[i]) ||
-      /require\(['"].*squad-sdk\/src\//.test(lines[i])
+      /from\s+['"].*crew-sdk\/src\//.test(lines[i]) ||
+      /require\(['"].*crew-sdk\/src\//.test(lines[i])
     ) {
       crossImportViolations.push({ file, line: i + 1, direction: 'CLI → SDK src' });
     }
@@ -150,8 +150,8 @@ for (const file of sdkFiles) {
   const lines = content.split('\n');
   for (let i = 0; i < lines.length; i++) {
     if (
-      /from\s+['"].*squad-cli\/src\//.test(lines[i]) ||
-      /require\(['"].*squad-cli\/src\//.test(lines[i])
+      /from\s+['"].*crew-cli\/src\//.test(lines[i]) ||
+      /require\(['"].*crew-cli\/src\//.test(lines[i])
     ) {
       crossImportViolations.push({ file, line: i + 1, direction: 'SDK → CLI src' });
     }
@@ -173,8 +173,8 @@ if (crossImportViolations.length > 0) {
 // 4. Template sync check
 const TEMPLATE_DIRS = [
   'templates/',
-  '.squad-templates/',
-  'packages/squad-cli/templates/',
+  '.crew-templates/',
+  'packages/crew-cli/templates/',
   '.github/workflows/',
 ];
 const touchedTemplateDirs = TEMPLATE_DIRS.filter((dir) =>

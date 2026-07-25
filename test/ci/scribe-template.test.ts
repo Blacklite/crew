@@ -8,28 +8,28 @@
  *  - Decision inbox merge is a numbered step
  *  - Deduplication is a numbered step
  *  - A persistence-verification step is present (runtime state backend writes
- *    are verified via state tools; Scribe never commits mutable squad state)
+ *    are verified via state tools; Scribe never commits mutable crew state)
  *  - "Never speak to the user." is the final numbered step (Scribe stays invisible)
  *  - Persistence-verification step precedes the "never speak" step
  *
- * Canonical source: .squad-templates/scribe-charter.md
+ * Canonical source: .crew-templates/scribe-charter.md
  *
- * Note: The Scribe section was extracted from squad.agent.md into this
+ * Note: The Scribe section was extracted from crew.agent.md into this
  * standalone charter in PR #1035. The original test checked for
  * PRE-CHECK / GIT COMMIT section labels (bold headers), which no longer
  * exist in the new prose-based charter structure. HEALTH REPORT and the
  * archival size thresholds (20KB / 50KB) are still present and tested below.
  *
  * The runtime-state-backend migration (#1158) removed the original "git commit"
- * numbered step; mutable squad state is now persisted through `squad_state_*`
- * tools. The persistence-verification step (squad_state_health + state re-reads)
+ * numbered step; mutable crew state is now persisted through `crew_state_*`
+ * tools. The persistence-verification step (crew_state_health + state re-reads)
  * replaces the old commit step and is what we now assert.
  *
  * #1175 then renamed the step ("Verify persistence" → "Commit and verify
  * persistence") and refined the prohibition sentence: Scribe is now ALLOWED
  * to commit STATIC files (charters, team.md, skills) when state tools are
  * unavailable, but amend/reset/checkout/push-notes/switch-branches remain
- * forbidden for *mutable* squad state. Assertions below match that contract.
+ * forbidden for *mutable* crew state. Assertions below match that contract.
  */
 
 import { describe, it, expect } from 'vitest';
@@ -41,7 +41,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '../..');
 
 function readTemplate(): string {
-  return readFileSync(resolve(ROOT, '.squad-templates/scribe-charter.md'), 'utf-8');
+  return readFileSync(resolve(ROOT, '.crew-templates/scribe-charter.md'), 'utf-8');
 }
 
 /**
@@ -102,7 +102,7 @@ describe('Scribe charter — task structure and HARD GATE enforcement', () => {
   it('charter forbids Scribe from amending/pushing/branch-switching for mutable state', () => {
     // The charter's prohibition sentence in scribe-charter.md reads:
     //   "Never amend, reset, checkout, push notes, or switch branches
-    //    to persist mutable squad state."
+    //    to persist mutable crew state."
     // (Note: "commit" was intentionally removed by PR #1175 — Scribe is now
     // allowed to commit STATIC files (charters, team.md, skills) when state
     // tools are unavailable. The mutable-state prohibition retains the other
@@ -112,16 +112,16 @@ describe('Scribe charter — task structure and HARD GATE enforcement', () => {
     // wrapping or punctuation changes within the sentence.
     expect(
       content,
-      'Charter must forbid amending history to persist mutable squad state',
-    ).toMatch(/Never amend[\s\S]*mutable squad state/);
+      'Charter must forbid amending history to persist mutable crew state',
+    ).toMatch(/Never amend[\s\S]*mutable crew state/);
     expect(
       content,
-      'Charter must forbid pushing note refs for mutable squad state',
-    ).toMatch(/push notes[\s\S]*mutable squad state/);
+      'Charter must forbid pushing note refs for mutable crew state',
+    ).toMatch(/push notes[\s\S]*mutable crew state/);
     expect(
       content,
-      'Charter must forbid switching branches for mutable squad state',
-    ).toMatch(/switch branches[\s\S]*mutable squad state/);
+      'Charter must forbid switching branches for mutable crew state',
+    ).toMatch(/switch branches[\s\S]*mutable crew state/);
   });
 
   it('HARD GATE enforcement is documented in the charter', () => {

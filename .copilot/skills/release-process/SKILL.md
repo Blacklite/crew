@@ -1,6 +1,6 @@
 ---
 name: "release-process"
-description: "Step-by-step release checklist for Squad — prevents v0.8.22 and v0.9.4-style disasters"
+description: "Step-by-step release checklist for Crew — prevents v0.8.22 and v0.9.4-style disasters"
 domain: "release-management"
 confidence: "high"
 source: "team-decision"
@@ -8,11 +8,11 @@ source: "team-decision"
 
 ## Context
 
-This is the **definitive release runbook** for Squad. Born from the v0.8.22 release disaster (4-part semver mangled by npm, draft release never triggered publish, wrong NPM_TOKEN type, 6+ hours of broken `latest` dist-tag) and hardened by v0.9.4 lessons (root package.json drift, CHANGELOG validation, GITHUB_TOKEN propagation limitation — PRs #1042, #1043, #1044).
+This is the **definitive release runbook** for Crew. Born from the v0.8.22 release disaster (4-part semver mangled by npm, draft release never triggered publish, wrong NPM_TOKEN type, 6+ hours of broken `latest` dist-tag) and hardened by v0.9.4 lessons (root package.json drift, CHANGELOG validation, GITHUB_TOKEN propagation limitation — PRs #1042, #1043, #1044).
 
-See also: `.squad/skills/release-process/SKILL.md` for the team-level skill with full incident history.
+See also: `.crew/skills/release-process/SKILL.md` for the team-level skill with full incident history.
 
-**Rule:** No agent releases Squad without following this checklist. No exceptions. No improvisation.
+**Rule:** No agent releases Crew without following this checklist. No exceptions. No improvisation.
 
 ---
 
@@ -97,11 +97,11 @@ $env:SKIP_BUILD_BUMP = "1"
 
 ### 5. Root package.json Version Sync (v0.9.4 Lesson — PR #1043)
 
-**Rule:** `squad-release.yml` reads version from ROOT `package.json` (lines 31-35). If root is behind sub-packages (e.g., 0.9.1 while sub-packages are 0.9.4), the release workflow FAILS.
+**Rule:** `crew-release.yml` reads version from ROOT `package.json` (lines 31-35). If root is behind sub-packages (e.g., 0.9.1 while sub-packages are 0.9.4), the release workflow FAILS.
 
 ```bash
 # Verify all 3 package.json files match
-grep '"version"' package.json packages/squad-sdk/package.json packages/squad-cli/package.json
+grep '"version"' package.json packages/crew-sdk/package.json packages/crew-cli/package.json
 # All 3 MUST show the same version
 
 # Fix if mismatched:
@@ -112,7 +112,7 @@ npm version $VERSION --workspaces --include-workspace-root --no-git-tag-version
 
 ### 6. CHANGELOG.md Version Entry (v0.9.4 Lesson — PR #1042)
 
-**Rule:** `squad-release.yml` validates that `CHANGELOG.md` contains `## [$VERSION]`. An `[Unreleased]` section alone is NOT sufficient.
+**Rule:** `crew-release.yml` validates that `CHANGELOG.md` contains `## [$VERSION]`. An `[Unreleased]` section alone is NOT sufficient.
 
 ```bash
 # Check CHANGELOG has the version entry
@@ -145,7 +145,7 @@ node -p "require('semver').valid('$VERSION')"
 npm version $VERSION --workspaces --include-workspace-root --no-git-tag-version
 
 # Verify all 3 match
-grep '"version"' package.json packages/squad-sdk/package.json packages/squad-cli/package.json
+grep '"version"' package.json packages/crew-sdk/package.json packages/crew-cli/package.json
 # All 3 should show: "version": "0.8.22"
 ```
 
@@ -155,7 +155,7 @@ grep '"version"' package.json packages/squad-sdk/package.json packages/squad-cli
 
 ```bash
 # Commit version bump
-git add package.json packages/squad-sdk/package.json packages/squad-cli/package.json
+git add package.json packages/crew-sdk/package.json packages/crew-cli/package.json
 git commit -m "chore: bump version to $VERSION
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
@@ -208,9 +208,9 @@ gh run view --log
 ```
 
 **Expected flow:**
-1. `publish-sdk` job runs → publishes `@bradygaster/squad-sdk`
+1. `publish-sdk` job runs → publishes `@blacklite/crew-sdk`
 2. Verify step runs with retry loop (up to 5 attempts, 15s interval) to confirm SDK on npm registry
-3. `publish-cli` job runs → publishes `@bradygaster/squad-cli`
+3. `publish-cli` job runs → publishes `@blacklite/crew-cli`
 4. Verify step runs with retry loop to confirm CLI on npm registry
 
 **If workflow fails:** Check the logs. Common issues:
@@ -226,17 +226,17 @@ Manually verify both packages are on npm with correct `latest` dist-tag.
 
 ```bash
 # Check SDK
-npm view @bradygaster/squad-sdk version
+npm view @blacklite/crew-sdk version
 # Output: 0.8.22
 
-npm dist-tag ls @bradygaster/squad-sdk
+npm dist-tag ls @blacklite/crew-sdk
 # Output should show: latest: 0.8.22
 
 # Check CLI
-npm view @bradygaster/squad-cli version
+npm view @blacklite/crew-cli version
 # Output: 0.8.22
 
-npm dist-tag ls @bradygaster/squad-cli
+npm dist-tag ls @blacklite/crew-cli
 # Output should show: latest: 0.8.22
 ```
 
@@ -250,22 +250,22 @@ Verify packages can be installed from npm (real-world smoke test).
 
 ```bash
 # Create temp directory
-mkdir /tmp/squad-release-test && cd /tmp/squad-release-test
+mkdir /tmp/crew-release-test && cd /tmp/crew-release-test
 
 # Test SDK installation
 npm init -y
-npm install @bradygaster/squad-sdk
-node -p "require('@bradygaster/squad-sdk/package.json').version"
+npm install @blacklite/crew-sdk
+node -p "require('@blacklite/crew-sdk/package.json').version"
 # Output: 0.8.22
 
 # Test CLI installation
-npm install -g @bradygaster/squad-cli
-squad --version
+npm install -g @blacklite/crew-cli
+crew --version
 # Output: 0.8.22
 
 # Cleanup
 cd -
-rm -rf /tmp/squad-release-test
+rm -rf /tmp/crew-release-test
 ```
 
 **If installation fails:** npm registry issue or package metadata corruption. DO NOT announce release until this works.
@@ -292,7 +292,7 @@ node -p "require('semver').valid('$NEXT_VERSION')"
 npm version $NEXT_VERSION --workspaces --include-workspace-root --no-git-tag-version
 
 # Commit
-git add package.json packages/squad-sdk/package.json packages/squad-cli/package.json
+git add package.json packages/crew-sdk/package.json packages/crew-cli/package.json
 git commit -m "chore: bump dev to $NEXT_VERSION
 
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
@@ -311,7 +311,7 @@ If `publish.yml` workflow fails or needs to be bypassed, use `workflow_dispatch`
 
 ```bash
 # Trigger manual publish — ALWAYS use --ref main
-gh workflow run squad-npm-publish.yml --ref main -f version="0.8.22"
+gh workflow run crew-npm-publish.yml --ref main -f version="0.8.22"
 
 # Monitor the run
 gh run watch
@@ -321,16 +321,16 @@ gh run watch
 
 ### GITHUB_TOKEN Event Propagation Limitation (v0.9.4 — CRITICAL)
 
-When `squad-release.yml` creates a GitHub Release using the default `GITHUB_TOKEN`, the `release: published` event does **NOT** trigger `squad-npm-publish.yml`. This is a GitHub security feature to prevent infinite workflow loops.
+When `crew-release.yml` creates a GitHub Release using the default `GITHUB_TOKEN`, the `release: published` event does **NOT** trigger `crew-npm-publish.yml`. This is a GitHub security feature to prevent infinite workflow loops.
 
-**After the release workflow succeeds**, check if `squad-npm-publish.yml` started automatically. If it didn't:
+**After the release workflow succeeds**, check if `crew-npm-publish.yml` started automatically. If it didn't:
 ```bash
-gh workflow run squad-npm-publish.yml --ref main -f version=X.Y.Z
+gh workflow run crew-npm-publish.yml --ref main -f version=X.Y.Z
 ```
 
 IMPORTANT: Use `--ref main` — the repo default branch is `dev`, and the workflow must run against `main` where the release tag and artifacts exist.
 
-**Permanent fix (TODO):** Use a PAT or GitHub App token in `squad-release.yml` instead of `GITHUB_TOKEN`.
+**Permanent fix (TODO):** Use a PAT or GitHub App token in `crew-release.yml` instead of `GITHUB_TOKEN`.
 
 ---
 
@@ -344,8 +344,8 @@ If a release is broken and needs to be rolled back:
 
 ```bash
 # Unpublish (requires npm owner privileges)
-npm unpublish @bradygaster/squad-sdk@0.8.22
-npm unpublish @bradygaster/squad-cli@0.8.22
+npm unpublish @blacklite/crew-sdk@0.8.22
+npm unpublish @blacklite/crew-cli@0.8.22
 ```
 
 ### 2. Deprecate on npm (Preferred)
@@ -354,8 +354,8 @@ npm unpublish @bradygaster/squad-cli@0.8.22
 
 ```bash
 # Deprecate broken version
-npm deprecate @bradygaster/squad-sdk@0.8.22 "Broken release, use 0.8.22.1 instead"
-npm deprecate @bradygaster/squad-cli@0.8.22 "Broken release, use 0.8.22.1 instead"
+npm deprecate @blacklite/crew-sdk@0.8.22 "Broken release, use 0.8.22.1 instead"
+npm deprecate @blacklite/crew-cli@0.8.22 "Broken release, use 0.8.22.1 instead"
 
 # Publish hotfix version
 # (Follow this runbook with version 0.8.22.1)
@@ -419,26 +419,26 @@ git push origin main
 
 ### Root package.json Version Drift (v0.9.4 — PR #1043)
 
-**Symptom:** `squad-release.yml` fails with "Version $VERSION not found in CHANGELOG.md" even though CHANGELOG looks correct.  
+**Symptom:** `crew-release.yml` fails with "Version $VERSION not found in CHANGELOG.md" even though CHANGELOG looks correct.  
 **Root cause:** Root `package.json` version is behind sub-packages. The workflow reads version from root, not from workspace packages.  
 **Fix:** Run `npm version $VERSION --workspaces --include-workspace-root --no-git-tag-version` to sync all 3 package.json files.
 
 ### CHANGELOG Missing Version Section (v0.9.4 — PR #1042)
 
-**Symptom:** `squad-release.yml` fails with "Version $VERSION not found in CHANGELOG.md".  
+**Symptom:** `crew-release.yml` fails with "Version $VERSION not found in CHANGELOG.md".  
 **Root cause:** CHANGELOG.md still has `[Unreleased]` but no `## [$VERSION]` section.  
 **Fix:** Convert `[Unreleased]` to `[$VERSION] - YYYY-MM-DD` and add a fresh `[Unreleased]` above it.
 
 ### Publish Workflow Not Triggered After Release (v0.9.4 — GITHUB_TOKEN)
 
-**Symptom:** `squad-release.yml` succeeds, creates tag + GitHub Release, but `squad-npm-publish.yml` never starts.  
+**Symptom:** `crew-release.yml` succeeds, creates tag + GitHub Release, but `crew-npm-publish.yml` never starts.  
 **Root cause:** `GITHUB_TOKEN`-created events don't trigger other workflows (GitHub security feature).  
-**Fix:** Manually trigger: `gh workflow run squad-npm-publish.yml --ref main -f version=X.Y.Z`
+**Fix:** Manually trigger: `gh workflow run crew-npm-publish.yml --ref main -f version=X.Y.Z`
 
 ### Lockfile Integrity Check Rejects Workspace Packages (v0.9.4 — PR #1044)
 
-**Symptom:** `squad-npm-publish.yml` lockfile stability check fails on workspace packages.  
-**Root cause:** Workspace packages resolve to bare relative paths (`packages/squad-sdk`), not `file:` URLs. The check tried to validate integrity hashes on non-registry packages.  
+**Symptom:** `crew-npm-publish.yml` lockfile stability check fails on workspace packages.  
+**Root cause:** Workspace packages resolve to bare relative paths (`packages/crew-sdk`), not `file:` URLs. The check tried to validate integrity hashes on non-registry packages.  
 **Fix:** Filter lockfile integrity check to only validate packages resolved from npm registry (`startsWith('https://')`).
 
 ### Prebuild Bump Breaks Workspace Linking (v0.9.4)
@@ -476,16 +476,16 @@ Before creating GitHub Release:
 After GitHub Release:
 
 - [ ] Release is published (NOT draft): `gh release view "vVERSION"` output doesn't contain "(draft)"
-- [ ] Workflow is running: `gh run list --workflow=squad-npm-publish.yml --limit 1` shows "in_progress"
-- [ ] **If workflow didn't trigger** (GITHUB_TOKEN limitation): `gh workflow run squad-npm-publish.yml --ref main -f version=X.Y.Z`
+- [ ] Workflow is running: `gh run list --workflow=crew-npm-publish.yml --limit 1` shows "in_progress"
+- [ ] **If workflow didn't trigger** (GITHUB_TOKEN limitation): `gh workflow run crew-npm-publish.yml --ref main -f version=X.Y.Z`
 
 After workflow completes:
 
 - [ ] Both jobs succeeded: Workflow shows green checkmarks
-- [ ] SDK on npm: `npm view @bradygaster/squad-sdk version` returns correct version
-- [ ] CLI on npm: `npm view @bradygaster/squad-cli version` returns correct version
-- [ ] `latest` tags correct: `npm dist-tag ls @bradygaster/squad-sdk` shows `latest: VERSION`
-- [ ] Packages install: `npm install @bradygaster/squad-cli` succeeds
+- [ ] SDK on npm: `npm view @blacklite/crew-sdk version` returns correct version
+- [ ] CLI on npm: `npm view @blacklite/crew-cli version` returns correct version
+- [ ] `latest` tags correct: `npm dist-tag ls @blacklite/crew-sdk` shows `latest: VERSION`
+- [ ] Packages install: `npm install @blacklite/crew-cli` succeeds
 
 After dev sync:
 
@@ -495,7 +495,7 @@ After dev sync:
 
 ## Post-Mortem Reference
 
-This skill was created after the v0.8.22 release disaster and updated after v0.9.4. Full retrospective: `.squad/decisions/inbox/keaton-v0822-retrospective.md`
+This skill was created after the v0.8.22 release disaster and updated after v0.9.4. Full retrospective: `.crew/decisions/inbox/keaton-v0822-retrospective.md`
 
 **Key learnings (v0.8.22):**
 1. No release without a runbook = improvisation = disaster
@@ -505,7 +505,7 @@ This skill was created after the v0.8.22 release disaster and updated after v0.9
 5. Retry logic is essential — npm propagation takes time
 
 **Key learnings (v0.9.4 — PRs #1042, #1043, #1044):**
-6. Root package.json MUST match sub-packages — squad-release.yml reads from root
+6. Root package.json MUST match sub-packages — crew-release.yml reads from root
 7. CHANGELOG.md must have `## [$VERSION]` section — `[Unreleased]` is not enough
 8. GITHUB_TOKEN events don't trigger downstream workflows — manual dispatch required
 9. Lockfile integrity checks must filter out workspace packages (not from registry)
@@ -513,10 +513,10 @@ This skill was created after the v0.8.22 release disaster and updated after v0.9
 
 **The full promotion chain (v0.9.4 documented):**
 ```
-dev → preview → main (via squad-promote.yml)
-main push → squad-release.yml validates CHANGELOG, creates tag + GitHub Release
-release published → squad-npm-publish.yml (⚠️ may be BLOCKED by GITHUB_TOKEN limitation)
-manual workaround → gh workflow run squad-npm-publish.yml --ref main -f version=X.Y.Z
+dev → preview → main (via crew-promote.yml)
+main push → crew-release.yml validates CHANGELOG, creates tag + GitHub Release
+release published → crew-npm-publish.yml (⚠️ may be BLOCKED by GITHUB_TOKEN limitation)
+manual workaround → gh workflow run crew-npm-publish.yml --ref main -f version=X.Y.Z
 ```
 
 **Never again.**
@@ -543,7 +543,7 @@ npm run build
 
 ## Related
 
-- Team-level skill: `.squad/skills/release-process/SKILL.md`
+- Team-level skill: `.crew/skills/release-process/SKILL.md`
 - v0.9.4 fixes: PR #1042 (CHANGELOG), PR #1043 (root package.json), PR #1044 (lockfile integrity)
-- v0.8.22 retrospective: `.squad/decisions/inbox/keaton-v0822-retrospective.md`
+- v0.8.22 retrospective: `.crew/decisions/inbox/keaton-v0822-retrospective.md`
 - Playbook: `PUBLISH-README.md` (repo root)

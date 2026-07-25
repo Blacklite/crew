@@ -1,9 +1,9 @@
 /**
  * CLI Help — Per-Command --help Tests (Bug #1201)
  *
- * Previously `squad <cmd> --help` / `-h` was silently ignored and the
- * command would execute for real (e.g. `squad init --help` scaffolded
- * files; `squad triage --help` started a polling loop).
+ * Previously `crew <cmd> --help` / `-h` was silently ignored and the
+ * command would execute for real (e.g. `crew init --help` scaffolded
+ * files; `crew triage --help` started a polling loop).
  *
  * These tests pin down the new behavior:
  *   1) `printCommandHelp(cmd, version)` returns true and prints when the
@@ -12,7 +12,7 @@
  *      passed after a known subcommand. Verified by spawning the built
  *      CLI in an empty temp dir and asserting:
  *        - exit code 0
- *        - no .squad/ or .github/ scaffolded by init
+ *        - no .crew/ or .github/ scaffolded by init
  *        - help banner contains the expected command name
  */
 
@@ -27,7 +27,7 @@ import {
   printGenericCommandHelp,
   commandsWithHelp,
   normalizeCommandAlias,
-} from '../../packages/squad-cli/src/cli/core/command-help.js';
+} from '../../packages/crew-cli/src/cli/core/command-help.js';
 
 const execFileAsync = promisify(execFile);
 
@@ -55,7 +55,7 @@ describe('printCommandHelp', () => {
     const result = printCommandHelp('init', '9.9.9-test');
     expect(result).toBe(true);
     const blob = logs.join('\n');
-    expect(blob).toContain('squad init');
+    expect(blob).toContain('crew init');
     expect(blob).toContain('9.9.9-test');
     expect(blob).toContain('Usage:');
   });
@@ -66,9 +66,9 @@ describe('printCommandHelp', () => {
     expect(logs).toEqual([]);
   });
 
-  it('normalizes subsquads aliases ("streams", "workstreams") to the canonical help block', () => {
+  it('normalizes subcrews aliases ("streams", "workstreams") to the canonical help block', () => {
     // Regression guard for PR #1202 review nit: cli-entry.ts routes
-    // `squad streams` and `squad workstreams` to the subsquads command,
+    // `crew streams` and `crew workstreams` to the subcrews command,
     // but the help registry is keyed by canonical name only. Without
     // alias normalization both `--help` invocations would fall through
     // to the generic fallback.
@@ -77,15 +77,15 @@ describe('printCommandHelp', () => {
       const result = printCommandHelp(alias, '9.9.9-test');
       expect(result, `printCommandHelp('${alias}') should resolve via alias`).toBe(true);
       const blob = logs.join('\n');
-      expect(blob, `'${alias}' --help should print subsquads block`).toContain('squad subsquads');
+      expect(blob, `'${alias}' --help should print subcrews block`).toContain('crew subcrews');
       expect(blob).toContain('9.9.9-test');
     }
   });
 
   it('normalizeCommandAlias maps known aliases and leaves others untouched', () => {
-    expect(normalizeCommandAlias('streams')).toBe('subsquads');
-    expect(normalizeCommandAlias('workstreams')).toBe('subsquads');
-    expect(normalizeCommandAlias('subsquads')).toBe('subsquads');
+    expect(normalizeCommandAlias('streams')).toBe('subcrews');
+    expect(normalizeCommandAlias('workstreams')).toBe('subcrews');
+    expect(normalizeCommandAlias('subcrews')).toBe('subcrews');
     expect(normalizeCommandAlias('init')).toBe('init');
     expect(normalizeCommandAlias('made-up')).toBe('made-up');
   });
@@ -131,7 +131,7 @@ describe('printCommandHelp', () => {
       'start',
       'state-mcp',
       'status',
-      'subsquads',
+      'subcrews',
       'triage',
       'update-check',
       'upgrade',
@@ -160,11 +160,11 @@ describe('printGenericCommandHelp', () => {
     logs.length = 0;
   });
 
-  it('mentions the command name and points at squad help', () => {
+  it('mentions the command name and points at crew help', () => {
     printGenericCommandHelp('made-up-cmd');
     const blob = logs.join('\n');
     expect(blob).toContain('made-up-cmd');
-    expect(blob).toContain('squad help');
+    expect(blob).toContain('crew help');
   });
 });
 
@@ -172,12 +172,12 @@ describe('printGenericCommandHelp', () => {
 
 const cliEntry = resolve(
   process.cwd(),
-  'packages/squad-cli/dist/cli-entry.js',
+  'packages/crew-cli/dist/cli-entry.js',
 );
 
 const cliBuilt = existsSync(cliEntry);
 
-const runSquad = async (args: string[], cwd: string) => {
+const runCrew = async (args: string[], cwd: string) => {
   return execFileAsync('node', [cliEntry, ...args], {
     cwd,
     env: { ...process.env, NODE_NO_WARNINGS: '1' },
@@ -186,11 +186,11 @@ const runSquad = async (args: string[], cwd: string) => {
   });
 };
 
-describe.skipIf(!cliBuilt)('squad <cmd> --help end-to-end', () => {
+describe.skipIf(!cliBuilt)('crew <cmd> --help end-to-end', () => {
   let tempDir = '';
 
   beforeAll(() => {
-    tempDir = mkdtempSync(join(tmpdir(), 'squad-help-bug-'));
+    tempDir = mkdtempSync(join(tmpdir(), 'crew-help-bug-'));
   });
 
   afterAll(() => {
@@ -198,76 +198,76 @@ describe.skipIf(!cliBuilt)('squad <cmd> --help end-to-end', () => {
   });
 
   it('init --help prints help and does NOT scaffold files', async () => {
-    const { stdout, stderr } = await runSquad(['init', '--help'], tempDir);
+    const { stdout, stderr } = await runCrew(['init', '--help'], tempDir);
     const out = stdout + stderr;
-    expect(out).toContain('squad init');
+    expect(out).toContain('crew init');
     expect(out).toContain('Usage:');
-    // The smoking gun: previously this call wrote .squad/, .github/, etc.
-    expect(existsSync(join(tempDir, '.squad'))).toBe(false);
+    // The smoking gun: previously this call wrote .crew/, .github/, etc.
+    expect(existsSync(join(tempDir, '.crew'))).toBe(false);
     expect(existsSync(join(tempDir, '.github'))).toBe(false);
     expect(existsSync(join(tempDir, '.gitignore'))).toBe(false);
   });
 
   it('init -h short flag also prints help and does NOT scaffold', async () => {
-    const { stdout, stderr } = await runSquad(['init', '-h'], tempDir);
+    const { stdout, stderr } = await runCrew(['init', '-h'], tempDir);
     const out = stdout + stderr;
-    expect(out).toContain('squad init');
-    expect(existsSync(join(tempDir, '.squad'))).toBe(false);
+    expect(out).toContain('crew init');
+    expect(existsSync(join(tempDir, '.crew'))).toBe(false);
   });
 
   it('triage --help prints help and does NOT start a polling loop', async () => {
     // Previously this would hang on a 10-minute polling loop. The timeout
-    // on runSquad is 20s — if help isn't intercepted, this assertion fails
+    // on runCrew is 20s — if help isn't intercepted, this assertion fails
     // with ETIMEDOUT before the body runs.
-    const { stdout, stderr } = await runSquad(['triage', '--help'], tempDir);
+    const { stdout, stderr } = await runCrew(['triage', '--help'], tempDir);
     const out = stdout + stderr;
-    expect(out).toContain('squad triage');
+    expect(out).toContain('crew triage');
     expect(out).toContain('Usage:');
     expect(out).toContain('--execute');
   });
 
   it('watch --help prints help (alias of triage)', async () => {
-    const { stdout, stderr } = await runSquad(['watch', '--help'], tempDir);
+    const { stdout, stderr } = await runCrew(['watch', '--help'], tempDir);
     const out = stdout + stderr;
-    expect(out).toContain('squad watch');
+    expect(out).toContain('crew watch');
     expect(out).toContain('Usage:');
   });
 
   it('doctor --help prints help instead of running the doctor', async () => {
-    const { stdout, stderr } = await runSquad(['doctor', '--help'], tempDir);
+    const { stdout, stderr } = await runCrew(['doctor', '--help'], tempDir);
     const out = stdout + stderr;
-    expect(out).toContain('squad doctor');
+    expect(out).toContain('crew doctor');
     expect(out).toContain('Usage:');
     // The real doctor prints this banner; help must NOT.
-    expect(out).not.toContain('🩺 Squad Doctor');
+    expect(out).not.toContain('🩺 Crew Doctor');
   });
 
-  it('status --help prints help and does NOT print active squad path', async () => {
-    const { stdout, stderr } = await runSquad(['status', '--help'], tempDir);
+  it('status --help prints help and does NOT print active crew path', async () => {
+    const { stdout, stderr } = await runCrew(['status', '--help'], tempDir);
     const out = stdout + stderr;
-    expect(out).toContain('squad status');
+    expect(out).toContain('crew status');
     expect(out).toContain('Usage:');
-    expect(out).not.toMatch(/Active squad:/);
+    expect(out).not.toMatch(/Active crew:/);
   });
 
   it('discover --help prints discover-specific help (not the generic fallback)', async () => {
-    const { stdout, stderr } = await runSquad(['discover', '--help'], tempDir);
+    const { stdout, stderr } = await runCrew(['discover', '--help'], tempDir);
     const out = stdout + stderr;
     // discover IS registered, so verify it prints command-specific help.
-    expect(out).toContain('squad discover');
+    expect(out).toContain('crew discover');
   });
 
   it('falls back to a generic help message for unknown commands', async () => {
     // Use a name guaranteed not to be in COMMAND_HELP nor routed by
     // cli-entry.ts. The early --help intercept (cli-entry.ts ~L290) must
     // still kick in and dispatch to printGenericCommandHelp, which
-    // mentions the cmd verbatim and points users at `squad help`.
+    // mentions the cmd verbatim and points users at `crew help`.
     const bogus = 'this-command-does-not-exist-xyz';
-    const { stdout, stderr } = await runSquad([bogus, '--help'], tempDir);
+    const { stdout, stderr } = await runCrew([bogus, '--help'], tempDir);
     const out = stdout + stderr;
     expect(out).toContain(bogus);
-    expect(out).toContain('squad help');
+    expect(out).toContain('crew help');
     // Ensure no scaffolding / side effects from an unknown command.
-    expect(existsSync(join(tempDir, '.squad'))).toBe(false);
+    expect(existsSync(join(tempDir, '.crew'))).toBe(false);
   });
 });

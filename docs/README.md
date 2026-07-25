@@ -1,6 +1,6 @@
-# Squad Docs
+# Crew Docs
 
-The documentation site for Squad, built with [Astro](https://astro.build/), [Tailwind CSS](https://tailwindcss.com/), and [Pagefind](https://pagefind.app/) for search.
+The documentation site for Crew, built with [Astro](https://astro.build/), [Tailwind CSS](https://tailwindcss.com/), and [Pagefind](https://pagefind.app/) for search.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ All commands are run from the `docs/` directory, or from the repo root using the
 npm run dev
 ```
 
-Starts a local dev server at `http://localhost:4321/squad/` with hot module reloading. Changes to markdown content, layouts, and components are reflected immediately.
+Starts a local dev server at `http://localhost:4321/crew/` with hot module reloading. Changes to markdown content, layouts, and components are reflected immediately.
 
 > **Note:** Search does not work in dev mode. Pagefind indexes are only generated during `build`, so the search modal will not return results. Use `build` + `preview` to test search.
 

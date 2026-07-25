@@ -19,12 +19,12 @@ import {
   type ReleaseArtifact,
   type ReleaseValidationError,
   type ReleaseChecklistItem,
-} from '@bradygaster/squad-sdk/build';
-import type { CommitInfo } from '@bradygaster/squad-sdk/build';
+} from '@blacklite/crew-sdk/build';
+import type { CommitInfo } from '@blacklite/crew-sdk/build';
 
 // ─── Helpers ────────────────────────────────────────────────────────────
 
-const FIXTURE_DIR = join(tmpdir(), 'squad-release-test-' + Date.now());
+const FIXTURE_DIR = join(tmpdir(), 'crew-release-test-' + Date.now());
 
 function makeConfig(overrides?: Partial<ReleaseConfig>): ReleaseConfig {
   return {
@@ -49,8 +49,8 @@ function makeManifest(overrides?: Partial<ReleaseManifest>): ReleaseManifest {
 
 function makeArtifact(overrides?: Partial<ReleaseArtifact>): ReleaseArtifact {
   return {
-    name: 'squad.js',
-    path: '/dist/squad.js',
+    name: 'crew.js',
+    path: '/dist/crew.js',
     size: 1024,
     sha256: 'a'.repeat(64),
     ...overrides,
@@ -262,7 +262,7 @@ describe('generateReleaseNotes', () => {
     const manifest = makeManifest({ artifacts: [makeArtifact()] });
     const notes = generateReleaseNotes(manifest, []);
     expect(notes).toContain('Artifacts');
-    expect(notes).toContain('squad.js');
+    expect(notes).toContain('crew.js');
     expect(notes).toContain('SHA-256');
   });
 

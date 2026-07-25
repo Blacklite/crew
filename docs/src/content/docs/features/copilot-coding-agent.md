@@ -1,15 +1,15 @@
 # Copilot Coding Agent (@copilot)
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-Add the GitHub Copilot coding agent to your Squad as an autonomous team member. It picks up issues, creates branches, and opens PRs — all without a Copilot chat session.
+Add the GitHub Copilot coding agent to your Crew as an autonomous team member. It picks up issues, creates branches, and opens PRs — all without a Copilot chat session.
 
 ---
 
 ## Prerequisites
 
-Before enabling @copilot on your Squad, ensure:
+Before enabling @copilot on your Crew, ensure:
 
 1. **Copilot coding agent is enabled** on the repository (Settings → Copilot → Coding agent)
 2. **`copilot-setup-steps.yml`** exists in `.github/` (defines the agent's environment)
@@ -20,8 +20,8 @@ Before enabling @copilot on your Squad, ensure:
 ## Quick Start
 
 ```bash
-# 1. Add @copilot to your squad with auto-assign
-squad copilot --auto-assign
+# 1. Add @copilot to your crew with auto-assign
+crew copilot --auto-assign
 
 # 2. Create a classic PAT for auto-assignment (see below)
 #    https://github.com/settings/tokens/new → check "repo" scope
@@ -30,10 +30,10 @@ squad copilot --auto-assign
 gh secret set COPILOT_ASSIGN_TOKEN
 
 # 4. Commit and push
-git add .github/ .squad/ && git commit -m "feat: add copilot to squad" && git push
+git add .github/ .crew/ && git commit -m "feat: add copilot to crew" && git push
 
-# 5. Test — label any issue with squad:copilot
-gh issue edit <number> --add-label "squad:copilot"
+# 5. Test — label any issue with crew:copilot
+gh issue edit <number> --add-label "crew:copilot"
 ```
 
 > **Why can't I use `gh issue edit --add-assignee "@copilot"`?** Bot accounts cannot be assigned via the GitHub CLI the same way as human users. Use label-based assignment instead. See [FAQ: Why doesn't gh issue edit --add-assignee "@copilot" work?](../guide/faq.md#why-doesnt-gh-issue-edit---add-assignee-copilot-work) for details.
@@ -45,8 +45,8 @@ gh issue edit <number> --add-label "squad:copilot"
 ### In conversation (recommended)
 
 Say something like:
-- **"I want to add copilot to the squad"**
-- **"cast copilot to the squad"**
+- **"I want to add copilot to the crew"**
+- **"cast copilot to the crew"**
 - **"add team member copilot"**
 
 The coordinator will add @copilot to the roster and ask about auto-assign.
@@ -55,31 +55,31 @@ The coordinator will add @copilot to the roster and ask about auto-assign.
 
 ### During team setup (new projects)
 
-Squad asks if you want to include the coding agent during `init`. Say **yes** and it's added to the roster with a default capability profile.
+Crew asks if you want to include the coding agent during `init`. Say **yes** and it's added to the roster with a default capability profile.
 
 ### Via CLI (fallback)
 
 ```bash
 # Add @copilot to the team
-squad copilot
+crew copilot
 
 # Add with auto-assign enabled
-squad copilot --auto-assign
+crew copilot --auto-assign
 
 # Remove from the team
-squad copilot --off
+crew copilot --off
 ```
 
 ---
 
 ## COPILOT_ASSIGN_TOKEN (required for auto-assign)
 
-The `squad-issue-assign` workflow needs a **classic Personal Access Token** to assign `copilot-swe-agent[bot]` to issues. The default `GITHUB_TOKEN` cannot do this.
+The `crew-issue-assign` workflow needs a **classic Personal Access Token** to assign `copilot-swe-agent[bot]` to issues. The default `GITHUB_TOKEN` cannot do this.
 
 ### Create the token
 
 1. Go to https://github.com/settings/tokens/new
-2. **Note:** `squad-copilot-assign`
+2. **Note:** `crew-copilot-assign`
 3. **Expiration:** 90 days (or your preference)
 4. **Scopes:** check **`repo`** (full control of private repositories)
 5. Click **Generate token**
@@ -103,7 +103,7 @@ gh secret set COPILOT_ASSIGN_TOKEN --repo owner/repo
 | Charter | ✅ | ❌ | ❌ (uses `copilot-instructions.md`) |
 | Works in session | ✅ | ❌ | ❌ (asynchronous via issue assignment) |
 | Spawned by coordinator | ✅ | ❌ | ❌ |
-| Creates PRs | Via session commands | Outside Squad | Autonomously |
+| Creates PRs | Via session commands | Outside Crew | Autonomously |
 
 ---
 
@@ -115,7 +115,7 @@ The capability profile in `team.md` defines what @copilot should and shouldn't h
 |------|---------|----------|
 | 🟢 **Good fit** | Route automatically | Bug fixes, test coverage, lint fixes, dependency updates, small features, docs |
 | 🟡 **Needs review** | Route to @copilot but flag for PR review | Medium features with specs, refactoring with tests, API additions |
-| 🔴 **Not suitable** | Route to a squad member instead | Architecture, multi-system design, security-critical, ambiguous requirements |
+| 🔴 **Not suitable** | Route to a crew member instead | Architecture, multi-system design, security-critical, ambiguous requirements |
 
 The profile is editable. The Lead can suggest updates based on experience:
 
@@ -128,7 +128,7 @@ The profile is editable. The Lead can suggest updates based on experience:
 
 ## Auto-Assign Flow
 
-When the `squad:copilot` label is added to an issue:
+When the `crew:copilot` label is added to an issue:
 
 1. **Step 1** — Workflow posts a routing comment (uses `GITHUB_TOKEN`)
 2. **Step 2** — Workflow assigns `copilot-swe-agent[bot]` to the issue (uses `COPILOT_ASSIGN_TOKEN`)
@@ -143,8 +143,8 @@ The workflow automatically detects the repo's default branch (`main`, `master`, 
 The Lead evaluates every issue against @copilot's capability profile during triage:
 
 1. **Good fit?** → Routes to @copilot with reasoning
-2. **Needs review?** → Routes to @copilot, flags for squad member PR review
-3. **Not suitable?** → Routes to the right squad member, explains why not @copilot
+2. **Needs review?** → Routes to @copilot, flags for crew member PR review
+3. **Not suitable?** → Routes to the right crew member, explains why not @copilot
 
 The Lead can also suggest reassignment in either direction:
 
@@ -157,27 +157,27 @@ The Lead can also suggest reassignment in either direction:
 
 ## Labels
 
-When @copilot is on the team, the `sync-squad-labels` workflow creates:
+When @copilot is on the team, the `sync-crew-labels` workflow creates:
 
 | Label | Color | Purpose |
 |-------|-------|---------|
-| `squad:copilot` | 🟢 Green | Assigned to @copilot for autonomous work |
+| `crew:copilot` | 🟢 Green | Assigned to @copilot for autonomous work |
 
-This works alongside the existing `squad` (triage) and `squad:{member}` labels.
+This works alongside the existing `crew` (triage) and `crew:{member}` labels.
 
 ---
 
 ## copilot-instructions.md
 
-The `.github/copilot-instructions.md` file gives the coding agent context about your Squad when it works autonomously. It tells @copilot to:
+The `.github/copilot-instructions.md` file gives the coding agent context about your Crew when it works autonomously. It tells @copilot to:
 
 - Read `team.md` for roster and capability profile
 - Read `routing.md` for work routing rules
 - Check its capability profile before starting (and request reassignment if the issue doesn't match)
-- Follow the `squad/{issue}-{slug}` branch naming convention
+- Follow the `crew/{issue}-{slug}` branch naming convention
 - Write decisions to the inbox for the Scribe to merge
 
-This file is **upgraded automatically** when you run `squad upgrade` and `@copilot` is on your team — even if Squad is already up to date. If @copilot is not enabled, the file is left untouched.
+This file is **upgraded automatically** when you run `crew upgrade` and `@copilot` is on your team — even if Crew is already up to date. If @copilot is not enabled, the file is left untouched.
 
 ---
 
@@ -185,13 +185,13 @@ This file is **upgraded automatically** when you run `squad upgrade` and `@copil
 
 - Start conservative with the capability profile and expand as you see what @copilot handles well.
 - Use auto-assign for repos where you want fully autonomous issue processing.
-- The coding agent works great alongside [issue-driven development](../scenarios/issue-driven-dev.md) — label issues `squad` and the Lead + @copilot handle the rest.
+- The coding agent works great alongside [issue-driven development](../scenarios/issue-driven-dev.md) — label issues `crew` and the Lead + @copilot handle the rest.
 - @copilot's PRs go through normal review — treat them like any team member's work.
 
 ## Sample Prompts
 
 ```
-add copilot to the squad with auto-assign enabled
+add copilot to the crew with auto-assign enabled
 ```
 
 Adds @copilot to the roster and configures automatic issue assignment.
@@ -206,7 +206,7 @@ Shows which task types are marked as good fit, needs review, or not suitable for
 reassign issue #42 from copilot to Kane
 ```
 
-Routes an issue away from @copilot to a different squad member.
+Routes an issue away from @copilot to a different crew member.
 
 ```
 bump refactoring to good fit for copilot
@@ -218,4 +218,4 @@ Updates the capability profile to mark refactoring tasks as automatically routab
 review copilot's PR on #56
 ```
 
-Spawns the appropriate squad member to review @copilot's pull request.
+Spawns the appropriate crew member to review @copilot's pull request.

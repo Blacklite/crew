@@ -15,7 +15,7 @@
  *   --mode=warn  (default) emit a workflow warning, exit 0
  *   --mode=fail  emit an error annotation, exit 1
  *
- * Issue: bradygaster/squad#1273
+ * Issue: Blacklite/crew#1273
  */
 
 import { readdirSync, existsSync } from 'node:fs';

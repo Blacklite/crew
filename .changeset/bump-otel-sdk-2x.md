@@ -1,5 +1,5 @@
 ---
-"@bradygaster/squad-sdk": patch
+"@blacklite/crew-sdk": patch
 ---
 
 deps: bump @opentelemetry/sdk-metrics and @opentelemetry/sdk-trace-node from 1.x to 2.8.0

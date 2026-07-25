@@ -15,12 +15,12 @@ import { mkdtemp, writeFile, rm } from 'node:fs/promises';
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { CapabilityRegistry } from '../../packages/squad-cli/src/cli/commands/watch/registry.js';
+import { CapabilityRegistry } from '../../packages/crew-cli/src/cli/commands/watch/registry.js';
 
 // Dynamic import to avoid hoisting issues — each test imports fresh
 async function getLoader() {
   const mod = await import(
-    '../../packages/squad-cli/src/cli/commands/watch/external-loader.js'
+    '../../packages/crew-cli/src/cli/commands/watch/external-loader.js'
   );
   return mod.loadExternalCapabilities;
 }
@@ -31,7 +31,7 @@ describe('loadExternalCapabilities', () => {
   let consoleSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
-    tmpDir = await mkdtemp(join(tmpdir(), 'squad-ext-cap-'));
+    tmpDir = await mkdtemp(join(tmpdir(), 'crew-ext-cap-'));
     registry = new CapabilityRegistry();
     consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
   });
@@ -43,7 +43,7 @@ describe('loadExternalCapabilities', () => {
     }
   });
 
-  it('returns 0 when .squad/capabilities/ directory does not exist', async () => {
+  it('returns 0 when .crew/capabilities/ directory does not exist', async () => {
     const loadExternalCapabilities = await getLoader();
     const count = await loadExternalCapabilities(tmpDir, registry);
 
@@ -52,7 +52,7 @@ describe('loadExternalCapabilities', () => {
   });
 
   it('returns 0 for an empty capabilities directory', async () => {
-    mkdirSync(join(tmpDir, '.squad', 'capabilities'), { recursive: true });
+    mkdirSync(join(tmpDir, '.crew', 'capabilities'), { recursive: true });
     const loadExternalCapabilities = await getLoader();
     const count = await loadExternalCapabilities(tmpDir, registry);
 
@@ -61,7 +61,7 @@ describe('loadExternalCapabilities', () => {
   });
 
   it('loads and registers a valid capability file', async () => {
-    const capDir = join(tmpDir, '.squad', 'capabilities');
+    const capDir = join(tmpDir, '.crew', 'capabilities');
     mkdirSync(capDir, { recursive: true });
 
     const capCode = `
@@ -96,7 +96,7 @@ describe('loadExternalCapabilities', () => {
   });
 
   it('warns and returns 0 for a file missing required fields', async () => {
-    const capDir = join(tmpDir, '.squad', 'capabilities');
+    const capDir = join(tmpDir, '.crew', 'capabilities');
     mkdirSync(capDir, { recursive: true });
 
     const badCode = `
@@ -121,7 +121,7 @@ describe('loadExternalCapabilities', () => {
   });
 
   it('warns and continues for a file with a syntax error', async () => {
-    const capDir = join(tmpDir, '.squad', 'capabilities');
+    const capDir = join(tmpDir, '.crew', 'capabilities');
     mkdirSync(capDir, { recursive: true });
 
     await writeFile(join(capDir, 'broken.js'), 'export default {{{', 'utf-8');
@@ -139,7 +139,7 @@ describe('loadExternalCapabilities', () => {
   });
 
   it('loads all valid files and skips invalid ones', async () => {
-    const capDir = join(tmpDir, '.squad', 'capabilities');
+    const capDir = join(tmpDir, '.crew', 'capabilities');
     mkdirSync(capDir, { recursive: true });
 
     // Valid capability #1
@@ -193,7 +193,7 @@ describe('loadExternalCapabilities', () => {
   });
 
   it('rejects external capability that conflicts with a built-in name', async () => {
-    const capDir = join(tmpDir, '.squad', 'capabilities');
+    const capDir = join(tmpDir, '.crew', 'capabilities');
     mkdirSync(capDir, { recursive: true });
 
     // Pre-register a "built-in" capability

@@ -13,18 +13,18 @@ import { mkdtemp, realpath, rm } from 'fs/promises';
 import { mkdtempSync, rmSync, readFileSync, existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { basename, dirname, join } from 'path';
-import { FSStorageProvider } from '../packages/squad-sdk/src/storage/fs-storage-provider.js';
-import { InMemoryStorageProvider } from '../packages/squad-sdk/src/storage/in-memory-storage-provider.js';
-import type { StorageProvider } from '../packages/squad-sdk/src/storage/storage-provider.js';
-import { StorageError } from '../packages/squad-sdk/src/storage/storage-error.js';
-import { parseSkillFile } from '../packages/squad-sdk/src/skills/skill-loader.js';
+import { FSStorageProvider } from '../packages/crew-sdk/src/storage/fs-storage-provider.js';
+import { InMemoryStorageProvider } from '../packages/crew-sdk/src/storage/in-memory-storage-provider.js';
+import type { StorageProvider } from '../packages/crew-sdk/src/storage/storage-provider.js';
+import { StorageError } from '../packages/crew-sdk/src/storage/storage-error.js';
+import { parseSkillFile } from '../packages/crew-sdk/src/skills/skill-loader.js';
 import { runStorageProviderContractTests } from './storage-contract.js';
 
 let provider: StorageProvider;
 let tmpDir: string;
 
 beforeEach(async () => {
-  tmpDir = await mkdtemp(join(tmpdir(), 'squad-storage-test-'));
+  tmpDir = await mkdtemp(join(tmpdir(), 'crew-storage-test-'));
   provider = new FSStorageProvider();
 });
 
@@ -221,7 +221,7 @@ describe('path traversal protection', () => {
   let rootDir: string;
 
   beforeEach(async () => {
-    rootDir = await mkdtemp(join(tmpdir(), 'squad-confined-'));
+    rootDir = await mkdtemp(join(tmpdir(), 'crew-confined-'));
     confinedProvider = new FSStorageProvider(rootDir);
   });
 
@@ -285,8 +285,8 @@ describe('symlink traversal protection', () => {
   let outsideDir: string;
 
   beforeEach(async () => {
-    rootDir = await mkdtemp(join(tmpdir(), 'squad-symlink-root-'));
-    outsideDir = await mkdtemp(join(tmpdir(), 'squad-symlink-outside-'));
+    rootDir = await mkdtemp(join(tmpdir(), 'crew-symlink-root-'));
+    outsideDir = await mkdtemp(join(tmpdir(), 'crew-symlink-outside-'));
     confinedProvider = new FSStorageProvider(rootDir);
   });
 
@@ -390,7 +390,7 @@ describe('symlink traversal protection', () => {
 
 describe('cross-platform path handling', () => {
   it('allows access with different case on case-insensitive platforms', async () => {
-    const root = await mkdtemp(join(tmpdir(), 'squad-case-test-'));
+    const root = await mkdtemp(join(tmpdir(), 'crew-case-test-'));
     const confinedProvider = new FSStorageProvider(root);
 
     await confinedProvider.write('test.txt', 'hello');
@@ -452,7 +452,7 @@ describe('deleteDir', () => {
   });
 
   it('blocks deleteDir traversal when rootDir is set', async () => {
-    const rootDir = await mkdtemp(join(tmpdir(), 'squad-delete-confined-'));
+    const rootDir = await mkdtemp(join(tmpdir(), 'crew-delete-confined-'));
     const confinedProvider = new FSStorageProvider(rootDir);
 
     await expect(confinedProvider.deleteDir('../outside')).rejects.toThrow(/Path traversal blocked/);
@@ -568,7 +568,7 @@ describe('FSStorageProvider listSync', () => {
 
   it('blocks traversal when rootDir is set', async () => {
     const { mkdtemp: mkd } = await import('fs/promises');
-    const root = await mkd(join(tmpdir(), 'squad-ls-confined-'));
+    const root = await mkd(join(tmpdir(), 'crew-ls-confined-'));
     const confined = new FSStorageProvider(root);
     expect(() => confined.listSync('../')).toThrow(/traversal blocked/i);
     await rm(root, { recursive: true, force: true });
@@ -789,7 +789,7 @@ describe('InMemoryStorageProvider', () => {
 describe('StorageError path sanitization', () => {
   it('strips absolute path, keeps basename', () => {
     const cause = Object.assign(new Error('EACCES'), { code: 'EACCES' }) as NodeJS.ErrnoException;
-    const err = new StorageError('read', '/home/user/secret/.squad/config.json', cause);
+    const err = new StorageError('read', '/home/user/secret/.crew/config.json', cause);
     expect(err.message).not.toContain('/home/user/secret');
     expect(err.message).toContain('config.json');
   });
@@ -887,7 +887,7 @@ describe('cross-provider contract', () => {
   let fsRoot: string;
 
   beforeEach(async () => {
-    fsRoot = await mkdtemp(join(tmpdir(), 'squad-xprovider-'));
+    fsRoot = await mkdtemp(join(tmpdir(), 'crew-xprovider-'));
   });
 
   afterEach(async () => {
@@ -960,10 +960,10 @@ runStorageProviderContractTests('InMemoryStorageProvider', async () => {
   return { provider, cleanup: async () => provider.clear() };
 });
 
-import { SQLiteStorageProvider } from '../packages/squad-sdk/src/storage/sqlite-storage-provider.js';
+import { SQLiteStorageProvider } from '../packages/crew-sdk/src/storage/sqlite-storage-provider.js';
 
 runStorageProviderContractTests('SQLiteStorageProvider', async () => {
-  const tmpDir = mkdtempSync(join(tmpdir(), 'squad-sqlite-test-'));
+  const tmpDir = mkdtempSync(join(tmpdir(), 'crew-sqlite-test-'));
   const dbPath = join(tmpDir, 'test.db');
   const provider = new SQLiteStorageProvider(dbPath);
   await provider.init();
@@ -976,7 +976,7 @@ describe('SQLiteStorageProvider — SQLite-specific', () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    tmpDir = mkdtempSync(join(tmpdir(), 'squad-sqlite-specific-'));
+    tmpDir = mkdtempSync(join(tmpdir(), 'crew-sqlite-specific-'));
   });
 
   afterEach(() => {

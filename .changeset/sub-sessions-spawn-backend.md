@@ -1,12 +1,12 @@
 ---
-"@bradygaster/squad-sdk": minor
-"@bradygaster/squad-cli": minor
+"@blacklite/crew-sdk": minor
+"@blacklite/crew-cli": minor
 ---
 
 Add sub-session spawn backend for Copilot App integration
 
 Spawn cast members as sub-sessions when running in the Copilot App (Tauri desktop),
-giving users richer UX with each squad member visible in the left navigation:
+giving users richer UX with each crew member visible in the left navigation:
 
 - **SpawnBackend interface**: Thin abstraction with `TaskSpawnBackend` (CLI) and
   `SessionSpawnBackend` (App) implementations
@@ -18,5 +18,5 @@ giving users richer UX with each squad member visible in the left navigation:
 - **Depth limit**: No sub-sub-sessions — max depth 1
 - **Fallback**: Graceful degradation to `task` tool if `create_session` fails
 - **Zero CLI impact**: Behavior unchanged when `create_session` is absent
-- **Template updates**: `squad.agent.md` and `spawn-reference.md` updated with
+- **Template updates**: `crew.agent.md` and `spawn-reference.md` updated with
   App dispatch mechanism, platform detection probe, and sub-session rules

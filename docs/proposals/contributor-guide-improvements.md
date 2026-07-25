@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-Squad has strong internal process documentation (CONTRIBUTING.md, PR_REQUIREMENTS.md, PR template) but significant gaps for **external contributors** — people who discover the project, want to help, and need to find their footing without hand-holding. This proposal identifies 8 gaps and recommends 7 concrete deliverables, prioritized by impact on maintainer time savings.
+Crew has strong internal process documentation (CONTRIBUTING.md, PR_REQUIREMENTS.md, PR template) but significant gaps for **external contributors** — people who discover the project, want to help, and need to find their footing without hand-holding. This proposal identifies 8 gaps and recommends 7 concrete deliverables, prioritized by impact on maintainer time savings.
 
 ---
 
@@ -35,7 +35,7 @@ Squad has strong internal process documentation (CONTRIBUTING.md, PR_REQUIREMENT
 | **No issue templates** (`.github/ISSUE_TEMPLATE/`) | Contributors file unstructured issues; maintainers spend time asking for reproduction steps, versions, environment | Brady, Tamir, triagers |
 | **No CODE_OF_CONDUCT.md** | Standard OSS expectation missing. Some contributors may hesitate without one. GitHub community profile incomplete | Community trust |
 | **No "good first issue" issues** | Label exists (`good first issue`) but **zero issues** currently tagged. New contributors have no on-ramp | New contributors |
-| **No `.squad/` explainer in contributor docs** | External contributors don't know what `.squad/` is, why it exists, or that they should never modify it in PRs | External contributors who include `.squad/` changes |
+| **No `.crew/` explainer in contributor docs** | External contributors don't know what `.crew/` is, why it exists, or that they should never modify it in PRs | External contributors who include `.crew/` changes |
 | **Branch strategy buried** | Branch info is in CONTRIBUTING.md §Branch Strategy but easy to miss. PR #633 (external) was opened against wrong base — empty body, zero comments, closed | External contributors |
 | **No contributor FAQ / troubleshooting** | Common stumbling blocks (changeset prompts, fork sync, CI failures) require maintainer intervention | All external contributors |
 | **PR #639 pattern** | External contributor submitted quality work but it targeted a feature being removed (#665). No way for contributors to know what's "safe to work on" | Contributors who pick up work |
@@ -74,7 +74,7 @@ Only **4 external PRs** in the last 100 (out of 100 total) — very low external
 
 **Details:**
 - Use YAML form format (not markdown) for required fields — GitHub enforces completion
-- Bug template: require version (`squad version` output), Node version, OS, reproduction steps
+- Bug template: require version (`crew version` output), Node version, OS, reproduction steps
 - Feature template: require problem statement before solution (prevents "just add X" issues)
 - Add `type:bug`, `type:feature`, `type:docs` auto-labels per template
 
@@ -93,33 +93,33 @@ Only **4 external PRs** in the last 100 (out of 100 total) — very low external
 - Each `good first issue` should include a "Getting Started" comment with:
   - Which files to look at
   - What the acceptance criteria are
-  - Which squad member to tag for questions
+  - Which crew member to tag for questions
 - Document the curation workflow in CONTRIBUTING.md: who tags, when, criteria
 
 ---
 
-#### 2c. `.squad/` Directory Explainer Section in CONTRIBUTING.md
+#### 2c. `.crew/` Directory Explainer Section in CONTRIBUTING.md
 
-**What:** Add a clear section explaining what `.squad/` is, why it exists in the repo, and that **external contributors should never modify `.squad/` files in their PRs**.
+**What:** Add a clear section explaining what `.crew/` is, why it exists in the repo, and that **external contributors should never modify `.crew/` files in their PRs**.
 
-**Who it helps:** Every external contributor. Prevents accidental `.squad/` changes in PRs.
+**Who it helps:** Every external contributor. Prevents accidental `.crew/` changes in PRs.
 
 **Effort:** ~30 minutes.
 
 **Proposed content:**
 ```markdown
-## The .squad/ Directory
+## The .crew/ Directory
 
-The `.squad/` directory contains Squad's AI team state — agent charters, decision history,
-routing rules, and accumulated learnings. It is managed exclusively by the Squad team.
+The `.crew/` directory contains Crew's AI team state — agent charters, decision history,
+routing rules, and accumulated learnings. It is managed exclusively by the Crew team.
 
 **For external contributors:**
-- ❌ Do NOT modify any files in `.squad/` in your PRs
-- ❌ Do NOT include `.squad/` changes in your commits
-- ✅ You can READ `.squad/decisions.md` to understand team conventions
+- ❌ Do NOT modify any files in `.crew/` in your PRs
+- ❌ Do NOT include `.crew/` changes in your commits
+- ✅ You can READ `.crew/decisions.md` to understand team conventions
 - ✅ You can READ agent charters to understand domain ownership
 
-If your PR includes `.squad/` changes, you'll be asked to remove them before review.
+If your PR includes `.crew/` changes, you'll be asked to remove them before review.
 ```
 
 ---
@@ -128,7 +128,7 @@ If your PR includes `.squad/` changes, you'll be asked to remove them before rev
 
 #### 2d. CODE_OF_CONDUCT.md
 
-**What:** Adopt the Contributor Covenant (v2.1), the standard for OSS projects. Customized with Squad-specific enforcement contacts.
+**What:** Adopt the Contributor Covenant (v2.1), the standard for OSS projects. Customized with Crew-specific enforcement contacts.
 
 **Who it helps:** Community trust. GitHub community profile completion. Sets behavioral expectations.
 
@@ -153,9 +153,9 @@ If your PR includes `.squad/` changes, you'll be asked to remove them before rev
 - "My PR CI is failing" — how to read CI output, common causes (missing changeset, build errors, lint failures)
 - "Which branch do I target?" — always `dev`, never `main`. With a bold callout box.
 - "Do I need a changeset?" — yes, always. How `npx changeset add` works. What to pick for patch/minor/major.
-- "How do I know what's safe to work on?" — look for `good first issue`, `status:contributor-invited`, `help wanted` labels. Avoid issues with `squad:*` labels (team-internal). Check the issue isn't already assigned.
+- "How do I know what's safe to work on?" — look for `good first issue`, `status:contributor-invited`, `help wanted` labels. Avoid issues with `crew:*` labels (team-internal). Check the issue isn't already assigned.
 - "My fork is out of date" — step-by-step rebase instructions (already in CONTRIBUTING.md, but worth a FAQ entry pointing to it)
-- "What's the `.squad/` directory?" — link to the explainer section
+- "What's the `.crew/` directory?" — link to the explainer section
 
 ---
 
@@ -203,7 +203,7 @@ All PRs target the `dev` branch. See [Branch Strategy](CONTRIBUTING.md#branch-st
 |----------|-------------|--------|----------------------|-----------|
 | **P1** | Issue templates (2a) | 2 hrs | High — structured reports reduce back-and-forth | This PR or immediate follow-up |
 | **P1** | Good first issue curation (2b) | 1.5 hrs | High — gives contributors a clear on-ramp | Separate task (requires issue audit) |
-| **P1** | `.squad/` explainer (2c) | 30 min | Medium — prevents common PR mistake | This PR or immediate follow-up |
+| **P1** | `.crew/` explainer (2c) | 30 min | Medium — prevents common PR mistake | This PR or immediate follow-up |
 | **P2** | CODE_OF_CONDUCT.md (2d) | 30 min | Low direct, high trust signal | This PR or immediate follow-up |
 | **P2** | Contributor FAQ (2e) | 1 hr | High — answers repeated questions | This PR or immediate follow-up |
 | **P2** | README contributing section (2f) | 30 min | Medium — improves discovery | This PR or immediate follow-up |
@@ -220,15 +220,15 @@ After these changes ship:
 1. **A new contributor can go from "I found this repo" to "my PR is ready for review" using only the docs** — no DMs, no repeated questions to Brady/Tamir.
 2. **Every bug report includes version, OS, and reproduction steps** — enforced by issue template required fields.
 3. **Contributors know what to work on** — `good first issue` and `status:contributor-invited` labels are actively maintained with 5+ open issues at all times.
-4. **No PRs include `.squad/` changes** — explainer section makes the boundary clear.
+4. **No PRs include `.crew/` changes** — explainer section makes the boundary clear.
 5. **Brady and Tamir can respond to contributor questions with links** — "See [FAQ: Which branch do I target?](CONTRIBUTING.md#faq)" instead of writing the answer each time.
 
 ---
 
 ## 5. What This Does NOT Cover
 
-- **Automated PR checks for `.squad/` changes** — that's a CI gate (separate issue)
-- **Contributor license agreement (CLA)** — Squad uses MIT, no CLA needed currently
+- **Automated PR checks for `.crew/` changes** — that's a CI gate (separate issue)
+- **Contributor license agreement (CLA)** — Crew uses MIT, no CLA needed currently
 - **Discord/Slack community** — out of scope, GitHub Discussions is the channel
 - **Docs site contributor guide** — the Astro docs site (`docs/`) has its own needs; this proposal focuses on repo-level contributor docs
 

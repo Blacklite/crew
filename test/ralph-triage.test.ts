@@ -11,11 +11,11 @@ import {
   type TeamMember,
   type RoutingRule,
   type ModuleOwnership,
-} from '../packages/squad-sdk/src/ralph/triage.js';
-import type { GhIssue, GhPullRequest } from '../packages/squad-cli/src/cli/core/gh-cli.js';
+} from '../packages/crew-sdk/src/ralph/triage.js';
+import type { GhIssue, GhPullRequest } from '../packages/crew-cli/src/cli/core/gh-cli.js';
 
-const ROUTING_MD = readFileSync(join(process.cwd(), '.squad', 'routing.md'), 'utf-8');
-const TEAM_MD = readFileSync(join(process.cwd(), '.squad', 'team.md'), 'utf-8');
+const ROUTING_MD = readFileSync(join(process.cwd(), '.crew', 'routing.md'), 'utf-8');
+const TEAM_MD = readFileSync(join(process.cwd(), '.crew', 'team.md'), 'utf-8');
 
 function issue(title: string, body = ''): TriageIssue {
   return {
@@ -49,7 +49,7 @@ describe('ralph triage parser helpers', () => {
       ].join('\n');
 
       const roster = parseRoster(legacy);
-      expect(roster).toEqual([{ name: 'Alpha', role: 'Developer', label: 'squad:alpha' }]);
+      expect(roster).toEqual([{ name: 'Alpha', role: 'Developer', label: 'crew:alpha' }]);
     });
 
     it('slugifies multi-word names into labels', () => {
@@ -63,8 +63,8 @@ describe('ralph triage parser helpers', () => {
       ].join('\n');
 
       const roster = parseRoster(multiWord);
-      expect(roster[0]!.label).toBe('squad:steve-rogers');
-      expect(roster[1]!.label).toBe('squad:tony-stark');
+      expect(roster[0]!.label).toBe('crew:steve-rogers');
+      expect(roster[1]!.label).toBe('crew:tony-stark');
     });
 
     it('slugifies names with parentheses into labels', () => {
@@ -77,7 +77,7 @@ describe('ralph triage parser helpers', () => {
       ].join('\n');
 
       const roster = parseRoster(withParens);
-      expect(roster[0]!.label).toBe('squad:tony-stark-iron-man');
+      expect(roster[0]!.label).toBe('crew:tony-stark-iron-man');
     });
 
     it('filters out Scribe and Ralph', () => {
@@ -114,7 +114,7 @@ describe('ralph triage parser helpers', () => {
       // Verify at least one member has all properties populated (not just name)
       const withRole = roster.find((member) => member.role && member.role.length > 0);
       expect(withRole).toBeDefined();
-      expect(withRole!.label).toMatch(/^squad:/);
+      expect(withRole!.label).toMatch(/^crew:/);
     });
 
     it('handles member names with emojis in role column', () => {
@@ -127,7 +127,7 @@ describe('ralph triage parser helpers', () => {
       ].join('\n');
 
       const roster = parseRoster(withRoleEmoji);
-      expect(roster).toEqual([{ name: 'Quinn', role: 'QA 🧪', label: 'squad:quinn' }]);
+      expect(roster).toEqual([{ name: 'Quinn', role: 'QA 🧪', label: 'crew:quinn' }]);
     });
   });
 
@@ -169,7 +169,7 @@ describe('ralph triage parser helpers', () => {
 
     it('handles emoji in agent name column', () => {
       const rules = parseRoutingRules(ROUTING_MD);
-      // At least one agent name should contain an emoji (squad convention)
+      // At least one agent name should contain an emoji (crew convention)
       expect(rules.some((rule) => /[\u{1F300}-\u{1FAD6}]/u.test(rule.agentName))).toBe(true);
     });
   });
@@ -218,7 +218,7 @@ describe('triageIssue()', () => {
     const firstModule = modules[0];
     expect(firstModule).toBeDefined();
     const decision = triageIssue(
-      issue(`Failure in packages/squad-sdk/${firstModule.modulePath}triage.ts during assignment`),
+      issue(`Failure in packages/crew-sdk/${firstModule.modulePath}triage.ts during assignment`),
       rules,
       modules,
       roster,
@@ -257,9 +257,9 @@ describe('triageIssue()', () => {
 
   it('role keyword fallback works for frontend/backend/test', () => {
     const roleRoster: TeamMember[] = [
-      { name: 'Front', role: 'Frontend UI Engineer', label: 'squad:front' },
-      { name: 'Back', role: 'Backend API Engineer', label: 'squad:back' },
-      { name: 'QA', role: 'Test Engineer', label: 'squad:qa' },
+      { name: 'Front', role: 'Frontend UI Engineer', label: 'crew:front' },
+      { name: 'Back', role: 'Backend API Engineer', label: 'crew:back' },
+      { name: 'QA', role: 'Test Engineer', label: 'crew:qa' },
     ];
 
     const frontend = triageIssue(issue('Button CSS regression in UI'), [], [], roleRoster);
@@ -291,7 +291,7 @@ describe('triageIssue()', () => {
     const onlyBodyRule: RoutingRule[] = [
       { workType: 'Testing', agentName: 'Hockney', keywords: ['vitest'] },
     ];
-    const hockneyOnly: TeamMember[] = [{ name: 'Hockney', role: 'Tester', label: 'squad:hockney' }];
+    const hockneyOnly: TeamMember[] = [{ name: 'Hockney', role: 'Tester', label: 'crew:hockney' }];
 
     const decision = triageIssue(
       issue('Please investigate', 'This appears only in body: vitest'),
@@ -308,7 +308,7 @@ describe('triageIssue()', () => {
     const onlyBodyRule: RoutingRule[] = [
       { workType: 'Testing', agentName: 'Hockney', keywords: ['vitest'] },
     ];
-    const hockneyOnly: TeamMember[] = [{ name: 'Hockney', role: 'Tester', label: 'squad:hockney' }];
+    const hockneyOnly: TeamMember[] = [{ name: 'Hockney', role: 'Tester', label: 'crew:hockney' }];
 
     const decision = triageIssue(issue('Need VITEST coverage now'), onlyBodyRule, [], hockneyOnly);
     expect(decision?.source).toBe('routing-rule');
@@ -320,8 +320,8 @@ describe('triageIssue()', () => {
       { modulePath: 'src/ralph/', primary: 'Fenster', secondary: null },
     ];
     const customRoster: TeamMember[] = [
-      { name: 'Keaton', role: 'Lead', label: 'squad:keaton' },
-      { name: 'Fenster', role: 'Core Dev', label: 'squad:fenster' },
+      { name: 'Keaton', role: 'Lead', label: 'crew:keaton' },
+      { name: 'Fenster', role: 'Core Dev', label: 'crew:fenster' },
     ];
 
     const decision = triageIssue(

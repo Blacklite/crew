@@ -1,6 +1,6 @@
 # Work Routing
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to set domain-specific routing:**
@@ -38,7 +38,7 @@ Coordinator assigns directly to Fenster. No lookup required.
 
 ### 2. Domain Routing
 
-The coordinator checks `.squad/routing.md` for pattern matches:
+The coordinator checks `.crew/routing.md` for pattern matches:
 
 ```markdown
 ## Routing Table
@@ -69,7 +69,7 @@ Work tagged with authentication routes to Backend or Lead based on task type (im
 
 ## The Routing Table
 
-`.squad/routing.md` is the canonical routing manifest. It's structured as:
+`.crew/routing.md` is the canonical routing manifest. It's structured as:
 
 ```markdown
 # Work Routing
@@ -103,7 +103,7 @@ Coordinator adds to routing.md:
 | `migrations/**`, `*.sql` | Backend | Database schema changes |
 ```
 
-Or edit `.squad/routing.md` directly.
+Or edit `.crew/routing.md` directly.
 
 ## Routing Ambiguity
 
@@ -115,11 +115,11 @@ When multiple patterns match:
 
 ## Issue Label Routing
 
-GitHub issues with `squad:{member}` labels route directly:
+GitHub issues with `crew:{member}` labels route directly:
 
-- `squad:fenster` → Fenster picks it up
-- `squad:mcmanus` → McManus handles it
-- No `squad:*` label → Coordinator triages and assigns
+- `crew:fenster` → Fenster picks it up
+- `crew:mcmanus` → McManus handles it
+- No `crew:*` label → Coordinator triages and assigns
 
 Ralph (the work monitor) uses this to auto-assign based on routing rules.
 
@@ -129,11 +129,11 @@ Some tasks require multiple agents:
 
 > "Fenster, implement the API. Hockney, write the tests."
 
-Coordinator spawns both agents in parallel. They work independently and coordinate via the shared `.squad/` state.
+Coordinator spawns both agents in parallel. They work independently and coordinate via the shared `.crew/` state.
 
 ## Routing Logs
 
-The coordinator logs routing decisions to `.squad/orchestration-log/`:
+The coordinator logs routing decisions to `.crew/orchestration-log/`:
 
 ```
 [2024-01-15 14:23:10] ROUTE: Issue #42 → Backend (pattern: src/api/**)

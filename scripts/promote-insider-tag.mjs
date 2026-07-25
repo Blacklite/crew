@@ -11,7 +11,7 @@
  * dist-tag and, if `insider` is behind, promotes `insider` to point at the
  * stable version. This keeps the invariant `insider >= latest` intact.
  *
- * A future manual insider workflow run (`squad-insider-publish.yml`) will
+ * A future manual insider workflow run (`crew-insider-publish.yml`) will
  * re-point `insider` to a real prerelease build (e.g. `0.12.0-insider.1`)
  * via `npm publish --tag insider`, which is the normal steady-state.
  *
@@ -26,7 +26,7 @@
  * Usage:
  *   node scripts/promote-insider-tag.mjs <package> <newVersion>
  * Example:
- *   node scripts/promote-insider-tag.mjs @bradygaster/squad-cli 0.11.0
+ *   node scripts/promote-insider-tag.mjs @blacklite/crew-cli 0.11.0
  *
  * Exit codes:
  *   0 - success (either promoted, or already up to date; both are no-op safe)

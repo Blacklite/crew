@@ -10,7 +10,7 @@ import {
   type BenchmarkResult,
   type BenchmarkReport,
   type TimingResult,
-} from '@bradygaster/squad-sdk/runtime/benchmarks';
+} from '@blacklite/crew-sdk/runtime/benchmarks';
 
 // ============================================================================
 // percentile helper

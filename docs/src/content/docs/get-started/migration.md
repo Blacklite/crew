@@ -1,6 +1,6 @@
 # Migration Guide
 
-> Upgrading from an older version of Squad? Find your scenario below.
+> Upgrading from an older version of Crew? Find your scenario below.
 
 ## Table of Contents
 
@@ -8,12 +8,12 @@
 - [Scenario 1: Brand New User](#scenario-1-brand-new-user)
 - [Scenario 2: Upgrading from v0.5.4 Beta](#scenario-2-upgrading-from-v054-beta)
 - [Scenario 3: Already on v0.8.x via npm](#scenario-3-already-on-v08x-via-npm)
-- [Scenario 4: Was Using @bradygaster/create-squad](#scenario-4-was-using-bradygastercreate-squad)
+- [Scenario 4: Was Using @bradygaster/create-crew](#scenario-4-was-using-bradygastercreate-crew)
 - [Scenario 5: Was Using npx github: Distribution](#scenario-5-was-using-npx-github-distribution)
-- [Scenario 6: My .squad/ Directory Broke After Upgrading](#scenario-6-my-squad-directory-broke-after-upgrading)
+- [Scenario 6: My .crew/ Directory Broke After Upgrading](#scenario-6-my-crew-directory-broke-after-upgrading)
 - [Scenario 7: I Have .ai-team/ from an Older Version](#scenario-7-i-have-ai-team-from-an-older-version)
-- [Scenario 8: Using Squad in CI/CD](#scenario-8-using-squad-in-cicd)
-- [Scenario 9: Using Squad SDK Programmatically](#scenario-9-using-squad-sdk-programmatically)
+- [Scenario 8: Using Crew in CI/CD](#scenario-8-using-crew-in-cicd)
+- [Scenario 9: Using Crew SDK Programmatically](#scenario-9-using-crew-sdk-programmatically)
 - [Troubleshooting](#troubleshooting)
 - [Rolling Back](#rolling-back)
 - [What's New in v0.8.18+](#whats-new-in-v0818)
@@ -24,16 +24,16 @@
 
 | Before | After |
 |--------|-------|
-| `npx github:bradygaster/squad` | `npm install -g @bradygaster/squad-cli` |
-| `@bradygaster/create-squad` | `@bradygaster/squad-cli` |
-| `.ai-team/` directory | `.squad/` directory |
+| `npx github:Blacklite/crew` | `npm install -g @blacklite/crew-cli` |
+| `@bradygaster/create-crew` | `@blacklite/crew-cli` |
+| `.ai-team/` directory | `.crew/` directory |
 | v0.5.4 (beta) | v0.8.x (latest) |
 
 ---
 
 ## Scenario 1: Brand New User
 
-Never used Squad before? Start here.
+Never used Crew before? Start here.
 
 ### Prerequisites
 
@@ -45,22 +45,22 @@ Never used Squad before? Start here.
 ### Install
 
 ```bash
-npm install -g @bradygaster/squad-cli
+npm install -g @blacklite/crew-cli
 ```
 
 ### Initialize a Project
 
 ```bash
 cd your-project
-squad init
+crew init
 ```
 
-This creates a `.squad/` directory with your team roster, agent charters, and configuration files.
+This creates a `.crew/` directory with your team roster, agent charters, and configuration files.
 
 ### Verify
 
 ```bash
-squad doctor
+crew doctor
 ```
 
 All checks should pass. You're ready to go.
@@ -69,55 +69,55 @@ All checks should pass. You're ready to go.
 
 ## Scenario 2: Upgrading from v0.5.4 Beta
 
-This is the biggest jump. The codebase was rewritten in TypeScript, the `.squad/` directory format changed, and the command structure was reorganized.
+This is the biggest jump. The codebase was rewritten in TypeScript, the `.crew/` directory format changed, and the command structure was reorganized.
 
 ### What Changed
 
 - **TypeScript rewrite:** Entire codebase ported from JavaScript to TypeScript (strict mode).
-- **`.squad/` directory format:** v0.5.4 format is incompatible with v0.8.x. You must reinitialize.
+- **`.crew/` directory format:** v0.5.4 format is incompatible with v0.8.x. You must reinitialize.
 - **Command structure:** Some commands were reorganized or renamed.
-- **SDK API:** The public API changed significantly if you were using Squad programmatically.
+- **SDK API:** The public API changed significantly if you were using Crew programmatically.
 - **Distribution:** npm-only. The `npx github:` install path is gone.
 
 ### Step-by-Step
 
-1. **Back up your existing `.squad/` directory:**
+1. **Back up your existing `.crew/` directory:**
 
    ```bash
-   cp -r .squad .squad-v054-backup
+   cp -r .crew .crew-v054-backup
    ```
 
 2. **Uninstall the old version (if globally installed):**
 
    ```bash
-   npm uninstall -g @bradygaster/create-squad
+   npm uninstall -g @bradygaster/create-crew
    ```
 
 3. **Install the latest version:**
 
    **Global (recommended):**
    ```bash
-   npm install -g @bradygaster/squad-cli@latest
+   npm install -g @blacklite/crew-cli@latest
    ```
 
    **Local (project dependency):**
    ```bash
-   npm install --save-dev @bradygaster/squad-cli@latest
+   npm install --save-dev @blacklite/crew-cli@latest
    ```
 
-4. **Remove the old `.squad/` directory:**
+4. **Remove the old `.crew/` directory:**
 
    ```bash
-   rm -rf .squad
+   rm -rf .crew
    ```
 
 5. **Reinitialize:**
 
    ```bash
-   squad init
+   crew init
    ```
 
-6. **Manually migrate your customizations.** Open `.squad-v054-backup/` and copy over any custom agent charters, team roster entries, or decisions into the new `.squad/` directory structure. The new format uses Markdown files (not JSON).
+6. **Manually migrate your customizations.** Open `.crew-v054-backup/` and copy over any custom agent charters, team roster entries, or decisions into the new `.crew/` directory structure. The new format uses Markdown files (not JSON).
 
    **Which files are safe to copy?** Use this table as your guide:
 
@@ -130,25 +130,25 @@ This is the biggest jump. The codebase was rewritten in TypeScript, the `.squad/
    | `team.md` | ✅ Yes | Your roster |
    | `skills/` | ✅ Yes | Learned patterns |
    | `casting/` | ❌ Skip | Regenerated automatically on first run |
-   | `templates/` | ❌ Skip | Overwritten by `squad upgrade` |
+   | `templates/` | ❌ Skip | Overwritten by `crew upgrade` |
    | `log/` | 🟡 Optional | Diagnostic archive — no harm copying, but not required |
    | `orchestration-log/` | 🟡 Optional | Same as log/ |
 
-7. **Validate with squad doctor:**
+7. **Validate with crew doctor:**
 
    ```bash
-   squad doctor
+   crew doctor
    ```
 
-   This runs 9 checks to ensure your `.squad/` directory is healthy after migration. All checks should pass before you consider the upgrade complete.
+   This runs 9 checks to ensure your `.crew/` directory is healthy after migration. All checks should pass before you consider the upgrade complete.
 
 ### Key Format Changes
 
 | v0.5.4 | v0.8.x (latest) |
 |--------|---------|
-| `.squad/config.json` | `.squad/team.md` (Markdown with YAML front matter) |
-| JSON decision log | `.squad/decisions.md` (append-only Markdown) |
-| Flat agent files | `.squad/agents/{name}/charter.md` (directory per agent) |
+| `.crew/config.json` | `.crew/team.md` (Markdown with YAML front matter) |
+| JSON decision log | `.crew/decisions.md` (append-only Markdown) |
+| Flat agent files | `.crew/agents/{name}/charter.md` (directory per agent) |
 
 ---
 
@@ -158,47 +158,47 @@ If you're already on any v0.8.x release, this is a simple update.
 
 **Global:**
 ```bash
-npm install -g @bradygaster/squad-cli@latest
+npm install -g @blacklite/crew-cli@latest
 ```
 
 **Local:**
 ```bash
-npm install --save-dev @bradygaster/squad-cli@latest
+npm install --save-dev @blacklite/crew-cli@latest
 ```
 
 Verify the version:
 
 ```bash
-squad --version
+crew --version
 ```
 
 Expected output: the latest `0.8.x` version (e.g., `0.8.25`).
 
-Your `.squad/` directory is compatible — no reinitialization needed.
+Your `.crew/` directory is compatible — no reinitialization needed.
 
 ---
 
-## Scenario 4: Was Using @bradygaster/create-squad
+## Scenario 4: Was Using @bradygaster/create-crew
 
-The `@bradygaster/create-squad` package is deprecated. It has been replaced by `@bradygaster/squad-cli`.
+The `@bradygaster/create-crew` package is deprecated. It has been replaced by `@blacklite/crew-cli`.
 
 ### Switch
 
 ```bash
 # Remove the old package
-npm uninstall -g @bradygaster/create-squad
+npm uninstall -g @bradygaster/create-crew
 
 # Install the new package
-npm install -g @bradygaster/squad-cli
+npm install -g @blacklite/crew-cli
 ```
 
-The `squad` command works the same way. Your `.squad/` directory does not need to change if you were already on v0.8.x.
+The `crew` command works the same way. Your `.crew/` directory does not need to change if you were already on v0.8.x.
 
 ---
 
 ## Scenario 5: Was Using npx github: Distribution
 
-The GitHub-native distribution (`npx github:bradygaster/squad`) has been removed. Squad is now distributed exclusively through npm.
+The GitHub-native distribution (`npx github:Blacklite/crew`) has been removed. Crew is now distributed exclusively through npm.
 
 ### Switch
 
@@ -206,54 +206,54 @@ Replace any usage of:
 
 ```bash
 # OLD — no longer works
-npx github:bradygaster/squad
+npx github:Blacklite/crew
 ```
 
 With:
 
 ```bash
 # NEW
-npm install -g @bradygaster/squad-cli
+npm install -g @blacklite/crew-cli
 ```
 
-Then use the `squad` command directly. If you had this in scripts or CI/CD workflows, update every reference — see [Scenario 8: Using Squad in CI/CD](#scenario-8-using-squad-in-cicd).
+Then use the `crew` command directly. If you had this in scripts or CI/CD workflows, update every reference — see [Scenario 8: Using Crew in CI/CD](#scenario-8-using-crew-in-cicd).
 
 ---
 
-## Scenario 6: My .squad/ Directory Broke After Upgrading
+## Scenario 6: My .crew/ Directory Broke After Upgrading
 
-If `squad doctor` fails or commands error out after upgrading, follow these steps.
+If `crew doctor` fails or commands error out after upgrading, follow these steps.
 
 ### 1. Back Up
 
 ```bash
-cp -r .squad .squad-broken-backup
+cp -r .crew .crew-broken-backup
 ```
 
 ### 2. Reinitialize
 
 ```bash
-rm -rf .squad
-squad init
+rm -rf .crew
+crew init
 ```
 
 ### 3. Restore Customizations
 
-Manually copy custom agent charters, roster entries, and decisions from `.squad-broken-backup/` into the new `.squad/` structure.
+Manually copy custom agent charters, roster entries, and decisions from `.crew-broken-backup/` into the new `.crew/` structure.
 
 ### 4. Verify
 
 ```bash
-squad doctor
+crew doctor
 ```
 
-If `squad doctor` still fails, see [Troubleshooting](#troubleshooting) below.
+If `crew doctor` still fails, see [Troubleshooting](#troubleshooting) below.
 
 ---
 
 ## Scenario 7: I Have .ai-team/ from an Older Version
 
-Very early versions of Squad used `.ai-team/` instead of `.squad/`. This directory name is no longer recognized.
+Very early versions of Crew used `.ai-team/` instead of `.crew/`. This directory name is no longer recognized.
 
 ### Migrate
 
@@ -266,34 +266,34 @@ Very early versions of Squad used `.ai-team/` instead of `.squad/`. This directo
 2. **Initialize the new directory:**
 
    ```bash
-   squad init
+   crew init
    ```
 
-3. **Manually migrate** any custom configuration from `.ai-team-backup/` into `.squad/`.
+3. **Manually migrate** any custom configuration from `.ai-team-backup/` into `.crew/`.
 
 4. **Update `.gitignore`** if it references `.ai-team/`:
 
    ```bash
-   # Remove .ai-team references, add .squad if needed
+   # Remove .ai-team references, add .crew if needed
    ```
 
 5. **Verify:**
 
    ```bash
-   squad doctor
+   crew doctor
    ```
 
 ---
 
-## Scenario 8: Using Squad in CI/CD
+## Scenario 8: Using Crew in CI/CD
 
-If you run Squad in GitHub Actions or another CI/CD system, update your workflow files.
+If you run Crew in GitHub Actions or another CI/CD system, update your workflow files.
 
 ### Before (old distribution)
 
 ```yaml
-- name: Run Squad
-  run: npx github:bradygaster/squad
+- name: Run Crew
+  run: npx github:Blacklite/crew
 ```
 
 ### After (v0.8.x)
@@ -303,45 +303,45 @@ If you run Squad in GitHub Actions or another CI/CD system, update your workflow
   with:
     node-version: '20'
 
-- name: Install Squad
-  run: npm install -g @bradygaster/squad-cli@latest
+- name: Install Crew
+  run: npm install -g @blacklite/crew-cli@latest
 
-- name: Run Squad
-  run: squad doctor && squad status
+- name: Run Crew
+  run: crew doctor && crew status
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Key CI/CD Notes
 
-- Set `GITHUB_TOKEN` as an environment variable. Squad requires it for GitHub Copilot operations.
+- Set `GITHUB_TOKEN` as an environment variable. Crew requires it for GitHub Copilot operations.
 - Pin to a specific version (e.g., `@0.8.25`) in CI to avoid surprise upgrades, or use `@latest` to stay current.
 - Node.js 20+ is required. Update your workflow's `setup-node` action if needed.
 
 ---
 
-## Scenario 9: Using Squad SDK Programmatically
+## Scenario 9: Using Crew SDK Programmatically
 
-If you import Squad as a library, the package name and API have changed.
+If you import Crew as a library, the package name and API have changed.
 
 ### Package Change
 
 ```bash
 # OLD
-npm install @bradygaster/squad
+npm install @blacklite/crew
 
 # NEW
-npm install @bradygaster/squad-sdk
+npm install @blacklite/crew-sdk
 ```
 
 ### Import Change
 
 ```typescript
 // OLD
-import { Squad } from '@bradygaster/squad';
+import { Crew } from '@blacklite/crew';
 
 // NEW
-import { Squad } from '@bradygaster/squad-sdk';
+import { Crew } from '@blacklite/crew-sdk';
 ```
 
 ### API Notes
@@ -354,12 +354,12 @@ import { Squad } from '@bradygaster/squad-sdk';
 
 ## Troubleshooting
 
-### `command not found: squad`
+### `command not found: crew`
 
-Squad isn't on your PATH. Install globally:
+Crew isn't on your PATH. Install globally:
 
 ```bash
-npm install -g @bradygaster/squad-cli
+npm install -g @blacklite/crew-cli
 ```
 
 ### npm 404 error when installing
@@ -367,10 +367,10 @@ npm install -g @bradygaster/squad-cli
 You may be using the old package name. Use the correct name:
 
 ```bash
-npm install -g @bradygaster/squad-cli
+npm install -g @blacklite/crew-cli
 ```
 
-If the package genuinely isn't published yet, check [the npm page](https://www.npmjs.com/package/@bradygaster/squad-cli) or the [GitHub repo](https://github.com/bradygaster/squad) for release status.
+If the package genuinely isn't published yet, check [the npm page](https://www.npmjs.com/package/@blacklite/crew-cli) or the [GitHub repo](https://github.com/Blacklite/crew) for release status.
 
 ### Permission denied during install
 
@@ -385,17 +385,17 @@ export PATH=~/.npm-global/bin:$PATH
 
 ### Old format not recognized
 
-Your `.squad/` directory is from an older version. Back it up and reinitialize:
+Your `.crew/` directory is from an older version. Back it up and reinitialize:
 
 ```bash
-cp -r .squad .squad-old-backup
-rm -rf .squad
-squad init
+cp -r .crew .crew-old-backup
+rm -rf .crew
+crew init
 ```
 
 ### GITHUB_TOKEN issues
 
-Squad needs a valid GitHub token for Copilot operations. Verify:
+Crew needs a valid GitHub token for Copilot operations. Verify:
 
 ```bash
 echo $GITHUB_TOKEN
@@ -427,43 +427,43 @@ gh auth login
 Check your installed version:
 
 ```bash
-squad --version
+crew --version
 ```
 
 If it shows an old version:
 
 ```bash
-npm uninstall -g @bradygaster/squad-cli
-npm install -g @bradygaster/squad-cli@latest
+npm uninstall -g @blacklite/crew-cli
+npm install -g @blacklite/crew-cli@latest
 ```
 
 ### Team roster gone after upgrade
 
-Your `.squad/team.md` may not have survived the upgrade. Reinitialize and restore from backup:
+Your `.crew/team.md` may not have survived the upgrade. Reinitialize and restore from backup:
 
 ```bash
-squad init
+crew init
 # Then manually restore roster entries from your backup
 ```
 
-### `squad doctor` fails
+### `crew doctor` fails
 
 Run it to see which checks fail:
 
 ```bash
-squad doctor
+crew doctor
 ```
 
 Common causes:
 
-- Missing `.squad/` directory — run `squad init`.
+- Missing `.crew/` directory — run `crew init`.
 - Missing `GITHUB_TOKEN` — see [GITHUB_TOKEN issues](#github_token-issues) above.
 - Node.js too old — upgrade to Node.js 20+.
-- Corrupted `.squad/` files — back up, remove, and reinitialize.
+- Corrupted `.crew/` files — back up, remove, and reinitialize.
 
 ### Node.js version too old
 
-Squad requires Node.js 20 or later. Check your version:
+Crew requires Node.js 20 or later. Check your version:
 
 ```bash
 node --version
@@ -488,14 +488,14 @@ fnm use 20
 If you need to downgrade to a previous v0.8.x release:
 
 ```bash
-npm install -g @bradygaster/squad-cli@0.8.17
+npm install -g @blacklite/crew-cli@0.8.17
 ```
 
 ### Warnings
 
-- **The GitHub-native distribution (`npx github:bradygaster/squad`) is permanently removed.** You cannot roll back to that install method.
-- **`.squad/` directory format changed between v0.5.4 and v0.8.x.** If you roll back to v0.5.4, your current `.squad/` directory will not be compatible. Keep backups.
-- Rolling back within the v0.8.x line (e.g., 0.8.25 to 0.8.24) should be safe — the `.squad/` format is stable across v0.8.x releases.
+- **The GitHub-native distribution (`npx github:Blacklite/crew`) is permanently removed.** You cannot roll back to that install method.
+- **`.crew/` directory format changed between v0.5.4 and v0.8.x.** If you roll back to v0.5.4, your current `.crew/` directory will not be compatible. Keep backups.
+- Rolling back within the v0.8.x line (e.g., 0.8.25 to 0.8.24) should be safe — the `.crew/` format is stable across v0.8.x releases.
 
 ---
 
@@ -503,16 +503,16 @@ npm install -g @bradygaster/squad-cli@0.8.17
 
 Key improvements since the migration from v0.5.4 beta:
 
-- **Remote Squad Mode:** `squad link`, `squad init --mode remote`, and dual-root path resolution for team identity directories.
-- **`squad doctor`:** 9-check setup validation with clear pass/fail output.
+- **Remote Crew Mode:** `crew link`, `crew init --mode remote`, and dual-root path resolution for team identity directories.
+- **`crew doctor`:** 9-check setup validation with clear pass/fail output.
 - **npm-only distribution:** Simpler install, semantic versioning, stable and insider channels.
 - **TypeScript strict mode:** Full type safety across the SDK and CLI.
 - **Semver fix:** Version format now follows the semver spec (`0.8.x-preview.N`).
 - **Node 22+ compatibility:** ESM import fixes for vscode-jsonrpc (v0.8.23+).
 - **Casting system:** Universe-based agent naming with persistent registries (v0.8.25+).
 
-For the full list of changes, see the [CHANGELOG](https://github.com/bradygaster/squad/blob/main/CHANGELOG.md).
+For the full list of changes, see the [CHANGELOG](https://github.com/Blacklite/crew/blob/main/CHANGELOG.md).
 
 ---
 
-*Questions or issues? Open an issue at [github.com/bradygaster/squad](https://github.com/bradygaster/squad/issues).*
+*Questions or issues? Open an issue at [github.com/Blacklite/crew](https://github.com/Blacklite/crew/issues).*

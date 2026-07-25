@@ -8,7 +8,7 @@ import {
   getPodId,
   generatePodCapabilitiesPath,
   type MachineCapabilities,
-} from '@bradygaster/squad-sdk/ralph/capabilities';
+} from '@blacklite/crew-sdk/ralph/capabilities';
 import { existsSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -29,7 +29,7 @@ const laptopMachine: MachineCapabilities = {
 
 describe('extractNeeds', () => {
   it('extracts needs:* labels', () => {
-    expect(extractNeeds(['bug', 'needs:gpu', 'squad:picard'])).toEqual(['gpu']);
+    expect(extractNeeds(['bug', 'needs:gpu', 'crew:picard'])).toEqual(['gpu']);
   });
 
   it('handles multiple needs', () => {
@@ -38,7 +38,7 @@ describe('extractNeeds', () => {
   });
 
   it('returns empty for no needs labels', () => {
-    expect(extractNeeds(['bug', 'enhancement', 'squad:data'])).toEqual([]);
+    expect(extractNeeds(['bug', 'enhancement', 'crew:data'])).toEqual([]);
   });
 
   it('returns empty for empty array', () => {
@@ -48,7 +48,7 @@ describe('extractNeeds', () => {
 
 describe('canHandleIssue', () => {
   it('passes issues with no needs labels', () => {
-    expect(canHandleIssue(['bug', 'squad:picard'], gpuMachine)).toEqual({ canHandle: true });
+    expect(canHandleIssue(['bug', 'crew:picard'], gpuMachine)).toEqual({ canHandle: true });
   });
 
   it('passes when all needs are met', () => {
@@ -119,27 +119,27 @@ describe('dual-mode deployment', () => {
   let tmpDir: string;
 
   beforeEach(() => {
-    savedPodId = process.env.SQUAD_POD_ID;
-    savedMode = process.env.SQUAD_DEPLOYMENT_MODE;
-    delete process.env.SQUAD_POD_ID;
-    delete process.env.SQUAD_DEPLOYMENT_MODE;
+    savedPodId = process.env.CREW_POD_ID;
+    savedMode = process.env.CREW_DEPLOYMENT_MODE;
+    delete process.env.CREW_POD_ID;
+    delete process.env.CREW_DEPLOYMENT_MODE;
 
-    tmpDir = path.join(os.tmpdir(), `squad-cap-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
-    mkdirSync(path.join(tmpDir, '.squad'), { recursive: true });
+    tmpDir = path.join(os.tmpdir(), `crew-cap-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+    mkdirSync(path.join(tmpDir, '.crew'), { recursive: true });
   });
 
   afterEach(() => {
-    if (savedPodId !== undefined) process.env.SQUAD_POD_ID = savedPodId;
-    else delete process.env.SQUAD_POD_ID;
-    if (savedMode !== undefined) process.env.SQUAD_DEPLOYMENT_MODE = savedMode;
-    else delete process.env.SQUAD_DEPLOYMENT_MODE;
+    if (savedPodId !== undefined) process.env.CREW_POD_ID = savedPodId;
+    else delete process.env.CREW_POD_ID;
+    if (savedMode !== undefined) process.env.CREW_DEPLOYMENT_MODE = savedMode;
+    else delete process.env.CREW_DEPLOYMENT_MODE;
 
     try { rmSync(tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
   });
 
-  it('loadCapabilities reads pod-specific manifest when SQUAD_POD_ID is set', async () => {
-    process.env.SQUAD_POD_ID = 'squad-worker-abc';
-    process.env.SQUAD_DEPLOYMENT_MODE = 'squad-per-pod';
+  it('loadCapabilities reads pod-specific manifest when CREW_POD_ID is set', async () => {
+    process.env.CREW_POD_ID = 'crew-worker-abc';
+    process.env.CREW_DEPLOYMENT_MODE = 'crew-per-pod';
 
     const podManifest: MachineCapabilities = {
       machine: 'POD-ABC',
@@ -148,7 +148,7 @@ describe('dual-mode deployment', () => {
       lastUpdated: '2026-06-01T00:00:00Z',
     };
     writeFileSync(
-      path.join(tmpDir, '.squad', 'machine-capabilities-squad-worker-abc.json'),
+      path.join(tmpDir, '.crew', 'machine-capabilities-crew-worker-abc.json'),
       JSON.stringify(podManifest),
     );
     // Also write shared manifest to ensure pod-specific wins
@@ -159,19 +159,19 @@ describe('dual-mode deployment', () => {
       lastUpdated: '2026-06-01T00:00:00Z',
     };
     writeFileSync(
-      path.join(tmpDir, '.squad', 'machine-capabilities.json'),
+      path.join(tmpDir, '.crew', 'machine-capabilities.json'),
       JSON.stringify(sharedManifest),
     );
 
     const caps = await loadCapabilities(tmpDir);
     expect(caps).not.toBeNull();
     expect(caps!.machine).toBe('POD-ABC');
-    expect(caps!.podId).toBe('squad-worker-abc');
+    expect(caps!.podId).toBe('crew-worker-abc');
   });
 
   it('loadCapabilities falls back to shared manifest when pod-specific not found', async () => {
-    process.env.SQUAD_POD_ID = 'squad-worker-xyz';
-    process.env.SQUAD_DEPLOYMENT_MODE = 'squad-per-pod';
+    process.env.CREW_POD_ID = 'crew-worker-xyz';
+    process.env.CREW_DEPLOYMENT_MODE = 'crew-per-pod';
 
     const sharedManifest: MachineCapabilities = {
       machine: 'SHARED-FALLBACK',
@@ -180,19 +180,19 @@ describe('dual-mode deployment', () => {
       lastUpdated: '2026-06-01T00:00:00Z',
     };
     writeFileSync(
-      path.join(tmpDir, '.squad', 'machine-capabilities.json'),
+      path.join(tmpDir, '.crew', 'machine-capabilities.json'),
       JSON.stringify(sharedManifest),
     );
 
     const caps = await loadCapabilities(tmpDir);
     expect(caps).not.toBeNull();
     expect(caps!.machine).toBe('SHARED-FALLBACK');
-    expect(caps!.podId).toBe('squad-worker-xyz');
+    expect(caps!.podId).toBe('crew-worker-xyz');
   });
 
-  it('loadCapabilities ignores SQUAD_POD_ID when SQUAD_DEPLOYMENT_MODE is agent-per-node', async () => {
-    process.env.SQUAD_POD_ID = 'squad-worker-abc';
-    process.env.SQUAD_DEPLOYMENT_MODE = 'agent-per-node';
+  it('loadCapabilities ignores CREW_POD_ID when CREW_DEPLOYMENT_MODE is agent-per-node', async () => {
+    process.env.CREW_POD_ID = 'crew-worker-abc';
+    process.env.CREW_DEPLOYMENT_MODE = 'agent-per-node';
 
     const podManifest: MachineCapabilities = {
       machine: 'POD-ABC',
@@ -201,7 +201,7 @@ describe('dual-mode deployment', () => {
       lastUpdated: '2026-06-01T00:00:00Z',
     };
     writeFileSync(
-      path.join(tmpDir, '.squad', 'machine-capabilities-squad-worker-abc.json'),
+      path.join(tmpDir, '.crew', 'machine-capabilities-crew-worker-abc.json'),
       JSON.stringify(podManifest),
     );
     const sharedManifest: MachineCapabilities = {
@@ -211,7 +211,7 @@ describe('dual-mode deployment', () => {
       lastUpdated: '2026-06-01T00:00:00Z',
     };
     writeFileSync(
-      path.join(tmpDir, '.squad', 'machine-capabilities.json'),
+      path.join(tmpDir, '.crew', 'machine-capabilities.json'),
       JSON.stringify(sharedManifest),
     );
 
@@ -223,20 +223,20 @@ describe('dual-mode deployment', () => {
   });
 
   it('getDeploymentMode defaults to agent-per-node', () => {
-    delete process.env.SQUAD_DEPLOYMENT_MODE;
+    delete process.env.CREW_DEPLOYMENT_MODE;
     expect(getDeploymentMode()).toBe('agent-per-node');
   });
 
-  it('getDeploymentMode reads SQUAD_DEPLOYMENT_MODE env var', () => {
-    process.env.SQUAD_DEPLOYMENT_MODE = 'squad-per-pod';
-    expect(getDeploymentMode()).toBe('squad-per-pod');
+  it('getDeploymentMode reads CREW_DEPLOYMENT_MODE env var', () => {
+    process.env.CREW_DEPLOYMENT_MODE = 'crew-per-pod';
+    expect(getDeploymentMode()).toBe('crew-per-pod');
   });
 
-  it('getPodId reads SQUAD_POD_ID env var', () => {
-    delete process.env.SQUAD_POD_ID;
+  it('getPodId reads CREW_POD_ID env var', () => {
+    delete process.env.CREW_POD_ID;
     expect(getPodId()).toBeUndefined();
 
-    process.env.SQUAD_POD_ID = 'my-pod-42';
+    process.env.CREW_POD_ID = 'my-pod-42';
     expect(getPodId()).toBe('my-pod-42');
   });
 });

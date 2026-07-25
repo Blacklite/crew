@@ -1,15 +1,15 @@
 # SDK API Reference
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Complete reference for all public exports from `@bradygaster/squad-sdk`. Each section includes types, functions, and usage examples.
+Complete reference for all public exports from `@blacklite/crew-sdk`. Each section includes types, functions, and usage examples.
 
 ## Overview
 
 ```typescript
 import {
   // Resolution
-  resolveSquad, resolveGlobalSquadPath, ensureSquadPath,
+  resolveCrew, resolveGlobalCrewPath, ensureCrewPath,
   
   // Runtime
   MODELS, TIMEOUTS, AGENT_ROLES,
@@ -22,7 +22,7 @@ import {
   CastingEngine, CastingHistory,
   
   // Coordinator
-  SquadCoordinator, selectResponseTier, getTier,
+  CrewCoordinator, selectResponseTier, getTier,
   
   // Tools
   defineTool, ToolRegistry,
@@ -30,32 +30,32 @@ import {
   // OTel
   initializeOTel, shutdownOTel, getTracer, getMeter,
   bridgeEventBusToOTel, createOTelTransport,
-  initSquadTelemetry,
-} from '@bradygaster/squad-sdk';
+  initCrewTelemetry,
+} from '@blacklite/crew-sdk';
 ```
 
 ---
 
 ## Resolution
 
-Functions to locate Squad directories.
+Functions to locate Crew directories.
 
-### `resolveSquad(startPath?: string): string`
+### `resolveCrew(startPath?: string): string`
 
-Find `.squad/` directory starting from a path and walking up to the project root. Throws if not found.
+Find `.crew/` directory starting from a path and walking up to the project root. Throws if not found.
 
 ```typescript
-const squadPath = resolveSquad();
-const squadPath = resolveSquad('/home/user/project/src');
+const crewPath = resolveCrew();
+const crewPath = resolveCrew('/home/user/project/src');
 ```
 
-### `resolveGlobalSquadPath(): string`
+### `resolveGlobalCrewPath(): string`
 
-Get path to global personal squad. Returns platform-specific path: `~/.config/squad/` on Linux, `~/Library/Application Support/squad/` on macOS, `%APPDATA%\squad\` on Windows.
+Get path to global personal crew. Returns platform-specific path: `~/.config/crew/` on Linux, `~/Library/Application Support/crew/` on macOS, `%APPDATA%\crew\` on Windows.
 
-### `ensureSquadPath(startPath?: string): string`
+### `ensureCrewPath(startPath?: string): string`
 
-Like `resolveSquad()`, but creates the directory if it doesn't exist.
+Like `resolveCrew()`, but creates the directory if it doesn't exist.
 
 ---
 
@@ -89,12 +89,12 @@ Standard agent roles and their default properties.
 
 ## Configuration
 
-### `loadConfig(squadPath: string): Promise<ConfigLoadResult>`
+### `loadConfig(crewPath: string): Promise<ConfigLoadResult>`
 
-Load configuration asynchronously. Reads `squad.config.ts` (if present), parses routing/model overrides, validates schemas.
+Load configuration asynchronously. Reads `crew.config.ts` (if present), parses routing/model overrides, validates schemas.
 
 ```typescript
-const config = await loadConfig('./.squad');
+const config = await loadConfig('./.crew');
 console.log(config.team.name);
 console.log(Object.keys(config.agents));
 ```
@@ -121,7 +121,7 @@ interface AgentConfig {
 }
 ```
 
-### `loadConfigSync(squadPath: string): ConfigLoadResult`
+### `loadConfigSync(crewPath: string): ConfigLoadResult`
 
 Synchronous version of `loadConfig()`.
 
@@ -135,7 +135,7 @@ Create a new agent directory, charter, and history file.
 
 ```typescript
 const result = await onboardAgent({
-  teamRoot: './.squad',
+  teamRoot: './.crew',
   agentName: 'data-analyst',
   role: 'backend',
   displayName: 'Dana — Data Analyst',
@@ -190,7 +190,7 @@ const members = await engine.castTeam([
 Track all casting decisions over time.
 
 ```typescript
-const history = new CastingHistory('./.squad/casting');
+const history = new CastingHistory('./.crew/casting');
 const records = history.getRecordsByAgent('lead');
 const previousCast = history.findByName('Stringer');
 ```
@@ -210,13 +210,13 @@ interface CastMember {
 
 ## Coordinator
 
-### `SquadCoordinator`
+### `CrewCoordinator`
 
 Main class for routing work to agents.
 
 ```typescript
-const coordinator = new SquadCoordinator({
-  teamRoot: './.squad',
+const coordinator = new CrewCoordinator({
+  teamRoot: './.crew',
   enableParallel: true,
 });
 
@@ -257,7 +257,7 @@ Get configuration for a specific tier (max agents, default model, available tool
 
 ## Tools
 
-### `defineTool<TArgs>(config: ToolConfig<TArgs>): SquadTool<TArgs>`
+### `defineTool<TArgs>(config: ToolConfig<TArgs>): CrewTool<TArgs>`
 
 Define a new tool with typed parameters.
 
@@ -288,29 +288,29 @@ const myTool = defineTool<{ query: string }>({
 Manage the built-in tool set.
 
 ```typescript
-import { ToolRegistry } from '@bradygaster/squad-sdk/tools';
-import type { FanOutDependencies } from '@bradygaster/squad-sdk/coordinator';
+import { ToolRegistry } from '@blacklite/crew-sdk/tools';
+import type { FanOutDependencies } from '@blacklite/crew-sdk/coordinator';
 
-const registry = new ToolRegistry('./.squad');
+const registry = new ToolRegistry('./.crew');
 const tools = registry.getTools();
-const agentTools = registry.getToolsForAgent(['squad_route', 'squad_decide']);
+const agentTools = registry.getToolsForAgent(['crew_route', 'crew_decide']);
 ```
 
-**Constructor:** `new ToolRegistry(squadRoot?, sessionPoolGetter?, storage?, state?, fanOutDepsGetter?)`
+**Constructor:** `new ToolRegistry(crewRoot?, sessionPoolGetter?, storage?, state?, fanOutDepsGetter?)`
 
-- `fanOutDepsGetter` — Required for `squad_route` to spawn sessions via `spawnParallel`. Returns a `FanOutDependencies` object (from `@bradygaster/squad-sdk/coordinator`). Without it, `squad_route` returns `resultType: 'failure'` with `error: 'fan-out-deps-unavailable'`.
-- `state` — When provided, `squad_route` validates that the target agent exists in the team roster before spawning.
+- `fanOutDepsGetter` — Required for `crew_route` to spawn sessions via `spawnParallel`. Returns a `FanOutDependencies` object (from `@blacklite/crew-sdk/coordinator`). Without it, `crew_route` returns `resultType: 'failure'` with `error: 'fan-out-deps-unavailable'`.
+- `state` — When provided, `crew_route` validates that the target agent exists in the team roster before spawning.
 - Agent names must match `/^[a-zA-Z0-9_-]+$/`. Spawn errors are sanitized before being returned to the LLM.
 
 **Built-in tools:**
 
 | Tool | Purpose |
 |------|---------|
-| `squad_route` | Route a task to another agent (requires `fanOutDepsGetter`) |
-| `squad_decide` | Write decisions to the inbox |
-| `squad_memory` | Append to agent history |
-| `squad_status` | Query session pool state |
-| `squad_skill` | Read/write agent skills |
+| `crew_route` | Route a task to another agent (requires `fanOutDepsGetter`) |
+| `crew_decide` | Write decisions to the inbox |
+| `crew_memory` | Append to agent history |
+| `crew_status` | Query session pool state |
+| `crew_skill` | Read/write agent skills |
 
 ---
 
@@ -321,11 +321,11 @@ Three-layer observability API for traces, metrics, and telemetry.
 ### Layer 1: Low-Level Control
 
 ```typescript
-import { initializeOTel, shutdownOTel, getTracer, getMeter } from '@bradygaster/squad-sdk';
+import { initializeOTel, shutdownOTel, getTracer, getMeter } from '@blacklite/crew-sdk';
 
 await initializeOTel({
   endpoint: 'http://localhost:4318',
-  serviceName: 'my-squad',
+  serviceName: 'my-crew',
 });
 
 const tracer = getTracer('my-component');
@@ -337,7 +337,7 @@ await shutdownOTel();
 ### Layer 2: Mid-Level Bridge
 
 ```typescript
-import { bridgeEventBusToOTel, createOTelTransport } from '@bradygaster/squad-sdk';
+import { bridgeEventBusToOTel, createOTelTransport } from '@blacklite/crew-sdk';
 
 const unsubscribe = bridgeEventBusToOTel(eventBus);
 const transport = createOTelTransport();
@@ -346,11 +346,11 @@ const transport = createOTelTransport();
 ### Layer 3: High-Level Convenience
 
 ```typescript
-import { initSquadTelemetry } from '@bradygaster/squad-sdk';
+import { initCrewTelemetry } from '@blacklite/crew-sdk';
 
-const telemetry = await initSquadTelemetry({
+const telemetry = await initCrewTelemetry({
   endpoint: 'http://localhost:4318',
-  serviceName: 'my-squad',
+  serviceName: 'my-crew',
   eventBus: myEventBus,
 });
 
@@ -379,11 +379,11 @@ while (!(result = await reader.read()).done) {
 
 ## Upstream Inheritance
 
-### `readUpstreamConfig(squadPath: string): Promise<UpstreamConfig>`
+### `readUpstreamConfig(crewPath: string): Promise<UpstreamConfig>`
 
-Load upstream sources from `.squad/upstream.json`.
+Load upstream sources from `.crew/upstream.json`.
 
-### `resolveUpstreams(config: UpstreamConfig, squadPath: string): Promise<ResolvedUpstream[]>`
+### `resolveUpstreams(config: UpstreamConfig, crewPath: string): Promise<ResolvedUpstream[]>`
 
 Resolve all upstreams and return their inherited content.
 
@@ -393,7 +393,7 @@ Build a markdown block of all inherited context (for agent charters).
 
 ### `buildSessionDisplay(resolved: ResolvedUpstream[]): string`
 
-Build a human-readable display of upstream sources (for `squad status`).
+Build a human-readable display of upstream sources (for `crew status`).
 
 ---
 
@@ -401,9 +401,9 @@ Build a human-readable display of upstream sources (for `squad status`).
 
 | Export | Type | Module | Purpose |
 |--------|------|--------|---------|
-| `resolveSquad` | function | resolution | Find .squad directory |
-| `resolveGlobalSquadPath` | function | resolution | Get ~/.squad path |
-| `ensureSquadPath` | function | resolution | Find or create .squad |
+| `resolveCrew` | function | resolution | Find .crew directory |
+| `resolveGlobalCrewPath` | function | resolution | Get ~/.crew path |
+| `ensureCrewPath` | function | resolution | Find or create .crew |
 | `MODELS` | constant | runtime/constants | Model catalog |
 | `TIMEOUTS` | constant | runtime/constants | Standard timeouts |
 | `AGENT_ROLES` | constant | runtime/constants | Agent role definitions |
@@ -412,7 +412,7 @@ Build a human-readable display of upstream sources (for `squad status`).
 | `onboardAgent` | function | agents | Create new agent |
 | `CastingEngine` | class | casting | Generate personas |
 | `CastingHistory` | class | casting | Track castings |
-| `SquadCoordinator` | class | coordinator | Route and orchestrate |
+| `CrewCoordinator` | class | coordinator | Route and orchestrate |
 | `selectResponseTier` | function | coordinator | Choose response tier |
 | `getTier` | function | coordinator | Get tier config |
 | `defineTool` | function | tools | Define custom tool |
@@ -423,7 +423,7 @@ Build a human-readable display of upstream sources (for `squad status`).
 | `getMeter` | function | runtime/otel | Get meter |
 | `bridgeEventBusToOTel` | function | runtime/otel-bridge | EventBus → OTel |
 | `createOTelTransport` | function | runtime/otel-bridge | Create OTel transport |
-| `initSquadTelemetry` | function | runtime/otel-init | One-call setup |
+| `initCrewTelemetry` | function | runtime/otel-init | One-call setup |
 
 ---
 

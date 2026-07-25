@@ -1,6 +1,6 @@
 # Cost-aware router
 
-Demonstrates how the Squad SDK selects response tiers based on task complexity, routes tasks to the cheapest model that can handle them, tracks costs per agent and session, and provides budget warnings and final cost reports.
+Demonstrates how the Crew SDK selects response tiers based on task complexity, routes tasks to the cheapest model that can handle them, tracks costs per agent and session, and provides budget warnings and final cost reports.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ The sample processes five tasks with increasing complexity. For each task, `sele
 ```
   ┌──────────────────────────────────────────────────────────────┐
   │                                                              │
-  │   Squad SDK — Cost-Aware Router Demo                        │
+  │   Crew SDK — Cost-Aware Router Demo                        │
   │   Tier selection · Budget tracking · Cost breakdowns         │
   │                                                              │
   └──────────────────────────────────────────────────────────────┘
@@ -56,7 +56,7 @@ The sample processes five tasks with increasing complexity. For each task, `sele
 | File | Purpose |
 |---|---|
 | `index.ts` | Main demo showing tier selection, cost tracking, and budget warnings |
-| `package.json` | Dependencies (squad-sdk) and scripts |
+| `package.json` | Dependencies (crew-sdk) and scripts |
 | `tsconfig.json` | TypeScript configuration (ESM, strict) |
 | `tests/cost-aware-router.test.ts` | Tests for tier selection and cost calculations |
 
@@ -70,7 +70,7 @@ import {
   selectResponseTier,
   getTier,
   MODELS,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 ```
 
 ## Next steps

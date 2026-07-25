@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets';
 import ThemeToggle from './ThemeToggle.astro';
 import Search from './Search.astro';
-import squadLogo from '../assets/images/squad-logo.png';
+import crewLogo from '../assets/images/crew-logo.png';
 const base = import.meta.env.BASE_URL;
 const pathname = Astro.url.pathname;
 const isDocsActive = pathname.startsWith(`${base}docs/`);
@@ -10,7 +10,7 @@ const isBlogActive = pathname.startsWith(`${base}blog/`);
 
 const navBase = "px-3 py-1.5 rounded-md transition-colors";
 const navInactive = "text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white hover:bg-surface-100 dark:hover:bg-surface-800";
-const navActive = "text-squad-700 dark:text-squad-300 bg-squad-50 dark:bg-squad-900/30 font-medium";
+const navActive = "text-crew-700 dark:text-crew-300 bg-crew-50 dark:bg-crew-900/30 font-medium";
 
 const mobileNavBase = "block px-3 py-2 rounded-md text-base transition-colors";
 ---
@@ -41,15 +41,15 @@ const mobileNavBase = "block px-3 py-2 rounded-md text-base transition-colors";
 
     <!-- Logo -->
     <a href={base} class="flex items-center gap-2 font-semibold text-surface-900 dark:text-white mr-6">
-      <Image src={squadLogo} alt="Squad" class="h-7 w-7" />
-      <span class="text-lg">Squad</span>
+      <Image src={crewLogo} alt="Crew" class="h-7 w-7" />
+      <span class="text-lg">Crew</span>
     </a>
 
     <!-- Top nav links (desktop) -->
     <nav class="hidden md:flex items-center gap-1 text-base" data-pagefind-ignore>
       <a href={`${base}docs/get-started/installation/`} class:list={[navBase, isDocsActive ? navActive : navInactive]}>Docs</a>
       <a href={`${base}blog/`} class:list={[navBase, isBlogActive ? navActive : navInactive]}>Blog</a>
-      <a href="https://github.com/bradygaster/squad" class:list={[navBase, navInactive]} target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/Blacklite/crew" class:list={[navBase, navInactive]} target="_blank" rel="noopener">GitHub</a>
     </nav>
 
     <!-- Right side -->
@@ -57,7 +57,7 @@ const mobileNavBase = "block px-3 py-2 rounded-md text-base transition-colors";
       <Search />
       <ThemeToggle />
       <a
-        href="https://github.com/bradygaster/squad"
+        href="https://github.com/Blacklite/crew"
         target="_blank"
         rel="noopener"
         class="hidden sm:flex p-2 rounded-lg text-surface-500 dark:text-surface-400 hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors"
@@ -75,7 +75,7 @@ const mobileNavBase = "block px-3 py-2 rounded-md text-base transition-colors";
     <div class="px-4 py-3 space-y-1">
       <a href={`${base}docs/get-started/installation/`} class:list={[mobileNavBase, isDocsActive ? navActive : navInactive]}>Docs</a>
       <a href={`${base}blog/`} class:list={[mobileNavBase, isBlogActive ? navActive : navInactive]}>Blog</a>
-      <a href="https://github.com/bradygaster/squad" class:list={[mobileNavBase, navInactive]} target="_blank" rel="noopener">GitHub</a>
+      <a href="https://github.com/Blacklite/crew" class:list={[mobileNavBase, navInactive]} target="_blank" rel="noopener">GitHub</a>
     </div>
   </nav>
 </header>

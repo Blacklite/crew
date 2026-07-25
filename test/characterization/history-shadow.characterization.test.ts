@@ -7,7 +7,7 @@
  * intentionally not duplicated here.
  *
  * Current-bug note: the section-boundary regex in `appendToHistory`
- * (`packages/squad-sdk/src/agents/history-shadow.ts`) is built as
+ * (`packages/crew-sdk/src/agents/history-shadow.ts`) is built as
  * `` (?=^##\s|\Z) `` and intends `\Z` to mean "end of string". JavaScript has
  * no `\Z` end-of-string escape; it is parsed as the literal character "Z".
  * For every section except the last one, a following `## ` header still
@@ -21,7 +21,7 @@
  * as they behave today; neither assertion below endorses the behavior as
  * desired. See the tracked follow-up issue for the production fix.
  *
- * All I/O is contained inside a hermetic temp root; repository `.squad/**`
+ * All I/O is contained inside a hermetic temp root; repository `.crew/**`
  * is never touched.
  */
 
@@ -29,12 +29,12 @@ import { describe, expect, it } from 'vitest';
 import * as path from 'node:path';
 import * as fs from 'node:fs/promises';
 
-import { FSStorageProvider } from '../../packages/squad-sdk/src/storage/fs-storage-provider.js';
+import { FSStorageProvider } from '../../packages/crew-sdk/src/storage/fs-storage-provider.js';
 import {
   appendToHistory,
   createHistoryShadow,
   type HistorySection,
-} from '../../packages/squad-sdk/src/agents/history-shadow.js';
+} from '../../packages/crew-sdk/src/agents/history-shadow.js';
 
 import { makeWriteGuardedStorage, withHermeticRoot } from './_helpers/hermetic-root.js';
 

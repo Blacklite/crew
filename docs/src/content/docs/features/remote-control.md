@@ -1,12 +1,12 @@
-# Squad Remote Control
+# Crew Remote Control
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 Control Copilot CLI from your phone via a secure WebSocket tunnel. Perfect for demos, pairing on mobile, or monitoring runs from anywhere.
 
 ```bash
-squad start --tunnel
+crew start --tunnel
 # Shows QR code → scan with phone → terminal appears in browser
 ```
 
@@ -14,7 +14,7 @@ squad start --tunnel
 
 ## What It Does
 
-`squad start` spawns Copilot CLI in a pseudo-terminal (PTY) and mirrors output to your phone in real-time via:
+`crew start` spawns Copilot CLI in a pseudo-terminal (PTY) and mirrors output to your phone in real-time via:
 
 1. **PTY** — Copilot runs in a full interactive terminal
 2. **WebSocket server** — Terminal I/O streams live via WebSocket
@@ -73,7 +73,7 @@ Architecture diagram:
 No tunnel, no phone access — just run Copilot in a PTY:
 
 ```bash
-squad start
+crew start
 # Output: Started PTY terminal (PID: 12345)
 #         Copilot running locally
 ```
@@ -83,7 +83,7 @@ squad start
 Create a tunnel, show QR code, let your phone scan and connect:
 
 ```bash
-squad start --tunnel
+crew start --tunnel
 # Output: Started devtunnel session
 #         Session ID: abc123xyz
 #         QR Code: [████████████████]
@@ -99,7 +99,7 @@ Scan the QR code with your phone camera. Opens browser → terminal renders with
 Specify the WebSocket server port:
 
 ```bash
-squad start --port 3456
+crew start --port 3456
 # Output: WebSocket listening on localhost:3456
 #         Access via: ws://localhost:3456
 ```
@@ -109,9 +109,9 @@ squad start --port 3456
 Run a different shell or program instead of copilot:
 
 ```bash
-squad start --tunnel --command powershell
-squad start --tunnel --command "python"
-squad start --tunnel --command "bash -i"
+crew start --tunnel --command powershell
+crew start --tunnel --command "python"
+crew start --tunnel --command "bash -i"
 ```
 
 ### Pass Copilot Flags Through
@@ -119,9 +119,9 @@ squad start --tunnel --command "bash -i"
 All flags after `--tunnel` pass to copilot:
 
 ```bash
-squad start --tunnel --yolo
-squad start --tunnel --model gpt-4
-squad start --tunnel --no-config
+crew start --tunnel --yolo
+crew start --tunnel --model gpt-4
+crew start --tunnel --no-config
 ```
 
 ---
@@ -200,7 +200,7 @@ This means late-joiners see context, not blank canvas.
 List and manage active devtunnel sessions:
 
 ```bash
-squad start --list-sessions
+crew start --list-sessions
 # Output:
 # Session 1: abc123xyz (2 phones connected, 1h 23m running)
 # Session 2: def456uvw (0 phones, 2m running)
@@ -210,7 +210,7 @@ squad start --list-sessions
 Kill a session:
 
 ```bash
-squad start --kill-session abc123xyz
+crew start --kill-session abc123xyz
 # Output: Session closed. Remaining: 2
 ```
 
@@ -235,7 +235,7 @@ This design keeps the tunnel stateless and reduces surface area.
 All connections, authentication, and security events are logged:
 
 ```bash
-~/.cli-tunnel/audit/squad-audit-2025-01-15.jsonl
+~/.cli-tunnel/audit/crew-audit-2025-01-15.jsonl
 ```
 
 Each line is a JSON object:
@@ -302,7 +302,7 @@ devtunnel user login
 This is typically Copilot waiting for input. Type a command or press Enter:
 
 ```
-squad >  [CURSOR BLINKING]
+crew >  [CURSOR BLINKING]
 ```
 
 Press Enter to see the prompt.
@@ -322,5 +322,5 @@ Logs are created on first event.
 ## See Also
 
 - [CLI Reference](../reference/cli.md) — All commands
-- [Getting Started](../get-started/installation.md) — Squad setup
+- [Getting Started](../get-started/installation.md) — Crew setup
 - [VS Code Integration](./vscode.md) — Remote Control in VS Code

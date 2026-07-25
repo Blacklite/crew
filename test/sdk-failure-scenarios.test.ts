@@ -18,7 +18,7 @@ import {
   withGhostRetry,
   parseCoordinatorResponse,
   SessionRegistry,
-} from '../packages/squad-cli/src/cli/shell/index.js';
+} from '../packages/crew-cli/src/cli/shell/index.js';
 
 // ============================================================================
 // Types & mock factories (mirrors repl-streaming.test.ts patterns)
@@ -26,7 +26,7 @@ import {
 
 type EventHandler = (event: { type: string; [key: string]: unknown }) => void;
 
-interface MockSquadSession {
+interface MockCrewSession {
   sendAndWait: ReturnType<typeof vi.fn>;
   sendMessage: ReturnType<typeof vi.fn>;
   on: ReturnType<typeof vi.fn>;
@@ -37,10 +37,10 @@ interface MockSquadSession {
   _emit: (eventName: string, event: { type: string; [key: string]: unknown }) => void;
 }
 
-function createMockSession(overrides: Partial<Pick<MockSquadSession, 'sendAndWait' | 'sendMessage'>> = {}): MockSquadSession {
+function createMockSession(overrides: Partial<Pick<MockCrewSession, 'sendAndWait' | 'sendMessage'>> = {}): MockCrewSession {
   const listeners = new Map<string, Set<EventHandler>>();
 
-  const session: MockSquadSession = {
+  const session: MockCrewSession = {
     sessionId: `mock-${Date.now()}`,
     _listeners: listeners,
 
@@ -75,7 +75,7 @@ function createMockSession(overrides: Partial<Pick<MockSquadSession, 'sendAndWai
  * 4. Return accumulated or fallback content
  */
 async function simulateDispatch(
-  session: MockSquadSession,
+  session: MockCrewSession,
   message: string,
   timeoutMs = 5000,
 ): Promise<{ content: string; error?: string }> {

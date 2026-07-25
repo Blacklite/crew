@@ -2,13 +2,13 @@
  * Regression test for the upgrade state-backend flow:
  *  - UPGRADE-FLAG-IGNORED: `--state-backend` must update config.json without
  *    duplicate keys.
- *  - UPGRADE-NO-MIGRATION: pre-existing `.squad/decisions.md` and agent
- *    histories must be carried onto the squad-state orphan branch.
+ *  - UPGRADE-NO-MIGRATION: pre-existing `.crew/decisions.md` and agent
+ *    histories must be carried onto the crew-state orphan branch.
  *  - WI-1: hook set (incl. pre-commit + post-commit) must be installed after
  *    migration.
  *
  * Evidence:
- * .squad/files/validation/TWOLAYER-BASELINE-INSIDER3-CONSOLIDATED.md (data-5)
+ * .crew/files/validation/TWOLAYER-BASELINE-INSIDER3-CONSOLIDATED.md (data-5)
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -16,21 +16,21 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { migrateStateBackend } from '../packages/squad-cli/src/cli/commands/migrate-backend.js';
+import { migrateStateBackend } from '../packages/crew-cli/src/cli/commands/migrate-backend.js';
 
 function mkRepo(backend: string): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'squad-upgrade-mig-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-upgrade-mig-'));
   execFileSync('git', ['init', '--quiet', '-b', 'main'], { cwd: dir });
   execFileSync('git', ['config', 'user.email', 'test@example.com'], { cwd: dir });
-  execFileSync('git', ['config', 'user.name', 'Squad UpgradeTest'], { cwd: dir });
+  execFileSync('git', ['config', 'user.name', 'Crew UpgradeTest'], { cwd: dir });
   // Seed an initial commit so HEAD exists and orphan creation works.
   fs.writeFileSync(path.join(dir, 'README.md'), '# test\n');
   execFileSync('git', ['add', 'README.md'], { cwd: dir });
   execFileSync('git', ['commit', '-q', '-m', 'init'], { cwd: dir });
 
-  fs.mkdirSync(path.join(dir, '.squad', 'agents', 'data'), { recursive: true });
+  fs.mkdirSync(path.join(dir, '.crew', 'agents', 'data'), { recursive: true });
   fs.writeFileSync(
-    path.join(dir, '.squad', 'config.json'),
+    path.join(dir, '.crew', 'config.json'),
     JSON.stringify({ stateBackend: backend, teamRoot: '.' }, null, 2),
   );
   return dir;
@@ -40,7 +40,7 @@ function cleanup(dir: string): void {
   try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* best-effort */ }
 }
 
-describe('squad upgrade --state-backend migration', () => {
+describe('crew upgrade --state-backend migration', () => {
   let dir: string;
   afterEach(() => dir && cleanup(dir));
 
@@ -48,7 +48,7 @@ describe('squad upgrade --state-backend migration', () => {
     dir = mkRepo('worktree');
     await migrateStateBackend(dir, 'two-layer');
 
-    const raw = fs.readFileSync(path.join(dir, '.squad', 'config.json'), 'utf-8');
+    const raw = fs.readFileSync(path.join(dir, '.crew', 'config.json'), 'utf-8');
     const parsed = JSON.parse(raw);
     expect(parsed.stateBackend).toBe('two-layer');
     // Bug E guard: only one occurrence of "stateBackend" in the raw text.
@@ -57,12 +57,12 @@ describe('squad upgrade --state-backend migration', () => {
   });
 
   it('UPGRADE-FLAG-IGNORED (clean target): writes stateBackend when config.json has no stateBackend field', { timeout: 30_000 }, async () => {
-    // Regression for the original bug: an older squad install has config.json
-    // with no stateBackend field at all. `squad upgrade --state-backend two-layer`
+    // Regression for the original bug: an older crew install has config.json
+    // with no stateBackend field at all. `crew upgrade --state-backend two-layer`
     // must add the field rather than silently drop it.
     dir = mkRepo('worktree');
     // Remove stateBackend so config only has other fields (e.g. teamRoot).
-    const configPath = path.join(dir, '.squad', 'config.json');
+    const configPath = path.join(dir, '.crew', 'config.json');
     const existing = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     delete existing['stateBackend'];
     fs.writeFileSync(configPath, JSON.stringify(existing, null, 2) + '\n');
@@ -86,14 +86,14 @@ describe('squad upgrade --state-backend migration', () => {
     }
   });
 
-  it('UPGRADE-NO-MIGRATION: copies decisions.md + agent history.md onto squad-state branch', { timeout: 30_000 }, async () => {
+  it('UPGRADE-NO-MIGRATION: copies decisions.md + agent history.md onto crew-state branch', { timeout: 30_000 }, async () => {
     dir = mkRepo('worktree');
     fs.writeFileSync(
-      path.join(dir, '.squad', 'decisions.md'),
-      '# Squad Decisions\n\n## D1 — pre-upgrade decision\n\nKeep this.\n',
+      path.join(dir, '.crew', 'decisions.md'),
+      '# Crew Decisions\n\n## D1 — pre-upgrade decision\n\nKeep this.\n',
     );
     fs.writeFileSync(
-      path.join(dir, '.squad', 'agents', 'data', 'history.md'),
+      path.join(dir, '.crew', 'agents', 'data', 'history.md'),
       '# Data history\n\n- entry 1\n',
     );
 
@@ -101,13 +101,13 @@ describe('squad upgrade --state-backend migration', () => {
 
     // Verify orphan branch contains the migrated files.
     const decisionsOnBranch = execFileSync(
-      'git', ['show', 'refs/heads/squad-state:decisions.md'],
+      'git', ['show', 'refs/heads/crew-state:decisions.md'],
       { cwd: dir, encoding: 'utf-8' },
     );
     expect(decisionsOnBranch).toContain('pre-upgrade decision');
 
     const historyOnBranch = execFileSync(
-      'git', ['show', 'refs/heads/squad-state:agents/data/history.md'],
+      'git', ['show', 'refs/heads/crew-state:agents/data/history.md'],
       { cwd: dir, encoding: 'utf-8' },
     );
     expect(historyOnBranch).toContain('entry 1');
@@ -116,29 +116,29 @@ describe('squad upgrade --state-backend migration', () => {
   it('F1 (Round 5): migrated working-tree state files are removed after upgrade', { timeout: 30_000 }, async () => {
     dir = mkRepo('worktree');
     fs.writeFileSync(
-      path.join(dir, '.squad', 'decisions.md'),
-      '# Squad Decisions\n\n## D1 — pre-upgrade decision\n',
+      path.join(dir, '.crew', 'decisions.md'),
+      '# Crew Decisions\n\n## D1 — pre-upgrade decision\n',
     );
     fs.writeFileSync(
-      path.join(dir, '.squad', 'agents', 'data', 'history.md'),
+      path.join(dir, '.crew', 'agents', 'data', 'history.md'),
       '# Data history\n',
     );
     // A static file that must NOT be touched by the cleanup.
     fs.writeFileSync(
-      path.join(dir, '.squad', 'charter.md'),
+      path.join(dir, '.crew', 'charter.md'),
       '# Charter\nStatic content — do not delete on upgrade.\n',
     );
 
     await migrateStateBackend(dir, 'two-layer');
 
     // Working-tree mutable state must be gone (orphan branch is authoritative).
-    expect(fs.existsSync(path.join(dir, '.squad', 'decisions.md'))).toBe(false);
-    expect(fs.existsSync(path.join(dir, '.squad', 'agents', 'data', 'history.md'))).toBe(false);
+    expect(fs.existsSync(path.join(dir, '.crew', 'decisions.md'))).toBe(false);
+    expect(fs.existsSync(path.join(dir, '.crew', 'agents', 'data', 'history.md'))).toBe(false);
     // The now-empty agent directory should also be cleaned up.
-    expect(fs.existsSync(path.join(dir, '.squad', 'agents', 'data'))).toBe(false);
+    expect(fs.existsSync(path.join(dir, '.crew', 'agents', 'data'))).toBe(false);
     // Static / config files must remain untouched.
-    expect(fs.existsSync(path.join(dir, '.squad', 'charter.md'))).toBe(true);
-    expect(fs.existsSync(path.join(dir, '.squad', 'config.json'))).toBe(true);
+    expect(fs.existsSync(path.join(dir, '.crew', 'charter.md'))).toBe(true);
+    expect(fs.existsSync(path.join(dir, '.crew', 'config.json'))).toBe(true);
   });
 
   it('migration is idempotent: re-running with same target does not duplicate config or fail', { timeout: 30_000 }, async () => {
@@ -146,7 +146,7 @@ describe('squad upgrade --state-backend migration', () => {
     await migrateStateBackend(dir, 'two-layer');
     await migrateStateBackend(dir, 'two-layer'); // no-op path
 
-    const raw = fs.readFileSync(path.join(dir, '.squad', 'config.json'), 'utf-8');
+    const raw = fs.readFileSync(path.join(dir, '.crew', 'config.json'), 'utf-8');
     const occurrences = (raw.match(/"stateBackend"/g) || []).length;
     expect(occurrences).toBe(1);
     expect(JSON.parse(raw).stateBackend).toBe('two-layer');
@@ -159,10 +159,10 @@ describe('squad upgrade --state-backend migration', () => {
     await migrateStateBackend(dir, 'two-layer');
 
     const gitignore = fs.readFileSync(path.join(dir, '.gitignore'), 'utf-8');
-    expect(gitignore).toContain('# Squad: state owned by squad-state branch (two-layer/orphan backend)');
-    expect(gitignore).toContain('.squad/decisions.md');
-    expect(gitignore).toContain('.squad/agents/*/history.md');
-    expect(gitignore).toContain('# /Squad: state owned by squad-state branch');
+    expect(gitignore).toContain('# Crew: state owned by crew-state branch (two-layer/orphan backend)');
+    expect(gitignore).toContain('.crew/decisions.md');
+    expect(gitignore).toContain('.crew/agents/*/history.md');
+    expect(gitignore).toContain('# /Crew: state owned by crew-state branch');
   });
 
   it('local → orphan: adds .gitignore marker block', { timeout: 30_000 }, async () => {
@@ -170,9 +170,9 @@ describe('squad upgrade --state-backend migration', () => {
     await migrateStateBackend(dir, 'orphan');
 
     const gitignore = fs.readFileSync(path.join(dir, '.gitignore'), 'utf-8');
-    expect(gitignore).toContain('# Squad: state owned by squad-state branch (two-layer/orphan backend)');
-    expect(gitignore).toContain('.squad/decisions.md');
-    expect(gitignore).toContain('.squad/agents/*/history.md');
+    expect(gitignore).toContain('# Crew: state owned by crew-state branch (two-layer/orphan backend)');
+    expect(gitignore).toContain('.crew/decisions.md');
+    expect(gitignore).toContain('.crew/agents/*/history.md');
   });
 
   it('two-layer → local: removes .gitignore marker block', { timeout: 30_000 }, async () => {
@@ -180,52 +180,52 @@ describe('squad upgrade --state-backend migration', () => {
     // Pre-seed a .gitignore with the marker block
     const gitignorePath = path.join(dir, '.gitignore');
     fs.writeFileSync(gitignorePath, [
-      '# Squad: ignore runtime state (logs, inbox, sessions)',
-      '.squad/orchestration-log/',
-      '# Squad: state owned by squad-state branch (two-layer/orphan backend)',
-      '.squad/decisions.md',
-      '.squad/agents/*/history.md',
-      '# /Squad: state owned by squad-state branch',
+      '# Crew: ignore runtime state (logs, inbox, sessions)',
+      '.crew/orchestration-log/',
+      '# Crew: state owned by crew-state branch (two-layer/orphan backend)',
+      '.crew/decisions.md',
+      '.crew/agents/*/history.md',
+      '# /Crew: state owned by crew-state branch',
       '',
     ].join('\n'));
 
     await migrateStateBackend(dir, 'local');
 
     const gitignore = fs.readFileSync(gitignorePath, 'utf-8');
-    expect(gitignore).not.toContain('# Squad: state owned by squad-state branch');
-    expect(gitignore).not.toContain('.squad/decisions.md');
-    expect(gitignore).not.toContain('.squad/agents/*/history.md');
+    expect(gitignore).not.toContain('# Crew: state owned by crew-state branch');
+    expect(gitignore).not.toContain('.crew/decisions.md');
+    expect(gitignore).not.toContain('.crew/agents/*/history.md');
     // Other entries should be preserved
-    expect(gitignore).toContain('.squad/orchestration-log/');
+    expect(gitignore).toContain('.crew/orchestration-log/');
   });
 
   it('orphan → local: removes .gitignore marker block', { timeout: 30_000 }, async () => {
     dir = mkRepo('orphan');
     const gitignorePath = path.join(dir, '.gitignore');
     fs.writeFileSync(gitignorePath, [
-      '.squad/orchestration-log/',
-      '# Squad: state owned by squad-state branch (two-layer/orphan backend)',
-      '.squad/decisions.md',
-      '.squad/agents/*/history.md',
-      '# /Squad: state owned by squad-state branch',
+      '.crew/orchestration-log/',
+      '# Crew: state owned by crew-state branch (two-layer/orphan backend)',
+      '.crew/decisions.md',
+      '.crew/agents/*/history.md',
+      '# /Crew: state owned by crew-state branch',
       '',
     ].join('\n'));
 
     await migrateStateBackend(dir, 'local');
 
     const gitignore = fs.readFileSync(gitignorePath, 'utf-8');
-    expect(gitignore).not.toContain('# Squad: state owned by squad-state branch');
-    expect(gitignore).toContain('.squad/orchestration-log/');
+    expect(gitignore).not.toContain('# Crew: state owned by crew-state branch');
+    expect(gitignore).toContain('.crew/orchestration-log/');
   });
 
   it('two-layer → orphan: no-op on .gitignore (block already present)', { timeout: 30_000 }, async () => {
     dir = mkRepo('two-layer');
     const gitignorePath = path.join(dir, '.gitignore');
     fs.writeFileSync(gitignorePath, [
-      '# Squad: state owned by squad-state branch (two-layer/orphan backend)',
-      '.squad/decisions.md',
-      '.squad/agents/*/history.md',
-      '# /Squad: state owned by squad-state branch',
+      '# Crew: state owned by crew-state branch (two-layer/orphan backend)',
+      '.crew/decisions.md',
+      '.crew/agents/*/history.md',
+      '# /Crew: state owned by crew-state branch',
       '',
     ].join('\n'));
     const contentBefore = fs.readFileSync(gitignorePath, 'utf-8');
@@ -234,9 +234,9 @@ describe('squad upgrade --state-backend migration', () => {
 
     const contentAfter = fs.readFileSync(gitignorePath, 'utf-8');
     // Block is still present
-    expect(contentAfter).toContain('# Squad: state owned by squad-state branch');
+    expect(contentAfter).toContain('# Crew: state owned by crew-state branch');
     // Not duplicated
-    const occurrences = (contentAfter.match(/# Squad: state owned by squad-state branch \(two-layer\/orphan backend\)/g) ?? []).length;
+    const occurrences = (contentAfter.match(/# Crew: state owned by crew-state branch \(two-layer\/orphan backend\)/g) ?? []).length;
     expect(occurrences).toBe(1);
   });
 
@@ -255,7 +255,7 @@ describe('squad upgrade --state-backend migration', () => {
     await migrateStateBackend(twoLayerDir, 'local');
     // After round-trip: the marker block should not be present
     const finalContent = fs.readFileSync(twoLayerGitignorePath, 'utf-8');
-    expect(finalContent).not.toContain('# Squad: state owned by squad-state branch');
+    expect(finalContent).not.toContain('# Crew: state owned by crew-state branch');
     try { fs.rmSync(twoLayerDir, { recursive: true, force: true }); } catch { /* best-effort */ }
   });
 });

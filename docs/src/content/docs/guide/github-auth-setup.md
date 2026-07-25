@@ -10,7 +10,7 @@ gh auth status
 gh auth switch --user YOUR_USERNAME
 ```
 
-You need an authenticated GitHub CLI to manage project boards with Squad. This guide covers login, required scopes, multi-account switching, and common pitfalls.
+You need an authenticated GitHub CLI to manage project boards with Crew. This guide covers login, required scopes, multi-account switching, and common pitfalls.
 
 ---
 
@@ -22,7 +22,7 @@ If you haven't authenticated yet, run:
 gh auth login
 ```
 
-Follow the interactive prompts. When asked about scopes, request the ones Squad needs for project board management (see the next section).
+Follow the interactive prompts. When asked about scopes, request the ones Crew needs for project board management (see the next section).
 
 To add scopes to an existing session:
 
@@ -40,8 +40,8 @@ Project board management requires specific token scopes. Without them, `gh proje
 |-------|----------------|
 | `repo` | Read and write access to repositories and their linked project boards |
 | `read:org` | Read organization membership — required to access org-level project boards |
-| `workflow` | Trigger and manage GitHub Actions workflows from Squad agents |
-| `delete_repo` | Allow Squad to clean up temporary repos during testing (optional but recommended) |
+| `workflow` | Trigger and manage GitHub Actions workflows from Crew agents |
+| `delete_repo` | Allow Crew to clean up temporary repos during testing (optional but recommended) |
 | `gist` | Create gists for sharing logs and snippets (optional but recommended) |
 
 ### Verify your scopes
@@ -163,7 +163,7 @@ gh pr create --repo your-org/your-repo --base main --title "Your PR"
 
 ## Quick verification checklist
 
-Run these commands before starting a Squad session that involves project boards:
+Run these commands before starting a Crew session that involves project boards:
 
 ```bash
 # 1. Check which account is active
@@ -179,12 +179,12 @@ gh auth status | grep "Token scopes"
 gh project list --owner YOUR_ORG
 ```
 
-If all four steps succeed, you're ready to manage project boards with Squad.
+If all four steps succeed, you're ready to manage project boards with Crew.
 
 ---
 
 ## See also
 
-- [Cross-organization authentication](../scenarios/cross-org-auth) — multi-account auth patterns for Squad agents
-- [Troubleshooting](../scenarios/troubleshooting) — common Squad issues and fixes
+- [Cross-organization authentication](../scenarios/cross-org-auth) — multi-account auth patterns for Crew agents
+- [Troubleshooting](../scenarios/troubleshooting) — common Crew issues and fixes
 - [Private repos](../scenarios/private-repos) — privacy and security for enterprise repos

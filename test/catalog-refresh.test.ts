@@ -15,8 +15,8 @@ import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { globSync } from 'node:fs';
-import { MODEL_CATALOG, DEFAULT_FALLBACK_CHAINS } from '@bradygaster/squad-sdk/config';
-import { MODELS } from '@bradygaster/squad-sdk/runtime/constants';
+import { MODEL_CATALOG, DEFAULT_FALLBACK_CHAINS } from '@blacklite/crew-sdk/config';
+import { MODELS } from '@blacklite/crew-sdk/runtime/constants';
 
 /**
  * Model IDs verified as NOT picker-reachable via the copilot-cli models API
@@ -169,10 +169,10 @@ const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 describe('template asset catalog invariants (#1080/#1183)', () => {
   // Scan canonical sources only — not sync targets — to avoid triple-counting
-  // the same bug across squad-cli/templates, squad-sdk/templates, .squad-templates.
+  // the same bug across crew-cli/templates, crew-sdk/templates, .crew-templates.
   const TEMPLATE_GLOBS = [
-    '.squad-templates/**/*.md',
-    '.squad/skills/**/*.md',
+    '.crew-templates/**/*.md',
+    '.crew/skills/**/*.md',
     '.copilot/skills/**/*.md',
   ];
 

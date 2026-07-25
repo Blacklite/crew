@@ -1,6 +1,6 @@
 # Ralph — Work Monitor
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to see active work:**
@@ -24,9 +24,9 @@ Ralph tracks the work queue, monitors CI status, and ensures the team never sits
 
 ## What Ralph Does
 
-Ralph is a built-in squad member whose job is keeping tabs on work. Like Scribe tracks decisions, **Ralph tracks and drives the work queue**. He's always on the roster — not cast from a universe — and has one job: make sure the team never sits idle when there's work to do.
+Ralph is a built-in crew member whose job is keeping tabs on work. Like Scribe tracks decisions, **Ralph tracks and drives the work queue**. He's always on the roster — not cast from a universe — and has one job: make sure the team never sits idle when there's work to do.
 
-Ralph uses intelligent routing to match work to the right agent. Rather than simple keyword matching against role titles, Ralph reads `.squad/routing.md` — your team's work-type definitions and module ownership — to make smart triage and dispatch decisions. This is the same intelligence the in-session coordinator uses.
+Ralph uses intelligent routing to match work to the right agent. Rather than simple keyword matching against role titles, Ralph reads `.crew/routing.md` — your team's work-type definitions and module ownership — to make smart triage and dispatch decisions. This is the same intelligence the in-session coordinator uses.
 
 ## Prerequisites
 
@@ -66,11 +66,11 @@ Once authenticated, Ralph can monitor your repository's issues and PRs.
 
 ## How It Works
 
-Once activated, Ralph continuously checks for pending work — open issues, draft PRs, review feedback, CI failures — and keeps the squad moving through the backlog without manual nudges. Ralph's behavior is built on three layers: in-session coordinator, watch mode for local polling, and cloud heartbeat for fully unattended monitoring.
+Once activated, Ralph continuously checks for pending work — open issues, draft PRs, review feedback, CI failures — and keeps the crew moving through the backlog without manual nudges. Ralph's behavior is built on three layers: in-session coordinator, watch mode for local polling, and cloud heartbeat for fully unattended monitoring.
 
 ### Routing-Aware Triage
 
-Ralph doesn't rely on dumb keyword matching. He reads your `.squad/routing.md` file to understand:
+Ralph doesn't rely on dumb keyword matching. He reads your `.crew/routing.md` file to understand:
 - **Work types** — categories like "Core runtime", "Docs & messaging", "Tests & quality"
 - **Agent assignments** — which agent owns each domain
 - **Module ownership** — which files belong to which agent (e.g., `src/hooks/` → Baer)
@@ -90,20 +90,20 @@ When you're in a Copilot session, Ralph self-chains the coordinator's work loop:
 2. Ralph checks GitHub for more: untriaged issues, assigned-but-unstarted items, draft PRs, failing CI
 3. Work found → triage, assign, spawn agents
 4. Results collected → Ralph checks again **immediately** — no pause, no asking permission
-5. Board clear → Ralph idles (use `squad watch` for persistent polling)
+5. Board clear → Ralph idles (use `crew watch` for persistent polling)
 
-**Ralph never stops on his own while work remains.** He keeps cycling through the backlog until every issue is closed, every PR is merged, and CI is green. When the board clears, Ralph idles — run `squad watch` in a separate terminal for persistent polling, or use the cloud heartbeat for fully unattended monitoring. The only things that stop Ralph's active loop: the board is clear, you say "idle"/"stop", or the session ends.
+**Ralph never stops on his own while work remains.** He keeps cycling through the backlog until every issue is closed, every PR is merged, and CI is green. When the board clears, Ralph idles — run `crew watch` in a separate terminal for persistent polling, or use the cloud heartbeat for fully unattended monitoring. The only things that stop Ralph's active loop: the board is clear, you say "idle"/"stop", or the session ends.
 
 ### Between Sessions (GitHub Actions Heartbeat)
 
-When no one is at the keyboard, the `squad-heartbeat.yml` workflow runs on event-based triggers (issue close, PR merge, manual dispatch). It:
+When no one is at the keyboard, the `crew-heartbeat.yml` workflow runs on event-based triggers (issue close, PR merge, manual dispatch). It:
 
-- Finds untriaged `squad`-labeled issues
+- Finds untriaged `crew`-labeled issues
 - Auto-triages based on your routing.md — matching issues to the right agent by work type and module ownership
-- Assigns `squad:{member}` labels
+- Assigns `crew:{member}` labels
 - For `@copilot` (if enabled with auto-assign): assigns `copilot-swe-agent[bot]` so the coding agent picks up work autonomously
 
-This creates a fully autonomous loop for `@copilot` — heartbeat triages → assigns → agent works → issue closed → heartbeat finds next issue → repeat. For continuous periodic monitoring, use `squad watch` locally.
+This creates a fully autonomous loop for `@copilot` — heartbeat triages → assigns → agent works → issue closed → heartbeat finds next issue → repeat. For continuous periodic monitoring, use `crew watch` locally.
 
 ### Work-in-Progress Monitoring
 
@@ -123,13 +123,13 @@ Ralph maintains an internal view of the work board. Work items flow through thes
 
 | Category | Meaning | Label(s) |
 |----------|---------|----------|
-| **Untriaged** | Issue has `squad` label but no `squad:{member}` assignment | `squad` only |
-| **Assigned** | Issue assigned to a squad member, awaiting agent start | `squad:{member}` |
-| **In Progress** | Agent has started work (draft PR exists or assignee begun) | `squad:{member}` + issue assigned |
-| **Needs Review** | PR created, awaiting review feedback or approval | `squad:{member}` + PR open |
-| **Changes Requested** | PR review came back with feedback | `squad:{member}` + `changes-requested` |
-| **CI Failure** | PR checks are failing | `squad:{member}` + `ci-failure` |
-| **Ready to Merge** | PR approved, all checks passing | `squad:{member}` + `approved` |
+| **Untriaged** | Issue has `crew` label but no `crew:{member}` assignment | `crew` only |
+| **Assigned** | Issue assigned to a crew member, awaiting agent start | `crew:{member}` |
+| **In Progress** | Agent has started work (draft PR exists or assignee begun) | `crew:{member}` + issue assigned |
+| **Needs Review** | PR created, awaiting review feedback or approval | `crew:{member}` + PR open |
+| **Changes Requested** | PR review came back with feedback | `crew:{member}` + `changes-requested` |
+| **CI Failure** | PR checks are failing | `crew:{member}` + `ci-failure` |
+| **Ready to Merge** | PR approved, all checks passing | `crew:{member}` + `approved` |
 | **Done** | PR merged, issue closed | *(removed from board)* |
 
 Ralph uses these categories internally to decide what action to take next. When you ask for status, Ralph reports the current board state across all these categories.
@@ -143,7 +143,7 @@ Ralph monitors work at three different layers, each with different wake-up trigg
 - You say "Ralph, go" or "Ralph, status" → Ralph starts active loop
 - You say "Ralph, idle" → Ralph stops checking
 
-**Watch Mode (`squad watch` CLI):**
+**Watch Mode (`crew watch` CLI):**
 - Poll interval expires (default 10 min) → Ralph checks GitHub
 - You press Ctrl+C → Ralph stops
 
@@ -168,9 +168,9 @@ In all three layers, when Ralph wakes up, he scans the board, triages any untria
 
 | Category | Signal | Action |
 |---|---|---|
-| **Untriaged issues** | `squad` label, no `squad:{member}` label | Lead triages and assigns |
-| **Assigned issues** | `squad:{member}` label, no assignee/PR yet | Spawn agent to pick it up |
-| **Draft PRs** | Squad member PR still in draft | Check if agent is stalled |
+| **Untriaged issues** | `crew` label, no `crew:{member}` label | Lead triages and assigns |
+| **Assigned issues** | `crew:{member}` label, no assignee/PR yet | Spawn agent to pick it up |
+| **Draft PRs** | Crew member PR still in draft | Check if agent is stalled |
 | **Review feedback** | Changes requested on PR | Route to author agent |
 | **CI failures** | PR checks failing | Notify agent to fix |
 | **Approved PRs** | Ready to merge | Merge and close issue |
@@ -188,24 +188,24 @@ Ralph doesn't run silently forever. Every 3-5 rounds, Ralph reports and **keeps 
 
 Ralph does **not** ask permission to continue — he keeps working. The only things that stop Ralph: the board is clear, you say "idle"/"stop", or the session ends.
 
-## Watch Mode (`squad watch`)
+## Watch Mode (`crew watch`)
 
-Ralph's in-session loop processes work while it exists, then idles. For **persistent polling** when you're away from the keyboard, run the `squad watch` command in a separate terminal.
+Ralph's in-session loop processes work while it exists, then idles. For **persistent polling** when you're away from the keyboard, run the `crew watch` command in a separate terminal.
 
 ### Triage Mode (Default)
 
 Basic usage — triage only, no execution:
 
 ```bash
-squad watch                    # polls every 10 minutes (default)
-squad watch --interval 5       # polls every 5 minutes
-squad watch --interval 30      # polls every 30 minutes
+crew watch                    # polls every 10 minutes (default)
+crew watch --interval 5       # polls every 5 minutes
+crew watch --interval 30      # polls every 30 minutes
 ```
 
 This runs as a standalone local process (not inside Copilot) that:
-- Checks GitHub every N minutes for untriaged squad work
+- Checks GitHub every N minutes for untriaged crew work
 - Auto-triages issues based on team roles and keywords
-- Assigns @copilot to `squad:copilot` issues (if auto-assign is enabled)
+- Assigns @copilot to `crew:copilot` issues (if auto-assign is enabled)
 - Runs until Ctrl+C
 
 ### Full Work Monitor Mode (`--execute`)
@@ -213,12 +213,12 @@ This runs as a standalone local process (not inside Copilot) that:
 Add `--execute` to transform Ralph from a triage bot into a full work monitor that spawns Copilot sessions and actually does the work:
 
 ```bash
-squad watch --execute                           # basic work monitor
-squad watch --execute --interval 15             # check every 15 minutes
-squad watch --execute --max-concurrent 2        # work on 2 issues in parallel
+crew watch --execute                           # basic work monitor
+crew watch --execute --interval 15             # check every 15 minutes
+crew watch --execute --max-concurrent 2        # work on 2 issues in parallel
 ```
 
-When `--execute` is enabled, Ralph spawns Copilot CLI sessions for actionable issues (assigned to a squad member, not blocked, not already assigned to a human). Squad automatically injects `--yolo --additional-mcp-config @.mcp.json` into every spawned Copilot invocation so that MCP tools are available in non-interactive (`-p`) mode — see [Copilot CLI MCP Trust Gate](./copilot-mcp-trust.md) for details.
+When `--execute` is enabled, Ralph spawns Copilot CLI sessions for actionable issues (assigned to a crew member, not blocked, not already assigned to a human). Crew automatically injects `--yolo --additional-mcp-config @.mcp.json` into every spawned Copilot invocation so that MCP tools are available in non-interactive (`-p`) mode — see [Copilot CLI MCP Trust Gate](./copilot-mcp-trust.md) for details.
 
 **Example execution output:**
 
@@ -237,68 +237,68 @@ When `--execute` is enabled, Ralph spawns Copilot CLI sessions for actionable is
 
 ### All Watch Flags
 
-All new features are **opt-in** and disabled by default. Existing `squad watch` behavior is unchanged.
+All new features are **opt-in** and disabled by default. Existing `crew watch` behavior is unchanged.
 
 #### Execution Control
 
 | Flag | Description | Example |
 |------|-------------|---------|
-| `--execute` | Enable work execution (spawn Copilot to work on issues) | `squad watch --execute` |
-| `--max-concurrent N` | Max parallel issues per round (default: 1) | `squad watch --execute --max-concurrent 3` |
-| `--timeout N` | Per-issue timeout in minutes (default: 30) | `squad watch --execute --timeout 45` |
-| `--copilot-flags "..."` | Pass extra flags to Copilot CLI | `squad watch --execute --copilot-flags "--model gpt-4"` |
+| `--execute` | Enable work execution (spawn Copilot to work on issues) | `crew watch --execute` |
+| `--max-concurrent N` | Max parallel issues per round (default: 1) | `crew watch --execute --max-concurrent 3` |
+| `--timeout N` | Per-issue timeout in minutes (default: 30) | `crew watch --execute --timeout 45` |
+| `--copilot-flags "..."` | Pass extra flags to Copilot CLI | `crew watch --execute --copilot-flags "--model gpt-4"` |
 
 #### Issue Scanning
 
 | Flag | Description | Example |
 |------|-------------|---------|
-| `--two-pass` | Lightweight list → hydrate actionable only (saves API quota) | `squad watch --two-pass` |
-| `--wave-dispatch` | Parallel sub-task execution within issues (dependency-aware) | `squad watch --execute --wave-dispatch` |
+| `--two-pass` | Lightweight list → hydrate actionable only (saves API quota) | `crew watch --two-pass` |
+| `--wave-dispatch` | Parallel sub-task execution within issues (dependency-aware) | `crew watch --execute --wave-dispatch` |
 
 #### Communication Bridges
 
 | Flag | Description | Example |
 |------|-------------|---------|
-| `--monitor-teams` | Scan Teams for actionable messages each round (requires WorkIQ MCP) | `squad watch --monitor-teams` |
-| `--monitor-email` | Scan email for alerts and action items each round (requires WorkIQ MCP) | `squad watch --monitor-email` |
+| `--monitor-teams` | Scan Teams for actionable messages each round (requires WorkIQ MCP) | `crew watch --monitor-teams` |
+| `--monitor-email` | Scan email for alerts and action items each round (requires WorkIQ MCP) | `crew watch --monitor-email` |
 
 #### Project Board Lifecycle
 
 | Flag | Description | Example |
 |------|-------------|---------|
-| `--board` | Enable project board lifecycle (In Progress / Done / Blocked + reconciliation) | `squad watch --board` |
-| `--board-project N` | Project board number (default: 1) | `squad watch --board --board-project 2` |
+| `--board` | Enable project board lifecycle (In Progress / Done / Blocked + reconciliation) | `crew watch --board` |
+| `--board-project N` | Project board number (default: 1) | `crew watch --board --board-project 2` |
 
 #### Housekeeping & Governance
 
 | Flag | Description | Example |
 |------|-------------|---------|
-| `--notify-level LEVEL` | Control round reporting noise: `important` (default), `all`, `none` | `squad watch --notify-level important` |
-| `--retro` | Enforce retrospective checks (Fridays or when missed >7 days) | `squad watch --retro` |
-| `--decision-hygiene` | Auto-merge decision inbox when >5 files | `squad watch --decision-hygiene` |
-| `--cleanup` | Auto-clear scratch files, archive old logs (every 10 rounds) | `squad watch --cleanup` |
-| `--channel-routing` | Route notifications to specific Teams channels (requires `.squad/teams-channels.json`) | `squad watch --channel-routing` |
+| `--notify-level LEVEL` | Control round reporting noise: `important` (default), `all`, `none` | `crew watch --notify-level important` |
+| `--retro` | Enforce retrospective checks (Fridays or when missed >7 days) | `crew watch --retro` |
+| `--decision-hygiene` | Auto-merge decision inbox when >5 files | `crew watch --decision-hygiene` |
+| `--cleanup` | Auto-clear scratch files, archive old logs (every 10 rounds) | `crew watch --cleanup` |
+| `--channel-routing` | Route notifications to specific Teams channels (requires `.crew/teams-channels.json`) | `crew watch --channel-routing` |
 
 ### Common Workflows
 
 **Basic triage + work execution:**
 ```bash
-squad watch --execute --interval 10
+crew watch --execute --interval 10
 ```
 
 **Full monitor with all features:**
 ```bash
-squad watch --execute --board --two-pass --monitor-teams --retro --decision-hygiene --max-concurrent 2 --interval 15
+crew watch --execute --board --two-pass --monitor-teams --retro --decision-hygiene --max-concurrent 2 --interval 15
 ```
 
 **Cost-conscious (two-pass, lower concurrency):**
 ```bash
-squad watch --execute --two-pass --max-concurrent 1 --timeout 20
+crew watch --execute --two-pass --max-concurrent 1 --timeout 20
 ```
 
 **Teams + email bridge only (no issue execution):**
 ```bash
-squad watch --monitor-teams --monitor-email --interval 5
+crew watch --monitor-teams --monitor-email --interval 5
 ```
 
 ### Round Cycle (Full Monitor)
@@ -319,7 +319,7 @@ When all features are enabled, each round follows this cycle:
 For advanced users who know what they're doing:
 
 ```bash
-squad watch --execute --agent-cmd "custom-agent-wrapper"
+crew watch --execute --agent-cmd "custom-agent-wrapper"
 ```
 
 This fully overrides the agent command. The default is `gh copilot --message "<prompt>"` plus any `--copilot-flags`. Use this to plug in custom agent wrappers or alternative Copilot entry points.
@@ -332,7 +332,7 @@ Ralph supports Azure DevOps repos and work items via the SDK's PlatformAdapter. 
 
 1. Install Azure CLI: `az extension add --name azure-devops`
 2. Authenticate: `az login`
-3. Add ADO config to `.squad/config.json`:
+3. Add ADO config to `.crew/config.json`:
 ```json
 {
   "platform": "ado",
@@ -345,12 +345,12 @@ Ralph supports Azure DevOps repos and work items via the SDK's PlatformAdapter. 
 
 **Usage:**
 ```bash
-squad watch                                 # auto-detects from git remote
-squad watch --execute                       # full work monitor (auto-detects platform)
+crew watch                                 # auto-detects from git remote
+crew watch --execute                       # full work monitor (auto-detects platform)
 ```
 
 **Key differences from GitHub:**
-- ADO uses **tags** instead of labels — `squad:data` becomes a tag on the work item
+- ADO uses **tags** instead of labels — `crew:data` becomes a tag on the work item
 - ADO uses `az boards` CLI instead of `gh` — Ralph checks `az` availability
 - ADO rate limiting is handled differently — the circuit breaker skips quota checks
 - ADO PRs don't expose `statusCheckRollup` — CI status columns may be empty
@@ -360,8 +360,8 @@ squad watch --execute                       # full work monitor (auto-detects pl
 | Layer | When | How |
 |-------|------|-----|
 | **In-session** | You're at the keyboard | "Ralph, go" — active loop while work exists |
-| **Local watchdog** | You're away but machine is on | `squad watch --interval 10` (triage) or `squad watch --execute` (full monitor) |
-| **Cloud heartbeat** | Fully unattended | `squad-heartbeat.yml` GitHub Actions events (issue close, PR merge, manual dispatch) |
+| **Local watchdog** | You're away but machine is on | `crew watch --interval 10` (triage) or `crew watch --execute` (full monitor) |
+| **Cloud heartbeat** | Fully unattended | `crew-heartbeat.yml` GitHub Actions events (issue close, PR merge, manual dispatch) |
 
 ## Ralph's Board View
 
@@ -379,13 +379,13 @@ When you ask for status:
 
 ## Heartbeat Workflow Setup
 
-The heartbeat workflow (`squad-heartbeat.yml`) is automatically installed during `init` or `upgrade`. It runs:
+The heartbeat workflow (`crew-heartbeat.yml`) is automatically installed during `init` or `upgrade`. It runs:
 
 - **On issue close**: Checks for next item in backlog
 - **On PR merge**: Checks for follow-up work
 - **On manual dispatch**: Trigger via GitHub Actions UI
 
-For persistent polling when you're away, use `squad watch` locally — it polls at your chosen interval without consuming GitHub Actions minutes.
+For persistent polling when you're away, use `crew watch` locally — it polls at your chosen interval without consuming GitHub Actions minutes.
 
 ## Notes
 
@@ -409,10 +409,10 @@ Ralph, status
 Runs a single check cycle and shows the current board state without activating the work loop.
 
 ```
-squad watch --interval 5
+crew watch --interval 5
 ```
 
-Starts persistent local polling — checks GitHub every 5 minutes for new squad work and triages automatically.
+Starts persistent local polling — checks GitHub every 5 minutes for new crew work and triages automatically.
 
 ```
 Ralph, scope: just issues

@@ -5,8 +5,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync, existsSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import type { CommunicationAdapter, CommunicationChannel, CommunicationReply, CommunicationConfig } from '../packages/squad-sdk/src/platform/types.js';
-import { FileLogCommunicationAdapter } from '../packages/squad-sdk/src/platform/comms-file-log.js';
+import type { CommunicationAdapter, CommunicationChannel, CommunicationReply, CommunicationConfig } from '../packages/crew-sdk/src/platform/types.js';
+import { FileLogCommunicationAdapter } from '../packages/crew-sdk/src/platform/comms-file-log.js';
 
 const TEST_ROOT = join(__dirname, '..', 'test-fixtures', 'comms-test');
 
@@ -45,7 +45,7 @@ describe('FileLogCommunicationAdapter', () => {
 
   beforeEach(() => {
     if (existsSync(TEST_ROOT)) rmSync(TEST_ROOT, { recursive: true });
-    mkdirSync(join(TEST_ROOT, '.squad'), { recursive: true });
+    mkdirSync(join(TEST_ROOT, '.crew'), { recursive: true });
     adapter = new FileLogCommunicationAdapter(TEST_ROOT);
   });
 
@@ -58,7 +58,7 @@ describe('FileLogCommunicationAdapter', () => {
   });
 
   it('creates comms directory on construction', () => {
-    expect(existsSync(join(TEST_ROOT, '.squad', 'comms'))).toBe(true);
+    expect(existsSync(join(TEST_ROOT, '.crew', 'comms'))).toBe(true);
   });
 
   it('postUpdate creates a markdown file', async () => {
@@ -72,7 +72,7 @@ describe('FileLogCommunicationAdapter', () => {
     expect(result.id).toBeTruthy();
     expect(result.url).toBeUndefined(); // file-based has no URL
 
-    const commsDir = join(TEST_ROOT, '.squad', 'comms');
+    const commsDir = join(TEST_ROOT, '.crew', 'comms');
     const files = require('fs').readdirSync(commsDir);
     expect(files.length).toBe(1);
     expect(files[0]).toMatch(/\.md$/);
@@ -90,10 +90,10 @@ describe('FileLogCommunicationAdapter', () => {
       body: 'Something happened',
     });
 
-    const commsDir = join(TEST_ROOT, '.squad', 'comms');
+    const commsDir = join(TEST_ROOT, '.crew', 'comms');
     const files = require('fs').readdirSync(commsDir);
     const content = readFileSync(join(commsDir, files[0]), 'utf-8');
-    expect(content).toContain('Squad');
+    expect(content).toContain('Crew');
     expect(content).toContain('update');
   });
 
@@ -112,7 +112,7 @@ describe('FileLogCommunicationAdapter', () => {
     });
 
     // Simulate human reply by appending to the file
-    const commsDir = join(TEST_ROOT, '.squad', 'comms');
+    const commsDir = join(TEST_ROOT, '.crew', 'comms');
     const filepath = join(commsDir, `${result.id}.md`);
     const content = readFileSync(filepath, 'utf-8');
     writeFileSync(filepath, content + '\nLet\'s go with GraphQL.\n', 'utf-8');
@@ -136,7 +136,7 @@ describe('FileLogCommunicationAdapter', () => {
     await new Promise((r) => setTimeout(r, 10));
     await adapter.postUpdate({ title: 'Second', body: 'Two' });
 
-    const commsDir = join(TEST_ROOT, '.squad', 'comms');
+    const commsDir = join(TEST_ROOT, '.crew', 'comms');
     const files = require('fs').readdirSync(commsDir);
     expect(files.length).toBe(2);
   });
@@ -145,7 +145,7 @@ describe('FileLogCommunicationAdapter', () => {
 describe('CommunicationAdapter contract', () => {
   it('FileLogCommunicationAdapter implements CommunicationAdapter', () => {
     if (existsSync(TEST_ROOT)) rmSync(TEST_ROOT, { recursive: true });
-    mkdirSync(join(TEST_ROOT, '.squad'), { recursive: true });
+    mkdirSync(join(TEST_ROOT, '.crew'), { recursive: true });
 
     const adapter: CommunicationAdapter = new FileLogCommunicationAdapter(TEST_ROOT);
     expect(adapter.channel).toBeDefined();
@@ -157,17 +157,17 @@ describe('CommunicationAdapter contract', () => {
   });
 
   it('GitHubDiscussionsCommunicationAdapter exports correctly', async () => {
-    const mod = await import('../packages/squad-sdk/src/platform/comms-github-discussions.js');
+    const mod = await import('../packages/crew-sdk/src/platform/comms-github-discussions.js');
     expect(mod.GitHubDiscussionsCommunicationAdapter).toBeDefined();
   });
 
   it('ADODiscussionCommunicationAdapter exports correctly', async () => {
-    const mod = await import('../packages/squad-sdk/src/platform/comms-ado-discussions.js');
+    const mod = await import('../packages/crew-sdk/src/platform/comms-ado-discussions.js');
     expect(mod.ADODiscussionCommunicationAdapter).toBeDefined();
   });
 
   it('createCommunicationAdapter factory exports correctly', async () => {
-    const mod = await import('../packages/squad-sdk/src/platform/comms.js');
+    const mod = await import('../packages/crew-sdk/src/platform/comms.js');
     expect(mod.createCommunicationAdapter).toBeDefined();
   });
 });

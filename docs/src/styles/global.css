@@ -4,17 +4,17 @@
 
 @theme {
   /* Primary — hot pink/rose from logo */
-  --color-squad-50: #fff0f3;
-  --color-squad-100: #ffe0ea;
-  --color-squad-200: #ffc2d6;
-  --color-squad-300: #ff94b5;
-  --color-squad-400: #f86898;
-  --color-squad-500: #f04f7f;
-  --color-squad-600: #dd2d60;
-  --color-squad-700: #bb1c4b;
-  --color-squad-800: #9c1a40;
-  --color-squad-900: #851938;
-  --color-squad-950: #4c0818;
+  --color-crew-50: #fff0f3;
+  --color-crew-100: #ffe0ea;
+  --color-crew-200: #ffc2d6;
+  --color-crew-300: #ff94b5;
+  --color-crew-400: #f86898;
+  --color-crew-500: #f04f7f;
+  --color-crew-600: #dd2d60;
+  --color-crew-700: #bb1c4b;
+  --color-crew-800: #9c1a40;
+  --color-crew-900: #851938;
+  --color-crew-950: #4c0818;
 
   /* Secondary — dark navy from logo */
   --color-navy-50: #f0f4fa;
@@ -138,7 +138,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 }
 
 .prose a {
-  @apply text-squad-600 dark:text-squad-400 underline underline-offset-2 hover:text-squad-700 dark:hover:text-squad-300 transition-colors;
+  @apply text-crew-600 dark:text-crew-400 underline underline-offset-2 hover:text-crew-700 dark:hover:text-crew-300 transition-colors;
 }
 
 .prose strong {
@@ -163,11 +163,11 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 }
 
 .prose blockquote {
-  @apply border-l-4 border-squad-400 dark:border-squad-600 pl-4 my-4 italic text-surface-600 dark:text-surface-400 bg-squad-50/50 dark:bg-squad-900/20 py-2 rounded-r-lg;
+  @apply border-l-4 border-crew-400 dark:border-crew-600 pl-4 my-4 italic text-surface-600 dark:text-surface-400 bg-crew-50/50 dark:bg-crew-900/20 py-2 rounded-r-lg;
 }
 
 .prose code {
-  @apply bg-surface-100 dark:bg-surface-800 text-squad-700 dark:text-squad-300 px-1.5 py-0.5 rounded text-sm font-mono;
+  @apply bg-surface-100 dark:bg-surface-800 text-crew-700 dark:text-crew-300 px-1.5 py-0.5 rounded text-sm font-mono;
 }
 
 .prose pre {
@@ -217,7 +217,7 @@ html.dark ::-webkit-scrollbar-thumb:hover {
 }
 
 .sidebar-link.active {
-  @apply bg-squad-50 dark:bg-squad-900/30 text-squad-700 dark:text-squad-300 font-medium;
+  @apply bg-crew-50 dark:bg-crew-900/30 text-crew-700 dark:text-crew-300 font-medium;
 }
 
 /* Shiki code block theme support */
@@ -233,7 +233,7 @@ html.dark .astro-code span {
 
 /* Pagefind search result highlights */
 mark[data-pagefind-highlight] {
-  @apply bg-squad-200 dark:bg-squad-800 text-surface-900 dark:text-white rounded-sm px-0.5;
+  @apply bg-crew-200 dark:bg-crew-800 text-surface-900 dark:text-white rounded-sm px-0.5;
 }
 
 .line-clamp-2 {

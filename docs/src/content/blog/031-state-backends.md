@@ -2,24 +2,24 @@
 title: "State Backends — Keep Your PRs Clean"
 date: 2026-04-20
 author: "Tamir"
-tags: [squad, state-backends, git-notes, orphan-branch, two-layer, architecture]
+tags: [crew, state-backends, git-notes, orphan-branch, two-layer, architecture]
 status: draft
-hero: "Squad now supports 4 state backends that keep .squad/ files out of your PRs. Choose local, orphan branch, or the two-layer architecture from the blog."
+hero: "Crew now supports 4 state backends that keep .crew/ files out of your PRs. Choose local, orphan branch, or the two-layer architecture from the blog."
 ---
 
 # State Backends — Keep Your PRs Clean
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-> _Squad now supports 4 state backends. Your PRs stay clean — just code._
+> _Crew now supports 4 state backends. Your PRs stay clean — just code._
 
 ## The Problem
 
-Every time an agent makes a decision, writes to history, or logs a session, those changes end up as `.squad/` file modifications in your working branch. Open a PR and your reviewer sees 57 code changes buried under 40 decision logs, agent history entries, and session files.
+Every time an agent makes a decision, writes to history, or logs a session, those changes end up as `.crew/` file modifications in your working branch. Open a PR and your reviewer sees 57 code changes buried under 40 decision logs, agent history entries, and session files.
 
 Two completely different workflows sharing one branch:
 - **Code** → slow, human-gated, needs review approval
-- **Squad state** → fast, autonomous, no human ever needs to review it
+- **Crew state** → fast, autonomous, no human ever needs to review it
 
 ## The Fix
 
@@ -27,7 +27,7 @@ PR #1004 adds state backend support. One line in your config, and all mutable st
 
 ```bash
 # The fastest path to clean PRs:
-squad init --state-backend two-layer
+crew init --state-backend two-layer
 ```
 
 ## Four Options
@@ -35,7 +35,7 @@ squad init --state-backend two-layer
 | Backend | Where state goes | PRs clean? | Setup |
 |---------|-----------------|------------|-------|
 | `local` | Working branch (default) | ❌ | Zero config |
-| `orphan` | `squad-state` branch | ✅ | Config + branch |
+| `orphan` | `crew-state` branch | ✅ | Config + branch |
 | `two-layer` | Notes + orphan combined | ✅ | `--state-backend two-layer` |
 
 ## The Two-Layer Architecture
@@ -53,7 +53,7 @@ This handles the three scenarios from the blog correctly:
 
 ## How It Works (Under the Hood)
 
-The Squad coordinator (`squad.agent.md`) detects `stateBackend` from `.squad/config.json` at session start and adapts every agent spawn prompt:
+The Crew coordinator (`crew.agent.md`) detects `stateBackend` from `.crew/config.json` at session start and adapts every agent spawn prompt:
 
 - **Agents** receive backend-specific instructions for reading and writing state
 - **Scribe** receives backend-specific commit targets (orphan branch, note refs, or working branch)
@@ -65,23 +65,23 @@ Static config (charters, team.md, routing.md) always stays on disk. Only mutable
 
 ```bash
 # New project — set backend at init time
-squad init --state-backend two-layer
+crew init --state-backend two-layer
 
 # Existing project — migrate with one config change
-# Edit .squad/config.json → add "stateBackend": "two-layer"
-git add .squad/config.json && git commit -m "config: use two-layer"
+# Edit .crew/config.json → add "stateBackend": "two-layer"
+git add .crew/config.json && git commit -m "config: use two-layer"
 ```
 
 For the full migration guide and troubleshooting, see the [State Backends feature docs](/docs/features/state-backends/).
 
-## Tested With Real Squads
+## Tested With Real Crews
 
-We ran 12 E2E tests with real squad sessions — real team casting (Usual Suspects, Firefly universes), real agent spawns, real decisions recorded. All evidence is in [PR #1004](https://github.com/bradygaster/squad/pull/1004).
+We ran 12 E2E tests with real crew sessions — real team casting (Usual Suspects, Firefly universes), real agent spawns, real decisions recorded. All evidence is in [PR #1004](https://github.com/Blacklite/crew/pull/1004).
 
 Key proof:
 - Git notes with `promote_to_permanent: true` written by agents ✅
 - Orphan branch receives state commits from Scribe ✅  
-- Feature branch PRs show ONLY code changes, zero `.squad/` state ✅
+- Feature branch PRs show ONLY code changes, zero `.crew/` state ✅
 - State persists across branch switches ✅
 
 ## Try It
@@ -89,15 +89,15 @@ Key proof:
 Build from the PR branch:
 
 ```bash
-git clone https://github.com/bradygaster/squad.git
-cd squad && git checkout feat/state-backend-global-996
+git clone https://github.com/Blacklite/crew.git
+cd crew && git checkout feat/state-backend-global-996
 npm install && npm run build
 ```
 
 Then init any repo with your preferred backend:
 
 ```bash
-node <path>/packages/squad-cli/dist/cli-entry.js init --state-backend two-layer
+node <path>/packages/crew-cli/dist/cli-entry.js init --state-backend two-layer
 ```
 
 We'd love feedback — especially on whether the init flow feels right and whether state actually persists across branch switches in your environment.

@@ -17,13 +17,13 @@ import { fileURLToPath } from 'node:url';
 // Constants
 // ---------------------------------------------------------------------------
 
-export const COMMENT_MARKER = '<!-- squad-pr-readiness -->';
+export const COMMENT_MARKER = '<!-- crew-pr-readiness -->';
 
 /** Check-run names belonging to this workflow (filtered from CI checks). */
 export const SELF_CHECK_NAMES = ['readiness', 'PR Readiness Check'];
 
 /** Regex for source files that require a changeset. */
-export const SOURCE_PATTERN = /^packages\/squad-(sdk|cli)\/src\//;
+export const SOURCE_PATTERN = /^packages\/crew-(sdk|cli)\/src\//;
 
 // ---------------------------------------------------------------------------
 // Pure check functions
@@ -157,23 +157,23 @@ export function checkMergeability(mergeable) {
 }
 
 /**
- * Check 7: Scope cleanliness — warn when PR includes `.squad/` or `docs/proposals/` files.
+ * Check 7: Scope cleanliness — warn when PR includes `.crew/` or `docs/proposals/` files.
  * Informational only (always passes); helps flag accidental scope creep.
  * @param {Array<{ filename: string }>} files — files changed in the PR
  * @returns {{ pass: boolean, detail: string }}
  */
 export function checkScopeClean(files) {
-  const squadFiles = (files || []).filter((f) => f.filename.startsWith('.squad/'));
+  const crewFiles = (files || []).filter((f) => f.filename.startsWith('.crew/'));
   const proposalFiles = (files || []).filter((f) => f.filename.startsWith('docs/proposals/'));
-  const squadCount = squadFiles.length;
+  const crewCount = crewFiles.length;
   const proposalCount = proposalFiles.length;
 
-  if (squadCount === 0 && proposalCount === 0) {
-    return { pass: true, detail: 'No .squad/ or docs/proposals/ files' };
+  if (crewCount === 0 && proposalCount === 0) {
+    return { pass: true, detail: 'No .crew/ or docs/proposals/ files' };
   }
 
   const parts = [];
-  if (squadCount > 0) parts.push(`${squadCount} .squad/ file(s)`);
+  if (crewCount > 0) parts.push(`${crewCount} .crew/ file(s)`);
   if (proposalCount > 0) parts.push(`${proposalCount} docs/proposals/ file(s)`);
   return {
     pass: true,
@@ -461,7 +461,7 @@ export async function run({ env = process.env, fetchFn = globalThis.fetch } = {}
   const apiHeaders = {
     Authorization: `token ${token}`,
     Accept: 'application/vnd.github+json',
-    'User-Agent': 'squad-pr-readiness',
+    'User-Agent': 'crew-pr-readiness',
   };
 
   const apiBase = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;

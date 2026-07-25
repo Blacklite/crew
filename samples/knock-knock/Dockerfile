@@ -1,24 +1,24 @@
-# Multi-stage build for knock-knock Squad SDK sample
+# Multi-stage build for knock-knock Crew SDK sample
 
 FROM node:22-alpine AS builder
 
 WORKDIR /build
 
 # Copy SDK package.json and strip lifecycle scripts so npm won't rebuild
-COPY packages/squad-sdk/package.json packages/squad-sdk/
+COPY packages/crew-sdk/package.json packages/crew-sdk/
 RUN node -e "\
   const fs = require('fs');\
-  const p = JSON.parse(fs.readFileSync('/build/packages/squad-sdk/package.json','utf8'));\
+  const p = JSON.parse(fs.readFileSync('/build/packages/crew-sdk/package.json','utf8'));\
   delete p.scripts.prepare;\
   delete p.scripts.prepublishOnly;\
-  fs.writeFileSync('/build/packages/squad-sdk/package.json', JSON.stringify(p,null,2))"
+  fs.writeFileSync('/build/packages/crew-sdk/package.json', JSON.stringify(p,null,2))"
 
 # Install SDK dependencies (includes devDeps like @opentelemetry/api used at runtime)
-WORKDIR /build/packages/squad-sdk
+WORKDIR /build/packages/crew-sdk
 RUN npm install
 
 # Copy pre-built SDK dist
-COPY packages/squad-sdk/dist /build/packages/squad-sdk/dist
+COPY packages/crew-sdk/dist /build/packages/crew-sdk/dist
 
 # Copy the sample source
 WORKDIR /build
@@ -37,6 +37,6 @@ WORKDIR /app
 
 # Copy everything needed
 COPY --from=builder /build/samples/knock-knock /app
-COPY --from=builder /build/packages/squad-sdk /packages/squad-sdk
+COPY --from=builder /build/packages/crew-sdk /packages/crew-sdk
 
 CMD ["npx", "tsx", "index.ts"]

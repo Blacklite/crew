@@ -1,21 +1,21 @@
 /**
- * Squad Initialization and Onboarding Tests
+ * Crew Initialization and Onboarding Tests
  * 
- * Tests for M2-6 (Squad Init Replatform) and M2-10 (Agent Onboarding).
+ * Tests for M2-6 (Crew Init Replatform) and M2-10 (Agent Onboarding).
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdir, rm, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import { initSquad, MANIFEST_SKILL_NAMES } from '@bradygaster/squad-sdk/config';
-import { onboardAgent, addAgentToConfig } from '@bradygaster/squad-sdk/agents';
-import type { InitOptions, InitAgentSpec } from '@bradygaster/squad-sdk/config';
-import type { OnboardOptions } from '@bradygaster/squad-sdk/agents';
+import { initCrew, MANIFEST_SKILL_NAMES } from '@blacklite/crew-sdk/config';
+import { onboardAgent, addAgentToConfig } from '@blacklite/crew-sdk/agents';
+import type { InitOptions, InitAgentSpec } from '@blacklite/crew-sdk/config';
+import type { OnboardOptions } from '@blacklite/crew-sdk/agents';
 
 const TEST_ROOT = join(process.cwd(), 'test-fixtures', 'init-test');
 
-describe('Squad Initialization', () => {
+describe('Crew Initialization', () => {
   beforeEach(async () => {
     // Clean up test directory
     if (existsSync(TEST_ROOT)) {
@@ -31,7 +31,7 @@ describe('Squad Initialization', () => {
     }
   });
 
-  describe('initSquad', () => {
+  describe('initCrew', () => {
     it('should create TypeScript config with default options', async () => {
       const agents: InitAgentSpec[] = [
         { name: 'lead', role: 'lead' },
@@ -45,17 +45,17 @@ describe('Squad Initialization', () => {
         configFormat: 'typescript'
       };
 
-      const result = await initSquad(options);
+      const result = await initCrew(options);
 
       // Verify config file was created
-      expect(result.configPath).toBe(join(TEST_ROOT, 'squad.config.ts'));
+      expect(result.configPath).toBe(join(TEST_ROOT, 'crew.config.ts'));
       expect(existsSync(result.configPath)).toBe(true);
 
       // Verify config content
       const configContent = await readFile(result.configPath, 'utf-8');
-      expect(configContent).toContain('import type { SquadConfig }');
+      expect(configContent).toContain('import type { CrewConfig }');
       expect(configContent).toContain('Test Project');
-      expect(configContent).toContain('const config: SquadConfig');
+      expect(configContent).toContain('const config: CrewConfig');
       expect(configContent).toContain('version: \'1.0.0\'');
       expect(configContent).toContain('@lead');
     });
@@ -72,10 +72,10 @@ describe('Squad Initialization', () => {
         configFormat: 'json'
       };
 
-      const result = await initSquad(options);
+      const result = await initCrew(options);
 
       // Verify JSON config file
-      expect(result.configPath).toBe(join(TEST_ROOT, 'squad.config.json'));
+      expect(result.configPath).toBe(join(TEST_ROOT, 'crew.config.json'));
       expect(existsSync(result.configPath)).toBe(true);
 
       // Verify valid JSON
@@ -95,33 +95,33 @@ describe('Squad Initialization', () => {
       const options: InitOptions = {
         teamRoot: TEST_ROOT,
         projectName: 'Test Project',
-        projectDescription: 'A test project for Squad',
+        projectDescription: 'A test project for Crew',
         agents,
         userName: 'TestUser'
       };
 
-      const result = await initSquad(options);
+      const result = await initCrew(options);
 
       // Verify agent directories
       expect(result.agentDirs).toHaveLength(2);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'lead'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'developer'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'lead'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'developer'))).toBe(true);
 
       // Verify charter files
-      const leadCharter = await readFile(join(TEST_ROOT, '.squad', 'agents', 'lead', 'charter.md'), 'utf-8');
+      const leadCharter = await readFile(join(TEST_ROOT, '.crew', 'agents', 'lead', 'charter.md'), 'utf-8');
       expect(leadCharter).toContain('# Keaton — Lead');
       expect(leadCharter).toContain('Test Project');
-      expect(leadCharter).toContain('A test project for Squad');
+      expect(leadCharter).toContain('A test project for Crew');
 
       // Verify history files
-      const leadHistory = await readFile(join(TEST_ROOT, '.squad', 'agents', 'lead', 'history.md'), 'utf-8');
+      const leadHistory = await readFile(join(TEST_ROOT, '.crew', 'agents', 'lead', 'history.md'), 'utf-8');
       expect(leadHistory).toContain('# Project Context');
       expect(leadHistory).toContain('TestUser');
       expect(leadHistory).toContain('Test Project');
-      expect(leadHistory).toContain('A test project for Squad');
+      expect(leadHistory).toContain('A test project for Crew');
     });
 
-    it('should create .squad directory structure', async () => {
+    it('should create .crew directory structure', async () => {
       const agents: InitAgentSpec[] = [{ name: 'lead', role: 'lead' }];
       const options: InitOptions = {
         teamRoot: TEST_ROOT,
@@ -129,30 +129,30 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
       // Verify directory structure
-      expect(existsSync(join(TEST_ROOT, '.squad'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'casting'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'decisions'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'casting'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'decisions'))).toBe(true);
       expect(existsSync(join(TEST_ROOT, '.github', 'skills'))).toBe(true);
-      // bradygaster/squad#1126 regression — skills must NOT live at the legacy
+      // Blacklite/crew#1126 regression — skills must NOT live at the legacy
       // .copilot/skills path (invisible to all Copilot surfaces). Fresh init
       // creates only the canonical .github/skills location.
       expect(existsSync(join(TEST_ROOT, '.copilot', 'skills')), '.copilot/skills must NOT be created by fresh init (#1126)').toBe(false);
     });
 
-    it('should install Squad-bundled skills at .github/skills/{name}/SKILL.md (#1126)', async () => {
+    it('should install Crew-bundled skills at .github/skills/{name}/SKILL.md (#1126)', async () => {
       // #1126: skills at .copilot/skills/ are invisible to all GitHub Copilot
-      // surfaces (cloud agent, CLI outside Squad, VS Code extension, @copilot
+      // surfaces (cloud agent, CLI outside Crew, VS Code extension, @copilot
       // coding agent). The canonical project-skills location per the official
       // Agent Skills spec is .github/skills/.
       //
       // This test asserts:
-      //   1. squad-conventions (a manifest-curated bundled skill) lands at
-      //      .github/skills/squad-conventions/SKILL.md
-      //   2. The legacy .copilot/skills/squad-conventions location is NOT
+      //   1. crew-conventions (a manifest-curated bundled skill) lands at
+      //      .github/skills/crew-conventions/SKILL.md
+      //   2. The legacy .copilot/skills/crew-conventions location is NOT
       //      created in a fresh init
       const agents: InitAgentSpec[] = [{ name: 'lead', role: 'lead' }];
       const options: InitOptions = {
@@ -161,19 +161,19 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
-      const canonical = join(TEST_ROOT, '.github', 'skills', 'squad-conventions', 'SKILL.md');
-      const legacy = join(TEST_ROOT, '.copilot', 'skills', 'squad-conventions', 'SKILL.md');
-      expect(existsSync(canonical), 'expected squad-conventions at .github/skills/').toBe(true);
+      const canonical = join(TEST_ROOT, '.github', 'skills', 'crew-conventions', 'SKILL.md');
+      const legacy = join(TEST_ROOT, '.copilot', 'skills', 'crew-conventions', 'SKILL.md');
+      expect(existsSync(canonical), 'expected crew-conventions at .github/skills/').toBe(true);
       expect(existsSync(legacy), 'must NOT install to legacy .copilot/skills/ (#1126)').toBe(false);
     });
 
-    it('should seed .squad/fact-checker/{policy,audit-trail}.md (regression: bradygaster/squad#1299)', async () => {
+    it('should seed .crew/fact-checker/{policy,audit-trail}.md (regression: Blacklite/crew#1299)', async () => {
       // Fact Checker is an always-on built-in (#789 + #1254, single agent dual
       // operating mode: Verification + Devil's Advocate). It must get the
       // same first-class state-dir treatment as Rai: policy.md + audit-trail.md
-      // under .squad/fact-checker/. Without these, fact-checker is "a name on
+      // under .crew/fact-checker/. Without these, fact-checker is "a name on
       // disk with a 21-line placeholder" (verbatim user feedback, 2026-06-13).
       const agents: InitAgentSpec[] = [
         { name: 'lead', role: 'lead' },
@@ -185,12 +185,12 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
-      const policyPath = join(TEST_ROOT, '.squad', 'fact-checker', 'policy.md');
-      const auditPath = join(TEST_ROOT, '.squad', 'fact-checker', 'audit-trail.md');
-      expect(existsSync(policyPath), 'expected .squad/fact-checker/policy.md to be seeded').toBe(true);
-      expect(existsSync(auditPath), 'expected .squad/fact-checker/audit-trail.md to be seeded').toBe(true);
+      const policyPath = join(TEST_ROOT, '.crew', 'fact-checker', 'policy.md');
+      const auditPath = join(TEST_ROOT, '.crew', 'fact-checker', 'audit-trail.md');
+      expect(existsSync(policyPath), 'expected .crew/fact-checker/policy.md to be seeded').toBe(true);
+      expect(existsSync(auditPath), 'expected .crew/fact-checker/audit-trail.md to be seeded').toBe(true);
 
       const policy = await readFile(policyPath, 'utf-8');
       // Policy must declare both operating modes and the hard anti-fabrication rules.
@@ -209,7 +209,7 @@ describe('Squad Initialization', () => {
       // Before #1299, both Rai and fact-checker got a 478-byte generic stub
       // charter from generateCharter(). The rich charter templates
       // (Rai-charter.md, fact-checker-charter.md) only got used by
-      // `squad upgrade`'s ensureBuiltinAgents path. This made both built-ins
+      // `crew upgrade`'s ensureBuiltinAgents path. This made both built-ins
       // effectively "names on disk" until upgrade was run. Init now reads
       // the rich template if it exists.
       const agents: InitAgentSpec[] = [
@@ -221,9 +221,9 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
-      const charterPath = join(TEST_ROOT, '.squad', 'agents', 'fact-checker', 'charter.md');
+      const charterPath = join(TEST_ROOT, '.crew', 'agents', 'fact-checker', 'charter.md');
       expect(existsSync(charterPath)).toBe(true);
       const charter = await readFile(charterPath, 'utf-8');
       // Must contain rich-charter markers, not the generic stub.
@@ -250,18 +250,18 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
-      const charterPath = join(TEST_ROOT, '.squad', 'agents', 'Rai', 'charter.md');
+      const charterPath = join(TEST_ROOT, '.crew', 'agents', 'Rai', 'charter.md');
       expect(existsSync(charterPath)).toBe(true);
       const charter = await readFile(charterPath, 'utf-8');
       expect(charter.length).toBeGreaterThan(1000);
       // Rich Rai charter mentions RAI policy + audit-trail paths.
-      expect(charter).toMatch(/\.squad\/rai\/policy\.md/);
-      expect(charter).toMatch(/\.squad\/rai\/audit-trail\.md/);
+      expect(charter).toMatch(/\.crew\/rai\/policy\.md/);
+      expect(charter).toMatch(/\.crew\/rai\/audit-trail\.md/);
     });
 
-    it('should install every manifest-curated skill (regression: bradygaster/squad#1289, #1264)', async () => {
+    it('should install every manifest-curated skill (regression: Blacklite/crew#1289, #1264)', async () => {
       // Sanity check: every skill listed in MANIFEST_SKILL_NAMES must end up
       // installed under .copilot/skills/. The prior v0.10.0 install path
       // silently skipped skills whose source dir was missing from the SDK
@@ -283,7 +283,7 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
       for (const skill of MANIFEST_SKILL_NAMES) {
         const skillPath = join(TEST_ROOT, '.github', 'skills', skill, 'SKILL.md');
@@ -299,17 +299,17 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      const result = await initSquad(options);
+      const result = await initCrew(options);
 
       const gitattributesPath = join(TEST_ROOT, '.gitattributes');
       expect(existsSync(gitattributesPath)).toBe(true);
 
       const content = await readFile(gitattributesPath, 'utf-8');
       expect(content).toContain('history.md merge=union');
-      expect(content).toContain('.squad/decisions.md merge=union');
+      expect(content).toContain('.crew/decisions.md merge=union');
     });
 
-    it('should install the squad-help disambiguation skill (regression: #1297 / supersedes squad name collision)', async () => {
+    it('should install the crew-help disambiguation skill (regression: #1297 / supersedes crew name collision)', async () => {
       const agents: InitAgentSpec[] = [{ name: 'lead', role: 'lead' }];
       const options: InitOptions = {
         teamRoot: TEST_ROOT,
@@ -317,18 +317,18 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
-      const skillPath = join(TEST_ROOT, '.github', 'skills', 'squad-help', 'SKILL.md');
+      const skillPath = join(TEST_ROOT, '.github', 'skills', 'crew-help', 'SKILL.md');
       expect(existsSync(skillPath)).toBe(true);
       const content = await readFile(skillPath, 'utf-8');
-      expect(content).toContain('name: "squad-help"');
-      expect(content).not.toMatch(/^name:\s*"?squad"?\s*$/m);
-      expect(content).toContain('agent_type="Squad"');
+      expect(content).toContain('name: "crew-help"');
+      expect(content).not.toMatch(/^name:\s*"?crew"?\s*$/m);
+      expect(content).toContain('agent_type="Crew"');
       expect(content).toContain('custom agent');
     });
 
-    it('should install the squad slash-command skill with user-invocable: true (regression: /squad must appear)', async () => {
+    it('should install the crew slash-command skill with user-invocable: true (regression: /crew must appear)', async () => {
       const agents: InitAgentSpec[] = [{ name: 'lead', role: 'lead' }];
       const options: InitOptions = {
         teamRoot: TEST_ROOT,
@@ -336,17 +336,17 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
-      const skillPath = join(TEST_ROOT, '.github', 'skills', 'squad', 'SKILL.md');
+      const skillPath = join(TEST_ROOT, '.github', 'skills', 'crew', 'SKILL.md');
       expect(existsSync(skillPath)).toBe(true);
       const content = await readFile(skillPath, 'utf-8');
       expect(content).toMatch(/^user-invocable:\s*true\s*$/m);
-      expect(content).toMatch(/^name:\s*"?squad"?\s*$/m);
+      expect(content).toMatch(/^name:\s*"?crew"?\s*$/m);
       expect(content).toContain('Menu Presentation Rules');
     });
 
-    it('should install cross-squad-communication skill (companion to cross-squad — #5)', async () => {
+    it('should install cross-crew-communication skill (companion to cross-crew — #5)', async () => {
       const agents: InitAgentSpec[] = [{ name: 'lead', role: 'lead' }];
       const options: InitOptions = {
         teamRoot: TEST_ROOT,
@@ -354,12 +354,12 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
-      const skillPath = join(TEST_ROOT, '.github', 'skills', 'cross-squad-communication', 'SKILL.md');
+      const skillPath = join(TEST_ROOT, '.github', 'skills', 'cross-crew-communication', 'SKILL.md');
       expect(existsSync(skillPath)).toBe(true);
       const content = await readFile(skillPath, 'utf-8');
-      expect(content).toContain('cross-squad-communication');
+      expect(content).toContain('cross-crew-communication');
       expect(content).toContain('Pattern 0');
       expect(content).toContain('Pattern 2');
     });
@@ -372,13 +372,13 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      await initSquad(options);
+      await initCrew(options);
 
-      const decisionsPath = join(TEST_ROOT, '.squad', 'decisions.md');
+      const decisionsPath = join(TEST_ROOT, '.crew', 'decisions.md');
       expect(existsSync(decisionsPath)).toBe(true);
 
       const content = await readFile(decisionsPath, 'utf-8');
-      expect(content).toContain('# Squad Decisions');
+      expect(content).toContain('# Crew Decisions');
       expect(content).toContain('## Active Decisions');
     });
 
@@ -396,7 +396,7 @@ describe('Squad Initialization', () => {
         configFormat: 'typescript'
       };
 
-      const result = await initSquad(options);
+      const result = await initCrew(options);
 
       const configContent = await readFile(result.configPath, 'utf-8');
       expect(configContent).toContain('@dev');
@@ -414,7 +414,7 @@ describe('Squad Initialization', () => {
         agents: [{ name: 'lead', role: 'lead' }]
       };
 
-      await expect(initSquad(options)).rejects.toThrow('teamRoot is required');
+      await expect(initCrew(options)).rejects.toThrow('teamRoot is required');
     });
 
     it('should throw error if no agents provided', async () => {
@@ -424,7 +424,7 @@ describe('Squad Initialization', () => {
         agents: []
       };
 
-      await expect(initSquad(options)).rejects.toThrow('At least one agent is required');
+      await expect(initCrew(options)).rejects.toThrow('At least one agent is required');
     });
 
     it('should handle multiple agents with same role', async () => {
@@ -439,16 +439,16 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      const result = await initSquad(options);
+      const result = await initCrew(options);
 
       expect(result.agentDirs).toHaveLength(2);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'dev1'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'dev2'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'dev1'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'dev2'))).toBe(true);
 
-      const charter1 = await readFile(join(TEST_ROOT, '.squad', 'agents', 'dev1', 'charter.md'), 'utf-8');
+      const charter1 = await readFile(join(TEST_ROOT, '.crew', 'agents', 'dev1', 'charter.md'), 'utf-8');
       expect(charter1).toContain('Dev One');
 
-      const charter2 = await readFile(join(TEST_ROOT, '.squad', 'agents', 'dev2', 'charter.md'), 'utf-8');
+      const charter2 = await readFile(join(TEST_ROOT, '.crew', 'agents', 'dev2', 'charter.md'), 'utf-8');
       expect(charter2).toContain('Dev Two');
     });
 
@@ -464,7 +464,7 @@ describe('Squad Initialization', () => {
         agents
       };
 
-      const result = await initSquad(options);
+      const result = await initCrew(options);
 
       // Should include: config, 2 charters, 2 histories, gitattributes, decisions
       expect(result.createdFiles.length).toBeGreaterThanOrEqual(7);
@@ -478,8 +478,8 @@ describe('Squad Initialization', () => {
 
   describe('onboardAgent', () => {
     beforeEach(async () => {
-      // Create .squad/agents directory for onboarding tests
-      await mkdir(join(TEST_ROOT, '.squad', 'agents'), { recursive: true });
+      // Create .crew/agents directory for onboarding tests
+      await mkdir(join(TEST_ROOT, '.crew', 'agents'), { recursive: true });
     });
 
     it('should onboard agent with standard role template', async () => {
@@ -494,7 +494,7 @@ describe('Squad Initialization', () => {
 
       const result = await onboardAgent(options);
 
-      expect(result.agentDir).toBe(join(TEST_ROOT, '.squad', 'agents', 'new-dev'));
+      expect(result.agentDir).toBe(join(TEST_ROOT, '.crew', 'agents', 'new-dev'));
       expect(existsSync(result.agentDir)).toBe(true);
 
       // Verify charter
@@ -549,13 +549,13 @@ describe('Squad Initialization', () => {
 
       const result = await onboardAgent(options);
 
-      expect(result.agentDir).toBe(join(TEST_ROOT, '.squad', 'agents', 'my-new-agent'));
+      expect(result.agentDir).toBe(join(TEST_ROOT, '.crew', 'agents', 'my-new-agent'));
       expect(existsSync(result.agentDir)).toBe(true);
     });
 
     it('should throw error if agent directory already exists', async () => {
       // Create agent directory first
-      const agentDir = join(TEST_ROOT, '.squad', 'agents', 'existing');
+      const agentDir = join(TEST_ROOT, '.crew', 'agents', 'existing');
       await mkdir(agentDir, { recursive: true });
 
       const options: OnboardOptions = {
@@ -625,9 +625,9 @@ describe('Squad Initialization', () => {
   describe('addAgentToConfig', () => {
     it('should add agent routing rule to TypeScript config', async () => {
       // Create a basic TypeScript config
-      const configContent = `import type { SquadConfig } from '@bradygaster/squad';
+      const configContent = `import type { CrewConfig } from '@blacklite/crew';
 
-const config: SquadConfig = {
+const config: CrewConfig = {
   version: '1.0.0',
   models: { defaultModel: 'claude-sonnet-4.5', defaultTier: 'standard', fallbackChains: { premium: [], standard: [], fast: [] } },
   routing: {
@@ -645,7 +645,7 @@ const config: SquadConfig = {
 export default config;
 `;
 
-      const configPath = join(TEST_ROOT, 'squad.config.ts');
+      const configPath = join(TEST_ROOT, 'crew.config.ts');
       await mkdir(TEST_ROOT, { recursive: true });
       await rm(configPath, { force: true });
       await writeFile(configPath, configContent, 'utf-8');
@@ -666,9 +666,9 @@ export default config;
     });
 
     it('should return false if work type already has a rule', async () => {
-      const configContent = `import type { SquadConfig } from '@bradygaster/squad';
+      const configContent = `import type { CrewConfig } from '@blacklite/crew';
 
-const config: SquadConfig = {
+const config: CrewConfig = {
   version: '1.0.0',
   models: { defaultModel: 'claude-sonnet-4.5', defaultTier: 'standard', fallbackChains: { premium: [], standard: [], fast: [] } },
   routing: {
@@ -687,15 +687,15 @@ export default config;
 `;
 
       await mkdir(TEST_ROOT, { recursive: true });
-      await writeFile(join(TEST_ROOT, 'squad.config.ts'), configContent, 'utf-8');
+      await writeFile(join(TEST_ROOT, 'crew.config.ts'), configContent, 'utf-8');
 
       const updated = await addAgentToConfig(TEST_ROOT, 'new-dev', 'developer');
       expect(updated).toBe(false);
     });
 
     it('should return false for role without obvious work type mapping', async () => {
-      const configContent = `import type { SquadConfig } from '@bradygaster/squad';
-const config: SquadConfig = {
+      const configContent = `import type { CrewConfig } from '@blacklite/crew';
+const config: CrewConfig = {
   version: '1.0.0',
   models: { defaultModel: 'claude-sonnet-4.5', defaultTier: 'standard', fallbackChains: { premium: [], standard: [], fast: [] } },
   routing: { rules: [], governance: {} }
@@ -704,7 +704,7 @@ export default config;
 `;
 
       await mkdir(TEST_ROOT, { recursive: true });
-      await writeFile(join(TEST_ROOT, 'squad.config.ts'), configContent, 'utf-8');
+      await writeFile(join(TEST_ROOT, 'crew.config.ts'), configContent, 'utf-8');
 
       const updated = await addAgentToConfig(TEST_ROOT, 'specialist', 'unknown-role');
       expect(updated).toBe(false);
@@ -712,8 +712,8 @@ export default config;
   });
 
   describe('Integration: Init + Onboard', () => {
-    it('should initialize squad then onboard additional agent', async () => {
-      // Initialize squad with one agent
+    it('should initialize crew then onboard additional agent', async () => {
+      // Initialize crew with one agent
       const initOptions: InitOptions = {
         teamRoot: TEST_ROOT,
         projectName: 'Test Project',
@@ -721,7 +721,7 @@ export default config;
         configFormat: 'typescript'
       };
 
-      await initSquad(initOptions);
+      await initCrew(initOptions);
 
       // Onboard additional agent
       const onboardOptions: OnboardOptions = {
@@ -735,8 +735,8 @@ export default config;
       const result = await onboardAgent(onboardOptions);
 
       // Verify both agents exist
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'lead'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'qa-engineer'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'lead'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'qa-engineer'))).toBe(true);
 
       // Verify new agent files
       const charter = await readFile(result.charterPath, 'utf-8');
@@ -748,7 +748,7 @@ export default config;
 
     it('should support full project lifecycle', async () => {
       // 1. Initialize with core team
-      await initSquad({
+      await initCrew({
         teamRoot: TEST_ROOT,
         projectName: 'Real Project',
         projectDescription: 'A production application',
@@ -771,18 +771,18 @@ export default config;
       });
 
       // 3. Verify complete structure
-      expect(existsSync(join(TEST_ROOT, 'squad.config.ts'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'keaton'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'fenster'))).toBe(true);
-      expect(existsSync(join(TEST_ROOT, '.squad', 'agents', 'verbal'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, 'crew.config.ts'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'keaton'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'fenster'))).toBe(true);
+      expect(existsSync(join(TEST_ROOT, '.crew', 'agents', 'verbal'))).toBe(true);
       expect(existsSync(join(TEST_ROOT, '.gitattributes'))).toBe(true);
 
       // 4. Verify all charters have proper context
-      const keatonCharter = await readFile(join(TEST_ROOT, '.squad', 'agents', 'keaton', 'charter.md'), 'utf-8');
+      const keatonCharter = await readFile(join(TEST_ROOT, '.crew', 'agents', 'keaton', 'charter.md'), 'utf-8');
       expect(keatonCharter).toContain('Keaton');
       expect(keatonCharter).toContain('Real Project');
 
-      const verbalCharter = await readFile(join(TEST_ROOT, '.squad', 'agents', 'verbal', 'charter.md'), 'utf-8');
+      const verbalCharter = await readFile(join(TEST_ROOT, '.crew', 'agents', 'verbal', 'charter.md'), 'utf-8');
       expect(verbalCharter).toContain('Verbal');
       expect(verbalCharter).toContain('Real Project');
     });

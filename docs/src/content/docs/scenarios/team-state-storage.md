@@ -1,4 +1,4 @@
-# Keeping Your Squad Where You Want It
+# Keeping Your Crew Where You Want It
 
 Your `.ai-team/` directory contains everything—team rosters, skills, decisions, agent histories. The question isn't whether to track it, but *how* and *where* to track it. Here are the real options, with honest tradeoffs.
 
@@ -10,7 +10,7 @@ Your `.ai-team/` directory contains everything—team rosters, skills, decisions
 
 ```bash
 git add .ai-team/
-git commit -m "Add Squad team"
+git commit -m "Add Crew team"
 ```
 
 ### Pros
@@ -42,7 +42,7 @@ git commit -m "Add Squad team"
 ```bash
 echo ".ai-team/" >> .gitignore
 git add .gitignore
-git commit -m "Gitignore squad team state"
+git commit -m "Gitignore crew team state"
 ```
 
 ### Pros
@@ -60,57 +60,57 @@ git commit -m "Gitignore squad team state"
 
 ### When to Use This
 
-- Team doesn't need shared state (unlikely for Squad).
+- Team doesn't need shared state (unlikely for Crew).
 - Enterprise policy strictly forbids AI artifacts in repos.
 - You're experimenting and don't want to commit yet.
 
 ---
 
-## 3. Separate Branch (e.g., `squad-state`)
+## 3. Separate Branch (e.g., `crew-state`)
 
-**What it is:** Keep `.ai-team/` on a dedicated branch (`squad-state`, `team-config`, etc.), not on `main`. Use `git worktree` to mount it locally.
+**What it is:** Keep `.ai-team/` on a dedicated branch (`crew-state`, `team-config`, etc.), not on `main`. Use `git worktree` to mount it locally.
 
 ### Setup
 
 ```bash
-# Create and push the squad-state branch (if it doesn't exist)
-git checkout --orphan squad-state
+# Create and push the crew-state branch (if it doesn't exist)
+git checkout --orphan crew-state
 git rm -rf .
-echo "# Squad State Branch\nThis branch tracks .ai-team/ configuration." > README.md
+echo "# Crew State Branch\nThis branch tracks .ai-team/ configuration." > README.md
 git add README.md
-git commit -m "Initial squad-state branch"
-git push origin squad-state
+git commit -m "Initial crew-state branch"
+git push origin crew-state
 
 # Back on main
 git checkout main
 
-# Mount squad-state in a worktree
-git worktree add .ai-team-worktree squad-state
+# Mount crew-state in a worktree
+git worktree add .ai-team-worktree crew-state
 ln -s .ai-team-worktree/.ai-team .ai-team
 git add .gitignore
 echo ".ai-team-worktree/" >> .gitignore
-git commit -m "Add squad worktree"
+git commit -m "Add crew worktree"
 ```
 
 On Windows:
 
 ```bash
 # Use mklink instead of ln -s (requires admin or Developer Mode)
-git worktree add .ai-team-worktree squad-state
+git worktree add .ai-team-worktree crew-state
 mklink /D .ai-team .ai-team-worktree\.ai-team
 ```
 
 ### Pros
 
 - **Clean main branch.** `.ai-team/` never appears in `main` or in PR diffs.
-- **Full git history.** The `squad-state` branch has complete history of all team changes.
-- **Shareable with collaborators.** They can check out `squad-state` and pull your team setup.
-- **GitHub Actions can access it.** Workflows can check out both `main` and `squad-state` if needed.
+- **Full git history.** The `crew-state` branch has complete history of all team changes.
+- **Shareable with collaborators.** They can check out `crew-state` and pull your team setup.
+- **GitHub Actions can access it.** Workflows can check out both `main` and `crew-state` if needed.
 
 ### Cons
 
 - **Complex setup.** Requires knowledge of `git worktree` and branch management.
-- **Merge conflicts.** If multiple people work on `squad-state` simultaneously, conflicts happen.
+- **Merge conflicts.** If multiple people work on `crew-state` simultaneously, conflicts happen.
 - **Worktree management overhead.** You need to remember to update the worktree, and it can get stale.
 - **Collaborators must set up the worktree.** They can't just clone; they need to run the setup commands.
 
@@ -129,10 +129,10 @@ mklink /D .ai-team .ai-team-worktree\.ai-team
 ### Setup
 
 ```bash
-# Create a separate repository for your squad (e.g., on GitHub)
+# Create a separate repository for your crew (e.g., on GitHub)
 # Then add it as a submodule
-git submodule add https://github.com/you/my-squad-state .ai-team
-git commit -m "Add squad state as submodule"
+git submodule add https://github.com/you/my-crew-state .ai-team
+git commit -m "Add crew state as submodule"
 git push
 ```
 
@@ -169,7 +169,7 @@ git submodule update
 ### When to Use This
 
 - You're already using submodules elsewhere in your org (they're familiar with the pain).
-- You want to share the same squad configuration across 3+ repositories.
+- You want to share the same crew configuration across 3+ repositories.
 - Your team is comfortable with advanced git workflows.
 
 **Honest take:** Submodules work, but the git community almost universally dislikes them. They're powerful tools for specific use cases, but most teams regret using them. Only reach for submodules if you truly need them.
@@ -178,22 +178,22 @@ git submodule update
 
 ## 5. Symlink to External Directory
 
-**What it is:** Keep `.ai-team/` somewhere else on your filesystem (e.g., `~/my-squads/my-project-squad/`), then symlink it into your repo.
+**What it is:** Keep `.ai-team/` somewhere else on your filesystem (e.g., `~/my-crews/my-project-crew/`), then symlink it into your repo.
 
 ### Setup
 
 On macOS/Linux:
 
 ```bash
-mkdir -p ~/my-squads/my-project-squad
-ln -s ~/my-squads/my-project-squad .ai-team
+mkdir -p ~/my-crews/my-project-crew
+ln -s ~/my-crews/my-project-crew .ai-team
 ```
 
 On Windows (requires admin or Developer Mode):
 
 ```bash
-mkdir C:\Users\you\my-squads\my-project-squad
-mklink /D .ai-team C:\Users\you\my-squads\my-project-squad
+mkdir C:\Users\you\my-crews\my-project-crew
+mklink /D .ai-team C:\Users\you\my-crews\my-project-crew
 ```
 
 Add `.ai-team` to `.gitignore`:
@@ -204,9 +204,9 @@ echo ".ai-team" >> .gitignore
 
 ### Pros
 
-- **Share state across repos.** Point multiple projects to the same squad directory.
+- **Share state across repos.** Point multiple projects to the same crew directory.
 - **No git noise.** The symlink itself isn't tracked; `.ai-team/` is ignored.
-- **Maximum flexibility.** You can move the squad, reorganize it, or swap it out.
+- **Maximum flexibility.** You can move the crew, reorganize it, or swap it out.
 
 ### Cons
 
@@ -217,7 +217,7 @@ echo ".ai-team" >> .gitignore
 
 ### When to Use This
 
-- You maintain multiple repositories with the same squad.
+- You maintain multiple repositories with the same crew.
 - Everyone on your team has the same filesystem layout (rare in practice).
 - You're on macOS/Linux and control your development environment.
 
@@ -225,7 +225,7 @@ echo ".ai-team" >> .gitignore
 
 ---
 
-## 6. Dev Branch Only (The Squad Project's Own Approach)
+## 6. Dev Branch Only (The Crew Project's Own Approach)
 
 **What it is:** `.ai-team/` is committed, but *only* on dev/feature branches. On `main`, it's gitignored. When you create a feature branch, you remove `.ai-team/` from `.gitignore` so the team travels with your work.
 
@@ -236,7 +236,7 @@ On `main`:
 ```bash
 echo ".ai-team/" >> .gitignore
 git add .gitignore
-git commit -m "Ignore squad team on main"
+git commit -m "Ignore crew team on main"
 ```
 
 When you start a feature branch:
@@ -248,14 +248,14 @@ git rm .ai-team/  # if it exists from a previous branch
 git edit .gitignore
 # (remove the .ai-team/ line)
 git add .gitignore
-git commit -m "Track squad team on this branch"
+git commit -m "Track crew team on this branch"
 ```
 
 Agents work with the full `.ai-team/` context while you develop. When you merge back to `main`, the PR shows the `.ai-team/` changes, but `main` stays clean.
 
 ### Pros
 
-- **Clean main branch.** `main` is pure code, no squad artifacts.
+- **Clean main branch.** `main` is pure code, no crew artifacts.
 - **Full context on feature branches.** Agents have the team history while you work.
 - **Git history preserved.** Team changes are committed on feature branches and visible in git log.
 - **Collaborators get team state.** Anyone checking out your feature branch gets `.ai-team/`.
@@ -283,7 +283,7 @@ Agents work with the full `.ai-team/` context while you develop. When you merge 
 | Team, shared state, no PR concerns | **1. Committed** | Everyone gets same team |
 | Team, clean main, no Actions workflows | **2. Gitignored** | No policy issues, no PR noise |
 | Team, clean main, need Actions workflows | **3. Separate Branch** | Full history, shared state, Actions can access it |
-| Multiple repos, same squad | **4. Submodule** or **5. Symlink** | Submodule if you need git; symlink if portable |
+| Multiple repos, same crew | **4. Submodule** or **5. Symlink** | Submodule if you need git; symlink if portable |
 | Enterprise, AI artifact policy | **2. Gitignored** or **4. Submodule** | Keep AI stuff out of main repo |
 | Open source | **1. Committed** | Contributors should see how the team works |
 
@@ -291,26 +291,26 @@ Agents work with the full `.ai-team/` context while you develop. When you merge 
 
 ## Tips
 
-- **GitHub Actions and Gitignored `.ai-team/`:** If you choose option 2 (gitignore), remember that Actions workflows see committed files only. Label sync and heartbeat workflows (which use GitHub API) still work. But `squad.agent.md` triage rules won't see `.ai-team/decisions.md` during automated runs. Workaround: Copy critical decisions to a committed file or pass them as workflow env vars.
-- **Merge conflicts on `decisions.md`:** If multiple people are committing to `.ai-team/` at the same time, `decisions.md` and agent histories conflict frequently. Use the `.gitattributes merge=union` rules that Squad sets up. Check the file after merge to ensure it looks reasonable.
+- **GitHub Actions and Gitignored `.ai-team/`:** If you choose option 2 (gitignore), remember that Actions workflows see committed files only. Label sync and heartbeat workflows (which use GitHub API) still work. But `crew.agent.md` triage rules won't see `.ai-team/decisions.md` during automated runs. Workaround: Copy critical decisions to a committed file or pass them as workflow env vars.
+- **Merge conflicts on `decisions.md`:** If multiple people are committing to `.ai-team/` at the same time, `decisions.md` and agent histories conflict frequently. Use the `.gitattributes merge=union` rules that Crew sets up. Check the file after merge to ensure it looks reasonable.
 - **Backup your team.** If you're gitignoring `.ai-team/`, make sure you have backups. A deleted `.ai-team/` directory with no git history is gone forever.
-- **Communicate the pattern to your team.** Whatever you choose, document it. Add a line to your `CONTRIBUTING.md` or `README.md` explaining where the squad lives and how to interact with it.
+- **Communicate the pattern to your team.** Whatever you choose, document it. Add a line to your `CONTRIBUTING.md` or `README.md` explaining where the crew lives and how to interact with it.
 - **Start simple, migrate later.** Commit `.ai-team/` initially (option 1). If PR noise becomes a real problem, migrate to option 2 or 3. Changing strategies later is possible but requires care.
 
 ---
 
 ## Sample Prompts
 
-Use these prompts with Squad to implement specific strategies:
+Use these prompts with Crew to implement specific strategies:
 
 - **"Keep .ai-team/ out of my main branch."**
   - Directs you toward option 3 (separate branch) or option 6 (dev-only).
 
-- **"I want to share my squad across three repos without duplicating the team state."**
+- **"I want to share my crew across three repos without duplicating the team state."**
   - Points to option 4 (submodule) or option 5 (symlink).
 
 - **"Add .ai-team to .gitignore but make sure GitHub Actions can still route based on team.md."**
-  - Hybrid: gitignore but keep a committed `squad-routing.md` that Actions reads.
+  - Hybrid: gitignore but keep a committed `crew-routing.md` that Actions reads.
 
 - **"My enterprise doesn't allow AI artifacts in the main repository."**
   - Option 2 (gitignore) or option 4 (submodule in a separate org-controlled repo).
@@ -323,7 +323,7 @@ Use these prompts with Squad to implement specific strategies:
 
 ## See Also
 
-- **[Adding Squad to an Existing Repo](existing-repo.md)** — How to integrate Squad into a project with existing code.
-- **[Squad for Solo Developers](solo-dev.md)** — Building alone? Here's how Squad becomes your team.
-- **[Multiple Squads](multiple-squads.md)** — Managing more than one AI team.
-- **[Team Portability](team-portability.md)** — Moving your squad to a new repo or machine.
+- **[Adding Crew to an Existing Repo](existing-repo.md)** — How to integrate Crew into a project with existing code.
+- **[Crew for Solo Developers](solo-dev.md)** — Building alone? Here's how Crew becomes your team.
+- **[Multiple Crews](multiple-crews.md)** — Managing more than one AI team.
+- **[Team Portability](team-portability.md)** — Moving your crew to a new repo or machine.

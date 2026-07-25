@@ -15,7 +15,7 @@ import {
   RalphMonitor,
   type MonitorConfig,
   type AgentWorkStatus,
-} from '../packages/squad-sdk/src/ralph/index.js';
+} from '../packages/crew-sdk/src/ralph/index.js';
 import {
   parseGitHubRemote,
   parseAzureDevOpsRemote,
@@ -23,13 +23,13 @@ import {
   detectWorkItemSource,
   type GitHubRemoteInfo,
   type AzureDevOpsRemoteInfo,
-} from '../packages/squad-sdk/src/platform/detect.js';
+} from '../packages/crew-sdk/src/platform/detect.js';
 import {
   ReviewerLockoutHook,
   HookPipeline,
   type PreToolUseContext,
-} from '../packages/squad-sdk/src/hooks/index.js';
-import { EventBus, type SquadEvent } from '../packages/squad-sdk/src/runtime/event-bus.js';
+} from '../packages/crew-sdk/src/hooks/index.js';
+import { EventBus, type CrewEvent } from '../packages/crew-sdk/src/runtime/event-bus.js';
 
 // ============================================================================
 // SDK Feature: Ralph Idle-Watch Mode (#31)
@@ -39,7 +39,7 @@ describe('SDK Feature: Ralph Idle-Watch Mode (#31)', () => {
   let monitor: RalphMonitor;
   let eventBus: EventBus;
   const baseConfig: MonitorConfig = {
-    teamRoot: '/tmp/test-squad',
+    teamRoot: '/tmp/test-crew',
     healthCheckInterval: 1000,
     staleSessionThreshold: 5000,
   };
@@ -312,23 +312,23 @@ describe('SDK Feature: Ralph Idle-Watch Mode (#31)', () => {
 describe('SDK Feature: Client Compatibility — Platform Detection (#47)', () => {
   describe('parseGitHubRemote', () => {
     it('parses HTTPS GitHub URL', () => {
-      const result = parseGitHubRemote('https://github.com/bradygaster/squad.git');
-      expect(result).toEqual({ owner: 'bradygaster', repo: 'squad' });
+      const result = parseGitHubRemote('https://github.com/Blacklite/crew.git');
+      expect(result).toEqual({ owner: 'Blacklite', repo: 'crew' });
     });
 
     it('parses HTTPS GitHub URL without .git suffix', () => {
-      const result = parseGitHubRemote('https://github.com/bradygaster/squad');
-      expect(result).toEqual({ owner: 'bradygaster', repo: 'squad' });
+      const result = parseGitHubRemote('https://github.com/Blacklite/crew');
+      expect(result).toEqual({ owner: 'Blacklite', repo: 'crew' });
     });
 
     it('parses SSH GitHub URL', () => {
-      const result = parseGitHubRemote('git@github.com:bradygaster/squad.git');
-      expect(result).toEqual({ owner: 'bradygaster', repo: 'squad' });
+      const result = parseGitHubRemote('git@github.com:Blacklite/crew.git');
+      expect(result).toEqual({ owner: 'Blacklite', repo: 'crew' });
     });
 
     it('parses SSH GitHub URL without .git suffix', () => {
-      const result = parseGitHubRemote('git@github.com:bradygaster/squad');
-      expect(result).toEqual({ owner: 'bradygaster', repo: 'squad' });
+      const result = parseGitHubRemote('git@github.com:Blacklite/crew');
+      expect(result).toEqual({ owner: 'Blacklite', repo: 'crew' });
     });
 
     it('returns null for non-GitHub URL', () => {

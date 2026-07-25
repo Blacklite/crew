@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { augmentWithCastingEngine } from '../packages/squad-cli/src/cli/core/cast.js';
-import type { CastProposal } from '../packages/squad-cli/src/cli/core/cast.js';
+import { augmentWithCastingEngine } from '../packages/crew-cli/src/cli/core/cast.js';
+import type { CastProposal } from '../packages/crew-cli/src/cli/core/cast.js';
 
 describe('augmentWithCastingEngine', () => {
   it('should augment proposal when universe is "The Usual Suspects"', () => {

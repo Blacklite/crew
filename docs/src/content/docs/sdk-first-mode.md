@@ -1,26 +1,26 @@
-# SDK-First Squad Mode
+# SDK-First Crew Mode
 
 > **Phase 1** — Type-safe team configuration with builder functions.
 
-Squad now supports **SDK-First Mode**: define your team in TypeScript with full type safety, runtime validation, and editor autocomplete. Instead of manually maintaining markdown files in `.squad/`, you write clean TypeScript, and `squad build` generates the governance markdown.
+Crew now supports **SDK-First Mode**: define your team in TypeScript with full type safety, runtime validation, and editor autocomplete. Instead of manually maintaining markdown files in `.crew/`, you write clean TypeScript, and `crew build` generates the governance markdown.
 
 ---
 
 ## What gets generated
 
-Running `squad build` generates these files:
+Running `crew build` generates these files:
 
 | File | Condition | Contains |
 |------|-----------|----------|
-| `.squad/team.md` | Always | Team roster, member list, project context |
-| `.squad/routing.md` | If `routing` defined | Routing rules and default agent |
-| `.squad/agents/{name}/charter.md` | For each agent | Agent role, model, tools, capabilities |
-| `.squad/ceremonies.md` | If `ceremonies` defined | Ceremony schedule and agenda |
+| `.crew/team.md` | Always | Team roster, member list, project context |
+| `.crew/routing.md` | If `routing` defined | Routing rules and default agent |
+| `.crew/agents/{name}/charter.md` | For each agent | Agent role, model, tools, capabilities |
+| `.crew/ceremonies.md` | If `ceremonies` defined | Ceremony schedule and agenda |
 
 **Protected files** (never overwritten):
-- `.squad/decisions.md` / `.squad/decisions-archive.md`
-- `.squad/agents/*/history.md`
-- `.squad/orchestration-log/*`
+- `.crew/decisions.md` / `.crew/decisions-archive.md`
+- `.crew/agents/*/history.md`
+- `.crew/orchestration-log/*`
 
 ---
 
@@ -28,12 +28,12 @@ Running `squad build` generates these files:
 
 In SDK-First Mode:
 
-1. **You write** a `squad.config.ts` (or `squad/index.ts`) with builder functions
-2. **Squad validates** your config at runtime with type guards
-3. **`squad build`** generates `.squad/` markdown files automatically
+1. **You write** a `crew.config.ts` (or `crew/index.ts`) with builder functions
+2. **Crew validates** your config at runtime with type guards
+3. **`crew build`** generates `.crew/` markdown files automatically
 4. **You version control** only your TypeScript source — markdown is generated
 
-This replaces manual `.squad/team.md`, `.squad/routing.md`, and agent charters with a single source of truth in code.
+This replaces manual `.crew/team.md`, `.crew/routing.md`, and agent charters with a single source of truth in code.
 
 **When to use SDK mode:** For a comparison of SDK-first mode versus CLI mode, see the [Getting started guide](/guide#how-teams-form-init-mode).
 
@@ -44,22 +44,22 @@ This replaces manual `.squad/team.md`, `.squad/routing.md`, and agent charters w
 ### 1. Install the SDK
 
 ```bash
-npm install @bradygaster/squad-sdk
+npm install @blacklite/crew-sdk
 ```
 
-### 2. Create `squad.config.ts`
+### 2. Create `crew.config.ts`
 
 ```typescript
 import {
-  defineSquad,
+  defineCrew,
   defineTeam,
   defineAgent,
   defineRouting,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
-export default defineSquad({
+export default defineCrew({
   team: defineTeam({
-    name: 'Core Squad',
+    name: 'Core Crew',
     description: 'The main engineering team',
     members: ['@edie', '@mcmanus'],
   }),
@@ -90,50 +90,50 @@ export default defineSquad({
 });
 ```
 
-### 3. Run `squad build`
+### 3. Run `crew build`
 
 ```bash
-squad build
+crew build
 ```
 
 This generates:
-- `.squad/team.md` — team roster and context
-- `.squad/routing.md` — routing rules
-- `.squad/agents/{name}/charter.md` — agent charters
-- `.squad/ceremonies.md` — (if ceremonies defined)
+- `.crew/team.md` — team roster and context
+- `.crew/routing.md` — routing rules
+- `.crew/agents/{name}/charter.md` — agent charters
+- `.crew/ceremonies.md` — (if ceremonies defined)
 
 ---
 
 ## Start a new SDK-first project
 
 ```bash
-squad init --sdk
+crew init --sdk
 ```
 
-This generates `.squad/` markdown files and a `squad.config.ts` at your project root using the `defineSquad()` builder syntax. Your TypeScript config is the source of truth — edit it, then run `squad build` to regenerate `.squad/`.
+This generates `.crew/` markdown files and a `crew.config.ts` at your project root using the `defineCrew()` builder syntax. Your TypeScript config is the source of truth — edit it, then run `crew build` to regenerate `.crew/`.
 
 For the full team initialization flow, see [How teams form (Init Mode)](/guide#how-teams-form-init-mode) in the getting started guide.
 
 ---
 
-## Migrating an Existing Squad to SDK-First
+## Migrating an Existing Crew to SDK-First
 
 ```bash
-squad migrate --to sdk        # generate squad.config.ts from existing .squad/
-squad migrate --to sdk --dry-run  # preview without writing
+crew migrate --to sdk        # generate crew.config.ts from existing .crew/
+crew migrate --to sdk --dry-run  # preview without writing
 ```
 
-The migrate command reads your existing `.squad/` files (team.md, routing.md, agent charters) and generates a `squad.config.ts` that reproduces your current configuration using typed builders.
+The migrate command reads your existing `.crew/` files (team.md, routing.md, agent charters) and generates a `crew.config.ts` that reproduces your current configuration using typed builders.
 
 ### What Gets Migrated
 
 | Source | Generated |
 |--------|-----------|
-| `.squad/team.md` roster | `defineTeam({ members: [...] })` |
-| `.squad/agents/*/charter.md` | `defineAgent({ name, role, ... })` per agent |
-| `.squad/routing.md` rules | `defineRouting({ rules: [...] })` |
-| `.squad/ceremonies.md` | `defineCeremony()` entries |
-| `.squad/casting/policy.json` | `defineCasting()` block |
+| `.crew/team.md` roster | `defineTeam({ members: [...] })` |
+| `.crew/agents/*/charter.md` | `defineAgent({ name, role, ... })` per agent |
+| `.crew/routing.md` rules | `defineRouting({ rules: [...] })` |
+| `.crew/ceremonies.md` | `defineCeremony()` entries |
+| `.crew/casting/policy.json` | `defineCasting()` block |
 
 ### What's Preserved (Not Migrated)
 
@@ -144,18 +144,18 @@ The migrate command reads your existing `.squad/` files (team.md, routing.md, ag
 ### Reverting to Markdown
 
 ```bash
-squad migrate --to markdown
+crew migrate --to markdown
 ```
 
-This runs `squad build` to ensure `.squad/` is current, then removes `squad.config.ts`.
+This runs `crew build` to ensure `.crew/` is current, then removes `crew.config.ts`.
 
 ### Legacy Migration
 
 ```bash
-squad migrate --from ai-team   # rename .ai-team/ → .squad/
+crew migrate --from ai-team   # rename .ai-team/ → .crew/
 ```
 
-This replaces the old `squad upgrade --migrate-directory` command.
+This replaces the old `crew upgrade --migrate-directory` command.
 
 ---
 
@@ -197,7 +197,7 @@ Define team metadata, project context, and member roster.
 
 ```typescript
 const team = defineTeam({
-  name: 'Core Squad',
+  name: 'Core Crew',
   description: 'The main engineering team',
   projectContext: 'Building a React/Node recipe app...',
   members: ['@edie', '@fenster', '@hockney'],
@@ -301,7 +301,7 @@ Define the governance hook pipeline — write paths, blocked commands, PII scrub
 
 ```typescript
 const hooks = defineHooks({
-  allowedWritePaths: ['src/**', 'test/**', '.squad/**'],
+  allowedWritePaths: ['src/**', 'test/**', '.crew/**'],
   blockedCommands: ['rm -rf /', 'DROP TABLE', 'delete from'],
   maxAskUser: 3,
   scrubPii: true,
@@ -350,7 +350,7 @@ Define OpenTelemetry configuration for observability.
 const telemetry = defineTelemetry({
   enabled: true,
   endpoint: 'http://localhost:4317',
-  serviceName: 'squad-prod',
+  serviceName: 'crew-prod',
   sampleRate: 1.0,
   aspireDefaults: true,
 });
@@ -371,17 +371,17 @@ const telemetry = defineTelemetry({
 Define a reusable skill that agents can load on demand.
 
 ```typescript
-import { defineSkill } from '@bradygaster/squad-sdk';
+import { defineSkill } from '@blacklite/crew-sdk';
 
 const gitWorkflow = defineSkill({
   name: 'git-workflow',
-  description: 'Squad branching model and PR conventions',
+  description: 'Crew branching model and PR conventions',
   domain: 'workflow',
   confidence: 'high',
   source: 'manual',
   content: `
     ## Patterns
-    - Branch from dev: squad/{issue-number}-{slug}
+    - Branch from dev: crew/{issue-number}-{slug}
     - PRs target dev, not main
     - Three-branch model: dev → insiders → main
   `,
@@ -398,16 +398,16 @@ const gitWorkflow = defineSkill({
 | `content` | string | ✅ | The skill body (patterns, examples) |
 | `tools` | `SkillTool[]` | ❌ | MCP tools relevant to this skill |
 
-Skills defined in `squad.config.ts` are generated to `.copilot/skills/{name}/SKILL.md` when you run `squad build`.
+Skills defined in `crew.config.ts` are generated to `.copilot/skills/{name}/SKILL.md` when you run `crew build`.
 
 ---
 
-### `defineSquad(config)`
+### `defineCrew(config)`
 
 Compose all builders into a single SDK config.
 
 ```typescript
-export default defineSquad({
+export default defineCrew({
   version: '1.0.0',
   team: defineTeam({ /* ... */ }),
   agents: [
@@ -424,14 +424,14 @@ export default defineSquad({
 
 ---
 
-## `squad build` command
+## `crew build` command
 
-Compile TypeScript Squad definitions into `.squad/` markdown.
+Compile TypeScript Crew definitions into `.crew/` markdown.
 
 **Usage:**
 
 ```bash
-squad build [options]
+crew build [options]
 ```
 
 **Flags:**
@@ -446,26 +446,26 @@ squad build [options]
 
 ```bash
 # Rebuild all generated files
-squad build
+crew build
 
 # Validate that generated files match disk (useful in CI/CD)
-squad build --check
+crew build --check
 
 # Preview changes before writing
-squad build --dry-run
+crew build --dry-run
 ```
 
 ---
 
 ## Config discovery
 
-`squad build` discovers your config in this order:
+`crew build` discovers your config in this order:
 
-1. `squad/index.ts` — SDK-First config
-2. `squad.config.ts` — Alternative location
-3. `squad.config.js` — JavaScript fallback
+1. `crew/index.ts` — SDK-First config
+2. `crew.config.ts` — Alternative location
+3. `crew.config.js` — JavaScript fallback
 
-The config must export: `export default config` (default export), `export { config }` (named export), or `export { squadConfig }` (alias).
+The config must export: `export default config` (default export), `export { config }` (named export), or `export { crewConfig }` (alias).
 
 ---
 
@@ -487,9 +487,9 @@ You manually maintain this file and agent charters.
 ### After (SDK-First)
 
 ```typescript
-export default defineSquad({
+export default defineCrew({
   team: defineTeam({
-    name: 'Core Squad',
+    name: 'Core Crew',
     members: ['@edie'],
   }),
   agents: [
@@ -501,19 +501,19 @@ export default defineSquad({
 });
 ```
 
-Run `squad build` and the markdown is generated. Version control your TypeScript, not the markdown.
+Run `crew build` and the markdown is generated. Version control your TypeScript, not the markdown.
 
 ---
 
 ## Best Practices
 
-1. **Keep `squad.config.ts` at project root** — easier to discover
-2. **Use `defineSquad()` for composition** — ensures all sections are validated together
+1. **Keep `crew.config.ts` at project root** — easier to discover
+2. **Use `defineCrew()` for composition** — ensures all sections are validated together
 3. **Add capabilities** — helps the coordinator understand agent expertise
 4. **Document project context** — inject into agent prompts via `TeamDefinition.projectContext`
 5. **Use consistent tier names** — team members should understand routing tiers
-6. **Validate in CI** — add `squad build --check` to your CI pipeline
-7. **Don't edit generated markdown** — it will be overwritten; edit `squad.config.ts` instead
+6. **Validate in CI** — add `crew build --check` to your CI pipeline
+7. **Don't edit generated markdown** — it will be overwritten; edit `crew.config.ts` instead
 
 ---
 
@@ -523,20 +523,20 @@ Run `squad build` and the markdown is generated. Version control your TypeScript
 
 ```typescript
 import {
-  defineSquad,
+  defineCrew,
   defineTeam,
   defineAgent,
   defineRouting,
   defineHooks,
   defineCasting,
   defineTelemetry,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
-export default defineSquad({
+export default defineCrew({
   version: '1.0.0',
 
   team: defineTeam({
-    name: 'Platform Squad',
+    name: 'Platform Crew',
     description: 'Full-stack platform engineering team',
     projectContext: `
       React/Node monorepo. TypeScript strict mode.
@@ -625,7 +625,7 @@ export default defineSquad({
       'src/**',
       'test/**',
       'docs/**',
-      '.squad/**',
+      '.crew/**',
       'package.json',
     ],
     blockedCommands: ['rm -rf /', 'DROP TABLE'],
@@ -645,7 +645,7 @@ export default defineSquad({
   telemetry: defineTelemetry({
     enabled: true,
     endpoint: 'http://localhost:4317',
-    serviceName: 'squad-platform',
+    serviceName: 'crew-platform',
     sampleRate: 1.0,
     aspireDefaults: true,
   }),

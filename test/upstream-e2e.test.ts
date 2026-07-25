@@ -1,5 +1,5 @@
 /**
- * E2E test: proves upper-level Squad context (decisions, skills, wisdom,
+ * E2E test: proves upper-level Crew context (decisions, skills, wisdom,
  * routing, casting) is visible to lower-level repos through the resolver.
  *
  * Simulates: Org repo → Team repo → Project repo (3-level hierarchy)
@@ -14,8 +14,8 @@ import {
   resolveUpstreams,
   buildInheritedContextBlock,
   buildSessionDisplay,
-} from '../packages/squad-sdk/src/upstream/resolver.js';
-import type { UpstreamConfig } from '../packages/squad-sdk/src/upstream/types.js';
+} from '../packages/crew-sdk/src/upstream/resolver.js';
+import type { UpstreamConfig } from '../packages/crew-sdk/src/upstream/types.js';
 
 function tmp(prefix: string): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));
@@ -34,7 +34,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
     // ORG LEVEL — shared standards for the whole organization
     // ═══════════════════════════════════════════════════════
     orgDir = tmp('e2e-org-');
-    const org = path.join(orgDir, '.squad');
+    const org = path.join(orgDir, '.crew');
 
     // Org skill: API conventions
     fs.mkdirSync(path.join(org, 'skills', 'api-conventions'), { recursive: true });
@@ -78,7 +78,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
     // TEAM LEVEL — frontend team standards (inherits from org)
     // ═══════════════════════════════════════════════════════
     teamDir = tmp('e2e-team-');
-    const team = path.join(teamDir, '.squad');
+    const team = path.join(teamDir, '.crew');
 
     // Team skill: React testing
     fs.mkdirSync(path.join(team, 'skills', 'react-testing'), { recursive: true });
@@ -105,7 +105,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
     // REPO LEVEL — the actual project (inherits from team AND org)
     // ═══════════════════════════════════════════════════════
     repoDir = tmp('e2e-repo-');
-    const repo = path.join(repoDir, '.squad');
+    const repo = path.join(repoDir, '.crew');
     fs.mkdirSync(repo, { recursive: true });
 
     // Repo's own local skill
@@ -140,7 +140,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── CORE: resolver finds all upstreams ──
 
   it('resolves both org and team upstreams from repo level', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'));
+    const result = resolveUpstreams(path.join(repoDir, '.crew'));
     expect(result).not.toBeNull();
     expect(result!.upstreams).toHaveLength(2);
     expect(result!.upstreams.map(u => u.name)).toEqual(['org', 'team']);
@@ -149,7 +149,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── ORG DECISIONS visible at repo level ──
 
   it('org decisions (TypeScript, PostgreSQL, no classes) are visible at repo level', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const org = result.upstreams.find(u => u.name === 'org')!;
 
     expect(org.decisions).toContain('TypeScript mandatory');
@@ -160,7 +160,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── TEAM DECISIONS visible at repo level ──
 
   it('team decisions (Zustand, React 19) are visible at repo level', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const team = result.upstreams.find(u => u.name === 'team')!;
 
     expect(team.decisions).toContain('Zustand');
@@ -170,10 +170,10 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── ALL THREE LEVELS OF DECISIONS COEXIST ──
 
   it('repo, team, and org decisions all coexist (closest-wins)', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
 
     // Repo's own decisions
-    const localDecisions = fs.readFileSync(path.join(repoDir, '.squad', 'decisions.md'), 'utf8');
+    const localDecisions = fs.readFileSync(path.join(repoDir, '.crew', 'decisions.md'), 'utf8');
     expect(localDecisions).toContain('Vite');
 
     // Org decisions via upstream
@@ -186,7 +186,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── ORG SKILLS visible at repo level ──
 
   it('org skills (api-conventions, security-patterns) readable with full content', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const org = result.upstreams.find(u => u.name === 'org')!;
 
     expect(org.skills).toHaveLength(2);
@@ -202,7 +202,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── TEAM SKILLS visible at repo level ──
 
   it('team skills (react-testing) readable with content', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const team = result.upstreams.find(u => u.name === 'team')!;
 
     expect(team.skills).toHaveLength(1);
@@ -214,11 +214,11 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   it('local repo skill coexists with org and team skills', () => {
     // Local skill exists
     const localSkill = fs.readFileSync(
-      path.join(repoDir, '.squad', 'skills', 'project-patterns', 'SKILL.md'), 'utf8');
+      path.join(repoDir, '.crew', 'skills', 'project-patterns', 'SKILL.md'), 'utf8');
     expect(localSkill).toContain('MSW');
 
     // Upstream skills also available
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     expect(result.upstreams.find(u => u.name === 'org')!.skills).toHaveLength(2);
     expect(result.upstreams.find(u => u.name === 'team')!.skills).toHaveLength(1);
   });
@@ -226,7 +226,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── ORG WISDOM visible at repo level ──
 
   it('org wisdom (retry, logging, feature flags, anti-patterns) visible', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const org = result.upstreams.find(u => u.name === 'org')!;
 
     expect(org.wisdom).toContain('exponential backoff');
@@ -238,7 +238,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── ORG CASTING POLICY visible at repo level ──
 
   it('org casting policy visible', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const org = result.upstreams.find(u => u.name === 'org')!;
 
     expect(org.castingPolicy).toBeDefined();
@@ -249,7 +249,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── ORG ROUTING visible at repo level ──
 
   it('org routing rules (security, compliance, a11y) visible as fallback', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const org = result.upstreams.find(u => u.name === 'org')!;
 
     expect(org.routing).toContain('Security review');
@@ -260,21 +260,21 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── LIVE UPDATES: org changes propagate instantly ──
 
   it('org adds a new decision → visible at repo level without sync', () => {
-    fs.appendFileSync(path.join(orgDir, '.squad', 'decisions.md'),
+    fs.appendFileSync(path.join(orgDir, '.crew', 'decisions.md'),
       '\n### 2025-03-01: Require PR reviews\n**What:** All PRs need at least one approval.\n');
 
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const org = result.upstreams.find(u => u.name === 'org')!;
     expect(org.decisions).toContain('Require PR reviews');
   });
 
   it('org adds a new skill → visible at repo level without sync', () => {
-    const newDir = path.join(orgDir, '.squad', 'skills', 'ci-cd-standards');
+    const newDir = path.join(orgDir, '.crew', 'skills', 'ci-cd-standards');
     fs.mkdirSync(newDir, { recursive: true });
     fs.writeFileSync(path.join(newDir, 'SKILL.md'),
       '---\nname: ci-cd-standards\n---\n\n# CI/CD\n\nAll PRs must pass CI.\n');
 
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const org = result.upstreams.find(u => u.name === 'org')!;
     expect(org.skills.map(s => s.name)).toContain('ci-cd-standards');
   });
@@ -282,7 +282,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── SESSION DISPLAY shows hierarchy ──
 
   it('session display shows both upstreams with content summary', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const display = buildSessionDisplay(result);
 
     expect(display).toContain('📡 Inherited context:');
@@ -296,7 +296,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── SPAWN PROMPT BLOCK includes both sources ──
 
   it('INHERITED CONTEXT block lists both sources for spawn prompts', () => {
-    const result = resolveUpstreams(path.join(repoDir, '.squad'))!;
+    const result = resolveUpstreams(path.join(repoDir, '.crew'))!;
     const block = buildInheritedContextBlock(result);
 
     expect(block).toContain('INHERITED CONTEXT:');
@@ -310,7 +310,7 @@ describe('E2E: Org → Team → Repo upstream inheritance', () => {
   // ── TEAM ALSO SEES ORG (transitive) ──
 
   it('team repo can also resolve org as its own upstream', () => {
-    const teamResult = resolveUpstreams(path.join(teamDir, '.squad'));
+    const teamResult = resolveUpstreams(path.join(teamDir, '.crew'));
     expect(teamResult).not.toBeNull();
     expect(teamResult!.upstreams).toHaveLength(1);
     expect(teamResult!.upstreams[0].name).toBe('org');

@@ -9,16 +9,16 @@ import {
   generateAuditMarkdown,
   type FeatureAuditReport,
   type FeatureStatus,
-} from '@bradygaster/squad-sdk/config';
-import { DEFAULT_CONFIG, defineConfig, type SquadConfig } from '@bradygaster/squad-sdk/config';
+} from '@blacklite/crew-sdk/config';
+import { DEFAULT_CONFIG, defineConfig, type CrewConfig } from '@blacklite/crew-sdk/config';
 
 // --- helpers ---
 
 /** Fully-configured config with agents, routing, hooks, etc. */
-function fullConfig(): SquadConfig {
+function fullConfig(): CrewConfig {
   return defineConfig({
     version: '0.6.0',
-    team: { name: 'Audit Squad' },
+    team: { name: 'Audit Crew' },
     agents: [
       { name: 'keaton', role: 'lead', status: 'active' },
       { name: 'mcmanus', role: 'developer', status: 'active' },
@@ -40,7 +40,7 @@ function fullConfig(): SquadConfig {
 }
 
 /** Minimal config — just defaults, no agents or routing rules */
-function minimalConfig(): SquadConfig {
+function minimalConfig(): CrewConfig {
   return defineConfig({});
 }
 

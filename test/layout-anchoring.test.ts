@@ -14,10 +14,10 @@
 import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import React from 'react';
 import { render } from 'ink-testing-library';
-import { InputPrompt } from '../packages/squad-cli/src/cli/shell/components/InputPrompt.js';
-import { AgentPanel } from '../packages/squad-cli/src/cli/shell/components/AgentPanel.js';
-import { MessageStream } from '../packages/squad-cli/src/cli/shell/components/MessageStream.js';
-import type { ShellMessage, AgentSession } from '../packages/squad-cli/src/cli/shell/types.js';
+import { InputPrompt } from '../packages/crew-cli/src/cli/shell/components/InputPrompt.js';
+import { AgentPanel } from '../packages/crew-cli/src/cli/shell/components/AgentPanel.js';
+import { MessageStream } from '../packages/crew-cli/src/cli/shell/components/MessageStream.js';
+import type { ShellMessage, AgentSession } from '../packages/crew-cli/src/cli/shell/types.js';
 
 const h = React.createElement;
 

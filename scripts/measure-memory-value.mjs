@@ -14,7 +14,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const REPO_ROOT = resolvePath(__dirname, '..');
-const SDK_DIST = resolvePath(REPO_ROOT, 'packages/squad-sdk/dist/runtime/memory-value-benchmark.js');
+const SDK_DIST = resolvePath(REPO_ROOT, 'packages/crew-sdk/dist/runtime/memory-value-benchmark.js');
 
 function printHelp() {
   stdout.write([
@@ -24,7 +24,7 @@ function printHelp() {
     '  --json      Emit JSON instead of a formatted report',
     '  -h, --help  Show this help',
     '',
-    'Note: requires `npm run build` to have produced packages/squad-sdk/dist/.',
+    'Note: requires `npm run build` to have produced packages/crew-sdk/dist/.',
     '',
   ].join('\n'));
 }

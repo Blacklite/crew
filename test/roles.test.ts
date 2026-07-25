@@ -6,10 +6,10 @@ import {
   getCategories,
   useRole,
   generateCharterFromRole,
-} from '../packages/squad-sdk/src/roles/index.js';
-import { BASE_ROLES } from '../packages/squad-sdk/src/roles/catalog.js';
-import { CATEGORY_ROLES } from '../packages/squad-sdk/src/roles/catalog-categories.js';
-import type { BaseRole } from '../packages/squad-sdk/src/roles/types.js';
+} from '../packages/crew-sdk/src/roles/index.js';
+import { BASE_ROLES } from '../packages/crew-sdk/src/roles/catalog.js';
+import { CATEGORY_ROLES } from '../packages/crew-sdk/src/roles/catalog-categories.js';
+import type { BaseRole } from '../packages/crew-sdk/src/roles/types.js';
 
 describe('Base Roles Catalog', () => {
   describe('catalog integrity', () => {

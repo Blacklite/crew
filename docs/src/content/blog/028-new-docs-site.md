@@ -3,16 +3,16 @@ title: "New Docs Site: Built by the Community"
 date: 2026-03-10
 author: "PAO (DevRel)"
 wave: 7
-tags: [squad, docs, community, astro, contributions]
+tags: [crew, docs, community, astro, contributions]
 status: published
-hero: "Squad's documentation gets a complete rebuild — powered by Astro, Tailwind CSS, and community contributors."
+hero: "Crew's documentation gets a complete rebuild — powered by Astro, Tailwind CSS, and community contributors."
 ---
 
 # New Docs Site: Built by the Community
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-> _Squad's documentation site has been completely rebuilt from the ground up. A full Astro-powered docs experience with search, responsive design, and content contributed by multiple community members._
+> _Crew's documentation site has been completely rebuilt from the ground up. A full Astro-powered docs experience with search, responsive design, and content contributed by multiple community members._
 
 ---
 
@@ -47,7 +47,7 @@ This was a fast-follow polish pass on the Astro rewrite, catching the details th
 
 - **PR #286** — Added validation steps to the Quick Start README
 - **PR #288** — "Which method should I use?" decision tree for the installation page — CLI, VS Code, or SDK, with clear guidance on when to use each
-- **PR #290** — ".squad/ directory explainer" for the first-session guide — a table showing every file and directory in `.squad/` with its purpose, plus ownership guidance
+- **PR #290** — ".crew/ directory explainer" for the first-session guide — a table showing every file and directory in `.crew/` with its purpose, plus ownership guidance
 - **PR #292** — Doc-impact review process added to team workflows
 
 All four contributions have been merged or ported into the new Astro docs structure.
@@ -65,8 +65,8 @@ The sidebar now scrolls to your current position when a page loads. If you're de
 Key pages now include callouts directing users to the **GitHub Copilot CLI** as the recommended interface:
 
 ```
-💡 The recommended way to use Squad is through GitHub Copilot CLI:
-copilot --agent squad
+💡 The recommended way to use Crew is through GitHub Copilot CLI:
+copilot --agent crew
 ```
 
 ### CI/CD Safety Warnings
@@ -77,20 +77,20 @@ The CI/CD integration page now ships with the cron schedule **commented out by d
 
 ## Community Impact
 
-This release represents a milestone for Squad's community. Two external contributors shaped the docs you'll use:
+This release represents a milestone for Crew's community. Two external contributors shaped the docs you'll use:
 
 | Contributor | Impact |
 |-------------|--------|
 | [@IEvangelist](https://github.com/IEvangelist) | Complete Astro docs site architecture and build |
 | [@diberry](https://github.com/diberry) | Four PRs improving installation, getting-started, and team workflow docs |
 
-Both contributors are now credited in [CONTRIBUTORS.md](https://github.com/bradygaster/squad/blob/main/CONTRIBUTORS.md).
+Both contributors are now credited in [CONTRIBUTORS.md](https://github.com/Blacklite/crew/blob/main/CONTRIBUTORS.md).
 
 ---
 
 ## Try It
 
-Visit the docs at [bradygaster.github.io/squad](https://bradygaster.github.io/squad/) or run them locally:
+Visit the docs at [blacklite.github.io/crew](https://blacklite.github.io/crew/) or run them locally:
 
 ```bash
 cd docs
@@ -98,7 +98,7 @@ npm install
 npm run dev
 ```
 
-Open [localhost:4321/squad/](http://localhost:4321/squad/) and explore.
+Open [localhost:4321/crew/](http://localhost:4321/crew/) and explore.
 
 ---
 
@@ -106,4 +106,4 @@ Open [localhost:4321/squad/](http://localhost:4321/squad/) and explore.
 
 - Search refinements and indexing improvements
 - More scenario guides from community feedback
-- Continued content contributions welcome — see [CONTRIBUTING.md](https://github.com/bradygaster/squad/blob/main/CONTRIBUTING.md)
+- Continued content contributions welcome — see [CONTRIBUTING.md](https://github.com/Blacklite/crew/blob/main/CONTRIBUTING.md)

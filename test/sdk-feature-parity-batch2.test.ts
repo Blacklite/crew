@@ -21,13 +21,13 @@ import {
   type PreToolUseContext,
   type PostToolUseContext,
   type PolicyConfig,
-} from '../packages/squad-sdk/src/hooks/index.js';
+} from '../packages/crew-sdk/src/hooks/index.js';
 import type {
   CeremonyDefinition,
   AgentDefinition,
   HooksDefinition,
-  SquadSDKConfig,
-} from '../packages/squad-sdk/src/builders/types.js';
+  CrewSDKConfig,
+} from '../packages/crew-sdk/src/builders/types.js';
 import {
   defineTeam,
   defineAgent,
@@ -35,9 +35,9 @@ import {
   defineCeremony,
   defineHooks,
   defineCasting,
-  defineSquad,
+  defineCrew,
   BuilderValidationError,
-} from '../packages/squad-sdk/src/builders/index.js';
+} from '../packages/crew-sdk/src/builders/index.js';
 
 // =============================================================================
 // Feature #27: Manual Ceremonies
@@ -96,8 +96,8 @@ describe('SDK Feature: Manual Ceremonies (#27)', () => {
     expect(ceremony.hooks).toContain('post-retro-create-issues');
   });
 
-  it('defineSquad() composes multiple ceremonies including manual', () => {
-    const config = defineSquad({
+  it('defineCrew() composes multiple ceremonies including manual', () => {
+    const config = defineCrew({
       team: defineTeam({ name: 'Alpha', members: ['test-agent-1', 'test-agent-3'] }),
       agents: [
         defineAgent({ name: 'test-agent-1', role: 'TypeScript Engineer' }),
@@ -165,9 +165,9 @@ describe('SDK Feature: Manual Ceremonies (#27)', () => {
     ).toThrow(BuilderValidationError);
   });
 
-  it('ceremony participants can reference any agent in the squad', () => {
-    const config = defineSquad({
-      team: defineTeam({ name: 'Squad', members: ['test-agent-1', 'test-agent-2', 'test-agent-3'] }),
+  it('ceremony participants can reference any agent in the crew', () => {
+    const config = defineCrew({
+      team: defineTeam({ name: 'Crew', members: ['test-agent-1', 'test-agent-2', 'test-agent-3'] }),
       agents: [
         defineAgent({ name: 'test-agent-1', role: 'Lead' }),
         defineAgent({ name: 'test-agent-2', role: 'Tester' }),
@@ -184,7 +184,7 @@ describe('SDK Feature: Manual Ceremonies (#27)', () => {
     });
 
     const ceremony = config.ceremonies![0];
-    // All participants should be valid agent names from the squad
+    // All participants should be valid agent names from the crew
     for (const p of ceremony.participants!) {
       const agent = config.agents.find(a => a.name === p);
       expect(agent).toBeDefined();
@@ -234,8 +234,8 @@ describe('SDK Feature: Ceremony Cooldown (#28)', () => {
     expect(new Set(schedules).size).toBe(3);
   });
 
-  it('defineSquad() validates ceremonies with schedules in full config', () => {
-    const config = defineSquad({
+  it('defineCrew() validates ceremonies with schedules in full config', () => {
+    const config = defineCrew({
       team: defineTeam({ name: 'CooldownTeam', members: ['test-agent-1'] }),
       agents: [defineAgent({ name: 'test-agent-1', role: 'Engineer' })],
       ceremonies: [
@@ -273,8 +273,8 @@ describe('SDK Feature: Human Team Members (#36)', () => {
     expect(agent.status).toBe('retired');
   });
 
-  it('squad config can include agents with mixed statuses', () => {
-    const config = defineSquad({
+  it('crew config can include agents with mixed statuses', () => {
+    const config = defineCrew({
       team: defineTeam({ name: 'Mixed', members: ['test-agent-1', 'test-agent-4', 'test-agent-retired'] }),
       agents: [
         defineAgent({ name: 'test-agent-1', role: 'Engineer', status: 'active' }),
@@ -331,7 +331,7 @@ describe('SDK Feature: Human Team Members (#36)', () => {
   });
 
   it('routing rules can reference agents regardless of status', () => {
-    const config = defineSquad({
+    const config = defineCrew({
       team: defineTeam({ name: 'Routed', members: ['test-agent-1', 'test-agent-3'] }),
       agents: [
         defineAgent({ name: 'test-agent-1', role: 'Engineer', status: 'active' }),
@@ -353,7 +353,7 @@ describe('SDK Feature: Human Team Members (#36)', () => {
   });
 
   it('team members list can include descriptive roles for human oversight', () => {
-    const config = defineSquad({
+    const config = defineCrew({
       team: defineTeam({
         name: 'HumanLed',
         members: ['test-agent-1', 'test-agent-2', 'test-pm'],
@@ -458,7 +458,7 @@ describe('SDK Feature: Constraint Budget (#49)', () => {
   describe('file-write path constraints', () => {
     beforeEach(() => {
       pipeline = new HookPipeline({
-        allowedWritePaths: ['src/**', 'test/**', '.squad/**'],
+        allowedWritePaths: ['src/**', 'test/**', '.crew/**'],
       });
     });
 
@@ -499,10 +499,10 @@ describe('SDK Feature: Constraint Budget (#49)', () => {
       expect(result.reason).toMatch(/does not match allowed paths/);
     });
 
-    it('allows .squad/ path writes', async () => {
+    it('allows .crew/ path writes', async () => {
       const ctx: PreToolUseContext = {
         toolName: 'create',
-        arguments: { path: '.squad/agents/test-agent-1/charter.md' },
+        arguments: { path: '.crew/agents/test-agent-1/charter.md' },
         agentName: 'test-agent-1',
         sessionId: 's1',
       };
@@ -809,8 +809,8 @@ describe('SDK Feature: Constraint Budget (#49)', () => {
       ).toThrow(BuilderValidationError);
     });
 
-    it('defineSquad() with hooks constraints composes correctly', () => {
-      const config = defineSquad({
+    it('defineCrew() with hooks constraints composes correctly', () => {
+      const config = defineCrew({
         team: defineTeam({ name: 'Constrained', members: ['test-agent-1'] }),
         agents: [defineAgent({ name: 'test-agent-1', role: 'Engineer' })],
         hooks: defineHooks({

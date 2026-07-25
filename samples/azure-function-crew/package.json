@@ -1,0 +1,28 @@
+{
+  "name": "@crew-samples/azure-function-crew",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Azure Function + Content Review Crew — Crew SDK sample",
+  "type": "module",
+  "main": "dist/functions/crew-prompt.js",
+  "scripts": {
+    "build": "tsc",
+    "build:check": "tsc --noEmit",
+    "start": "npm run build && func start",
+    "start:func": "func start",
+    "prestart:func": "npm run build",
+    "test": "npx tsx src/functions/crew-prompt.ts --dry-run"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.0.0",
+    "@blacklite/crew-sdk": "file:../../packages/crew-sdk"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,7 +1,7 @@
 /**
- * CI tests for current datetime propagation in Squad templates.
+ * CI tests for current datetime propagation in Crew templates.
  *
- * Canonical source: .squad-templates/
+ * Canonical source: .crew-templates/
  */
 
 import { describe, it, expect } from 'vitest';
@@ -17,19 +17,19 @@ function readTemplate(relPath: string): string {
 }
 
 describe('current datetime template contract', () => {
-  const squadTemplate = readTemplate('.squad-templates/squad.agent.md');
-  const spawnReference = readTemplate('.squad-templates/spawn-reference.md');
-  const afterAgentReference = readTemplate('.squad-templates/after-agent-reference.md');
-  const scribeCharter = readTemplate('.squad-templates/scribe-charter.md');
+  const crewTemplate = readTemplate('.crew-templates/crew.agent.md');
+  const spawnReference = readTemplate('.crew-templates/spawn-reference.md');
+  const afterAgentReference = readTemplate('.crew-templates/after-agent-reference.md');
+  const scribeCharter = readTemplate('.crew-templates/scribe-charter.md');
 
   // Coordinator + reference files that carry spawn templates and after-agent instructions.
-  // PR #1035 moved spawn-template details out of squad.agent.md into on-demand reference files.
-  const allCoordinatorTemplates = [squadTemplate, spawnReference, afterAgentReference].join('\n');
+  // PR #1035 moved spawn-template details out of crew.agent.md into on-demand reference files.
+  const allCoordinatorTemplates = [crewTemplate, spawnReference, afterAgentReference].join('\n');
 
   it('requires resolving and validating the runtime current datetime once per session', () => {
-    const sessionStart = squadTemplate.slice(
-      squadTemplate.indexOf('**On every session start:**'),
-      squadTemplate.indexOf('**Resolve state backend:**'),
+    const sessionStart = crewTemplate.slice(
+      crewTemplate.indexOf('**On every session start:**'),
+      crewTemplate.indexOf('**Resolve state backend:**'),
     );
 
     expect(sessionStart).toContain('<current_datetime>');
@@ -41,9 +41,9 @@ describe('current datetime template contract', () => {
   });
 
   it('does not pass unresolved current_datetime placeholders to spawned agents', () => {
-    expect(squadTemplate).not.toContain('CURRENT_DATETIME: {current_datetime}');
-    expect(squadTemplate).not.toContain('"{current_datetime}"');
-    expect(squadTemplate).not.toContain('CURRENT_DATETIME: {CURRENT_DATETIME}');
+    expect(crewTemplate).not.toContain('CURRENT_DATETIME: {current_datetime}');
+    expect(crewTemplate).not.toContain('"{current_datetime}"');
+    expect(crewTemplate).not.toContain('CURRENT_DATETIME: {CURRENT_DATETIME}');
   });
 
   it('keeps every coordinator spawn template wired with CURRENT_DATETIME', () => {
@@ -62,7 +62,7 @@ describe('current datetime template contract', () => {
   it('tells agents to substitute the literal datetime in command examples', () => {
     // These substitution strings live in coordinator-owned spawn templates. PR #1035
     // moved spawn-template details to on-demand reference files, but the Full Spawn
-    // Template block still lives in squad.agent.md alongside spawn-reference.md and
+    // Template block still lives in crew.agent.md alongside spawn-reference.md and
     // after-agent-reference.md. Check across all coordinator-owned templates so the
     // assertion is robust to future relocations within that set.
     expect(allCoordinatorTemplates).toContain('<literal CURRENT_DATETIME value from your prompt>');

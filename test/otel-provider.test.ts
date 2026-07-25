@@ -1,7 +1,7 @@
 /**
  * OTel Provider Tests — OpenTelemetry initialization module
  *
- * Tests the OTel provider module (packages/squad-sdk/src/runtime/otel.ts).
+ * Tests the OTel provider module (packages/crew-sdk/src/runtime/otel.ts).
  *
  * API surface:
  * - initializeOTel(config?) — sets up TracerProvider + MeterProvider
@@ -20,7 +20,7 @@ import {
   getTracer,
   getMeter,
   shutdownOTel,
-} from '@bradygaster/squad-sdk/runtime/otel';
+} from '@blacklite/crew-sdk/runtime/otel';
 
 // ---------------------------------------------------------------------------
 // Helpers: save/restore env
@@ -166,7 +166,7 @@ describe('OTel Provider — getTracer()', () => {
     expect(typeof t.startSpan).toBe('function');
   });
 
-  it('default name is squad-sdk', () => {
+  it('default name is crew-sdk', () => {
     expect(() => getTracer()).not.toThrow();
   });
 });

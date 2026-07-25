@@ -1,5 +1,5 @@
 /**
- * Acceptance test runner for Squad CLI.
+ * Acceptance test runner for Crew CLI.
  * Runs Gherkin feature files using vitest.
  */
 

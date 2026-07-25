@@ -1,0 +1,10 @@
+{
+  "name": "Crew RC",
+  "short_name": "Crew",
+  "description": "Remote control for your Crew AI team",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#1a1a2e",
+  "icons": []
+}

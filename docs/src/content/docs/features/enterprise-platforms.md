@@ -1,6 +1,6 @@
 # Enterprise Platforms
 
-Squad supports Azure DevOps and Microsoft Planner in addition to GitHub. When your git remote points to Azure DevOps, Squad automatically detects the platform and adapts its commands. For work-item tracking, Squad also supports a hybrid model where code lives in one platform and tasks live in Microsoft Planner.
+Crew supports Azure DevOps and Microsoft Planner in addition to GitHub. When your git remote points to Azure DevOps, Crew automatically detects the platform and adapts its commands. For work-item tracking, Crew also supports a hybrid model where code lives in one platform and tasks live in Microsoft Planner.
 
 ## Prerequisites
 
@@ -18,7 +18,7 @@ az devops configure --list
 
 ## How It Works
 
-Squad auto-detects the platform from your git remote URL:
+Crew auto-detects the platform from your git remote URL:
 
 | Remote URL pattern | Detected platform |
 |---|---|
@@ -34,7 +34,7 @@ Squad auto-detects the platform from your git remote URL:
 | GitHub | Azure DevOps |
 |---|---|
 | Issues | Work Items |
-| Labels (e.g., `squad:alice`) | Tags (e.g., `squad:alice`) |
+| Labels (e.g., `crew:alice`) | Tags (e.g., `crew:alice`) |
 | `gh issue list --label X` | WIQL query via `az boards query` |
 | `gh issue edit --add-label` | `az boards work-item update --fields "System.Tags=..."` |
 
@@ -49,7 +49,7 @@ Squad auto-detects the platform from your git remote URL:
 
 ### Branch Operations
 
-Branch operations use the same `git` commands on both platforms. Squad creates branches with the naming convention `squad/{id}-{slug}`.
+Branch operations use the same `git` commands on both platforms. Crew creates branches with the naming convention `crew/{id}-{slug}`.
 
 ## Ralph on Azure DevOps
 
@@ -57,21 +57,21 @@ Ralph works identically on ADO — he scans for untriaged work items using WIQL 
 
 ```
 # GitHub
-gh issue list --label "squad:untriaged" --json number,title,labels
+gh issue list --label "crew:untriaged" --json number,title,labels
 
 # Azure DevOps
-az boards query --wiql "SELECT [System.Id],[System.Title],[System.Tags] FROM WorkItems WHERE [System.Tags] Contains 'squad:untriaged'"
+az boards query --wiql "SELECT [System.Id],[System.Title],[System.Tags] FROM WorkItems WHERE [System.Tags] Contains 'crew:untriaged'"
 ```
 
-Tag assignment uses the same `squad:{member}` convention, stored as ADO work item tags separated by `;`.
+Tag assignment uses the same `crew:{member}` convention, stored as ADO work item tags separated by `;`.
 
 ## Configuration
 
-Squad auto-detects ADO from the git remote URL. For basic use, no extra configuration is needed.
+Crew auto-detects ADO from the git remote URL. For basic use, no extra configuration is needed.
 
 ### Work Item Configuration
 
-When your ADO environment has custom work item types, area paths, iterations, or when work items live in a **different project or org** than the git repo, configure the `ado` section in `.squad/config.json`:
+When your ADO environment has custom work item types, area paths, iterations, or when work items live in a **different project or org** than the git repo, configure the `ado` section in `.crew/config.json`:
 
 ```json
 {
@@ -100,11 +100,11 @@ All fields are optional. Omitted fields use the defaults shown above.
 
 ### Authentication
 
-Squad uses the Azure CLI for ADO authentication — **no Personal Access Tokens (PATs) needed.** Run `az login` once, and Squad agents use your authenticated session for all operations.
+Crew uses the Azure CLI for ADO authentication — **no Personal Access Tokens (PATs) needed.** Run `az login` once, and Crew agents use your authenticated session for all operations.
 
-For GitHub repositories, Squad uses the `gh` CLI for authentication. When working across multiple GitHub accounts (e.g., personal GitHub and Enterprise Managed Users), use `gh auth switch` to toggle between accounts. See [Cross-organization authentication](../scenarios/cross-org-auth) for detailed multi-account setup.
+For GitHub repositories, Crew uses the `gh` CLI for authentication. When working across multiple GitHub accounts (e.g., personal GitHub and Enterprise Managed Users), use `gh auth switch` to toggle between accounts. See [Cross-organization authentication](../scenarios/cross-org-auth) for detailed multi-account setup.
 
-Alternatively, if the Azure DevOps MCP server is configured in your environment, Squad will use it automatically for richer API access. Add it to `.copilot/mcp-config.json`:
+Alternatively, if the Azure DevOps MCP server is configured in your environment, Crew will use it automatically for richer API access. Add it to `.copilot/mcp-config.json`:
 
 ```json
 {
@@ -117,12 +117,12 @@ Alternatively, if the Azure DevOps MCP server is configured in your environment,
 }
 ```
 
-Squad prefers MCP tools when available, falling back to `az` CLI when not.
+Crew prefers MCP tools when available, falling back to `az` CLI when not.
 
-To explicitly check which platform Squad detects:
+To explicitly check which platform Crew detects:
 
 ```typescript
-import { detectPlatform } from '@bradygaster/squad/platform';
+import { detectPlatform } from '@blacklite/crew/platform';
 
 const platform = detectPlatform('/path/to/repo');
 // Returns 'github', 'azure-devops', or 'planner'
@@ -132,11 +132,11 @@ const platform = detectPlatform('/path/to/repo');
 
 ## Microsoft Planner Support (Hybrid Model)
 
-Squad supports a hybrid model where your **repository** lives in GitHub or Azure DevOps, but **work items** are tracked in Microsoft Planner. This is common in enterprise environments where project management uses Planner while engineering uses ADO or GitHub for code.
+Crew supports a hybrid model where your **repository** lives in GitHub or Azure DevOps, but **work items** are tracked in Microsoft Planner. This is common in enterprise environments where project management uses Planner while engineering uses ADO or GitHub for code.
 
 ### How It Works
 
-- Planner **buckets** map to squad assignments: `squad:untriaged`, `squad:riker`, `squad:data`, etc.
+- Planner **buckets** map to crew assignments: `crew:untriaged`, `crew:riker`, `crew:data`, etc.
 - Moving a task between buckets = reassigning to a team member
 - Task completion = 100% complete or move to "Done" bucket
 - PRs and branches still go through the repo adapter (GitHub or Azure DevOps)
@@ -149,10 +149,10 @@ Squad supports a hybrid model where your **repository** lives in GitHub or Azure
 
 ### Configuration
 
-In `squad.config.ts`, specify the hybrid model:
+In `crew.config.ts`, specify the hybrid model:
 
 ```typescript
-const config: SquadConfig = {
+const config: CrewConfig = {
   // ... other config
   platform: {
     repo: 'azure-devops',     // where code lives
@@ -168,10 +168,10 @@ Ralph scans Planner tasks via the Microsoft Graph API instead of GitHub labels o
 
 ```
 # List untriaged tasks
-GET /planner/plans/{planId}/tasks  →  filter by "squad:untriaged" bucket
+GET /planner/plans/{planId}/tasks  →  filter by "crew:untriaged" bucket
 
 # Assign to member (move to their bucket)
-PATCH /planner/tasks/{taskId}  →  { "bucketId": "{squad:member bucket ID}" }
+PATCH /planner/tasks/{taskId}  →  { "bucketId": "{crew:member bucket ID}" }
 ```
 
 PR operations still use the repo adapter:

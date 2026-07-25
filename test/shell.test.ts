@@ -8,21 +8,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { join } from 'node:path';
 
-import { SessionRegistry } from '@bradygaster/squad-cli/shell/sessions';
+import { SessionRegistry } from '@blacklite/crew-cli/shell/sessions';
 import {
   loadAgentCharter,
   buildAgentPrompt,
-} from '@bradygaster/squad-cli/shell/spawn';
+} from '@blacklite/crew-cli/shell/spawn';
 import {
   buildCoordinatorPrompt,
   parseCoordinatorResponse,
   formatConversationContext,
-} from '@bradygaster/squad-cli/shell/coordinator';
-import { ShellLifecycle } from '@bradygaster/squad-cli/shell/lifecycle';
-import { StreamBridge } from '@bradygaster/squad-cli/shell/stream-bridge';
-import { ShellRenderer } from '@bradygaster/squad-cli/shell/render';
-import type { ShellMessage } from '@bradygaster/squad-cli/shell/types';
-import type { StreamDelta, UsageEvent, ReasoningDelta } from '@bradygaster/squad-sdk/runtime/streaming';
+} from '@blacklite/crew-cli/shell/coordinator';
+import { ShellLifecycle } from '@blacklite/crew-cli/shell/lifecycle';
+import { StreamBridge } from '@blacklite/crew-cli/shell/stream-bridge';
+import { ShellRenderer } from '@blacklite/crew-cli/shell/render';
+import type { ShellMessage } from '@blacklite/crew-cli/shell/types';
+import type { StreamDelta, UsageEvent, ReasoningDelta } from '@blacklite/crew-sdk/runtime/streaming';
 
 const FIXTURES = join(process.cwd(), 'test-fixtures');
 
@@ -101,7 +101,7 @@ describe('SessionRegistry', () => {
 
 describe('Spawn infrastructure', () => {
   describe('loadAgentCharter', () => {
-    it('loads charter from test-fixtures/.squad/agents/{name}', async () => {
+    it('loads charter from test-fixtures/.crew/agents/{name}', async () => {
       const charter = await loadAgentCharter('hockney', FIXTURES);
       expect(charter).toContain('Hockney');
       expect(charter).toContain('Tester');
@@ -148,7 +148,7 @@ describe('Coordinator', () => {
     it('includes team.md content', async () => {
       const prompt = await buildCoordinatorPrompt({
         teamRoot: FIXTURES,
-        teamPath: join(FIXTURES, '.squad', 'team.md'),
+        teamPath: join(FIXTURES, '.crew', 'team.md'),
       });
       expect(prompt).toContain('Hockney');
       expect(prompt).toContain('Fenster');
@@ -157,7 +157,7 @@ describe('Coordinator', () => {
     it('includes routing.md content', async () => {
       const prompt = await buildCoordinatorPrompt({
         teamRoot: FIXTURES,
-        routingPath: join(FIXTURES, '.squad', 'routing.md'),
+        routingPath: join(FIXTURES, '.crew', 'routing.md'),
       });
       expect(prompt).toContain('Tests → Hockney');
     });

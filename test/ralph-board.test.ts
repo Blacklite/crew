@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, expectTypeOf, it, vi } from 'vitest';
-import { triageIssue, type RoutingRule, type TeamMember, type TriageIssue } from '../packages/squad-sdk/src/ralph/triage.js';
-import { reportBoard, type BoardState } from '../packages/squad-cli/src/cli/commands/watch/index.js';
+import { triageIssue, type RoutingRule, type TeamMember, type TriageIssue } from '../packages/crew-sdk/src/ralph/triage.js';
+import { reportBoard, type BoardState } from '../packages/crew-cli/src/cli/commands/watch/index.js';
 
 type BoardIssueState = Pick<BoardState, 'untriaged' | 'assigned'>;
 
@@ -103,15 +103,15 @@ describe('board state compatibility with triage output', () => {
 
   it('triage assignment labels move issues from untriaged to assigned', () => {
     const roster: TeamMember[] = [
-      { name: 'Hockney', role: 'Tester', label: 'squad:hockney' },
-      { name: 'Keaton', role: 'Lead', label: 'squad:keaton' },
+      { name: 'Hockney', role: 'Tester', label: 'crew:hockney' },
+      { name: 'Keaton', role: 'Lead', label: 'crew:keaton' },
     ];
     const rules: RoutingRule[] = [{ workType: 'Tests & quality', agentName: 'Hockney', keywords: ['vitest'] }];
     const issue: TriageIssue = {
       number: 77,
       title: 'Need Vitest coverage for board status',
       body: 'Please add vitest cases for watch board output.',
-      labels: ['squad'],
+      labels: ['crew'],
     };
 
     const before = countIssueBoardState([issue], roster);
@@ -122,7 +122,7 @@ describe('board state compatibility with triage output', () => {
     }
     const after = countIssueBoardState([{ ...issue, labels: [...issue.labels, decision.agent.label] }], roster);
 
-    expect(decision?.agent.label).toBe('squad:hockney');
+    expect(decision?.agent.label).toBe('crew:hockney');
     expect(before).toEqual({ untriaged: 1, assigned: 0 });
     expect(after).toEqual({ untriaged: 0, assigned: 1 });
   });

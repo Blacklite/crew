@@ -1,23 +1,23 @@
 ---
 title: Fleet Dispatch — Parallel Issue Triage
-description: Hybrid dispatch mode for squad watch that batches read-heavy issues into a single Copilot /fleet session for 2.9x faster parallel analysis.
+description: Hybrid dispatch mode for crew watch that batches read-heavy issues into a single Copilot /fleet session for 2.9x faster parallel analysis.
 ---
 
 # Fleet Dispatch — Parallel Issue Triage
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 **Try this for parallel read-heavy issue triage:**
 ```bash
-squad watch --execute --dispatch-mode fleet
+crew watch --execute --dispatch-mode fleet
 ```
 
 **Try this for mixed read + write workloads:**
 ```bash
-squad watch --execute --dispatch-mode hybrid
+crew watch --execute --dispatch-mode hybrid
 ```
 
-Fleet Dispatch enables `squad watch --execute` to batch **read-heavy issues** (research, review, audit, triage) into a single Copilot CLI `/fleet` session that analyzes them in parallel tracks. The published measurement: **2.9× faster** than sequential dispatch for read-heavy workloads.
+Fleet Dispatch enables `crew watch --execute` to batch **read-heavy issues** (research, review, audit, triage) into a single Copilot CLI `/fleet` session that analyzes them in parallel tracks. The published measurement: **2.9× faster** than sequential dispatch for read-heavy workloads.
 
 It's a `WatchCapability` that runs in the `post-execute` phase of the watch loop, so it composes with the existing per-issue dispatch logic rather than replacing it.
 
@@ -37,7 +37,7 @@ It's a `WatchCapability` that runs in the `post-execute` phase of the watch loop
 
 ## What counts as "read-heavy"
 
-The fleet-dispatch capability classifies issues using the same `classifyIssue` logic used elsewhere in `squad watch`. Read-heavy classification is based on labels and title keywords:
+The fleet-dispatch capability classifies issues using the same `classifyIssue` logic used elsewhere in `crew watch`. Read-heavy classification is based on labels and title keywords:
 
 - **Labels:** `triage`, `review`, `audit`, `analyze`, `research`, `investigate`, `discuss`, `question`
 - **Title keywords:** *"review"*, *"audit"*, *"analyze"*, *"investigate"*, *"why does"*, *"how does"*
@@ -48,7 +48,7 @@ Anything that touches code, files, or external systems is **write-heavy** and st
 
 ## How a fleet round works
 
-When `squad watch` decides to dispatch (work items present, no rate-limit hold), and `dispatchMode` is `fleet` or `hybrid`:
+When `crew watch` decides to dispatch (work items present, no rate-limit hold), and `dispatchMode` is `fleet` or `hybrid`:
 
 1. Watch's executor calls `findExecutableIssues` to get the work batch
 2. FleetDispatch capability runs in `post-execute` phase
@@ -95,7 +95,7 @@ Speedup is dominated by avoiding 5 cold-starts. It does NOT extend to write-heav
 
 ## Configuration
 
-Set the dispatch mode in `.squad/watch-config.json`:
+Set the dispatch mode in `.crew/watch-config.json`:
 
 ```json
 {
@@ -109,9 +109,9 @@ Set the dispatch mode in `.squad/watch-config.json`:
 Or via CLI flag (overrides config):
 
 ```bash
-squad watch --execute --dispatch-mode fleet
-squad watch --execute --dispatch-mode hybrid
-squad watch --execute --dispatch-mode sequential
+crew watch --execute --dispatch-mode fleet
+crew watch --execute --dispatch-mode hybrid
+crew watch --execute --dispatch-mode sequential
 ```
 
 ---
@@ -127,6 +127,6 @@ squad watch --execute --dispatch-mode sequential
 
 ## See also
 
-- [Ralph](/squad/docs/features/ralph/) — the watch loop's broader behavior
-- [Capability Routing](/squad/docs/features/capability-routing/) — how watch matches work to agents
-- [Rate Limiting](/squad/docs/features/rate-limiting/) — cooperative rate limiting (composes with fleet dispatch)
+- [Ralph](/crew/docs/features/ralph/) — the watch loop's broader behavior
+- [Capability Routing](/crew/docs/features/capability-routing/) — how watch matches work to agents
+- [Rate Limiting](/crew/docs/features/rate-limiting/) — cooperative rate limiting (composes with fleet dispatch)

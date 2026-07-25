@@ -1,14 +1,14 @@
 ﻿import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { scratchDir, scratchFile } from '@bradygaster/squad-sdk';
+import { scratchDir, scratchFile } from '@blacklite/crew-sdk';
 import { mkdirSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
-const TEST_ROOT = path.join(os.tmpdir(), `squad-scratch-test-${Date.now()}`);
-const SQUAD_ROOT = path.join(TEST_ROOT, '.squad');
+const TEST_ROOT = path.join(os.tmpdir(), `crew-scratch-test-${Date.now()}`);
+const CREW_ROOT = path.join(TEST_ROOT, '.crew');
 
 beforeEach(() => {
-  mkdirSync(SQUAD_ROOT, { recursive: true });
+  mkdirSync(CREW_ROOT, { recursive: true });
 });
 
 afterEach(() => {
@@ -16,28 +16,28 @@ afterEach(() => {
 });
 
 describe('scratchDir', () => {
-  it('creates .scratch/ inside .squad/ when create=true (default)', () => {
-    const dir = scratchDir(SQUAD_ROOT);
-    expect(dir).toBe(path.join(SQUAD_ROOT, '.scratch'));
+  it('creates .scratch/ inside .crew/ when create=true (default)', () => {
+    const dir = scratchDir(CREW_ROOT);
+    expect(dir).toBe(path.join(CREW_ROOT, '.scratch'));
     expect(existsSync(dir)).toBe(true);
   });
 
   it('returns path without creating when create=false', () => {
-    const dir = scratchDir(SQUAD_ROOT, false);
-    expect(dir).toBe(path.join(SQUAD_ROOT, '.scratch'));
+    const dir = scratchDir(CREW_ROOT, false);
+    expect(dir).toBe(path.join(CREW_ROOT, '.scratch'));
     expect(existsSync(dir)).toBe(false);
   });
 
   it('is idempotent — calling twice does not throw', () => {
-    scratchDir(SQUAD_ROOT);
-    scratchDir(SQUAD_ROOT);
-    expect(existsSync(path.join(SQUAD_ROOT, '.scratch'))).toBe(true);
+    scratchDir(CREW_ROOT);
+    scratchDir(CREW_ROOT);
+    expect(existsSync(path.join(CREW_ROOT, '.scratch'))).toBe(true);
   });
 });
 
 describe('scratchFile', () => {
   it('creates a temp file with prefix and default .tmp extension', () => {
-    const filePath = scratchFile(SQUAD_ROOT, 'test-prompt');
+    const filePath = scratchFile(CREW_ROOT, 'test-prompt');
     expect(filePath).toContain('.scratch');
     expect(filePath).toMatch(/test-prompt-\d+-[0-9a-f]{8}\.tmp$/);
     // File exists only if content was provided — otherwise just returns path
@@ -46,19 +46,19 @@ describe('scratchFile', () => {
 
   it('creates a file with content when provided', () => {
     const content = 'hello from scratch';
-    const filePath = scratchFile(SQUAD_ROOT, 'msg', '.txt', content);
+    const filePath = scratchFile(CREW_ROOT, 'msg', '.txt', content);
     expect(existsSync(filePath)).toBe(true);
     expect(readFileSync(filePath, 'utf-8')).toBe(content);
   });
 
   it('uses custom extension', () => {
-    const filePath = scratchFile(SQUAD_ROOT, 'fleet', '.md');
+    const filePath = scratchFile(CREW_ROOT, 'fleet', '.md');
     expect(filePath).toMatch(/fleet-\d+-[0-9a-f]{8}\.md$/);
   });
 
   it('generates unique filenames on successive calls', () => {
-    const a = scratchFile(SQUAD_ROOT, 'dup', '.txt', 'a');
-    const b = scratchFile(SQUAD_ROOT, 'dup', '.txt', 'b');
+    const a = scratchFile(CREW_ROOT, 'dup', '.txt', 'a');
+    const b = scratchFile(CREW_ROOT, 'dup', '.txt', 'b');
     // Random hex suffix from crypto.randomBytes guarantees uniqueness
     // even when Date.now() returns the same millisecond value.
     expect(a).not.toBe(b);
@@ -67,8 +67,8 @@ describe('scratchFile', () => {
   });
 
   it('creates the .scratch/ directory if missing', () => {
-    expect(existsSync(path.join(SQUAD_ROOT, '.scratch'))).toBe(false);
-    scratchFile(SQUAD_ROOT, 'auto-create', '.txt', 'data');
-    expect(existsSync(path.join(SQUAD_ROOT, '.scratch'))).toBe(true);
+    expect(existsSync(path.join(CREW_ROOT, '.scratch'))).toBe(false);
+    scratchFile(CREW_ROOT, 'auto-create', '.txt', 'data');
+    expect(existsSync(path.join(CREW_ROOT, '.scratch'))).toBe(true);
   });
 });

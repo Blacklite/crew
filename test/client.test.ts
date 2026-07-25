@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { SquadClientWithPool } from '@bradygaster/squad-sdk/client';
-import { SessionPool, DEFAULT_POOL_CONFIG } from '@bradygaster/squad-sdk/client';
-import { EventBus } from '@bradygaster/squad-sdk/client';
+import { CrewClientWithPool } from '@blacklite/crew-sdk/client';
+import { SessionPool, DEFAULT_POOL_CONFIG } from '@blacklite/crew-sdk/client';
+import { EventBus } from '@blacklite/crew-sdk/client';
 
 // Mock the SDK CopilotClient to avoid import.meta.resolve issues in tests
 vi.mock('@github/copilot-sdk', () => ({
@@ -30,9 +30,9 @@ vi.mock('@github/copilot-sdk', () => ({
   },
 }));
 
-describe('SquadClientWithPool', () => {
+describe('CrewClientWithPool', () => {
   it('should construct with pool config', () => {
-    const client = new SquadClientWithPool({
+    const client = new CrewClientWithPool({
       pool: { maxConcurrent: 5 }
     });
     expect(client).toBeDefined();
@@ -41,7 +41,7 @@ describe('SquadClientWithPool', () => {
   });
 
   it('should have pool with correct capacity', () => {
-    const client = new SquadClientWithPool({
+    const client = new CrewClientWithPool({
       pool: { maxConcurrent: 3 }
     });
     expect(client.pool.size).toBe(0);
@@ -49,7 +49,7 @@ describe('SquadClientWithPool', () => {
   });
 
   it('should check connection state', () => {
-    const client = new SquadClientWithPool();
+    const client = new CrewClientWithPool();
     expect(client.isConnected()).toBe(false);
     expect(client.getState()).toBe('disconnected');
   });

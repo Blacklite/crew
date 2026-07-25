@@ -1,14 +1,14 @@
 import { chromium } from 'playwright';
 import { mkdirSync } from 'node:fs';
 
-const BASE = 'http://localhost:4321/squad/docs/reference/api';
+const BASE = 'http://localhost:4321/crew/docs/reference/api';
 const SCREENSHOT_DIR = 'docs/tests/screenshots';
 
 const pages = [
   { slug: '',                               name: 'api-landing',         label: 'API Reference Landing' },
   { slug: '/class-runtimeeventbus',         name: 'api-class',           label: 'Class — RuntimeEventBus' },
   { slug: '/interface-agentcapability',     name: 'api-interface',       label: 'Interface — AgentCapability' },
-  { slug: '/function-definesquad',          name: 'api-function',        label: 'Function — defineSquad' },
+  { slug: '/function-definecrew',          name: 'api-function',        label: 'Function — defineCrew' },
   { slug: '/typealias-agentref',            name: 'api-typealias',       label: 'Type Alias — AgentRef' },
   { slug: '/variable-default_fallback_chains', name: 'api-variable',    label: 'Variable — DEFAULT_FALLBACK_CHAINS' },
 ];

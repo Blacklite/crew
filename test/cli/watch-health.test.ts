@@ -17,12 +17,12 @@ import {
   getPidPath,
   isProcessAlive,
   type WatchPidInfo,
-} from '@bradygaster/squad-cli/commands/watch';
+} from '@blacklite/crew-cli/commands/watch';
 
-/** Create a temp directory with a .squad subdirectory for testing. */
+/** Create a temp directory with a .crew subdirectory for testing. */
 function makeTempTeamRoot(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'squad-health-test-'));
-  fs.mkdirSync(path.join(dir, '.squad'), { recursive: true });
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-health-test-'));
+  fs.mkdirSync(path.join(dir, '.crew'), { recursive: true });
   return dir;
 }
 
@@ -40,7 +40,7 @@ describe('watch health check', () => {
   it('returns "no instance" when no PID file exists', () => {
     const result = getWatchHealth(teamRoot);
     expect(result).toContain('No watch instance detected');
-    expect(result).toContain('squad watch --execute --interval 5');
+    expect(result).toContain('crew watch --execute --interval 5');
   });
 
   it('detects stale PID and cleans up', () => {

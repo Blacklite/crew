@@ -1,6 +1,6 @@
 /**
  * UX Gates Test Suite
- * Enforces UX quality rules for the Squad CLI.
+ * Enforces UX quality rules for the Crew CLI.
  */
 
 import { describe, it, expect, afterEach } from 'vitest';
@@ -33,9 +33,9 @@ describe('UX Gates', () => {
     
     const output = harness.captureFrame();
     
-    expect(output).toMatch(/squad help/i);
+    expect(output).toMatch(/crew help/i);
     expect(output).toMatch(/Unknown command/i);
-    expect(output).toMatch(/squad doctor/i);
+    expect(output).toMatch(/crew doctor/i);
   });
 
   it('Version output is bare semver (no prefix)', async () => {
@@ -47,7 +47,7 @@ describe('UX Gates', () => {
     
     expect(lines.length).toBe(1);
     expect(lines[0]).toMatch(/^\d+\.\d+\.\d+/);
-    expect(lines[0]).not.toMatch(/^squad/);
+    expect(lines[0]).not.toMatch(/^crew/);
   });
 
   it('Help screen includes essential commands', async () => {
@@ -69,8 +69,8 @@ describe('UX Gates', () => {
     
     const output = harness.captureFrame();
     
-    expect(output).toMatch(/Squad Status/i);
-    expect(output).toMatch(/Active squad:/i);
+    expect(output).toMatch(/Crew Status/i);
+    expect(output).toMatch(/Active crew:/i);
   });
 
   // TODO: grouped help categories are aspirational — not yet implemented in cli-entry.ts (#accessibility-audit)

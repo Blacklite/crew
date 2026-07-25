@@ -6,13 +6,13 @@
  *
  * Each describe block maps to a filed GitHub issue and a real human scenario.
  *
- * @see https://github.com/bradygaster/squad-pr/issues/383 — "I just installed this"
- * @see https://github.com/bradygaster/squad-pr/issues/384 — "My first conversation"
- * @see https://github.com/bradygaster/squad-pr/issues/385 — "I'm waiting and getting anxious"
- * @see https://github.com/bradygaster/squad-pr/issues/386 — "Something went wrong"
- * @see https://github.com/bradygaster/squad-pr/issues/394 — "I want to talk to a specific agent"
- * @see https://github.com/bradygaster/squad-pr/issues/396 — "I'm a power user now"
- * @see https://github.com/bradygaster/squad-pr/issues/398 — "I came back the next day"
+ * @see https://github.com/Blacklite/crew-pr/issues/383 — "I just installed this"
+ * @see https://github.com/Blacklite/crew-pr/issues/384 — "My first conversation"
+ * @see https://github.com/Blacklite/crew-pr/issues/385 — "I'm waiting and getting anxious"
+ * @see https://github.com/Blacklite/crew-pr/issues/386 — "Something went wrong"
+ * @see https://github.com/Blacklite/crew-pr/issues/394 — "I want to talk to a specific agent"
+ * @see https://github.com/Blacklite/crew-pr/issues/396 — "I'm a power user now"
+ * @see https://github.com/Blacklite/crew-pr/issues/398 — "I came back the next day"
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
@@ -27,13 +27,13 @@ import { render } from 'ink-testing-library';
 import { TerminalHarness } from './acceptance/harness.js';
 
 // Shell internals we exercise at the integration boundary
-import { parseInput } from '../packages/squad-cli/src/cli/shell/router.js';
-import { executeCommand } from '../packages/squad-cli/src/cli/shell/commands.js';
-import { SessionRegistry } from '../packages/squad-cli/src/cli/shell/sessions.js';
-import { ShellRenderer } from '../packages/squad-cli/src/cli/shell/render.js';
-import { loadWelcomeData } from '../packages/squad-cli/src/cli/shell/lifecycle.js';
-import { ThinkingIndicator } from '../packages/squad-cli/src/cli/shell/components/ThinkingIndicator.js';
-import type { ShellMessage } from '../packages/squad-cli/src/cli/shell/types.js';
+import { parseInput } from '../packages/crew-cli/src/cli/shell/router.js';
+import { executeCommand } from '../packages/crew-cli/src/cli/shell/commands.js';
+import { SessionRegistry } from '../packages/crew-cli/src/cli/shell/sessions.js';
+import { ShellRenderer } from '../packages/crew-cli/src/cli/shell/render.js';
+import { loadWelcomeData } from '../packages/crew-cli/src/cli/shell/lifecycle.js';
+import { ThinkingIndicator } from '../packages/crew-cli/src/cli/shell/components/ThinkingIndicator.js';
+import type { ShellMessage } from '../packages/crew-cli/src/cli/shell/types.js';
 
 const h = React.createElement;
 
@@ -49,15 +49,15 @@ function makeTempDir(prefix: string): string {
   return mkdtempSync(join(tmpdir(), prefix));
 }
 
-/** Scaffold a minimal .squad/ directory with team.md for welcome/lifecycle tests. */
-function scaffoldSquadDir(root: string, opts?: { firstRun?: boolean }): void {
-  const squadDir = join(root, '.squad');
-  const agentsDir = join(squadDir, 'agents');
-  const identityDir = join(squadDir, 'identity');
+/** Scaffold a minimal .crew/ directory with team.md for welcome/lifecycle tests. */
+function scaffoldCrewDir(root: string, opts?: { firstRun?: boolean }): void {
+  const crewDir = join(root, '.crew');
+  const agentsDir = join(crewDir, 'agents');
+  const identityDir = join(crewDir, 'identity');
   mkdirSync(agentsDir, { recursive: true });
   mkdirSync(identityDir, { recursive: true });
 
-  writeFileSync(join(squadDir, 'team.md'), `# Squad Team — Test Project
+  writeFileSync(join(crewDir, 'team.md'), `# Crew Team — Test Project
 
 > A test project for human journey validation.
 
@@ -65,9 +65,9 @@ function scaffoldSquadDir(root: string, opts?: { firstRun?: boolean }): void {
 
 | Name | Role | Charter | Status |
 |------|------|---------|--------|
-| Keaton | Lead | \`.squad/agents/keaton/charter.md\` | ✅ Active |
-| Fenster | Core Dev | \`.squad/agents/fenster/charter.md\` | ✅ Active |
-| Hockney | Tester | \`.squad/agents/hockney/charter.md\` | ✅ Active |
+| Keaton | Lead | \`.crew/agents/keaton/charter.md\` | ✅ Active |
+| Fenster | Core Dev | \`.crew/agents/fenster/charter.md\` | ✅ Active |
+| Hockney | Tester | \`.crew/agents/hockney/charter.md\` | ✅ Active |
 `);
 
   writeFileSync(join(identityDir, 'now.md'), `---
@@ -82,19 +82,19 @@ Human journey test validation.
 `);
 
   if (opts?.firstRun) {
-    writeFileSync(join(squadDir, '.first-run'), new Date().toISOString() + '\n');
+    writeFileSync(join(crewDir, '.first-run'), new Date().toISOString() + '\n');
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Journey 1: "I just installed this" — squad init in a fresh repo
+// Journey 1: "I just installed this" — crew init in a fresh repo
 // ═══════════════════════════════════════════════════════════════════════════
 
-describe('Journey 1: I just installed this (squad init)', () => {
+describe('Journey 1: I just installed this (crew init)', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = makeTempDir('squad-journey-init-');
+    tempDir = makeTempDir('crew-journey-init-');
   });
 
   afterEach(async () => {
@@ -103,16 +103,16 @@ describe('Journey 1: I just installed this (squad init)', () => {
     await rm(tempDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 500 });
   });
 
-  it('creates .squad/ directory with expected structure', async () => {
+  it('creates .crew/ directory with expected structure', async () => {
     const harness = await TerminalHarness.spawnWithArgs(['init'], { cwd: tempDir });
     await harness.waitForExit(30000);
     await harness.close();
 
-    // The human sees: a .squad/ directory was created
-    expect(existsSync(join(tempDir, '.squad'))).toBe(true);
+    // The human sees: a .crew/ directory was created
+    expect(existsSync(join(tempDir, '.crew'))).toBe(true);
     expect(existsSync(join(tempDir, '.github', 'skills'))).toBe(true);
-    expect(existsSync(join(tempDir, '.squad', 'identity'))).toBe(true);
-    expect(existsSync(join(tempDir, '.squad', 'ceremonies.md'))).toBe(true);
+    expect(existsSync(join(tempDir, '.crew', 'identity'))).toBe(true);
+    expect(existsSync(join(tempDir, '.crew', 'ceremonies.md'))).toBe(true);
   });
 
   it('shows ceremony output — not raw technical logs', async () => {
@@ -123,7 +123,7 @@ describe('Journey 1: I just installed this (squad init)', () => {
 
     // The human sees: a ceremony, not a wall of file paths
     expect(output).toContain("Let's build your team");
-    expect(output).toContain('SQUAD');
+    expect(output).toContain('CREW');
     // Ceremony landmarks should appear
     expect(output).toContain('Team workspace');
     expect(output).toContain('Skills');
@@ -136,8 +136,8 @@ describe('Journey 1: I just installed this (squad init)', () => {
     await harness.close();
 
     // The human needs a clear next step — not silence
-    expect(output).toContain('Squad initialized');
-    expect(output).toContain('copilot --agent squad');
+    expect(output).toContain('Crew initialized');
+    expect(output).toContain('copilot --agent crew');
   });
 
   it('writes first-run marker so the REPL knows this is day one', async () => {
@@ -145,7 +145,7 @@ describe('Journey 1: I just installed this (squad init)', () => {
     await harness.waitForExit(30000);
     await harness.close();
 
-    expect(existsSync(join(tempDir, '.squad', '.first-run'))).toBe(true);
+    expect(existsSync(join(tempDir, '.crew', '.first-run'))).toBe(true);
   });
 
   it('exits cleanly with code 0', async () => {
@@ -165,7 +165,7 @@ describe('Journey 2: My first conversation (welcome banner)', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = makeTempDir('squad-journey-welcome-');
+    tempDir = makeTempDir('crew-journey-welcome-');
   });
 
   afterEach(async () => {
@@ -173,7 +173,7 @@ describe('Journey 2: My first conversation (welcome banner)', () => {
   });
 
   it('welcome data includes agent roster with names and roles', () => {
-    scaffoldSquadDir(tempDir);
+    scaffoldCrewDir(tempDir);
     const data = loadWelcomeData(tempDir);
 
     expect(data).not.toBeNull();
@@ -183,28 +183,28 @@ describe('Journey 2: My first conversation (welcome banner)', () => {
   });
 
   it('welcome data includes project description', () => {
-    scaffoldSquadDir(tempDir);
+    scaffoldCrewDir(tempDir);
     const data = loadWelcomeData(tempDir);
 
     expect(data!.description).toContain('test project');
   });
 
   it('welcome data includes current focus from identity/now.md', () => {
-    scaffoldSquadDir(tempDir);
+    scaffoldCrewDir(tempDir);
     const data = loadWelcomeData(tempDir);
 
     expect(data!.focus).toBe('Testing human journeys');
   });
 
   it('first-run flag is detected and consumed (one-time ceremony)', () => {
-    scaffoldSquadDir(tempDir, { firstRun: true });
+    scaffoldCrewDir(tempDir, { firstRun: true });
 
     // First load: sees first-run
     const data1 = loadWelcomeData(tempDir);
     expect(data1!.isFirstRun).toBe(true);
 
     // Marker file should be consumed (deleted)
-    expect(existsSync(join(tempDir, '.squad', '.first-run'))).toBe(false);
+    expect(existsSync(join(tempDir, '.crew', '.first-run'))).toBe(false);
 
     // Second load: no longer first-run
     const data2 = loadWelcomeData(tempDir);
@@ -212,7 +212,7 @@ describe('Journey 2: My first conversation (welcome banner)', () => {
   });
 
   it('each agent gets an emoji so the roster feels alive', () => {
-    scaffoldSquadDir(tempDir);
+    scaffoldCrewDir(tempDir);
     const data = loadWelcomeData(tempDir);
 
     for (const agent of data!.agents) {
@@ -300,7 +300,7 @@ describe('Journey 4: Something went wrong (errors)', () => {
     expect(exitCode).toBe(1);
   });
 
-  it('error output includes remediation tip (squad doctor)', async () => {
+  it('error output includes remediation tip (crew doctor)', async () => {
     const harness = await TerminalHarness.spawnWithArgs(['foobar']);
     await harness.waitForExit(10000);
     const output = stripAnsi(harness.captureFrame());
@@ -310,9 +310,9 @@ describe('Journey 4: Something went wrong (errors)', () => {
   });
 
   it('does not show raw stack trace to the user', async () => {
-    // Ensure SQUAD_DEBUG is off so debug logging doesn't leak stack traces
+    // Ensure CREW_DEBUG is off so debug logging doesn't leak stack traces
     const harness = await TerminalHarness.spawnWithArgs(['foobar'], {
-      env: { SQUAD_DEBUG: '0' },
+      env: { CREW_DEBUG: '0' },
     });
     await harness.waitForExit(10000);
     const output = stripAnsi(harness.captureFrame());
@@ -328,7 +328,7 @@ describe('Journey 4: Something went wrong (errors)', () => {
     // The CLI entry wraps the Ink render in ErrorBoundary. We verify the concept:
     // when the CLI hits a fatal error, the user sees a friendly message.
     const harness = await TerminalHarness.spawnWithArgs(['foobar'], {
-      env: { SQUAD_DEBUG: '0' },
+      env: { CREW_DEBUG: '0' },
     });
     await harness.waitForExit(10000);
     const output = stripAnsi(harness.captureFrame());
@@ -499,7 +499,7 @@ describe('Journey 7: Came back the next day (persistence)', () => {
   let tempDir: string;
 
   beforeEach(() => {
-    tempDir = makeTempDir('squad-journey-persist-');
+    tempDir = makeTempDir('crew-journey-persist-');
   });
 
   afterEach(async () => {
@@ -507,7 +507,7 @@ describe('Journey 7: Came back the next day (persistence)', () => {
   });
 
   it('first-run marker is consumed, so no ceremony on return', () => {
-    scaffoldSquadDir(tempDir, { firstRun: true });
+    scaffoldCrewDir(tempDir, { firstRun: true });
 
     // Day 1: sees first-run
     const day1 = loadWelcomeData(tempDir);
@@ -519,7 +519,7 @@ describe('Journey 7: Came back the next day (persistence)', () => {
   });
 
   it('team is still loaded on return — state feels persistent', () => {
-    scaffoldSquadDir(tempDir);
+    scaffoldCrewDir(tempDir);
 
     const data = loadWelcomeData(tempDir);
     expect(data!.agents.length).toBe(3);
@@ -532,13 +532,13 @@ describe('Journey 7: Came back the next day (persistence)', () => {
   });
 
   it('focus area persists between sessions', () => {
-    scaffoldSquadDir(tempDir);
+    scaffoldCrewDir(tempDir);
 
     const data = loadWelcomeData(tempDir);
     expect(data!.focus).toBe('Testing human journeys');
 
     // Simulate coordinator updating focus
-    const nowPath = join(tempDir, '.squad', 'identity', 'now.md');
+    const nowPath = join(tempDir, '.crew', 'identity', 'now.md');
     const nowContent = readFileSync(nowPath, 'utf-8');
     writeFileSync(nowPath, nowContent.replace('Testing human journeys', 'Shipping v1.0'));
 
@@ -546,7 +546,7 @@ describe('Journey 7: Came back the next day (persistence)', () => {
     expect(dataLater!.focus).toBe('Shipping v1.0');
   });
 
-  it('returns null gracefully when .squad/ is missing (fresh clone)', () => {
+  it('returns null gracefully when .crew/ is missing (fresh clone)', () => {
     // No scaffolding — just a bare temp dir
     const data = loadWelcomeData(tempDir);
     expect(data).toBeNull();

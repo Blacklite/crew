@@ -1,22 +1,22 @@
 # VS Code Troubleshooting
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-This page covers known issues and mitigations when running Squad inside VS Code's integrated terminal.
+This page covers known issues and mitigations when running Crew inside VS Code's integrated terminal.
 
 ---
 
-## Symptom: VS Code closes unexpectedly during Squad execution
+## Symptom: VS Code closes unexpectedly during Crew execution
 
-**Reported in:** [Issue #259](https://github.com/bradygaster/squad/issues/259), [Discussion #174](https://github.com/bradygaster/squad/discussions/174)
+**Reported in:** [Issue #259](https://github.com/Blacklite/crew/issues/259), [Discussion #174](https://github.com/Blacklite/crew/discussions/174)
 
-VS Code (especially Insiders/Nightly builds) may close without a crash dialog while Squad tasks are executing. This is most often caused by resource pressure — not a bug in Squad itself — but Squad's runtime patterns can contribute to the problem.
+VS Code (especially Insiders/Nightly builds) may close without a crash dialog while Crew tasks are executing. This is most often caused by resource pressure — not a bug in Crew itself — but Crew's runtime patterns can contribute to the problem.
 
 ---
 
 ## Root cause analysis
 
-An audit of the Squad codebase (SDK and CLI) identified the following resource-pressure vectors:
+An audit of the Crew codebase (SDK and CLI) identified the following resource-pressure vectors:
 
 ### 1. Unbounded in-memory collections (fixed)
 
@@ -26,7 +26,7 @@ An audit of the Squad codebase (SDK and CLI) identified the following resource-p
 
 ### 2. File watcher scope (fixed)
 
-The `SquadObserver` watches the `.squad/` directory with `recursive: true`. On projects with large orchestration logs, this could generate a high volume of `fs.watch` events. Combined with VS Code's own file watchers on the same workspace, the total watcher count can approach OS limits.
+The `CrewObserver` watches the `.crew/` directory with `recursive: true`. On projects with large orchestration logs, this could generate a high volume of `fs.watch` events. Combined with VS Code's own file watchers on the same workspace, the total watcher count can approach OS limits.
 
 **Fix applied:** The observer now filters out `orchestration-log/` and `.git/` subdirectories at the watcher callback level, reducing event volume significantly.
 
@@ -40,7 +40,7 @@ All child processes (`node-pty` for Copilot, `devtunnel`, Docker, .NET) are prop
 
 ### 5. Terminal output rate (low risk)
 
-Squad uses the Ink framework for rendering, which batches React state updates. Direct `process.stdout.write` calls are rate-limited by the model's token generation speed. No fire-hose output patterns were found.
+Crew uses the Ink framework for rendering, which batches React state updates. Direct `process.stdout.write` calls are rate-limited by the model's token generation speed. No fire-hose output patterns were found.
 
 ### 6. Synchronous I/O (startup only)
 
@@ -66,23 +66,23 @@ Squad uses the Ink framework for rendering, which batches React state updates. D
    echo 'fs.inotify.max_user_watches=524288' | sudo tee -a /etc/sysctl.conf
    ```
 
-3. **Exclude `.squad/orchestration-log/` from VS Code's file watcher** by adding to `.vscode/settings.json`:
+3. **Exclude `.crew/orchestration-log/` from VS Code's file watcher** by adding to `.vscode/settings.json`:
    ```json
    {
      "files.watcherExclude": {
-       "**/.squad/orchestration-log/**": true
+       "**/.crew/orchestration-log/**": true
      }
    }
    ```
 
-4. **Monitor resource usage** during Squad sessions:
+4. **Monitor resource usage** during Crew sessions:
    - **Windows:** Task Manager → Details tab, watch `node.exe` memory
-   - **macOS/Linux:** `top -p $(pgrep -f squad)` or Activity Monitor
-   - If memory climbs steadily past 1 GB, restart the Squad shell
+   - **macOS/Linux:** `top -p $(pgrep -f crew)` or Activity Monitor
+   - If memory climbs steadily past 1 GB, restart the Crew shell
 
-5. **Close unused terminals** in VS Code before starting a Squad session. Each terminal consumes renderer memory.
+5. **Close unused terminals** in VS Code before starting a Crew session. Each terminal consumes renderer memory.
 
-6. **Disable terminal GPU acceleration** if you see flickering (related: [#254](https://github.com/bradygaster/squad/issues/254)):
+6. **Disable terminal GPU acceleration** if you see flickering (related: [#254](https://github.com/Blacklite/crew/issues/254)):
    ```json
    {
      "terminal.integrated.gpuAcceleration": "off"
@@ -102,6 +102,6 @@ Squad uses the Ink framework for rendering, which batches React state updates. D
 
 | Issue | Description | Status |
 |-------|-------------|--------|
-| [#259](https://github.com/bradygaster/squad/issues/259) | VS Code crash during Squad execution | This investigation |
-| [#254](https://github.com/bradygaster/squad/issues/254) | Terminal flicker in VS Code | Open |
-| [Discussion #174](https://github.com/bradygaster/squad/discussions/174) | Original crash report by @diberry | Open |
+| [#259](https://github.com/Blacklite/crew/issues/259) | VS Code crash during Crew execution | This investigation |
+| [#254](https://github.com/Blacklite/crew/issues/254) | Terminal flicker in VS Code | Open |
+| [Discussion #174](https://github.com/Blacklite/crew/discussions/174) | Original crash report by @diberry | Open |

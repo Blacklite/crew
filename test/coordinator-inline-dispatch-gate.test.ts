@@ -8,7 +8,7 @@
  * (client-compatibility-reference.md, spawn-reference.md). The motivational
  * guardrails survived, but the hard "when am I allowed to work inline vs. when
  * MUST I dispatch?" rule no longer loads by default. Symptom (reported by
- * Matthew Wan on Teams, worked in v0.9.4): "the main squad agent does a lot of
+ * Matthew Wan on Teams, worked in v0.9.4): "the main crew agent does a lot of
  * work on its own instead of using his roster of agents."
  *
  * This test pins three always-on elements back into the canonical coordinator
@@ -24,7 +24,7 @@
  *      never lazy-loaded.
  *
  * No subprocess is spawned here (kept deliberately read-only) so the test is
- * deterministic and immune to the parallel-suite `squad init` overwrite flake.
+ * deterministic and immune to the parallel-suite `crew init` overwrite flake.
  * Parity is guaranteed because every copy is produced from the canonical source
  * by `scripts/sync-templates.mjs` (run in Phase 2 and by template-sync's own
  * beforeAll during the full suite).
@@ -42,15 +42,15 @@ function read(relPath: string): string {
   return readFileSync(resolve(ROOT, relPath), 'utf-8');
 }
 
-// Canonical edit-source is .squad-templates/squad.agent.md; the other four are
+// Canonical edit-source is .crew-templates/crew.agent.md; the other four are
 // produced by sync-templates.mjs. Mirror the list used by template-sync.test.ts.
-const CANONICAL = '.squad-templates/squad.agent.md';
-const SQUAD_AGENT_LOCATIONS = [
+const CANONICAL = '.crew-templates/crew.agent.md';
+const CREW_AGENT_LOCATIONS = [
   CANONICAL,
-  'templates/squad.agent.md.template',
-  '.github/agents/squad.agent.md',
-  'packages/squad-cli/templates/squad.agent.md.template',
-  'packages/squad-sdk/templates/squad.agent.md.template',
+  'templates/crew.agent.md.template',
+  '.github/agents/crew.agent.md',
+  'packages/crew-cli/templates/crew.agent.md.template',
+  'packages/crew-sdk/templates/crew.agent.md.template',
 ] as const;
 
 /**
@@ -100,7 +100,7 @@ describe('coordinator inline-dispatch gate (regression #1035)', () => {
   });
 
   describe('inline-dispatch gate parity across all 5 synced copies', () => {
-    for (const loc of SQUAD_AGENT_LOCATIONS) {
+    for (const loc of CREW_AGENT_LOCATIONS) {
       it(`${loc} contains the inline-dispatch gate`, () => {
         const content = read(loc);
         expect(content, `${loc}: missing inline-dispatch gate anchor`).toMatch(GATE_ANCHOR);

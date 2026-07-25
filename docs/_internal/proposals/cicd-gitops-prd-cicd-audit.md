@@ -9,20 +9,20 @@
 
 ## Executive Summary
 
-**Current State:** Squad has **15 GitHub Actions workflows** covering CI, publish, release, docs, and squad automation. The core publish pipeline (publish.yml) has been partially hardened post-v0.8.22, but **critical validation gaps remain**. Multiple workflows are broken or redundant. Test failures in squad-release.yml are blocking all main branch merges.
+**Current State:** Crew has **15 GitHub Actions workflows** covering CI, publish, release, docs, and crew automation. The core publish pipeline (publish.yml) has been partially hardened post-v0.8.22, but **critical validation gaps remain**. Multiple workflows are broken or redundant. Test failures in crew-release.yml are blocking all main branch merges.
 
 **Key Findings:**
 - ❌ **No semver validation gate** — 4-part versions can still reach npm
 - ❌ **No NPM_TOKEN type check** — User tokens with 2FA will still fail with EOTP
 - ❌ **No dry-run step** — `npm publish --dry-run` not used before real publish
 - ❌ **No SKIP_BUILD_BUMP enforcement** — bump-build.mjs could run in release builds
-- ⚠️ **squad-release.yml is broken** — test failures blocking all releases (9+ consecutive failures)
-- ⚠️ **Duplicate/redundant workflows** — squad-publish.yml and squad-publish.yml.deprecated exist alongside publish.yml
-- ⚠️ **squad-ci.yml has test failures** — human-journeys.test.ts has 12 failing tests
+- ⚠️ **crew-release.yml is broken** — test failures blocking all releases (9+ consecutive failures)
+- ⚠️ **Duplicate/redundant workflows** — crew-publish.yml and crew-publish.yml.deprecated exist alongside publish.yml
+- ⚠️ **crew-ci.yml has test failures** — human-journeys.test.ts has 12 failing tests
 - ✅ **Retry logic exists** — verify steps have 5-attempt retry with 15s intervals (good)
 - ✅ **Version matching validation** — package.json version checked against target before publish (good)
 
-**Bottom Line:** The publish pipeline works but is not disaster-proof. We're one bad commit away from another v0.8.22-style incident. squad-release.yml is completely broken and blocking releases from main.
+**Bottom Line:** The publish pipeline works but is not disaster-proof. We're one bad commit away from another v0.8.22-style incident. crew-release.yml is completely broken and blocking releases from main.
 
 ---
 
@@ -30,7 +30,7 @@
 
 ### 1. publish.yml (Primary Publish Pipeline)
 
-**Purpose:** Publishes squad-sdk and squad-cli to npm when a GitHub Release is published.
+**Purpose:** Publishes crew-sdk and crew-cli to npm when a GitHub Release is published.
 
 **Trigger:**
 - `release: [published]` — fires when a GitHub Release is published (NOT draft)
@@ -40,14 +40,14 @@
 1. **publish-sdk job:**
    - Checks out code
    - Installs dependencies (`npm ci`)
-   - Builds squad-sdk
+   - Builds crew-sdk
    - **Validates package version matches target** ✅
    - Publishes to npm with `--provenance` flag ✅
    - **Verifies publication with 5-attempt retry loop** ✅
 2. **publish-cli job:**
    - Depends on `publish-sdk` (correct order) ✅
    - Same flow as SDK
-   - Publishes squad-cli
+   - Publishes crew-cli
 
 **Recent Run Status:**
 - **2 successes** (run 22806809347 on 2026-03-07)
@@ -100,10 +100,10 @@
 **Fix Required:**
 ```yaml
 - name: Dry-run publish (SDK)
-  run: npm -w packages/squad-sdk publish --dry-run --access public
+  run: npm -w packages/crew-sdk publish --dry-run --access public
 
 - name: Dry-run publish (CLI)
-  run: npm -w packages/squad-cli publish --dry-run --access public
+  run: npm -w packages/crew-cli publish --dry-run --access public
 ```
 
 #### Gap 4: No SKIP_BUILD_BUMP Enforcement ❌ P0
@@ -133,8 +133,8 @@ env:
 
 **Fix Required:**
 ```yaml
-- name: Build squad-sdk
-  run: npm -w packages/squad-sdk run build
+- name: Build crew-sdk
+  run: npm -w packages/crew-sdk run build
   env:
     SKIP_BUILD_BUMP: "1"
 ```
@@ -148,7 +148,7 @@ env:
 
 ---
 
-### 2. squad-release.yml (GitHub Release Automation) ❌ BROKEN
+### 2. crew-release.yml (GitHub Release Automation) ❌ BROKEN
 
 **Purpose:** Auto-creates GitHub Release + tag when code lands on main.
 
@@ -180,7 +180,7 @@ Tests are failing with `ReferenceError: require is not defined in ES module scop
 **Problem:** These test files use `require('node:test')` but the package.json has `"type": "module"`, so all .js files are treated as ES modules. Tests need to use `import` instead of `require`.
 
 **Impact:**
-- ❌ **squad-release.yml is completely broken** — every push to main fails
+- ❌ **crew-release.yml is completely broken** — every push to main fails
 - ❌ **Releases from main are blocked** — workflow fails before creating tag/release
 - ❌ **CI is red** — this creates a "broken windows" effect, normalizing failures
 
@@ -192,13 +192,13 @@ Tests are failing with `ReferenceError: require is not defined in ES module scop
    import { describe, it, beforeEach, afterEach } from 'node:test';
    ```
 2. **Alternative:** Use Vitest instead of node:test (repo already has Vitest configured and working)
-3. **Temporary workaround:** Skip broken tests or disable squad-release.yml temporarily
+3. **Temporary workaround:** Skip broken tests or disable crew-release.yml temporarily
 
 **Priority:** **P0** — This is blocking all releases from main.
 
 ---
 
-### 3. squad-ci.yml (Pull Request CI) ⚠️ PARTIALLY BROKEN
+### 3. crew-ci.yml (Pull Request CI) ⚠️ PARTIALLY BROKEN
 
 **Purpose:** Runs build + tests on PRs to dev/preview/main/insider branches.
 
@@ -235,12 +235,12 @@ Test failures in `test/human-journeys.test.ts`:
 
 ---
 
-### 4. squad-docs.yml (Documentation Deploy) ✅ WORKING
+### 4. crew-docs.yml (Documentation Deploy) ✅ WORKING
 
 **Purpose:** Builds and deploys documentation to GitHub Pages.
 
 **Trigger:**
-- `push: branches: [main], paths: ['docs/**', '.github/workflows/squad-docs.yml']`
+- `push: branches: [main], paths: ['docs/**', '.github/workflows/crew-docs.yml']`
 - `workflow_dispatch`
 
 **What it does:**
@@ -256,9 +256,9 @@ Test failures in `test/human-journeys.test.ts`:
 
 ---
 
-### 5. squad-heartbeat.yml (Ralph Auto-Triage) ⚠️ DISABLED
+### 5. crew-heartbeat.yml (Ralph Auto-Triage) ⚠️ DISABLED
 
-**Purpose:** Ralph (triage agent) auto-assigns issues to squad members based on routing rules.
+**Purpose:** Ralph (triage agent) auto-assigns issues to crew members based on routing rules.
 
 **Trigger:**
 - ~~`schedule: cron: '*/30 * * * *'`~~ — **DISABLED** (commented out)
@@ -267,26 +267,26 @@ Test failures in `test/human-journeys.test.ts`:
 - `workflow_dispatch`
 
 **What it does:**
-1. Checks if `.squad/templates/ralph-triage.js` exists
+1. Checks if `.crew/templates/ralph-triage.js` exists
 2. Runs Ralph triage script
 3. Applies triage decisions (labels, comments)
-4. Auto-assigns @copilot to `squad:copilot` issues
+4. Auto-assigns @copilot to `crew:copilot` issues
 
 **Recent Run Status:** Not triggered (cron disabled, event-based triggers are passive)
 
 **Issues:**
 - ⚠️ **Cron heartbeat is disabled** — Ralph won't run automatically every 30 minutes
-- Script dependency: `.squad/templates/ralph-triage.js` — may not exist in all contexts
+- Script dependency: `.crew/templates/ralph-triage.js` — may not exist in all contexts
 
-**Impact:** Ralph automation is mostly dormant. Issue triage relies on other workflows (squad-triage.yml, squad-issue-assign.yml).
+**Impact:** Ralph automation is mostly dormant. Issue triage relies on other workflows (crew-triage.yml, crew-issue-assign.yml).
 
-**Recommendation:** Re-enable cron once Ralph triage script is stable, or remove this workflow if redundant with squad-triage.yml.
+**Recommendation:** Re-enable cron once Ralph triage script is stable, or remove this workflow if redundant with crew-triage.yml.
 
 **Priority:** **P2** — Not critical, triage works via other workflows.
 
 ---
 
-### 6. squad-insider-publish.yml (Insider Builds) 🤔 UNCLEAR STATUS
+### 6. crew-insider-publish.yml (Insider Builds) 🤔 UNCLEAR STATUS
 
 **Purpose:** Publishes insider builds to npm with `@insider` tag when code lands on `insider` branch.
 
@@ -310,7 +310,7 @@ Test failures in `test/human-journeys.test.ts`:
 
 ---
 
-### 7. squad-insider-release.yml (Insider GitHub Releases) ✅ WORKING
+### 7. crew-insider-release.yml (Insider GitHub Releases) ✅ WORKING
 
 **Purpose:** Creates GitHub Release for insider builds with SHA-stamped version.
 
@@ -324,27 +324,27 @@ Test failures in `test/human-journeys.test.ts`:
 
 **Assessment:** ✅ Looks good. Uses prerelease flag, SHA stamping is correct.
 
-**Note:** Same test failures as squad-release.yml may affect this (node:test require vs. import).
+**Note:** Same test failures as crew-release.yml may affect this (node:test require vs. import).
 
 ---
 
-### 8. squad-issue-assign.yml (Issue Assignment) ✅ WORKING
+### 8. crew-issue-assign.yml (Issue Assignment) ✅ WORKING
 
-**Purpose:** Auto-assigns issues to squad members when `squad:{member}` label is added.
+**Purpose:** Auto-assigns issues to crew members when `crew:{member}` label is added.
 
 **Trigger:** `issues: types: [labeled]`
 
 **What it does:**
-1. Parses `.squad/team.md` or `.ai-team/team.md`
-2. Identifies member from label (e.g., `squad:ripley` → ripley)
+1. Parses `.crew/team.md` or `.ai-team/team.md`
+2. Identifies member from label (e.g., `crew:ripley` → ripley)
 3. Posts assignment comment
-4. For `squad:copilot`, assigns `copilot-swe-agent[bot]` via GitHub API
+4. For `crew:copilot`, assigns `copilot-swe-agent[bot]` via GitHub API
 
 **Assessment:** ✅ Well-implemented. No issues found.
 
 ---
 
-### 9. squad-label-enforce.yml (Label Rules) ✅ WORKING
+### 9. crew-label-enforce.yml (Label Rules) ✅ WORKING
 
 **Purpose:** Enforces mutual exclusivity for namespaced labels (go:, release:, type:, priority:).
 
@@ -359,38 +359,38 @@ Test failures in `test/human-journeys.test.ts`:
 
 ---
 
-### 10. squad-preview.yml (Preview Branch Validation) ✅ WORKING
+### 10. crew-preview.yml (Preview Branch Validation) ✅ WORKING
 
-**Purpose:** Validates preview branch before release (version in CHANGELOG, no .squad/ files tracked).
+**Purpose:** Validates preview branch before release (version in CHANGELOG, no .crew/ files tracked).
 
 **Trigger:** `push: branches: [preview]`
 
 **What it does:**
 1. Validates version exists in CHANGELOG.md
 2. Runs tests
-3. Checks no `.squad/` or `.ai-team/` files are tracked
+3. Checks no `.crew/` or `.ai-team/` files are tracked
 
 **Assessment:** ✅ Good gate before release. No issues.
 
 ---
 
-### 11. squad-promote.yml (Branch Promotion) ✅ WORKING
+### 11. crew-promote.yml (Branch Promotion) ✅ WORKING
 
 **Purpose:** Promotes dev → preview → main with path stripping.
 
 **Trigger:** `workflow_dispatch` (manual)
 
 **What it does:**
-1. **dev → preview:** Merges dev, strips `.squad/`, `.ai-team/`, `team-docs/`, `docs/proposals/`
-2. **preview → main:** Merges preview, validates CHANGELOG, triggers squad-release.yml
+1. **dev → preview:** Merges dev, strips `.crew/`, `.ai-team/`, `team-docs/`, `docs/proposals/`
+2. **preview → main:** Merges preview, validates CHANGELOG, triggers crew-release.yml
 
 **Assessment:** ✅ Well-designed. Strips team files before release (good). Validates CHANGELOG (good).
 
-**Note:** Relies on squad-release.yml which is currently broken.
+**Note:** Relies on crew-release.yml which is currently broken.
 
 ---
 
-### 12. squad-publish.yml (Tag-Based Publish) ❓ REDUNDANT?
+### 12. crew-publish.yml (Tag-Based Publish) ❓ REDUNDANT?
 
 **Purpose:** Publishes to npm when a tag is pushed (v*).
 
@@ -415,9 +415,9 @@ Test failures in `test/human-journeys.test.ts`:
 
 ---
 
-### 13. squad-publish.yml.deprecated ❓ STALE
+### 13. crew-publish.yml.deprecated ❓ STALE
 
-**Purpose:** Same as squad-publish.yml (tag-based publish).
+**Purpose:** Same as crew-publish.yml (tag-based publish).
 
 **Status:** Filename says "deprecated" but file still exists in repo.
 
@@ -427,33 +427,33 @@ Test failures in `test/human-journeys.test.ts`:
 
 ---
 
-### 14. squad-triage.yml (Initial Squad Triage) ✅ WORKING
+### 14. crew-triage.yml (Initial Crew Triage) ✅ WORKING
 
-**Purpose:** Routes issues to squad members when `squad` label (no member) is added.
+**Purpose:** Routes issues to crew members when `crew` label (no member) is added.
 
 **Trigger:** `issues: types: [labeled]`
 
 **What it does:**
-1. Parses `.squad/team.md` or `.ai-team/team.md`
+1. Parses `.crew/team.md` or `.ai-team/team.md`
 2. Evaluates @copilot capability match (good fit / needs review / not suitable)
-3. Routes to best member via `squad:{member}` label
+3. Routes to best member via `crew:{member}` label
 4. Falls back to Lead if no routing match
 
 **Assessment:** ✅ Smart routing logic. @copilot capability evaluation is well-designed.
 
 ---
 
-### 15. sync-squad-labels.yml (Label Sync) ✅ WORKING
+### 15. sync-crew-labels.yml (Label Sync) ✅ WORKING
 
-**Purpose:** Syncs squad member labels based on `.squad/team.md`.
+**Purpose:** Syncs crew member labels based on `.crew/team.md`.
 
 **Trigger:**
-- `push: paths: ['.squad/team.md', '.ai-team/team.md']`
+- `push: paths: ['.crew/team.md', '.ai-team/team.md']`
 - `workflow_dispatch`
 
 **What it does:**
-1. Parses team roster from `.squad/team.md`
-2. Creates/updates `squad:{member}` labels for each member
+1. Parses team roster from `.crew/team.md`
+2. Creates/updates `crew:{member}` labels for each member
 3. Creates triage labels (go:, release:, type:, priority:)
 
 **Recent Run Status:** **100% success rate**
@@ -485,11 +485,11 @@ Test failures in `test/human-journeys.test.ts`:
 **Impact:** Releases fail after tag/release is created, requiring rollback.
 
 **Recommendation:**
-- Create `squad-pre-flight.yml` workflow that runs validation checks:
+- Create `crew-pre-flight.yml` workflow that runs validation checks:
   - Semver validation
   - Version matches CHANGELOG
   - All tests pass
-  - No .squad/ files on preview branch
+  - No .crew/ files on preview branch
   - Dry-run publish succeeds
 - Trigger via `workflow_dispatch` before creating release
 
@@ -569,18 +569,18 @@ function formatVersion({ base, build, prerelease }) {
 **Date Range:** 2026-03-07 (last 30 runs)
 
 **Summary:**
-- **Squad Release:** 9+ consecutive failures (test failures)
-- **Squad CI:** 2 failures (human-journeys.test.ts)
+- **Crew Release:** 9+ consecutive failures (test failures)
+- **Crew CI:** 2 failures (human-journeys.test.ts)
 - **Publish to npm:** Multiple failures, 2 successes
-- **Squad Docs:** 100% success rate
-- **Sync Squad Labels:** 100% success rate
+- **Crew Docs:** 100% success rate
+- **Sync Crew Labels:** 100% success rate
 
 **Failure Patterns:**
-1. **Test failures** — Most common failure mode (squad-release.yml, squad-ci.yml)
+1. **Test failures** — Most common failure mode (crew-release.yml, crew-ci.yml)
 2. **Publish errors** — Multiple publish.yml failures (likely NPM_TOKEN or propagation issues)
 3. **No recent insider runs** — Insider branch hasn't been active
 
-**Key Insight:** **Testing is the primary blocker.** squad-release.yml is completely broken due to test failures. squad-ci.yml has sporadic test failures. Until tests are fixed, releases from main are blocked.
+**Key Insight:** **Testing is the primary blocker.** crew-release.yml is completely broken due to test failures. crew-ci.yml has sporadic test failures. Until tests are fixed, releases from main are blocked.
 
 ---
 
@@ -588,7 +588,7 @@ function formatVersion({ base, build, prerelease }) {
 
 ### P0 (Blocking Releases — Fix Immediately)
 
-1. **Fix squad-release.yml test failures** ❌ URGENT
+1. **Fix crew-release.yml test failures** ❌ URGENT
    - Root cause: ES module syntax errors in test files (require → import)
    - Impact: Releases from main are completely blocked
    - Fix: Update test files to use ES module syntax or use Vitest
@@ -617,15 +617,15 @@ function formatVersion({ base, build, prerelease }) {
    - Risk: package.json issues not caught until real publish
    - Fix: Run `npm publish --dry-run` before real publish
 
-7. **Fix squad-ci.yml test failures** ⚠️
+7. **Fix crew-ci.yml test failures** ⚠️
    - Impact: Undermines CI confidence, may allow bad PRs to merge
    - Fix: Investigate human-journeys.test.ts failures
 
-8. **Apply validation fixes to squad-insider-publish.yml** ⚠️
+8. **Apply validation fixes to crew-insider-publish.yml** ⚠️
    - Risk: Same gaps as publish.yml (semver, SKIP_BUILD_BUMP, dry-run)
    - Fix: Copy validation steps from publish.yml
 
-9. **Clarify squad-publish.yml vs. publish.yml** ⚠️
+9. **Clarify crew-publish.yml vs. publish.yml** ⚠️
    - Issue: Two workflows with overlapping triggers (tag-based vs. release-based)
    - Fix: Document which is canonical, or delete redundant one
 
@@ -637,17 +637,17 @@ function formatVersion({ base, build, prerelease }) {
 
 ### P2 (Quality of Life — Fix Next Sprint)
 
-11. **Delete squad-publish.yml.deprecated** 🧹
+11. **Delete crew-publish.yml.deprecated** 🧹
     - Issue: Stale file causes confusion
     - Fix: Remove file
 
-12. **Re-enable squad-heartbeat.yml cron or remove workflow** 🧹
+12. **Re-enable crew-heartbeat.yml cron or remove workflow** 🧹
     - Issue: Cron disabled, workflow mostly dormant
     - Fix: Enable cron if Ralph is stable, or delete if redundant
 
 13. **Add pre-flight validation workflow** 💡
     - Benefit: Catch issues before creating release
-    - Fix: Create squad-pre-flight.yml with validation checks
+    - Fix: Create crew-pre-flight.yml with validation checks
 
 14. **Add publish pipeline health monitoring** 💡
     - Benefit: Proactive detection of issues
@@ -681,7 +681,7 @@ function formatVersion({ base, build, prerelease }) {
 ```yaml
 jobs:
   publish-sdk:
-    name: Publish @bradygaster/squad-sdk
+    name: Publish @blacklite/crew-sdk
     runs-on: ubuntu-latest
     env:
       SKIP_BUILD_BUMP: "1"
@@ -697,8 +697,8 @@ jobs:
           fi
           echo "✅ SKIP_BUILD_BUMP is set — bump-build.mjs will be skipped"
 
-      - name: Build squad-sdk
-        run: npm -w packages/squad-sdk run build
+      - name: Build crew-sdk
+        run: npm -w packages/crew-sdk run build
         env:
           SKIP_BUILD_BUMP: "1"
 ```
@@ -707,7 +707,7 @@ jobs:
 
 ```yaml
 - name: Dry-run publish (catch package.json issues)
-  run: npm -w packages/squad-sdk publish --dry-run --access public
+  run: npm -w packages/crew-sdk publish --dry-run --access public
 ```
 
 ### Fix 4: Fix bump-build.mjs to Use Valid Semver
@@ -747,20 +747,20 @@ function formatVersion({ base, build, prerelease }) {
 | Workflow | Purpose | Trigger | Status | Priority |
 |----------|---------|---------|--------|----------|
 | publish.yml | Publish to npm | release: published | ⚠️ Needs hardening | P0 |
-| squad-release.yml | Auto-create GitHub Release | push: main | ❌ Broken (tests) | P0 |
-| squad-ci.yml | PR/push CI | pull_request, push | ⚠️ Flaky tests | P1 |
-| squad-docs.yml | Deploy docs to Pages | push: main (docs paths) | ✅ Working | — |
-| squad-heartbeat.yml | Ralph auto-triage | ~~cron~~ (disabled), issues | ⚠️ Dormant | P2 |
-| squad-insider-publish.yml | Insider builds to npm | push: insider | 🤔 Needs hardening | P1 |
-| squad-insider-release.yml | Insider GitHub Releases | push: insider | ✅ Working | — |
-| squad-issue-assign.yml | Issue assignment | issues: labeled | ✅ Working | — |
-| squad-label-enforce.yml | Label mutual exclusivity | issues: labeled | ✅ Working | — |
-| squad-preview.yml | Preview validation | push: preview | ✅ Working | — |
-| squad-promote.yml | Branch promotion | workflow_dispatch | ✅ Working | — |
-| squad-publish.yml | Tag-based publish | push: tags | ❓ Redundant? | P2 |
-| squad-publish.yml.deprecated | — | — | ❌ Stale | P2 |
-| squad-triage.yml | Initial squad triage | issues: labeled | ✅ Working | — |
-| sync-squad-labels.yml | Sync squad labels | push: .squad/team.md | ✅ Working | — |
+| crew-release.yml | Auto-create GitHub Release | push: main | ❌ Broken (tests) | P0 |
+| crew-ci.yml | PR/push CI | pull_request, push | ⚠️ Flaky tests | P1 |
+| crew-docs.yml | Deploy docs to Pages | push: main (docs paths) | ✅ Working | — |
+| crew-heartbeat.yml | Ralph auto-triage | ~~cron~~ (disabled), issues | ⚠️ Dormant | P2 |
+| crew-insider-publish.yml | Insider builds to npm | push: insider | 🤔 Needs hardening | P1 |
+| crew-insider-release.yml | Insider GitHub Releases | push: insider | ✅ Working | — |
+| crew-issue-assign.yml | Issue assignment | issues: labeled | ✅ Working | — |
+| crew-label-enforce.yml | Label mutual exclusivity | issues: labeled | ✅ Working | — |
+| crew-preview.yml | Preview validation | push: preview | ✅ Working | — |
+| crew-promote.yml | Branch promotion | workflow_dispatch | ✅ Working | — |
+| crew-publish.yml | Tag-based publish | push: tags | ❓ Redundant? | P2 |
+| crew-publish.yml.deprecated | — | — | ❌ Stale | P2 |
+| crew-triage.yml | Initial crew triage | issues: labeled | ✅ Working | — |
+| sync-crew-labels.yml | Sync crew labels | push: .crew/team.md | ✅ Working | — |
 
 **Total:** 15 workflows  
 **Working:** 8 ✅  
@@ -772,17 +772,17 @@ function formatVersion({ base, build, prerelease }) {
 
 ## Conclusion
 
-Squad's CI/CD pipeline is **functional but fragile**. The core publish workflow (publish.yml) works for happy-path releases but lacks critical validation gates that allowed the v0.8.22 disaster to happen. **squad-release.yml is completely broken** and blocking releases from main.
+Crew's CI/CD pipeline is **functional but fragile**. The core publish workflow (publish.yml) works for happy-path releases but lacks critical validation gates that allowed the v0.8.22 disaster to happen. **crew-release.yml is completely broken** and blocking releases from main.
 
 **Immediate Actions (P0):**
-1. Fix squad-release.yml test failures (ES module syntax)
+1. Fix crew-release.yml test failures (ES module syntax)
 2. Add semver validation to publish.yml
 3. Enforce SKIP_BUILD_BUMP in publish.yml
 4. Fix bump-build.mjs to use valid semver format
 
 **Next Sprint (P1):**
 - Harden publish.yml with dry-run, token checks
-- Fix squad-ci.yml test failures
+- Fix crew-ci.yml test failures
 - Apply validation fixes to insider publish workflow
 - Add automated rollback for partial publish failures
 

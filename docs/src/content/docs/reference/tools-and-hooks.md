@@ -1,8 +1,8 @@
 # Custom Tools & Hooks Guide
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
-Squad ships with 5 built-in tools and a hook pipeline for policy enforcement. This guide covers extending both.
+Crew ships with 5 built-in tools and a hook pipeline for policy enforcement. This guide covers extending both.
 
 ---
 
@@ -11,7 +11,7 @@ Squad ships with 5 built-in tools and a hook pipeline for policy enforcement. Th
 `ToolRegistry` manages tool definitions. Each tool has a name, JSON schema, and async handler:
 
 ```typescript
-import { ToolRegistry, defineTool } from '@bradygaster/squad-sdk';
+import { ToolRegistry, defineTool } from '@blacklite/crew-sdk';
 
 const registry = new ToolRegistry();
 
@@ -53,7 +53,7 @@ The handler returns a `ToolResult` with `success` flag and `data` payload.
 `HookPipeline` intercepts tool calls at two points: before execution (`PreToolUseHook`) and after (`PostToolUseHook`). Hooks return a `HookAction`: `allow`, `block`, or `modify`.
 
 ```typescript
-import { HookPipeline, PreToolUseHook } from '@bradygaster/squad-sdk';
+import { HookPipeline, PreToolUseHook } from '@blacklite/crew-sdk';
 
 const auditHook: PreToolUseHook = async (toolName, params, context) => {
   console.log(`Agent ${context.agentId} calling ${toolName}`);
@@ -85,7 +85,7 @@ Post-tool hooks inspect results and can trigger follow-up actions like notificat
 
 ## Built-in Policies
 
-Squad ships 5 policies configured via `PolicyConfig`:
+Crew ships 5 policies configured via `PolicyConfig`:
 
 1. **ReviewerLockoutHook** — Agents cannot edit files they are reviewing
 2. **File guards** — Restrict write access to sensitive paths
@@ -93,7 +93,7 @@ Squad ships 5 policies configured via `PolicyConfig`:
 4. **Rate limits** — Cap tool invocations per agent per interval
 5. **PII filters** — Redact sensitive data before model calls
 
-Configure policies in `squad.config.ts` under the `hooks` key:
+Configure policies in `crew.config.ts` under the `hooks` key:
 
 ```typescript
 export default defineConfig({

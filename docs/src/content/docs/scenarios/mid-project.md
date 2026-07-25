@@ -1,45 +1,45 @@
-# Adding Squad Mid-Project
+# Adding Crew Mid-Project
 
 **Try this to catch up on current state:**
 ```
 This project is already in progress — catch me up on what's been built and what's in the backlog
 ```
 
-**Try this to onboard Squad late:**
+**Try this to onboard Crew late:**
 ```
-We're 3 months into development — help us add Squad
+We're 3 months into development — help us add Crew
 ```
 
-Never too late to add Squad. Agents discover what's there, learn your patterns, and get up to speed in 2–3 sessions. No rewrite needed.
+Never too late to add Crew. Agents discover what's there, learn your patterns, and get up to speed in 2–3 sessions. No rewrite needed.
 
 ---
 
 ## 1. You're Halfway Through — Is It Too Late?
 
-Never too late to add Squad. Agents discover what's there, learn your patterns, and get up to speed in 2–3 sessions.
+Never too late to add Crew. Agents discover what's there, learn your patterns, and get up to speed in 2–3 sessions.
 
-No. Squad is designed for **existing codebases**. Whether you're 3 weeks in or 3 years in, agents adapt.
+No. Crew is designed for **existing codebases**. Whether you're 3 weeks in or 3 years in, agents adapt.
 
-You don't have to start from scratch. You don't have to rewrite anything. Install Squad, let agents explore, and keep building.
+You don't have to start from scratch. You don't have to rewrite anything. Install Crew, let agents explore, and keep building.
 
 ---
 
-## 2. Install Squad
+## 2. Install Crew
 
 ```bash
 cd ~/projects/halfway-done-app
-npm install -g @bradygaster/squad-cli
-squad init
+npm install -g @blacklite/crew-cli
+crew init
 ```
 
 ```
-✅ .github/agents/squad.agent.md (v0.2.0)
+✅ .github/agents/crew.agent.md (v0.2.0)
 ✅ .ai-team-templates/
 ✅ .ai-team/skills/ (starter skills)
 ✅ .ai-team/ceremonies.md
 ✅ .gitattributes (merge=union rules)
 
-Squad is ready.
+Crew is ready.
 ```
 
 ---
@@ -50,7 +50,7 @@ Squad is ready.
 copilot
 ```
 
-Select **Squad** from `/agent` (CLI) or `/agents` (VS Code). Describe the project **as it is today**, not as you originally planned it:
+Select **Crew** from `/agent` (CLI) or `/agents` (VS Code). Describe the project **as it is today**, not as you originally planned it:
 
 ```
 > This is an e-commerce platform. We're 4 months into development.
@@ -59,7 +59,7 @@ Select **Squad** from `/agent` (CLI) or `/agents` (VS Code). Describe the projec
 > We're halfway through the checkout flow.
 ```
 
-Squad proposes a team:
+Crew proposes a team:
 
 ```
 Here's your team:
@@ -251,6 +251,6 @@ Michael just gave you a code review of code **you already wrote**. Now you can f
 
 - **Start with exploration, not implementation.** Let agents map the codebase before giving tasks. They'll make fewer mistakes.
 - **Feed conventions explicitly.** Agents can discover file structure, but they can't discover team norms. Tell them: "We always X," "We never Y."
-- **Use the Lead to audit existing code.** Michael can review code that was written before Squad was added.
+- **Use the Lead to audit existing code.** Michael can review code that was written before Crew was added.
 - **Skills accumulate fast.** After 2–3 sessions, agents know your patterns. By session 5, they're as good as a developer who's been on the project for weeks.
-- **Never too late.** Squad works on 3-week projects and 3-year projects. Agents adapt to what's there.
+- **Never too late.** Crew works on 3-week projects and 3-year projects. Agents adapt to what's there.

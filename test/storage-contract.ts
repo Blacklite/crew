@@ -18,7 +18,7 @@
  *             unicode paths (CJK, emoji, accented characters)
  */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import type { StorageProvider } from '../packages/squad-sdk/src/storage/storage-provider.js';
+import type { StorageProvider } from '../packages/crew-sdk/src/storage/storage-provider.js';
 
 export function runStorageProviderContractTests(
   name: string,

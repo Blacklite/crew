@@ -9,10 +9,10 @@ import {
   executeLifecycleHook,
   parsePluginManifestContent,
   validatePluginManifest,
-} from '../packages/squad-sdk/src/marketplace/index.js';
-import { FSStorageProvider } from '../packages/squad-sdk/src/storage/index.js';
-import { AgentLifecycleManager } from '../packages/squad-sdk/src/agents/index.js';
-import { runPlugin } from '../packages/squad-cli/src/cli/commands/plugin.js';
+} from '../packages/crew-sdk/src/marketplace/index.js';
+import { FSStorageProvider } from '../packages/crew-sdk/src/storage/index.js';
+import { AgentLifecycleManager } from '../packages/crew-sdk/src/agents/index.js';
+import { runPlugin } from '../packages/crew-cli/src/cli/commands/plugin.js';
 
 function writeFile(path: string, content: string): void {
   mkdirSync(dirname(path), { recursive: true });
@@ -38,9 +38,9 @@ describe('plugin manifest parser and validator', () => {
       name: 'Demo Plugin',
       version: '1.0.0',
       description: 'A declarative test plugin.',
-      authors: ['Squad'],
+      authors: ['Crew'],
       license: 'MIT',
-      squad: '>=0.9.1',
+      crew: '>=0.9.1',
       components: {
         knowledge: ['demo-plugin'],
         memory: { provider: 'demo-memory' },
@@ -115,7 +115,7 @@ describe('plugin manifest parser and validator', () => {
     expect(validation.errors.join('\n')).toMatch(/executable or script|relative path/);
   });
 
-  it('rejects Squad-owned skill components and invalid Copilot dependency declarations', () => {
+  it('rejects Crew-owned skill components and invalid Copilot dependency declarations', () => {
     const manifest = parsePluginManifestContent(JSON.stringify({
       id: 'bad-plugin',
       name: 'Bad Plugin',
@@ -284,13 +284,13 @@ describe('plugin manifest parser and validator', () => {
   });
 });
 
-describe('squad plugin lifecycle CLI', () => {
+describe('crew plugin lifecycle CLI', () => {
   let tmpDir: string;
   let pluginDir: string;
 
   beforeEach(() => {
-    tmpDir = mkdtempSync(join(tmpdir(), 'squad-plugin-lifecycle-'));
-    mkdirSync(join(tmpDir, '.squad'), { recursive: true });
+    tmpDir = mkdtempSync(join(tmpdir(), 'crew-plugin-lifecycle-'));
+    mkdirSync(join(tmpDir, '.crew'), { recursive: true });
     pluginDir = join(tmpDir, 'demo-plugin');
     writeFile(join(pluginDir, 'plugin.manifest.json'), JSON.stringify({
       id: 'demo-plugin',
@@ -335,17 +335,17 @@ describe('squad plugin lifecycle CLI', () => {
     const output = await capturePluginCommand(tmpDir, ['dry-run', pluginDir]);
 
     expect(output).toContain('Dry run deployment plan');
-    expect(output).toContain('Squad records these dependencies but does not install or run Copilot plugin commands.');
+    expect(output).toContain('Crew records these dependencies but does not install or run Copilot plugin commands.');
     expect(readFileSync(join(pluginDir, 'guidance.md'), 'utf8')).toContain('Static knowledge content');
-    expect(() => readFileSync(join(tmpDir, '.squad', 'plugins', 'installed.json'), 'utf8')).toThrow();
+    expect(() => readFileSync(join(tmpDir, '.crew', 'plugins', 'installed.json'), 'utf8')).toThrow();
   });
 
   it('installs disabled, verifies, enables, switches, disables, and uninstalls', async () => {
     await capturePluginCommand(tmpDir, ['install', pluginDir]);
-    expect(readFileSync(join(tmpDir, '.squad', 'knowledge', 'demo-plugin', 'guidance.md'), 'utf8'))
+    expect(readFileSync(join(tmpDir, '.crew', 'knowledge', 'demo-plugin', 'guidance.md'), 'utf8'))
       .toBe('# Demo Plugin\n\nStatic knowledge content.\n');
 
-    const installed = JSON.parse(readFileSync(join(tmpDir, '.squad', 'plugins', 'installed.json'), 'utf8')) as {
+    const installed = JSON.parse(readFileSync(join(tmpDir, '.crew', 'plugins', 'installed.json'), 'utf8')) as {
       plugins: Array<{
         id: string;
         enabled: boolean;
@@ -370,7 +370,7 @@ describe('squad plugin lifecycle CLI', () => {
 
     await capturePluginCommand(tmpDir, ['verify']);
     await capturePluginCommand(tmpDir, ['enable', 'demo-plugin']);
-    let runtime = JSON.parse(readFileSync(join(tmpDir, '.squad', 'plugins', 'runtime.json'), 'utf8')) as {
+    let runtime = JSON.parse(readFileSync(join(tmpDir, '.crew', 'plugins', 'runtime.json'), 'utf8')) as {
       plugins: Record<string, { enabled: boolean }>;
       active: Record<string, string>;
     };
@@ -380,20 +380,20 @@ describe('squad plugin lifecycle CLI', () => {
 
     await capturePluginCommand(tmpDir, ['switch', 'memory', 'demo-plugin']);
     await capturePluginCommand(tmpDir, ['disable', 'demo-plugin']);
-    runtime = JSON.parse(readFileSync(join(tmpDir, '.squad', 'plugins', 'runtime.json'), 'utf8')) as {
+    runtime = JSON.parse(readFileSync(join(tmpDir, '.crew', 'plugins', 'runtime.json'), 'utf8')) as {
       active: Record<string, string>;
     };
     expect(runtime.active.memory).toBeUndefined();
     expect(runtime.active.knowledge).toBeUndefined();
 
     await capturePluginCommand(tmpDir, ['uninstall', 'demo-plugin']);
-    const afterUninstall = JSON.parse(readFileSync(join(tmpDir, '.squad', 'plugins', 'installed.json'), 'utf8')) as {
+    const afterUninstall = JSON.parse(readFileSync(join(tmpDir, '.crew', 'plugins', 'installed.json'), 'utf8')) as {
       plugins: unknown[];
     };
     expect(afterUninstall.plugins).toHaveLength(0);
-    expect(() => readFileSync(join(tmpDir, '.squad', 'knowledge', 'demo-plugin', 'guidance.md'), 'utf8')).toThrow();
+    expect(() => readFileSync(join(tmpDir, '.crew', 'knowledge', 'demo-plugin', 'guidance.md'), 'utf8')).toThrow();
 
-    const audit = readFileSync(join(tmpDir, '.squad', 'plugins', 'audit.jsonl'), 'utf8')
+    const audit = readFileSync(join(tmpDir, '.crew', 'plugins', 'audit.jsonl'), 'utf8')
       .trim()
       .split(/\r?\n/)
       .map((line) => JSON.parse(line) as { type: string });
@@ -412,11 +412,11 @@ describe('squad plugin lifecycle CLI', () => {
     symlinkSync(join(tmpDir, 'outside.md'), join(pluginDir, 'guidance.md'));
 
     await expect(runPlugin(tmpDir, ['install', pluginDir])).rejects.toThrow(/symlink/);
-    expect(() => readFileSync(join(tmpDir, '.squad', 'plugins', 'installed.json'), 'utf8')).toThrow();
+    expect(() => readFileSync(join(tmpDir, '.crew', 'plugins', 'installed.json'), 'utf8')).toThrow();
   });
 });
 
-describe('plugin behavioral influence on spawned squad agents', () => {
+describe('plugin behavioral influence on spawned crew agents', () => {
   const samples = [
     {
       name: 'plugin-knowledge-graphify',
@@ -424,7 +424,7 @@ describe('plugin behavioral influence on spawned squad agents', () => {
       installedFile: ['knowledge', 'graphify', 'graphify-integration.md'],
       expectedGuidance: 'Graphify is the `safishamsi/graphify` knowledge graph tool',
       expectedPackage: 'Upstream package: graphifyy (pypi)',
-      expectedProvider: 'graphify: type=knowledge; mode=read; protocol=static-artifact; artifact=.squad/knowledge/graphify/graphify-integration.md; capabilities=knowledge-graph, code-relationship-analysis, static-report-guidance',
+      expectedProvider: 'graphify: type=knowledge; mode=read; protocol=static-artifact; artifact=.crew/knowledge/graphify/graphify-integration.md; capabilities=knowledge-graph, code-relationship-analysis, static-report-guidance',
     },
     {
       name: 'plugin-memory-mempalace',
@@ -432,7 +432,7 @@ describe('plugin behavioral influence on spawned squad agents', () => {
       installedFile: ['memory', 'providers', 'mempalace-provider.md'],
       expectedGuidance: 'MemPalace is an example memory provider profile',
       expectedPackage: 'Upstream package: mempalace (pypi)',
-      expectedProvider: 'mempalace: type=memory; mode=read-write; protocol=mcp; artifact=.squad/memory/providers/mempalace-provider.md; capabilities=spatial-memory, durable-context, agent-learning-trails; mcp.server=mempalace; mcp.tool=memory-palace; mcp.capability=spatial-memory',
+      expectedProvider: 'mempalace: type=memory; mode=read-write; protocol=mcp; artifact=.crew/memory/providers/mempalace-provider.md; capabilities=spatial-memory, durable-context, agent-learning-trails; mcp.server=mempalace; mcp.tool=memory-palace; mcp.capability=spatial-memory',
     },
     {
       name: 'plugin-knowledge-index-server',
@@ -440,7 +440,7 @@ describe('plugin behavioral influence on spawned squad agents', () => {
       installedFile: ['knowledge', 'index-server', 'index-server-integration.md'],
       expectedGuidance: 'Index Server is the `jagilber-org/index-server` MCP instruction indexing server',
       expectedPackage: 'Upstream package: @jagilber-org/index-server (npm)',
-      expectedProvider: 'index-server: type=knowledge; mode=read; protocol=mcp; artifact=.squad/knowledge/index-server/index-server-integration.md; capabilities=governed-instructions, knowledge-catalog, team-standards; mcp.server=index-server; mcp.tool=query-index; mcp.capability=governed-knowledge-catalog',
+      expectedProvider: 'index-server: type=knowledge; mode=read; protocol=mcp; artifact=.crew/knowledge/index-server/index-server-integration.md; capabilities=governed-instructions, knowledge-catalog, team-standards; mcp.server=index-server; mcp.tool=query-index; mcp.capability=governed-knowledge-catalog',
     },
   ];
 
@@ -455,10 +455,10 @@ describe('plugin behavioral influence on spawned squad agents', () => {
 
   for (const sample of samples) {
     it(`injects enabled ${sample.name} static guidance into spawned agent system context`, async () => {
-      const tmpDir = mkdtempSync(join(tmpdir(), `squad-plugin-behavior-${sample.id}-`));
+      const tmpDir = mkdtempSync(join(tmpdir(), `crew-plugin-behavior-${sample.id}-`));
       tmpDirs.push(tmpDir);
-      mkdirSync(join(tmpDir, '.squad'), { recursive: true });
-      writeFile(join(tmpDir, '.squad', 'agents', 'data', 'charter.md'), [
+      mkdirSync(join(tmpDir, '.crew'), { recursive: true });
+      writeFile(join(tmpDir, '.crew', 'agents', 'data', 'charter.md'), [
         '# Data Charter',
         '',
         '## Identity',
@@ -476,22 +476,22 @@ describe('plugin behavioral influence on spawned squad agents', () => {
 
       const sampleDir = join(process.cwd(), 'samples', sample.name);
       await capturePluginCommand(tmpDir, ['install', sampleDir]);
-      const installedArtifact = join(tmpDir, '.squad', ...sample.installedFile);
+      const installedArtifact = join(tmpDir, '.crew', ...sample.installedFile);
       expect(readFileSync(installedArtifact, 'utf8')).toContain(sample.expectedGuidance);
 
       const disabledPrompt = await spawnAndCaptureSystemPrompt(tmpDir);
-      expect(disabledPrompt).not.toContain('## Active Squad Plugins');
+      expect(disabledPrompt).not.toContain('## Active Crew Plugins');
       expect(disabledPrompt).not.toContain(sample.expectedGuidance);
 
       await capturePluginCommand(tmpDir, ['enable', sample.id]);
       const enabledPrompt = await spawnAndCaptureSystemPrompt(tmpDir);
 
       expect(enabledPrompt).toContain('## Plugin Context');
-      expect(enabledPrompt).toContain('## Active Squad Plugins');
-      expect(enabledPrompt).toContain('Squad has not installed upstream packages, started MCP servers, or run external plugin commands.');
+      expect(enabledPrompt).toContain('## Active Crew Plugins');
+      expect(enabledPrompt).toContain('Crew has not installed upstream packages, started MCP servers, or run external plugin commands.');
       expect(enabledPrompt).toContain('Provider contracts are declarative metadata only.');
       expect(enabledPrompt).toContain(`### ${sample.id.includes('graphify') ? 'Graphify Knowledge Graph' : sample.id.includes('mempalace') ? 'MemPalace Memory' : 'Index Server Knowledge'} (${sample.id}@1.0.0)`);
-      expect(enabledPrompt).toContain(`#### Installed artifact: .squad/${sample.installedFile.join('/')}`);
+      expect(enabledPrompt).toContain(`#### Installed artifact: .crew/${sample.installedFile.join('/')}`);
       expect(enabledPrompt).toContain(sample.expectedGuidance);
       expect(enabledPrompt).toContain(sample.expectedPackage);
       expect(enabledPrompt).toContain(sample.expectedProvider);
@@ -537,10 +537,10 @@ describe('plugin behavioral influence on spawned squad agents', () => {
     ];
 
     for (const scenario of scenarios) {
-      const tmpDir = mkdtempSync(join(tmpdir(), `squad-plugin-simulation-${scenario.pluginId}-`));
+      const tmpDir = mkdtempSync(join(tmpdir(), `crew-plugin-simulation-${scenario.pluginId}-`));
       tmpDirs.push(tmpDir);
-      mkdirSync(join(tmpDir, '.squad'), { recursive: true });
-      writeFile(join(tmpDir, '.squad', 'agents', 'data', 'charter.md'), [
+      mkdirSync(join(tmpDir, '.crew'), { recursive: true });
+      writeFile(join(tmpDir, '.crew', 'agents', 'data', 'charter.md'), [
         '# Data Charter',
         '',
         '## Identity',
@@ -583,11 +583,11 @@ describe('plugin behavioral influence on spawned squad agents', () => {
     }
   });
 
-  it('does not read outside .squad when installed plugin state is tampered', async () => {
-    const tmpDir = mkdtempSync(join(tmpdir(), 'squad-plugin-behavior-tamper-'));
+  it('does not read outside .crew when installed plugin state is tampered', async () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), 'crew-plugin-behavior-tamper-'));
     tmpDirs.push(tmpDir);
-    mkdirSync(join(tmpDir, '.squad'), { recursive: true });
-    writeFile(join(tmpDir, '.squad', 'agents', 'data', 'charter.md'), [
+    mkdirSync(join(tmpDir, '.crew'), { recursive: true });
+    writeFile(join(tmpDir, '.crew', 'agents', 'data', 'charter.md'), [
       '# Data Charter',
       '',
       '## Identity',
@@ -602,7 +602,7 @@ describe('plugin behavioral influence on spawned squad agents', () => {
     await capturePluginCommand(tmpDir, ['enable', 'graphify-knowledge']);
     writeFile(join(tmpDir, 'outside-secret.md'), 'DO_NOT_INJECT_PLUGIN_SECRET');
 
-    const installedPath = join(tmpDir, '.squad', 'plugins', 'installed.json');
+    const installedPath = join(tmpDir, '.crew', 'plugins', 'installed.json');
     const installed = JSON.parse(readFileSync(installedPath, 'utf8')) as {
       plugins: Array<{ files: Array<{ target: string }> }>;
     };
@@ -639,7 +639,7 @@ async function spawnAndCaptureSystemPrompt(teamRoot: string): Promise<string> {
   try {
     await manager.spawnAgent({
       agentName: 'data',
-      task: 'Use the available squad context to plan the work.',
+      task: 'Use the available crew context to plan the work.',
     });
   } finally {
     await manager.shutdown();
@@ -674,7 +674,7 @@ function simulateSpawnedAgentPlan(systemPrompt: string, task: string): Simulated
   const evidence: string[] = [];
   const lowerPrompt = systemPrompt.toLowerCase();
   const lowerTask = task.toLowerCase();
-  const externalExecutionProhibited = lowerPrompt.includes('squad has not installed upstream packages')
+  const externalExecutionProhibited = lowerPrompt.includes('crew has not installed upstream packages')
     && lowerPrompt.includes('started mcp servers')
     && lowerPrompt.includes('run external plugin commands');
   const base = 'No live package install, external CLI execution, MCP startup, or live provider query is required.';
@@ -746,12 +746,12 @@ function simulateSpawnedAgentPlan(systemPrompt: string, task: string): Simulated
 describe('Plugin Runtime Capabilities', () => {
   let tmpDir: string;
   let storage: FSStorageProvider;
-  let squadDir: string;
+  let crewDir: string;
 
   beforeEach(() => {
-    tmpDir = realpathSync(mkdtempSync(join(tmpdir(), 'squad-runtime-test-')));
-    squadDir = join(tmpDir, '.squad');
-    mkdirSync(squadDir, { recursive: true });
+    tmpDir = realpathSync(mkdtempSync(join(tmpdir(), 'crew-runtime-test-')));
+    crewDir = join(tmpDir, '.crew');
+    mkdirSync(crewDir, { recursive: true });
     storage = new FSStorageProvider();
   });
 
@@ -857,7 +857,7 @@ describe('Plugin Runtime Capabilities', () => {
     expect(validation.errors.some((e) => e.includes('executable'))).toBe(true);
   });
 
-  it('executes graphify lifecycle and generates artifacts under .squad/knowledge/graphify', async () => {
+  it('executes graphify lifecycle and generates artifacts under .crew/knowledge/graphify', async () => {
     const capabilities = [{
       type: 'artifact-generation' as const,
       provider: 'graphify',
@@ -872,7 +872,7 @@ describe('Plugin Runtime Capabilities', () => {
       'onMemoryRefresh',
       capabilities,
       storage,
-      squadDir,
+      crewDir,
       audit
     );
 
@@ -880,8 +880,8 @@ describe('Plugin Runtime Capabilities', () => {
     expect(results[0].success).toBe(true);
     expect(results[0].artifactsGenerated).toHaveLength(2);
 
-    const graphContent = await storage.read(join(squadDir, 'knowledge/graphify/graph.json'));
-    const reportContent = await storage.read(join(squadDir, 'knowledge/graphify/GRAPH_REPORT.md'));
+    const graphContent = await storage.read(join(crewDir, 'knowledge/graphify/graph.json'));
+    const reportContent = await storage.read(join(crewDir, 'knowledge/graphify/GRAPH_REPORT.md'));
 
     expect(graphContent).toBeDefined();
     expect(reportContent).toBeDefined();
@@ -905,7 +905,7 @@ describe('Plugin Runtime Capabilities', () => {
       'onMemoryRefresh',
       capabilities,
       storage,
-      squadDir,
+      crewDir,
       audit
     );
 
@@ -928,7 +928,7 @@ describe('Plugin Runtime Capabilities', () => {
       'onMemoryRefresh',
       capabilities,
       storage,
-      squadDir,
+      crewDir,
       audit
     );
 

@@ -1,13 +1,13 @@
 # Release Notes — v0.6.0
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
-> ⚠️ **INTERNAL ONLY** — Do not distribute outside the Squad team until GA.
+> ⚠️ **INTERNAL ONLY** — Do not distribute outside the Crew team until GA.
 
 ## Overview
 
-**Squad v0.6.0** completes the SDK replatform from markdown-based configuration to a fully typed TypeScript runtime. This release spans milestones M0 through M6 and delivers a programmable multi-agent framework for GitHub Copilot.
+**Crew v0.6.0** completes the SDK replatform from markdown-based configuration to a fully typed TypeScript runtime. This release spans milestones M0 through M6 and delivers a programmable multi-agent framework for GitHub Copilot.
 
 ---
 
@@ -15,21 +15,21 @@
 
 ### M0 — Foundation
 - Project scaffolding: TypeScript ESM, vitest, strict mode
-- Core types: `SquadConfig`, `AgentConfig`, `RoutingRule`
+- Core types: `CrewConfig`, `AgentConfig`, `RoutingRule`
 - Initial test infrastructure
 
 ### M1 — Core Runtime
-- `ConfigLoader` with `squad.config.ts` / `squad.config.json` support
+- `ConfigLoader` with `crew.config.ts` / `crew.config.json` support
 - `Coordinator` message routing engine
 - `AgentLifecycle` — spawn, monitor, retire agents
 - `ResponseTier` system (direct / lightweight / standard / full)
 - Event bus for inter-agent communication
 
 ### M2 — Config System
-- Full `SquadConfig` schema with validation
+- Full `CrewConfig` schema with validation
 - `defineConfig()` helper for type-safe authoring
 - Config migrations (v0.4 → v0.6)
-- Standard directory: `.squad/` for all team state
+- Standard directory: `.crew/` for all team state
 - `ConfigValidationError` with actionable messages
 
 ### M3 — Feature Parity
@@ -65,18 +65,18 @@
 
 | Change | Migration |
 |--------|-----------|
-| Config file: `squad.agent.md` → `squad.config.ts` | Run `squad init` to generate typed config |
-| Team dir: `.squad/` | Standard directory for all team state |
-| Routing: markdown rules → typed `RoutingRule[]` | Export existing rules with `squad export` |
+| Config file: `crew.agent.md` → `crew.config.ts` | Run `crew init` to generate typed config |
+| Team dir: `.crew/` | Standard directory for all team state |
+| Routing: markdown rules → typed `RoutingRule[]` | Export existing rules with `crew export` |
 | Models: string names → tier-based `ModelConfig` | Use `defaultTier` + `fallbackChains` in config |
 
 ## Migration Instructions
 
-1. **Install**: `npm install @bradygaster/squad@0.6.0`
-2. **Init**: `npx squad init` — generates `squad.config.ts` from existing setup
-3. **Verify**: `npx squad status` — confirms config loads and agents resolve
+1. **Install**: `npm install @blacklite/crew@0.6.0`
+2. **Init**: `npx crew init` — generates `crew.config.ts` from existing setup
+3. **Verify**: `npx crew status` — confirms config loads and agents resolve
 4. **Test**: Run your project's test suite to confirm no regressions
-5. **Finalize**: Ensure `.squad/` contains all required team state files
+5. **Finalize**: Ensure `.crew/` contains all required team state files
 
 ## Test Summary
 

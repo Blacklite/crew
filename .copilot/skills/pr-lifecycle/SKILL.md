@@ -3,12 +3,12 @@ name: "pr-lifecycle"
 description: "Complete issue → PR → merge lifecycle with readiness checks"
 domain: "workflow"
 confidence: "high"
-source: "extracted from CONTRIBUTING.md, PR_REQUIREMENTS.md, squad-ci.yml"
+source: "extracted from CONTRIBUTING.md, PR_REQUIREMENTS.md, crew-ci.yml"
 ---
 
 ## Context
 
-This skill is the **canonical Copilot-agent lifecycle for the Squad repository**. It covers the full path from picking up a GitHub issue to merging a PR. Where older docs (templates, copilot-instructions, CONTRIBUTING.md) conflict with this skill, **this skill takes precedence** for Copilot agents.
+This skill is the **canonical Copilot-agent lifecycle for the Crew repository**. It covers the full path from picking up a GitHub issue to merging a PR. Where older docs (templates, copilot-instructions, CONTRIBUTING.md) conflict with this skill, **this skill takes precedence** for Copilot agents.
 
 For advanced scenarios (worktrees, multi-repo coordination), see `.copilot/skills/git-workflow/SKILL.md`.
 
@@ -26,7 +26,7 @@ For advanced scenarios (worktrees, multi-repo coordination), see `.copilot/skill
 ❌ **THIS SKILL DOES NOT COVER:**
 - Worktree-based parallel work (see `git-workflow` skill)
 - Multi-repo coordinated PRs (see `git-workflow` skill)
-- Release process / publishing (see `.squad/skills/release-process`)
+- Release process / publishing (see `.crew/skills/release-process`)
 - Reviewer lockout protocol (see `.copilot/skills/reviewer-protocol`)
 - Architectural or security review checklists
 
@@ -38,17 +38,17 @@ For advanced scenarios (worktrees, multi-repo coordination), see `.copilot/skill
 
 1. **Read the issue.** Understand the acceptance criteria before writing code.
 
-2. **Confirm capability fit.** Check your capability profile in `.squad/team.md`. 🟢 = proceed. 🟡 = proceed but flag in PR. 🔴 = comment on issue and stop.
+2. **Confirm capability fit.** Check your capability profile in `.crew/team.md`. 🟢 = proceed. 🟡 = proceed but flag in PR. 🔴 = comment on issue and stop.
 
 3. **Branch from dev:**
    ```bash
    git fetch origin dev
    git checkout dev
    git rebase origin/dev
-   git checkout -b squad/{issue-number}-{slug}
+   git checkout -b crew/{issue-number}-{slug}
    ```
-   - Branch name format: `squad/{issue-number}-{kebab-case-slug}`
-   - Example: `squad/42-fix-login-validation`
+   - Branch name format: `crew/{issue-number}-{kebab-case-slug}`
+   - Example: `crew/42-fix-login-validation`
    - **Never** branch from `main`
 
 4. **Mark in-progress** (optional):
@@ -109,7 +109,7 @@ For advanced scenarios (worktrees, multi-repo coordination), see `.copilot/skill
    - **Never** use `git reset --soft` to squash — it picks up delta from dev and contaminates the commit
 
 8. **Add changeset (if required):**
-   A changeset is required when your PR modifies files under `packages/squad-sdk/src/` or `packages/squad-cli/src/`.
+   A changeset is required when your PR modifies files under `packages/crew-sdk/src/` or `packages/crew-cli/src/`.
 
    ```bash
    npx changeset add
@@ -119,7 +119,7 @@ For advanced scenarios (worktrees, multi-repo coordination), see `.copilot/skill
    Or create manually at `.changeset/{descriptive-name}.md`:
    ```markdown
    ---
-   '@bradygaster/squad-cli': patch
+   '@blacklite/crew-cli': patch
    ---
 
    Brief description of the change
@@ -133,12 +133,12 @@ For advanced scenarios (worktrees, multi-repo coordination), see `.copilot/skill
 
 1. **Push:**
    ```bash
-   git push -u origin squad/{issue-number}-{slug}
+   git push -u origin crew/{issue-number}-{slug}
    ```
 
 2. **Create PR targeting dev:**
    ```bash
-   gh pr create --repo bradygaster/squad --base dev \
+   gh pr create --repo Blacklite/crew --base dev \
      --title "fix: brief description (#issue-number)" \
      --body "Closes #{issue-number}
 
@@ -159,7 +159,7 @@ For advanced scenarios (worktrees, multi-repo coordination), see `.copilot/skill
 
 4. **Labels:**
    - `fix`, `feat`, `docs`, or `repo-health` for type
-   - `squad:{agent-name}` if working as a squad member
+   - `crew:{agent-name}` if working as a crew member
    - `skip-changelog` only with reviewer approval (escape hatch)
 
 5. **Scope rules by label:**
@@ -212,7 +212,7 @@ An automated readiness check runs on every push and posts a checklist comment on
 
 | | |
 |---|---|
-| **What** | PRs that modify `packages/squad-sdk/src/` or `packages/squad-cli/src/` must include a `.changeset/*.md` file or a `CHANGELOG.md` edit |
+| **What** | PRs that modify `packages/crew-sdk/src/` or `packages/crew-cli/src/` must include a `.changeset/*.md` file or a `CHANGELOG.md` edit |
 | **Pass** | Run `npx changeset add` and commit the generated file |
 | **Fix** | `npx changeset add` → select affected package(s) → select bump type → write summary → `git add .changeset/ && git commit --amend --no-edit && git push --force-with-lease` |
 | **Gotcha** | The `skip-changelog` label bypasses this check but requires reviewer approval. Non-source changes (docs, config, tests) don't need a changeset |
@@ -230,9 +230,9 @@ An automated readiness check runs on every push and posts a checklist comment on
 
 | | |
 |---|---|
-| **What** | Warns if PR includes `.squad/` or `docs/proposals/` files |
+| **What** | Warns if PR includes `.crew/` or `docs/proposals/` files |
 | **Pass** | Don't include team state or proposal files in product PRs |
-| **Fix** | Remove unintended files: `git reset HEAD .squad/ docs/proposals/` then amend your commit |
+| **Fix** | Remove unintended files: `git reset HEAD .crew/ docs/proposals/` then amend your commit |
 | **Gotcha** | This check is **informational only** — it always passes but flags attention. Including these files is OK if intentional (e.g., updating agent history) |
 
 #### Check 8: Copilot Threads Resolved
@@ -315,8 +315,8 @@ An automated readiness check runs on every push and posts a checklist comment on
    ```bash
    git checkout dev
    git pull origin dev
-   git branch -d squad/{issue-number}-{slug}
-   git push origin --delete squad/{issue-number}-{slug}
+   git branch -d crew/{issue-number}-{slug}
+   git push origin --delete crew/{issue-number}-{slug}
    ```
 
 4. **Verify issue auto-close:**
@@ -332,7 +332,7 @@ An automated readiness check runs on every push and posts a checklist comment on
 ```bash
 # Branch
 git fetch origin dev && git checkout dev && git rebase origin/dev
-git checkout -b squad/610-fix-broken-link
+git checkout -b crew/610-fix-broken-link
 
 # Fix
 # ... edit docs/some-file.md ...
@@ -350,8 +350,8 @@ Closes #610
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 
 # Push and PR
-git push -u origin squad/610-fix-broken-link
-gh pr create --repo bradygaster/squad --base dev \
+git push -u origin crew/610-fix-broken-link
+gh pr create --repo Blacklite/crew --base dev \
   --title "docs: fix broken link (#610)" \
   --body "Closes #610"
 ```
@@ -361,21 +361,21 @@ gh pr create --repo bradygaster/squad --base dev \
 ```bash
 # Branch
 git fetch origin dev && git checkout dev && git rebase origin/dev
-git checkout -b squad/42-add-profile-api
+git checkout -b crew/42-add-profile-api
 
 # Implement
-# ... edit packages/squad-sdk/src/profile/index.ts ...
-# ... edit packages/squad-sdk/src/index.ts (re-export) ...
+# ... edit packages/crew-sdk/src/profile/index.ts ...
+# ... edit packages/crew-sdk/src/index.ts (re-export) ...
 
 # Validate
 npm run build && npm test && npm run lint
 
-# Changeset (required — touches packages/squad-sdk/src/)
+# Changeset (required — touches packages/crew-sdk/src/)
 npx changeset add
-# Select: @bradygaster/squad-sdk, minor, "Add profile API"
+# Select: @blacklite/crew-sdk, minor, "Add profile API"
 
 # Stage and commit
-git add packages/squad-sdk/src/profile/index.ts packages/squad-sdk/src/index.ts .changeset/
+git add packages/crew-sdk/src/profile/index.ts packages/crew-sdk/src/index.ts .changeset/
 git diff --cached --stat                    # verify file count
 git diff --cached --diff-filter=D --name-only  # verify no deletions
 git commit -m "feat: add profile API
@@ -385,8 +385,8 @@ Closes #42
 Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
 
 # Push and PR
-git push -u origin squad/42-add-profile-api
-gh pr create --repo bradygaster/squad --base dev \
+git push -u origin crew/42-add-profile-api
+gh pr create --repo Blacklite/crew --base dev \
   --title "feat: add profile API (#42)" \
   --body "Closes #42
 
@@ -394,7 +394,7 @@ gh pr create --repo bradygaster/squad --base dev \
 Adds profile resolution API to the SDK.
 
 ## Changes
-- New module: packages/squad-sdk/src/profile/
+- New module: packages/crew-sdk/src/profile/
 - Re-exported from barrel file"
 ```
 
@@ -412,14 +412,14 @@ Adds profile resolution API to the SDK.
 - ❌ Skipping the changeset when source files changed (CI will fail)
 - ❌ Self-resolving Copilot threads without addressing the feedback
 - ❌ Pushing >1 commit without squashing (readiness check will flag it)
-- ❌ Including `.squad/` files in product PRs without intention (scope check warns)
+- ❌ Including `.crew/` files in product PRs without intention (scope check warns)
 - ❌ Mixing product and infrastructure changes in one PR (create separate PRs)
 
 ---
 
 ## Readiness Check Gaps & Recommendations
 
-After analyzing `.github/workflows/squad-ci.yml`, three gaps were identified. Gaps 1 and 3 are now implemented (checks 10 and 11). Gap 2 is deferred.
+After analyzing `.github/workflows/crew-ci.yml`, three gaps were identified. Gaps 1 and 3 are now implemented (checks 10 and 11). Gap 2 is deferred.
 
 ### Gap 1: Issue Linkage Check (Check 10) — IMPLEMENTED
 
@@ -460,7 +460,7 @@ export function checkIssueLinkage(prBody, commits) {
 
 ```javascript
 /** Minimum required check names that must appear for source PRs. */
-export const REQUIRED_CHECKS = ['Squad CI / test'];
+export const REQUIRED_CHECKS = ['Crew CI / test'];
 
 /**
  * Check: Required CI checks are present.
@@ -491,18 +491,18 @@ export function checkRequiredChecksPresent(checkRuns, files) {
 
 ### Gap 3: Protected File Change Detection (Check 11) — IMPLEMENTED
 
-**Problem:** The repo has zero-dependency bootstrap files that must never import external packages (documented in `copilot-instructions.md`). The `squad-repo-health.yml` workflow runs a bootstrap protection check, but the PR readiness comment doesn't surface it — contributors don't see the warning until they check the separate workflow.
+**Problem:** The repo has zero-dependency bootstrap files that must never import external packages (documented in `copilot-instructions.md`). The `crew-repo-health.yml` workflow runs a bootstrap protection check, but the PR readiness comment doesn't surface it — contributors don't see the warning until they check the separate workflow.
 
 **Recommendation:** Add `checkProtectedFiles(files)` to `pr-readiness.mjs` as an **informational** check (always passes, like scope clean).
 
 ```javascript
 /** Bootstrap files that must remain zero-dependency. */
 export const PROTECTED_FILES = [
-  'packages/squad-cli/src/cli/core/detect-squad-dir.ts',
-  'packages/squad-cli/src/cli/core/errors.ts',
-  'packages/squad-cli/src/cli/core/gh-cli.ts',
-  'packages/squad-cli/src/cli/core/output.ts',
-  'packages/squad-cli/src/cli/core/history-split.ts',
+  'packages/crew-cli/src/cli/core/detect-crew-dir.ts',
+  'packages/crew-cli/src/cli/core/errors.ts',
+  'packages/crew-cli/src/cli/core/gh-cli.ts',
+  'packages/crew-cli/src/cli/core/output.ts',
+  'packages/crew-cli/src/cli/core/history-split.ts',
 ];
 
 /**

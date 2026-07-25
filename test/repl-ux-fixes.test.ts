@@ -18,16 +18,16 @@ import { Text } from 'ink';
 import {
   buildCoordinatorPrompt,
   formatConversationContext,
-} from '@bradygaster/squad-cli/shell/coordinator';
-import type { CoordinatorConfig } from '@bradygaster/squad-cli/shell/coordinator';
+} from '@blacklite/crew-cli/shell/coordinator';
+import type { CoordinatorConfig } from '@blacklite/crew-cli/shell/coordinator';
 import {
   createSession,
   loadLatestSession,
   saveSession,
-} from '@bradygaster/squad-cli/shell/session-store';
-import type { SessionData } from '@bradygaster/squad-cli/shell/session-store';
-import { MessageStream } from '../packages/squad-cli/src/cli/shell/components/MessageStream.js';
-import type { ShellMessage, AgentSession } from '@bradygaster/squad-cli/shell/types';
+} from '@blacklite/crew-cli/shell/session-store';
+import type { SessionData } from '@blacklite/crew-cli/shell/session-store';
+import { MessageStream } from '../packages/crew-cli/src/cli/shell/components/MessageStream.js';
+import type { ShellMessage, AgentSession } from '@blacklite/crew-cli/shell/types';
 
 const h = React.createElement;
 
@@ -36,7 +36,7 @@ const h = React.createElement;
 // ============================================================================
 
 function makeTmpRoot(): string {
-  return mkdtempSync(join(tmpdir(), 'squad-ux-test-'));
+  return mkdtempSync(join(tmpdir(), 'crew-ux-test-'));
 }
 
 function makeMessage(overrides: Partial<ShellMessage> & { content: string; role: ShellMessage['role'] }): ShellMessage {
@@ -44,33 +44,33 @@ function makeMessage(overrides: Partial<ShellMessage> & { content: string; role:
 }
 
 function writeTeamMd(root: string): void {
-  const squadDir = join(root, '.squad');
-  mkdirSync(squadDir, { recursive: true });
-  writeFileSync(join(squadDir, 'team.md'), `# Squad Team — Test
+  const crewDir = join(root, '.crew');
+  mkdirSync(crewDir, { recursive: true });
+  writeFileSync(join(crewDir, 'team.md'), `# Crew Team — Test
 
 > A test team
 
 ## Members
 | Name | Role | Charter | Status |
 |------|------|---------|--------|
-| Fenster | Core Dev | \`.squad/agents/fenster/charter.md\` | ✅ Active |
-| Hockney | Tester | \`.squad/agents/hockney/charter.md\` | ✅ Active |
+| Fenster | Core Dev | \`.crew/agents/fenster/charter.md\` | ✅ Active |
+| Hockney | Tester | \`.crew/agents/hockney/charter.md\` | ✅ Active |
 `);
 }
 
 function writeRoutingMd(root: string): void {
-  const squadDir = join(root, '.squad');
-  mkdirSync(squadDir, { recursive: true });
-  writeFileSync(join(squadDir, 'routing.md'), `# Routing Rules
+  const crewDir = join(root, '.crew');
+  mkdirSync(crewDir, { recursive: true });
+  writeFileSync(join(crewDir, 'routing.md'), `# Routing Rules
 Route feature work to Fenster, testing to Hockney.
 `);
 }
 
 // ============================================================================
-// #596 — Init creates complete .squad/ directory
+// #596 — Init creates complete .crew/ directory
 // ============================================================================
 
-describe('#596 — Init creates complete .squad/ directory', () => {
+describe('#596 — Init creates complete .crew/ directory', () => {
   let tmpRoot: string;
 
   beforeEach(() => { tmpRoot = makeTmpRoot(); });
@@ -79,7 +79,7 @@ describe('#596 — Init creates complete .squad/ directory', () => {
   it('runInit creates all required directories and structural files', async () => {
     // runInit is the CLI init command — requires templates to exist.
     // Import and run it against a temp directory.
-    const { runInit } = await import('../packages/squad-cli/src/cli/core/init.js');
+    const { runInit } = await import('../packages/crew-cli/src/cli/core/init.js');
 
     // Suppress console output from init ceremony
     const origLog = console.log;
@@ -94,43 +94,43 @@ describe('#596 — Init creates complete .squad/ directory', () => {
       process.stdout.write = origWrite;
     }
 
-    // Verify .squad/ directory structure
-    const squadDir = join(tmpRoot, '.squad');
-    expect(existsSync(squadDir)).toBe(true);
+    // Verify .crew/ directory structure
+    const crewDir = join(tmpRoot, '.crew');
+    expect(existsSync(crewDir)).toBe(true);
 
     // Required directories
-    expect(existsSync(join(squadDir, 'decisions', 'inbox'))).toBe(true);
-    expect(existsSync(join(squadDir, 'orchestration-log'))).toBe(true);
-    expect(existsSync(join(squadDir, 'casting'))).toBe(true);
-    expect(existsSync(join(squadDir, 'plugins'))).toBe(true);
-    expect(existsSync(join(squadDir, 'identity'))).toBe(true);
+    expect(existsSync(join(crewDir, 'decisions', 'inbox'))).toBe(true);
+    expect(existsSync(join(crewDir, 'orchestration-log'))).toBe(true);
+    expect(existsSync(join(crewDir, 'casting'))).toBe(true);
+    expect(existsSync(join(crewDir, 'plugins'))).toBe(true);
+    expect(existsSync(join(crewDir, 'identity'))).toBe(true);
 
-    // Skills now live in .github/skills/ (not .squad/skills/)
+    // Skills now live in .github/skills/ (not .crew/skills/)
     expect(existsSync(join(tmpRoot, '.github', 'skills'))).toBe(true);
 
     // Required files
-    expect(existsSync(join(squadDir, 'ceremonies.md'))).toBe(true);
-    expect(existsSync(join(squadDir, 'identity', 'now.md'))).toBe(true);
-    expect(existsSync(join(squadDir, 'identity', 'wisdom.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'ceremonies.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'identity', 'now.md'))).toBe(true);
+    expect(existsSync(join(crewDir, 'identity', 'wisdom.md'))).toBe(true);
 
     // First-run marker
-    expect(existsSync(join(squadDir, '.first-run'))).toBe(true);
+    expect(existsSync(join(crewDir, '.first-run'))).toBe(true);
 
-    // .github/agents/squad.agent.md
-    expect(existsSync(join(tmpRoot, '.github', 'agents', 'squad.agent.md'))).toBe(true);
+    // .github/agents/crew.agent.md
+    expect(existsSync(join(tmpRoot, '.github', 'agents', 'crew.agent.md'))).toBe(true);
 
     // .gitattributes merge rules
     const gitattributes = readFileSync(join(tmpRoot, '.gitattributes'), 'utf-8');
-    expect(gitattributes).toContain('.squad/decisions.md merge=union');
-    expect(gitattributes).toContain('.squad/agents/*/history.md merge=union');
+    expect(gitattributes).toContain('.crew/decisions.md merge=union');
+    expect(gitattributes).toContain('.crew/agents/*/history.md merge=union');
 
     // .gitignore entries
     const gitignore = readFileSync(join(tmpRoot, '.gitignore'), 'utf-8');
-    expect(gitignore).toContain('.squad/orchestration-log/');
+    expect(gitignore).toContain('.crew/orchestration-log/');
   });
 
   it('creates decisions/inbox/ directory for decision drops', async () => {
-    const { runInit } = await import('../packages/squad-cli/src/cli/core/init.js');
+    const { runInit } = await import('../packages/crew-cli/src/cli/core/init.js');
     console.log = vi.fn();
     process.stdout.write = vi.fn().mockReturnValue(true) as any;
     try {
@@ -138,7 +138,7 @@ describe('#596 — Init creates complete .squad/ directory', () => {
     } finally {
       console.log = vi.restoreAllMocks() as any;
     }
-    expect(existsSync(join(tmpRoot, '.squad', 'decisions', 'inbox'))).toBe(true);
+    expect(existsSync(join(tmpRoot, '.crew', 'decisions', 'inbox'))).toBe(true);
   });
 });
 
@@ -152,24 +152,24 @@ describe('#597 — Coordinator prompt guards against missing team', () => {
   beforeEach(() => { tmpRoot = makeTmpRoot(); });
   afterEach(() => { rmSync(tmpRoot, { recursive: true, force: true }); });
 
-  it('prompt includes "squad init" guidance when team.md is missing', async () => {
+  it('prompt includes "crew init" guidance when team.md is missing', async () => {
     const config: CoordinatorConfig = {
       teamRoot: tmpRoot,
-      teamPath: join(tmpRoot, '.squad', 'team.md'),
+      teamPath: join(tmpRoot, '.crew', 'team.md'),
     };
     const prompt = await buildCoordinatorPrompt(config);
-    expect(prompt).toContain('squad init');
+    expect(prompt).toContain('crew init');
   });
 
-  it('prompt includes "squad init" when routing.md is also missing', async () => {
+  it('prompt includes "crew init" when routing.md is also missing', async () => {
     const config: CoordinatorConfig = {
       teamRoot: tmpRoot,
-      routingPath: join(tmpRoot, '.squad', 'routing.md'),
-      teamPath: join(tmpRoot, '.squad', 'team.md'),
+      routingPath: join(tmpRoot, '.crew', 'routing.md'),
+      teamPath: join(tmpRoot, '.crew', 'team.md'),
     };
     const prompt = await buildCoordinatorPrompt(config);
-    // Both missing — prompt should mention squad init for both
-    expect(prompt).toContain('squad init');
+    // Both missing — prompt should mention crew init for both
+    expect(prompt).toContain('crew init');
     // Team fallback text varies — may be "NO TEAM CONFIGURED" or "No team.md found"
     expect(prompt.includes('NO TEAM CONFIGURED') || prompt.includes('No team.md found')).toBe(true);
     expect(prompt).toContain('No routing.md found');
@@ -178,11 +178,11 @@ describe('#597 — Coordinator prompt guards against missing team', () => {
   it('does NOT include generic assistant behavior when team is missing', async () => {
     const config: CoordinatorConfig = {
       teamRoot: tmpRoot,
-      teamPath: join(tmpRoot, '.squad', 'team.md'),
+      teamPath: join(tmpRoot, '.crew', 'team.md'),
     };
     const prompt = await buildCoordinatorPrompt(config);
     // The prompt should still be the coordinator prompt, not a generic "I'm an assistant" fallback
-    expect(prompt).toContain('Squad Coordinator');
+    expect(prompt).toContain('Crew Coordinator');
     expect(prompt).toContain('route');
     expect(prompt).not.toContain('general-purpose assistant');
     expect(prompt).not.toContain('I am a helpful');
@@ -193,8 +193,8 @@ describe('#597 — Coordinator prompt guards against missing team', () => {
     writeRoutingMd(tmpRoot);
     const config: CoordinatorConfig = {
       teamRoot: tmpRoot,
-      teamPath: join(tmpRoot, '.squad', 'team.md'),
-      routingPath: join(tmpRoot, '.squad', 'routing.md'),
+      teamPath: join(tmpRoot, '.crew', 'team.md'),
+      routingPath: join(tmpRoot, '.crew', 'routing.md'),
     };
     const prompt = await buildCoordinatorPrompt(config);
     expect(prompt).toContain('Fenster');
@@ -217,7 +217,7 @@ describe('#598 — Banner renders exactly once', () => {
     const { lastFrame } = render(
       h('ink-box', { flexDirection: 'column' },
         h('ink-box', { gap: 1 },
-          h(Text, { bold: true, color: 'cyan' }, '◆ SQUAD'),
+          h(Text, { bold: true, color: 'cyan' }, '◆ CREW'),
           h(Text, { dimColor: true }, `v${testVersion}`),
         ),
       ) as any,
@@ -228,31 +228,31 @@ describe('#598 — Banner renders exactly once', () => {
     expect(matches).toHaveLength(1);
   });
 
-  it('"◆ SQUAD" header appears exactly once', () => {
+  it('"◆ CREW" header appears exactly once', () => {
     const { lastFrame } = render(
       h('ink-box', { flexDirection: 'column' },
         h('ink-box', { gap: 1 },
-          h(Text, { bold: true, color: 'cyan' }, '◆ SQUAD'),
+          h(Text, { bold: true, color: 'cyan' }, '◆ CREW'),
           h(Text, { dimColor: true }, 'v0.1.0'),
         ),
       ) as any,
     );
     const frame = lastFrame() ?? '';
-    const matches = frame.match(/◆ SQUAD/g);
+    const matches = frame.match(/◆ CREW/g);
     expect(matches).toHaveLength(1);
   });
 });
 
 // ============================================================================
-// #599 — Coordinator label is 'Squad' not 'coordinator'
+// #599 — Coordinator label is 'Crew' not 'coordinator'
 // ============================================================================
 
-describe('#599 — Coordinator label is "Squad" not "coordinator"', () => {
+describe('#599 — Coordinator label is "Crew" not "coordinator"', () => {
   it('coordinator messages display with agent name in MessageStream', () => {
     // When a coordinator message is shown, the label should be whatever
     // agentName is set to. Currently the code sets agentName: 'coordinator'.
     // This test asserts on the rendered output — if the fix changes
-    // the agentName to 'Squad', the test should pass.
+    // the agentName to 'Crew', the test should pass.
     const messages: ShellMessage[] = [
       makeMessage({ role: 'agent', agentName: 'coordinator', content: 'I routed your request.' }),
     ];
@@ -264,8 +264,8 @@ describe('#599 — Coordinator label is "Squad" not "coordinator"', () => {
       }),
     );
     const frame = lastFrame() ?? '';
-    // The message should display "Squad:" not "coordinator:"
-    expect(frame).toContain('Squad:');
+    // The message should display "Crew:" not "coordinator:"
+    expect(frame).toContain('Crew:');
     expect(frame).not.toContain('coordinator:');
   });
 
@@ -497,17 +497,17 @@ describe('#604 — Session resume skipped on first run', () => {
   beforeEach(() => { tmpRoot = makeTmpRoot(); });
   afterEach(() => { rmSync(tmpRoot, { recursive: true, force: true }); });
 
-  it('loadLatestSession returns null when .squad/team.md does not exist', () => {
-    // No .squad directory at all
+  it('loadLatestSession returns null when .crew/team.md does not exist', () => {
+    // No .crew directory at all
     const result = loadLatestSession(tmpRoot);
     expect(result).toBeNull();
   });
 
   it('session resume logic skips when team.md is absent', () => {
     // Emulate the gating logic from runShell:
-    //   const hasTeam = existsSync(join(teamRoot, '.squad', 'team.md'));
+    //   const hasTeam = existsSync(join(teamRoot, '.crew', 'team.md'));
     //   const recentSession = hasTeam ? loadLatestSession(teamRoot) : null;
-    const hasTeam = existsSync(join(tmpRoot, '.squad', 'team.md'));
+    const hasTeam = existsSync(join(tmpRoot, '.crew', 'team.md'));
     expect(hasTeam).toBe(false);
     const recentSession = hasTeam ? loadLatestSession(tmpRoot) : null;
     expect(recentSession).toBeNull();
@@ -521,12 +521,12 @@ describe('#604 — Session resume skipped on first run', () => {
     saveSession(tmpRoot, session);
 
     // Simulate first run marker
-    const firstRunPath = join(tmpRoot, '.squad', '.first-run');
+    const firstRunPath = join(tmpRoot, '.crew', '.first-run');
     writeFileSync(firstRunPath, new Date().toISOString() + '\n');
 
     // Emulate runShell gating logic:
-    const hasTeam = existsSync(join(tmpRoot, '.squad', 'team.md'));
-    const isFirstRun = existsSync(join(tmpRoot, '.squad', '.first-run'));
+    const hasTeam = existsSync(join(tmpRoot, '.crew', 'team.md'));
+    const isFirstRun = existsSync(join(tmpRoot, '.crew', '.first-run'));
     const recentSession = (hasTeam && !isFirstRun) ? loadLatestSession(tmpRoot) : null;
     expect(hasTeam).toBe(true);
     expect(isFirstRun).toBe(true);
@@ -540,8 +540,8 @@ describe('#604 — Session resume skipped on first run', () => {
     session.messages.push(makeMessage({ role: 'user', content: 'previous session' }));
     saveSession(tmpRoot, session);
 
-    const hasTeam = existsSync(join(tmpRoot, '.squad', 'team.md'));
-    const isFirstRun = existsSync(join(tmpRoot, '.squad', '.first-run'));
+    const hasTeam = existsSync(join(tmpRoot, '.crew', 'team.md'));
+    const isFirstRun = existsSync(join(tmpRoot, '.crew', '.first-run'));
     const recentSession = (hasTeam && !isFirstRun) ? loadLatestSession(tmpRoot) : null;
     expect(hasTeam).toBe(true);
     expect(isFirstRun).toBe(false);
@@ -561,14 +561,14 @@ describe('#603 — Init prompt gates when no team', () => {
   afterEach(() => { rmSync(tmpRoot, { recursive: true, force: true }); });
 
   it('loadWelcomeData returns null when team.md does not exist', async () => {
-    const { loadWelcomeData } = await import('../packages/squad-cli/src/cli/shell/lifecycle.js');
+    const { loadWelcomeData } = await import('../packages/crew-cli/src/cli/shell/lifecycle.js');
     const result = loadWelcomeData(tmpRoot);
     expect(result).toBeNull();
   });
 
   it('loadWelcomeData returns data when team.md exists', async () => {
     writeTeamMd(tmpRoot);
-    const { loadWelcomeData } = await import('../packages/squad-cli/src/cli/shell/lifecycle.js');
+    const { loadWelcomeData } = await import('../packages/crew-cli/src/cli/shell/lifecycle.js');
     const result = loadWelcomeData(tmpRoot);
     expect(result).not.toBeNull();
     expect(result!.agents.length).toBeGreaterThan(0);
@@ -576,9 +576,9 @@ describe('#603 — Init prompt gates when no team', () => {
 
   it('/init, /help, /exit commands work without team context', async () => {
     // Slash commands are handled by executeCommand — they don't require team.md
-    const { executeCommand } = await import('../packages/squad-cli/src/cli/shell/commands.js');
-    const { SessionRegistry } = await import('../packages/squad-cli/src/cli/shell/sessions.js');
-    const { ShellRenderer } = await import('../packages/squad-cli/src/cli/shell/render.js');
+    const { executeCommand } = await import('../packages/crew-cli/src/cli/shell/commands.js');
+    const { SessionRegistry } = await import('../packages/crew-cli/src/cli/shell/sessions.js');
+    const { ShellRenderer } = await import('../packages/crew-cli/src/cli/shell/render.js');
 
     const registry = new SessionRegistry();
     const renderer = new ShellRenderer();
@@ -612,7 +612,7 @@ describe('#603 — Init prompt gates when no team', () => {
   });
 
   it('coordinator dispatch requires team context (parseInput routes to coordinator)', async () => {
-    const { parseInput } = await import('../packages/squad-cli/src/cli/shell/router.js');
+    const { parseInput } = await import('../packages/crew-cli/src/cli/shell/router.js');
 
     // When no agents are registered, all free-text input routes to coordinator
     const result = parseInput('build the feature', []);
@@ -628,14 +628,14 @@ describe('#603 — Init prompt gates when no team', () => {
     // The App component checks for onDispatch — when SDK not connected or
     // team absent, onDispatch is undefined and shows an error message.
     // We test the gating logic: no team.md → loadWelcomeData returns null.
-    const hasTeam = existsSync(join(tmpRoot, '.squad', 'team.md'));
+    const hasTeam = existsSync(join(tmpRoot, '.crew', 'team.md'));
     expect(hasTeam).toBe(false);
 
-    // ShellLifecycle.initialize() throws when .squad/ doesn't exist
+    // ShellLifecycle.initialize() throws when .crew/ doesn't exist
     // This is the gate that prevents dispatch
-    const { ShellLifecycle } = await import('../packages/squad-cli/src/cli/shell/lifecycle.js');
-    const { SessionRegistry } = await import('../packages/squad-cli/src/cli/shell/sessions.js');
-    const { ShellRenderer } = await import('../packages/squad-cli/src/cli/shell/render.js');
+    const { ShellLifecycle } = await import('../packages/crew-cli/src/cli/shell/lifecycle.js');
+    const { SessionRegistry } = await import('../packages/crew-cli/src/cli/shell/sessions.js');
+    const { ShellRenderer } = await import('../packages/crew-cli/src/cli/shell/render.js');
 
     const lifecycle = new ShellLifecycle({
       teamRoot: tmpRoot,
@@ -643,7 +643,7 @@ describe('#603 — Init prompt gates when no team', () => {
       registry: new SessionRegistry(),
     });
 
-    await expect(lifecycle.initialize()).rejects.toThrow(/squad init/i);
+    await expect(lifecycle.initialize()).rejects.toThrow(/crew init/i);
   });
 });
 
@@ -677,7 +677,7 @@ describe('Round 2 REPL UX fixes', () => {
       // which feeds into appendMessages → setMessages, NOT setArchivedMessages.
       // archivedMessages only grows when MemoryManager trims overflow.
       // Verify MemoryManager's trimWithArchival preserves all when under cap.
-      const { MemoryManager } = await import('../packages/squad-cli/src/cli/shell/memory.js');
+      const { MemoryManager } = await import('../packages/crew-cli/src/cli/shell/memory.js');
       const mm = new MemoryManager({ maxMessages: 200 });
       const msgs: ShellMessage[] = Array.from({ length: 5 }, (_, i) =>
         makeMessage({ role: 'user', content: `msg-${i}` }),
@@ -688,7 +688,7 @@ describe('Round 2 REPL UX fixes', () => {
     });
 
     it('MemoryManager archives overflow messages on session restore flood', async () => {
-      const { MemoryManager } = await import('../packages/squad-cli/src/cli/shell/memory.js');
+      const { MemoryManager } = await import('../packages/crew-cli/src/cli/shell/memory.js');
       const mm = new MemoryManager({ maxMessages: 3 });
       const msgs: ShellMessage[] = Array.from({ length: 10 }, (_, i) =>
         makeMessage({ role: 'user', content: `restored-${i}` }),
@@ -708,9 +708,9 @@ describe('Round 2 REPL UX fixes', () => {
     beforeEach(() => { tmpRoot = makeTmpRoot(); });
     afterEach(() => { rmSync(tmpRoot, { recursive: true, force: true }); });
 
-    it('when rosterAgents.length === 0 AND isFirstRun, banner should NOT show "Your squad is assembled"', () => {
+    it('when rosterAgents.length === 0 AND isFirstRun, banner should NOT show "Your crew is assembled"', () => {
       // Simulates App logic: isFirstRun true but agents = []
-      // Lines 302-313: rosterAgents.length > 0 gates "Your squad is assembled"
+      // Lines 302-313: rosterAgents.length > 0 gates "Your crew is assembled"
       const rosterAgents: Array<{ name: string; role: string; emoji: string }> = [];
       const isFirstRun = true;
       const bannerReady = true;
@@ -720,7 +720,7 @@ describe('Round 2 REPL UX fixes', () => {
       expect(showAssembled).toBe(false);
     });
 
-    it('when rosterAgents.length > 0 AND isFirstRun, banner SHOULD show "Your squad is assembled"', () => {
+    it('when rosterAgents.length > 0 AND isFirstRun, banner SHOULD show "Your crew is assembled"', () => {
       const rosterAgents = [{ name: 'Fenster', role: 'Core Dev', emoji: '🔧' }];
       const isFirstRun = true;
       const bannerReady = true;
@@ -796,14 +796,14 @@ describe('Round 2 REPL UX fixes', () => {
       // Help text is always rendered (line 299)
       const helpText = compact
         ? '/help - Ctrl+C exit'
-        : 'Just type what you need — Squad routes it - @Agent to direct - /help - Ctrl+C exit';
+        : 'Just type what you need — Crew routes it - @Agent to direct - /help - Ctrl+C exit';
       expect(helpText).toBe('/help - Ctrl+C exit');
       expect(helpText.length).toBeGreaterThan(0);
     });
 
     it('spacing elements always render regardless of terminal width', () => {
       // In both compact and non-compact, bannerReady always renders help text (line 299).
-      // The "◆ SQUAD" title and version always render (lines 273-274).
+      // The "◆ CREW" title and version always render (lines 273-274).
       const widths = [30, 40, 60, 80, 120, 200];
       for (const w of widths) {
         const compact = w <= 60;
@@ -813,7 +813,7 @@ describe('Round 2 REPL UX fixes', () => {
         // Help text always present (line 299)
         const helpText = compact
           ? '/help - Ctrl+C exit'
-          : 'Just type what you need — Squad routes it - @Agent to direct - /help - Ctrl+C exit';
+          : 'Just type what you need — Crew routes it - @Agent to direct - /help - Ctrl+C exit';
         expect(helpText.length).toBeGreaterThan(0);
       }
     });
@@ -822,7 +822,7 @@ describe('Round 2 REPL UX fixes', () => {
       // Compact help text: '/help - Ctrl+C exit' (line 299)
       // Wide help text: full string — both are complete, not truncated
       const compactHelp = '/help - Ctrl+C exit';
-      const fullHelp = 'Just type what you need — Squad routes it - @Agent to direct - /help - Ctrl+C exit';
+      const fullHelp = 'Just type what you need — Crew routes it - @Agent to direct - /help - Ctrl+C exit';
       // Both contain /help and Ctrl+C — no truncation
       expect(compactHelp).toContain('/help');
       expect(compactHelp).toContain('Ctrl+C');
@@ -839,7 +839,7 @@ describe('Round 2 REPL UX fixes', () => {
   // --------------------------------------------------------------------------
 
   describe('Coordinator label', () => {
-    it('MessageStream shows "Squad" not "Coordinator" for coordinator agent messages', () => {
+    it('MessageStream shows "Crew" not "Coordinator" for coordinator agent messages', () => {
       const messages: ShellMessage[] = [
         makeMessage({ role: 'agent', agentName: 'coordinator', content: 'Routing your request.' }),
       ];
@@ -851,11 +851,11 @@ describe('Round 2 REPL UX fixes', () => {
         }),
       );
       const frame = lastFrame() ?? '';
-      expect(frame).toContain('Squad:');
+      expect(frame).toContain('Crew:');
       expect(frame).not.toMatch(/\bcoordinator:/i);
     });
 
-    it('agent messages with agentName="coordinator" display as "Squad" in streaming content', () => {
+    it('agent messages with agentName="coordinator" display as "Crew" in streaming content', () => {
       const messages: ShellMessage[] = [];
       const streamMap = new Map<string, string>();
       streamMap.set('coordinator', 'Working on it...');
@@ -868,7 +868,7 @@ describe('Round 2 REPL UX fixes', () => {
         }),
       );
       const frame = lastFrame() ?? '';
-      expect(frame).toContain('Squad:');
+      expect(frame).toContain('Crew:');
       expect(frame).not.toMatch(/\bcoordinator:/i);
     });
 
@@ -885,7 +885,7 @@ describe('Round 2 REPL UX fixes', () => {
       );
       const frame = lastFrame() ?? '';
       expect(frame).toContain('Fenster:');
-      expect(frame).not.toContain('Squad:');
+      expect(frame).not.toContain('Crew:');
     });
   });
 
@@ -898,7 +898,7 @@ describe('Round 2 REPL UX fixes', () => {
     beforeEach(() => { tmpRoot = makeTmpRoot(); });
     afterEach(() => { rmSync(tmpRoot, { recursive: true, force: true }); });
 
-    it('empty roster shows actionable init guidance mentioning squad init', () => {
+    it('empty roster shows actionable init guidance mentioning crew init', () => {
       // App.tsx lines 294-296: when rosterAgents.length === 0, banner shows init guidance
       const rosterAgents: Array<{ name: string; role: string; emoji: string }> = [];
       const bannerReady = true;
@@ -906,24 +906,24 @@ describe('Round 2 REPL UX fixes', () => {
       const showInitGuidance = bannerReady && rosterAgents.length === 0;
       expect(showInitGuidance).toBe(true);
 
-      // The actual text mentions both 'squad init' and '/init'
-      const guidanceText = "  Exit and run 'squad init', or type /init to set up your team";
-      expect(guidanceText).toContain('squad init');
+      // The actual text mentions both 'crew init' and '/init'
+      const guidanceText = "  Exit and run 'crew init', or type /init to set up your team";
+      expect(guidanceText).toContain('crew init');
       expect(guidanceText).toContain('/init');
     });
 
-    it('coordinator prompt shows squad init guidance when team.md missing', async () => {
+    it('coordinator prompt shows crew init guidance when team.md missing', async () => {
       const config: CoordinatorConfig = {
         teamRoot: tmpRoot,
-        teamPath: join(tmpRoot, '.squad', 'team.md'),
+        teamPath: join(tmpRoot, '.crew', 'team.md'),
       };
       const prompt = await buildCoordinatorPrompt(config);
-      expect(prompt).toContain('squad init');
+      expect(prompt).toContain('crew init');
       expect(prompt).toContain('/init');
     });
 
     it('loadWelcomeData returns null (triggering init guidance) when no team.md', async () => {
-      const { loadWelcomeData } = await import('../packages/squad-cli/src/cli/shell/lifecycle.js');
+      const { loadWelcomeData } = await import('../packages/crew-cli/src/cli/shell/lifecycle.js');
       const result = loadWelcomeData(tmpRoot);
       expect(result).toBeNull();
     });

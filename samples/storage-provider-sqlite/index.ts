@@ -6,10 +6,10 @@
  * Keep DB after run:  npm run demo -- --keep
  */
 
-import { SQLiteStorageProvider } from '@bradygaster/squad-sdk';
+import { SQLiteStorageProvider } from '@blacklite/crew-sdk';
 import { existsSync, statSync, unlinkSync } from 'fs';
 
-const DB_PATH = './squad-demo.db';
+const DB_PATH = './crew-demo.db';
 const keepDb = process.argv.includes('--keep');
 
 function banner() {
@@ -37,7 +37,7 @@ async function main() {
     {
       path: 'team.md',
       content: [
-        '# Squad Team',
+        '# Crew Team',
         '',
         '| Member  | Role       |',
         '| ------- | ---------- |',
@@ -90,11 +90,11 @@ async function main() {
   // ── 3. List Directory ───────────────────────────────────────────────────
   section(3, 'List Directory');
 
-  // Write a nested config file to make squad/ listing interesting
-  await provider.write('squad/config.json', '{ "version": 1 }');
+  // Write a nested config file to make crew/ listing interesting
+  await provider.write('crew/config.json', '{ "version": 1 }');
 
-  const squadEntries = await provider.list('squad');
-  console.log(`squad/ entries: [${squadEntries.join(', ')}]`);
+  const crewEntries = await provider.list('crew');
+  console.log(`crew/ entries: [${crewEntries.join(', ')}]`);
 
   const agentsEntries = await provider.list('agents');
   console.log(`agents/ entries: [${agentsEntries.join(', ')}]`);

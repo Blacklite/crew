@@ -1,28 +1,28 @@
-# Squad on Private Repositories — Privacy & Security
+# Crew on Private Repositories — Privacy & Security
 
-**Try this to use Squad with enterprise:**
+**Try this to use Crew with enterprise:**
 ```
-Set up Squad for a private repo with GitHub Enterprise
+Set up Crew for a private repo with GitHub Enterprise
 ```
 
 **Try this to learn about data handling:**
 ```
-I need to know Squad's data security model
+I need to know Crew's data security model
 ```
 
-Squad runs entirely in your Copilot session. Nothing leaves your machine except what Copilot already does. Code stays local, no Squad-specific telemetry.
+Crew runs entirely in your Copilot session. Nothing leaves your machine except what Copilot already does. Code stays local, no Crew-specific telemetry.
 
 ---
 
-## 1. Where Squad Runs
+## 1. Where Crew Runs
 
-Squad runs entirely in your Copilot session. Nothing leaves your machine except what Copilot already does.
+Crew runs entirely in your Copilot session. Nothing leaves your machine except what Copilot already does.
 
 ---
 
-## 1. Where Squad Runs
+## 1. Where Crew Runs
 
-Squad is a **local agent** that runs in your GitHub Copilot CLI session. It doesn't phone home. It doesn't send data to a Squad server. It doesn't use external APIs.
+Crew is a **local agent** that runs in your GitHub Copilot CLI session. It doesn't phone home. It doesn't send data to a Crew server. It doesn't use external APIs.
 
 When you run:
 
@@ -30,19 +30,19 @@ When you run:
 copilot
 ```
 
-And select **Squad** from the `/agent` list (CLI) or `/agents` (VS Code), Squad runs **on your machine** using Copilot's infrastructure.
+And select **Crew** from the `/agent` list (CLI) or `/agents` (VS Code), Crew runs **on your machine** using Copilot's infrastructure.
 
 **What this means:**
 - Your code stays local
-- Squad sees what Copilot already sees (your repo, your files)
+- Crew sees what Copilot already sees (your repo, your files)
 - No additional data transmission beyond Copilot's standard operation
-- No Squad-specific telemetry or tracking
+- No Crew-specific telemetry or tracking
 
 ---
 
 ## 2. What's Stored in `.ai-team/`
 
-Squad writes everything to `.ai-team/` in your repository:
+Crew writes everything to `.ai-team/` in your repository:
 
 ```
 .ai-team/
@@ -110,10 +110,10 @@ No project-specific details. No code references. No file paths.
 
 ---
 
-## 5. Exporting Your Squad — What's Included
+## 5. Exporting Your Crew — What's Included
 
 ```bash
-squad export
+crew export
 ```
 
 The export includes:
@@ -125,7 +125,7 @@ The export includes:
 ✅ Histories — **with project-specific details removed**  
 ✅ Casting state (agent names, universe)
 
-**Squad strips project-specific info** from histories during export. What remains is **portable knowledge**:
+**Crew strips project-specific info** from histories during export. What remains is **portable knowledge**:
 
 - "Always validate input with Zod" ✅
 - "The API is at /server/routes/api.ts" ❌ (removed)
@@ -136,7 +136,7 @@ The export is **safe to share** with other projects or teammates, but **review i
 
 ## 6. Labels and Workflows Use Standard GitHub APIs
 
-Squad's GitHub Actions workflows (Ralph heartbeat, auto-assign) use GitHub's public APIs:
+Crew's GitHub Actions workflows (Ralph heartbeat, auto-assign) use GitHub's public APIs:
 
 - **Issue labeling** — uses the GitHub Issues API with your repo's auth token
 - **PR creation** — uses the GitHub Pull Requests API
@@ -148,15 +148,15 @@ No third-party services. No external webhooks. Just GitHub talking to GitHub.
 
 ---
 
-## 7. What Squad DOESN'T Do
+## 7. What Crew DOESN'T Do
 
-❌ Send code to a Squad server  
+❌ Send code to a Crew server  
 ❌ Use external APIs for processing  
 ❌ Transmit telemetry or usage data  
 ❌ Store your team's knowledge in a cloud service  
 ❌ Require an account or API key (beyond your GitHub Copilot license)
 
-Squad is **entirely local**. It's a GitHub Copilot agent, not a standalone service.
+Crew is **entirely local**. It's a GitHub Copilot agent, not a standalone service.
 
 ---
 
@@ -166,7 +166,7 @@ If your repository is private and you're security-conscious:
 
 - [ ] **Review `.ai-team/agents/*/history.md`** — make sure no secrets or sensitive details are logged
 - [ ] **Add `history.md` to `.gitignore`** if you don't want histories committed
-- [ ] **Review exports before sharing** — check `squad-export-*.zip` for project-specific details
+- [ ] **Review exports before sharing** — check `crew-export-*.zip` for project-specific details
 - [ ] **Audit `.ai-team/decisions.md`** — remove any decisions that reference internal systems or secrets
 - [ ] **Use GitHub token permissions wisely** — don't give Actions more permissions than needed
 - [ ] **Skills are public-safe** — feel free to share `.ai-team/skills/` publicly
@@ -207,9 +207,9 @@ If your repository is private and you're security-conscious:
 
 ## Tips
 
-- **Squad runs in Copilot, not on a remote server.** Your code stays on your machine.
+- **Crew runs in Copilot, not on a remote server.** Your code stays on your machine.
 - **Review histories before exporting.** They may contain project-specific details you don't want to share.
 - **Skills are generic by design.** They're safe to share publicly.
 - **Use `.gitignore` for sensitive files.** If you don't want histories committed, exclude them.
 - **GitHub Actions workflows use your repo's auth.** Make sure token permissions are scoped correctly.
-- **No external services.** Squad doesn't phone home or send telemetry.
+- **No external services.** Crew doesn't phone home or send telemetry.

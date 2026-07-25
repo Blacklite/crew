@@ -17,7 +17,7 @@ import {
   type PrReview,
   type PrCommit,
   type PrReworkResult,
-} from '@bradygaster/squad-sdk';
+} from '@blacklite/crew-sdk';
 
 // ---------------------------------------------------------------------------
 // calculatePrRework
@@ -296,7 +296,7 @@ function createSpyMeter(): SpyMeter {
 
 let spyMeter: SpyMeter;
 
-vi.mock('@bradygaster/squad-sdk/runtime/otel', () => ({
+vi.mock('@blacklite/crew-sdk/runtime/otel', () => ({
   getMeter: () => spyMeter,
 }));
 
@@ -322,9 +322,9 @@ describe('OTel Rework Metrics (#265)', () => {
 
     recordReworkMetrics(result);
 
-    const rate = getInstrument('squad.rework.rate');
-    const cycles = getInstrument('squad.rework.cycles');
-    const time = getInstrument('squad.rework.time_ms');
+    const rate = getInstrument('crew.rework.rate');
+    const cycles = getInstrument('crew.rework.cycles');
+    const time = getInstrument('crew.rework.time_ms');
 
     expect(rate.record).toHaveBeenCalledWith(33, { 'pr.number': 42, 'pr.author': 'alice' });
     expect(cycles.record).toHaveBeenCalledWith(2, { 'pr.number': 42, 'pr.author': 'alice' });
@@ -341,7 +341,7 @@ describe('OTel Rework Metrics (#265)', () => {
 
     recordReworkMetrics(result);
 
-    const time = getInstrument('squad.rework.time_ms');
+    const time = getInstrument('crew.rework.time_ms');
     expect(time.record).not.toHaveBeenCalled();
   });
 
@@ -360,10 +360,10 @@ describe('OTel Rework Metrics (#265)', () => {
 
     recordReworkSummary(summary);
 
-    const rate = getInstrument('squad.rework.rate');
-    const rejection = getInstrument('squad.rework.rejection_rate');
-    const cycles = getInstrument('squad.rework.cycles');
-    const time = getInstrument('squad.rework.time_ms');
+    const rate = getInstrument('crew.rework.rate');
+    const rejection = getInstrument('crew.rework.rejection_rate');
+    const cycles = getInstrument('crew.rework.cycles');
+    const time = getInstrument('crew.rework.time_ms');
 
     expect(rate.record).toHaveBeenCalledWith(22, { scope: 'summary' });
     expect(rejection.record).toHaveBeenCalledWith(40, { scope: 'summary' });
@@ -386,10 +386,10 @@ describe('OTel Rework Metrics (#265)', () => {
       totalReviews: 1, additions: 0, deletions: 0,
     });
 
-    expect(spyMeter.createGauge).toHaveBeenCalledWith('squad.rework.rate', expect.objectContaining({ unit: '%' }));
-    expect(spyMeter.createHistogram).toHaveBeenCalledWith('squad.rework.cycles', expect.any(Object));
-    expect(spyMeter.createGauge).toHaveBeenCalledWith('squad.rework.rejection_rate', expect.objectContaining({ unit: '%' }));
-    expect(spyMeter.createHistogram).toHaveBeenCalledWith('squad.rework.time_ms', expect.objectContaining({ unit: 'ms' }));
+    expect(spyMeter.createGauge).toHaveBeenCalledWith('crew.rework.rate', expect.objectContaining({ unit: '%' }));
+    expect(spyMeter.createHistogram).toHaveBeenCalledWith('crew.rework.cycles', expect.any(Object));
+    expect(spyMeter.createGauge).toHaveBeenCalledWith('crew.rework.rejection_rate', expect.objectContaining({ unit: '%' }));
+    expect(spyMeter.createHistogram).toHaveBeenCalledWith('crew.rework.time_ms', expect.objectContaining({ unit: 'ms' }));
   });
 
   it('_resetMetrics clears rework metric instances', () => {
@@ -410,7 +410,7 @@ describe('OTel Rework Metrics (#265)', () => {
       totalReviews: 1, additions: 0, deletions: 0,
     });
 
-    const rate = getInstrument('squad.rework.rate');
+    const rate = getInstrument('crew.rework.rate');
     expect(rate.record).toHaveBeenCalledTimes(1);
     expect(rate.record).toHaveBeenCalledWith(20, { 'pr.number': 2, 'pr.author': 'b' });
   });

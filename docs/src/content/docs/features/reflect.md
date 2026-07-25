@@ -5,7 +5,7 @@ description: Built-in skill that extracts HIGH/MED/LOW confidence patterns from 
 
 # Reflect — In-Session Learning Capture
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 The `reflect` skill is a built-in capability that turns every user correction into a learning opportunity. Agents invoke `reflect` after critical conversation moments — corrections, praise, edge-case discoveries — to capture patterns that prevent repeating mistakes across sessions.
 
@@ -15,12 +15,12 @@ It ships at `.copilot/skills/reflect/SKILL.md` and is automatically available to
 
 ## How it fits the memory architecture
 
-Squad has three layers for what agents know:
+Crew has three layers for what agents know:
 
 | Layer | Lifetime | Audience | Reflect's relationship |
 |-------|----------|----------|------------------------|
-| `.squad/agents/{name}/history.md` | Permanent | Owner agent + Scribe-propagated cross-updates | Reflect captures candidates; HIGH-confidence ones graduate here |
-| `.squad/decisions.md` | Permanent | All agents | Reflect surfaces candidates; lead promotes after review |
+| `.crew/agents/{name}/history.md` | Permanent | Owner agent + Scribe-propagated cross-updates | Reflect captures candidates; HIGH-confidence ones graduate here |
+| `.crew/decisions.md` | Permanent | All agents | Reflect surfaces candidates; lead promotes after review |
 | `reflect` skill | In-flight | Captured during the active session | Working memory for patterns not yet ready to commit |
 
 Workflow:
@@ -86,6 +86,6 @@ Reflect produces structured entries the lead or Scribe can review at session end
 
 ## See also
 
-- [Memory & Knowledge](/squad/docs/concepts/memory-and-knowledge/) — the three-layer model
-- [Directives](/squad/docs/features/directives/) — how the coordinator captures explicit team rules
-- [Error Recovery](/squad/docs/features/error-recovery/) — the companion skill for handling failures
+- [Memory & Knowledge](/crew/docs/concepts/memory-and-knowledge/) — the three-layer model
+- [Directives](/crew/docs/features/directives/) — how the coordinator captures explicit team rules
+- [Error Recovery](/crew/docs/features/error-recovery/) — the companion skill for handling failures

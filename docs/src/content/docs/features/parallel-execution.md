@@ -1,6 +1,6 @@
 # Parallel Execution
 
-> ⚠️ **Experimental** — Squad is alpha software. APIs, commands, and behavior may change between releases.
+> ⚠️ **Experimental** — Crew is alpha software. APIs, commands, and behavior may change between releases.
 
 
 **Try this to launch concurrent work streams:**
@@ -18,13 +18,13 @@ Work on issues #12, #15, and #18 at the same time
 Run at most 2 agents at once to save costs
 ```
 
-Squad launches independent work in parallel by default — multiple agents work simultaneously, no waiting. You control concurrency limits and can force sequential execution when needed.
+Crew launches independent work in parallel by default — multiple agents work simultaneously, no waiting. You control concurrency limits and can force sequential execution when needed.
 
 ---
 
 ## How Parallel Execution Works
 
-Squad runs agents in parallel whenever possible. The fan-out pattern launches all independent agents simultaneously, waits for results, then proceeds — no sequential bottlenecks unless data dependencies or reviewer gates require them.
+Crew runs agents in parallel whenever possible. The fan-out pattern launches all independent agents simultaneously, waits for results, then proceeds — no sequential bottlenecks unless data dependencies or reviewer gates require them.
 
 ## How Parallel Execution Works
 
@@ -85,7 +85,7 @@ Each step blocks until the previous completes.
 
 ## Eager Execution Philosophy
 
-Squad's default is **eager parallelism** — launch everything that can run, let the coordinator handle synchronization. Benefits:
+Crew's default is **eager parallelism** — launch everything that can run, let the coordinator handle synchronization. Benefits:
 
 - **Faster throughput** — No artificial sequencing.
 - **Better resource utilization** — Multiple agents saturate available compute.
@@ -127,7 +127,7 @@ This is a **sync gate** — the next step cannot proceed until the reviewer comp
 
 ## Parallel Execution Logs
 
-The coordinator logs parallel execution in `.squad/orchestration-log/`:
+The coordinator logs parallel execution in `.crew/orchestration-log/`:
 
 ```
 [2024-01-15 14:30:00] FAN-OUT: Spawning 4 agents (Backend, Frontend, Tester, DevRel)

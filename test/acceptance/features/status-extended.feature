@@ -1,15 +1,15 @@
 Feature: Status command extended
 
   Scenario: Status shows resolution details
-    Given the current directory has a ".squad" directory
-    When I run "squad status"
-    Then the output contains "Squad Status"
-    And the output contains "Active squad:"
+    Given the current directory has a ".crew" directory
+    When I run "crew status"
+    Then the output contains "Crew Status"
+    And the output contains "Active crew:"
     And the output contains "Path:"
     And the exit code is 0
 
-  Scenario: Status in directory without squad shows no active squad
-    Given a directory without a ".squad" directory
-    When I run "squad status" in the temp directory
-    Then the output does not contain "Active squad:  repo"
+  Scenario: Status in directory without crew shows no active crew
+    Given a directory without a ".crew" directory
+    When I run "crew status" in the temp directory
+    Then the output does not contain "Active crew:  repo"
     And the exit code is 0

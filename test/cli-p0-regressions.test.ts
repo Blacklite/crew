@@ -18,7 +18,7 @@ describe('P0 Bug Regressions', { timeout: 30_000 }, () => {
 
   // BUG-1: --version outputs bare semver (intentional per P0 UX decision)
   describe('BUG-1: --version bare semver', () => {
-    it('outputs bare semver without "squad" prefix', async () => {
+    it('outputs bare semver without "crew" prefix', async () => {
       harness = await TerminalHarness.spawnWithArgs(['--version']);
       await harness.waitForExit(15000);
 
@@ -27,7 +27,7 @@ describe('P0 Bug Regressions', { timeout: 30_000 }, () => {
 
       expect(lines.length).toBe(1);
       expect(lines[0]).toMatch(/^\d+\.\d+\.\d+/);
-      expect(lines[0]).not.toMatch(/^squad/);
+      expect(lines[0]).not.toMatch(/^crew/);
     });
 
     it('-v also outputs bare semver', async () => {
@@ -49,7 +49,7 @@ describe('P0 Bug Regressions', { timeout: 30_000 }, () => {
       const exitCode = harness.getExitCode();
 
       expect(exitCode).toBe(0);
-      expect(output).toContain('squad');
+      expect(output).toContain('crew');
       expect(output).toMatch(/Usage|help/i);
     });
 
@@ -61,7 +61,7 @@ describe('P0 Bug Regressions', { timeout: 30_000 }, () => {
       const exitCode = harness.getExitCode();
 
       expect(exitCode).toBe(0);
-      expect(output).toContain('squad');
+      expect(output).toContain('crew');
       expect(output).toMatch(/Usage|help/i);
     });
 
@@ -79,20 +79,20 @@ describe('P0 Bug Regressions', { timeout: 30_000 }, () => {
 
   // Error messages include remediation hints
   describe('Error messages have remediation hints', () => {
-    it('unknown command includes "squad help" hint', async () => {
+    it('unknown command includes "crew help" hint', async () => {
       harness = await TerminalHarness.spawnWithArgs(['nonexistent-command']);
       await harness.waitForExit(15000);
 
       const output = harness.captureFrame();
-      expect(output).toMatch(/squad help/i);
+      expect(output).toMatch(/crew help/i);
     });
 
-    it('unknown command includes "squad doctor" hint', async () => {
+    it('unknown command includes "crew doctor" hint', async () => {
       harness = await TerminalHarness.spawnWithArgs(['nonexistent-command']);
       await harness.waitForExit(15000);
 
       const output = harness.captureFrame();
-      expect(output).toMatch(/squad doctor/i);
+      expect(output).toMatch(/crew doctor/i);
     });
   });
 });
