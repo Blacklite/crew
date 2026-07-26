@@ -1,10 +1,8 @@
 {
   "mcpServers": {
     "crew_state": {
-      "command": "npx",
+      "command": "crew",
       "args": [
-        "-y",
-        "@blacklite/crew-cli@insider",
         "state-mcp"
       ],
       "env": {},

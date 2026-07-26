@@ -164,10 +164,10 @@ describe('CLI: init command', () => {
     expect(content).toContain('mcp-servers:');
     expect(content).toContain('  crew_state:');
     expect(content).toContain('    type: local');
-    // args may be pinned (`@blacklite/crew-cli@<version>`) or unpinned
-    // depending on whether getPackageVersion() resolved a real version at
-    // test time. Either shape is acceptable here.
-    expect(content).toMatch(/args:\s*\['-y',\s*'@blacklite\/crew-cli(@[^']+)?',\s*'state-mcp'\]/);
+    // crew_state launches the on-PATH `crew` CLI directly (`crew state-mcp`) —
+    // no npx bootstrap / version pinning.
+    expect(content).toContain('    command: crew');
+    expect(content).toMatch(/args:\s*\['state-mcp'\]/);
     expect(content).toContain('    tools: ["*"]');
     const frontmatterEnd = content.indexOf('\n---', 4);
     expect(frontmatterEnd).toBeGreaterThan(0);

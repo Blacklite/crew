@@ -397,7 +397,7 @@ export async function runInit(dest: string, options: RunInitOptions = {}): Promi
         // stale project-level entry left by the SDK init writer in
         // `.copilot/mcp-config.json`. No HOME modifications.
         try {
-          const mcpSpec = await resolveCrewStateMcpSpec(getPackageVersion());
+          const mcpSpec = resolveCrewStateMcpSpec();
           const rootResult = ensureCrewStateMcpInRoot(dest, getPackageVersion(), mcpSpec);
           if (rootResult.written) {
             success(`installed crew_state MCP server to .mcp.json (${describeMcpSpec(mcpSpec)}) — Copilot CLI will auto-load on next invocation`);
@@ -420,7 +420,7 @@ export async function runInit(dest: string, options: RunInitOptions = {}): Promi
   // for vanilla `crew init` (no --state-backend flag) so the crew_state
   // MCP entry is reachable regardless of init path. No HOME modifications.
   try {
-    const mcpSpec = await resolveCrewStateMcpSpec(version);
+    const mcpSpec = resolveCrewStateMcpSpec();
     const rootResult = ensureCrewStateMcpInRoot(dest, version, mcpSpec);
     if (rootResult.written) {
       success(`installed crew_state MCP server to .mcp.json (${describeMcpSpec(mcpSpec)}) — Copilot CLI will auto-load on next invocation`);

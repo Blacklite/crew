@@ -24,10 +24,9 @@ import {
 } from '../packages/crew-cli/src/cli/core/mcp-root.js';
 import type { CrewStateMcpSpec } from '../packages/crew-cli/src/cli/core/mcp-spec.js';
 
-const PINNED_SPEC: CrewStateMcpSpec = {
-  source: 'pinned',
-  command: 'npx',
-  args: ['-y', '@blacklite/crew-cli@0.9.6-preview.14', 'state-mcp'],
+const CREW_SPEC: CrewStateMcpSpec = {
+  command: 'crew',
+  args: ['state-mcp'],
 };
 
 describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () => {
@@ -42,14 +41,14 @@ describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () =
   });
 
   it('creates .mcp.json with the crew_state entry when missing', () => {
-    const result = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
+    const result = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', CREW_SPEC);
     expect(result.written).toBe(true);
     expect(result.key).toBe('crew_state');
     expect(result.path).toBe(getProjectMcpJsonPath(tmpProject));
 
     const parsed = JSON.parse(fs.readFileSync(result.path, 'utf8'));
-    expect(parsed.mcpServers.crew_state.command).toBe('npx');
-    expect(parsed.mcpServers.crew_state.args).toEqual(PINNED_SPEC.args);
+    expect(parsed.mcpServers.crew_state.command).toBe('crew');
+    expect(parsed.mcpServers.crew_state.args).toEqual(CREW_SPEC.args);
     expect(parsed.mcpServers.crew_state.tools).toEqual(['*']);
     expect(parsed.mcpServers.crew_state.env).toEqual({});
   });
@@ -70,20 +69,20 @@ describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () =
       ),
     );
 
-    const result = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
+    const result = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', CREW_SPEC);
     expect(result.written).toBe(true);
 
     const parsed = JSON.parse(fs.readFileSync(cfgPath, 'utf8'));
     expect(parsed.mcpServers.github).toEqual({ command: 'gh-mcp', args: ['--stdio'] });
     expect(parsed.mcpServers['custom-tool']).toEqual({ command: 'node', args: ['./tool.js'] });
-    expect(parsed.mcpServers.crew_state.command).toBe('npx');
+    expect(parsed.mcpServers.crew_state.command).toBe('crew');
   });
 
   it('refuses to overwrite malformed .mcp.json', () => {
     const cfgPath = getProjectMcpJsonPath(tmpProject);
     fs.writeFileSync(cfgPath, '{ this is : not json');
     expect(() =>
-      ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC),
+      ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', CREW_SPEC),
     ).toThrow(/Refusing to overwrite malformed/);
 
     // Original content untouched.
@@ -91,10 +90,10 @@ describe('iter-8 mcp-root: repo-root .mcp.json writer + project tombstone', () =
   });
 
   it('is idempotent — second call with same spec returns written=false', () => {
-    const first = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
+    const first = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', CREW_SPEC);
     expect(first.written).toBe(true);
 
-    const second = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', PINNED_SPEC);
+    const second = ensureCrewStateMcpInRoot(tmpProject, '0.9.6-preview.14', CREW_SPEC);
     expect(second.written).toBe(false);
   });
 

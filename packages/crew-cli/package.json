@@ -1,6 +1,6 @@
 {
   "name": "@blacklite/crew-cli",
-  "version": "0.11.0-build.1",
+  "version": "0.11.0-build.6",
   "description": "Crew CLI — Command-line interface for the Crew multi-agent runtime (fork of Squad), compatible with GitHub Copilot and Claude Code",
   "type": "module",
   "bin": {

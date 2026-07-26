@@ -1,104 +1,28 @@
 /**
  * Tests for the mcp-spec helper.
  *
- * Iter-7 simplified the resolver to 2 tiers:
- *   1. Pinned version published on npm  → npx -y <pkg>@<version>
- *   2. Anything else                     → npx -y <pkg>@insider
- *
- * The iter-6 local-install path and the hard-error fallback were deleted;
- * smoke data-30/data-32 confirmed `@insider` is always reachable in practice
- * and tier-3 never fired.
+ * The crew_state MCP server is launched via the on-PATH `crew` CLI as
+ * `crew state-mcp` — no npx bootstrap, no version pinning, no registry probe.
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
-vi.mock(
-  '../packages/crew-cli/src/cli/core/npm-registry.js',
-  () => ({
-    isCrewCliVersionPublished: vi.fn(),
-  }),
-);
+import { resolveCrewStateMcpSpec } from '../packages/crew-cli/src/cli/core/mcp-spec.js';
 
-import {
-  resolveCrewStateMcpSpec,
-  _resetMcpSpecCache,
-} from '../packages/crew-cli/src/cli/core/mcp-spec.js';
-import { isCrewCliVersionPublished } from '../packages/crew-cli/src/cli/core/npm-registry.js';
-
-const mockIsPublished = vi.mocked(isCrewCliVersionPublished);
-
-describe('resolveCrewStateMcpSpec (iter-7: 2-tier resolver)', () => {
-  beforeEach(() => {
-    mockIsPublished.mockReset();
-    _resetMcpSpecCache();
+describe('resolveCrewStateMcpSpec', () => {
+  it('launches the on-PATH crew CLI as `crew state-mcp`', () => {
+    const spec = resolveCrewStateMcpSpec();
+    expect(spec.command).toBe('crew');
+    expect(spec.args).toEqual(['state-mcp']);
   });
 
-  it('returns a pinned npx spec when the version is published on npm', async () => {
-    const spec = await resolveCrewStateMcpSpec('0.9.6-preview.42', {
-      publishedCheck: async () => true,
-    });
-    expect(spec.source).toBe('pinned');
-    expect(spec.command).toBe('npx');
-    expect(spec.args).toEqual([
-      '-y',
-      '@blacklite/crew-cli@0.9.6-preview.42',
-      'state-mcp',
-    ]);
-  });
-
-  it('falls back to @insider when the version is NOT published', async () => {
-    const spec = await resolveCrewStateMcpSpec('0.9.6-preview.99999', {
-      publishedCheck: async () => false,
-    });
-    expect(spec.source).toBe('insider');
-    expect(spec.command).toBe('npx');
-    expect(spec.args).toEqual(['-y', '@blacklite/crew-cli@insider', 'state-mcp']);
-  });
-
-  it('short-circuits the registry check for the placeholder 0.0.0 version (returns @insider)', async () => {
-    const spec = await resolveCrewStateMcpSpec('0.0.0', {
-      publishedCheck: async () => {
-        throw new Error('publishedCheck should not be called for 0.0.0');
-      },
-    });
-    expect(spec.source).toBe('insider');
-    expect(spec.args[1]).toBe('@blacklite/crew-cli@insider');
-  });
-
-  it('short-circuits the registry check for empty version (returns @insider)', async () => {
-    const spec = await resolveCrewStateMcpSpec('', {
-      publishedCheck: async () => {
-        throw new Error('publishedCheck should not be called for empty version');
-      },
-    });
-    expect(spec.source).toBe('insider');
-  });
-
-  it('never throws — always returns a usable spec (no hard-error tier in iter-7)', async () => {
-    const spec = await resolveCrewStateMcpSpec('0.9.6-preview.99999', {
-      publishedCheck: async () => false,
-    });
-    expect(spec).toBeDefined();
-    expect(spec.command).toBe('npx');
-  });
-
-  it('short-circuits for versions with build metadata (+ suffix) — returns @insider (#1204)', async () => {
-    const spec = await resolveCrewStateMcpSpec('0.10.0+local.1234', {
-      publishedCheck: async () => {
-        throw new Error('publishedCheck should not be called for build metadata version');
-      },
-    });
-    expect(spec.source).toBe('insider');
-    expect(spec.args[1]).toBe('@blacklite/crew-cli@insider');
-  });
-
-  it('uses the real npm-registry probe by default when publishedCheck is not injected', async () => {
-    mockIsPublished.mockResolvedValue(false);
-    const spec = await resolveCrewStateMcpSpec('0.9.6-preview.99999');
-    expect(mockIsPublished).toHaveBeenCalledWith('0.9.6-preview.99999');
-    expect(spec.source).toBe('insider');
+  it('returns a spec with no npx bootstrap / version pinning', () => {
+    const spec = resolveCrewStateMcpSpec();
+    expect(spec.command).not.toBe('npx');
+    expect(spec.args).not.toContain('-y');
+    expect(spec.args.join(' ')).not.toMatch(/@blacklite\/crew-cli/);
   });
 });
 

@@ -168,10 +168,10 @@ describe('CLI: upgrade command', () => {
     const upgraded = await readFile(agentPath, 'utf-8');
     expect(upgraded).toContain('mcp-servers:');
     expect(upgraded).toContain('  crew_state:');
-    // After MCP-BRIDGE-BROKEN fix the args MUST pin the CLI version so npx
-    // does not silently resolve to the npm `latest` dist-tag (which lacks the
-    // state-mcp command). Match a regex rather than literal version.
-    expect(upgraded).toMatch(/args: \['-y', '@blacklite\/crew-cli@[^']+', 'state-mcp'\]/);
+    // crew_state launches the on-PATH `crew` CLI directly (`crew state-mcp`) —
+    // no npx bootstrap / version pinning.
+    expect(upgraded).toContain('    command: crew');
+    expect(upgraded).toMatch(/args: \['state-mcp'\]/);
     expect(upgraded).toContain('  EXAMPLE-github:');
     expect(upgraded).toContain("    args: ['-y', '@anthropic/github-mcp-server']");
     expect(upgraded).toContain('      GITHUB_TOKEN: ${GITHUB_TOKEN}');

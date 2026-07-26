@@ -647,19 +647,14 @@ interface McpServerSpec {
   env?: Record<string, string>;
 }
 
-function buildMcpServerSpecs(isGitHub: boolean, cliVersion?: string): McpServerSpec[] {
-  // Pin the crew-cli package to the currently-installed CLI version so that
-  // `npx -y @blacklite/crew-cli state-mcp` does NOT silently resolve to the
-  // npm `latest` dist-tag (which may predate the `state-mcp` command and thus
-  // expose zero tools to Copilot — see MCP-BRIDGE-BROKEN root cause).
-  const pkgSpec = cliVersion && cliVersion !== '0.0.0'
-    ? `@blacklite/crew-cli@${cliVersion}`
-    : '@blacklite/crew-cli';
+function buildMcpServerSpecs(isGitHub: boolean, _cliVersion?: string): McpServerSpec[] {
+  // The crew_state MCP server is launched via the on-PATH `crew` CLI
+  // (`crew state-mcp`) — no npx bootstrap / version pinning.
   const servers: McpServerSpec[] = [
     {
       name: 'crew_state',
-      command: 'npx',
-      args: ['-y', pkgSpec, 'state-mcp'],
+      command: 'crew',
+      args: ['state-mcp'],
     },
   ];
 

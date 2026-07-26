@@ -1,6 +1,6 @@
 {
   "name": "@blacklite/crew-sdk",
-  "version": "0.11.0-build.1",
+  "version": "0.11.0-build.6",
   "description": "Crew SDK — Programmable multi-agent runtime for GitHub Copilot",
   "type": "module",
   "main": "./dist/index.js",

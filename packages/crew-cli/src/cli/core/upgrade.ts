@@ -46,26 +46,14 @@ export function isLocalOrUnpublishedVersion(version: string): boolean {
   return false;
 }
 
-function buildMcpServerSpecs(isGitHub: boolean, cliVersion?: string): McpServerSpec[] {
-  // Pin the crew-cli package to the currently-installed CLI version so that
-  // `npx -y @blacklite/crew-cli state-mcp` does NOT silently resolve to the
-  // npm `latest` dist-tag (which may predate the `state-mcp` command and thus
-  // expose zero tools to Copilot — see MCP-BRIDGE-BROKEN root cause).
-  //
-  // #1204: When the CLI is a local dev build or unpublished pre-release, fall
-  // back to the @insider dist-tag to avoid writing an unresolvable version
-  // string that breaks npx resolution at session start.
-  let pkgSpec: string;
-  if (!cliVersion || isLocalOrUnpublishedVersion(cliVersion)) {
-    pkgSpec = '@blacklite/crew-cli@insider';
-  } else {
-    pkgSpec = `@blacklite/crew-cli@${cliVersion}`;
-  }
+function buildMcpServerSpecs(isGitHub: boolean, _cliVersion?: string): McpServerSpec[] {
+  // The crew_state MCP server is launched via the on-PATH `crew` CLI
+  // (`crew state-mcp`) — no npx bootstrap / version pinning. See mcp-spec.ts.
   const servers: McpServerSpec[] = [
     {
       name: 'crew_state',
-      command: 'npx',
-      args: ['-y', pkgSpec, 'state-mcp'],
+      command: 'crew',
+      args: ['state-mcp'],
     },
   ];
 
@@ -877,7 +865,7 @@ async function runEnsureChecks(dest: string, templatesDir: string, filesUpdated:
   // git root looking for .mcp.json) and tombstone any stale project-level
   // entry left by older Crew versions in `.copilot/mcp-config.json`.
   // No HOME modifications.
-  const pinnedSpec = await resolveCrewStateMcpSpec(getPackageVersion());
+  const pinnedSpec = resolveCrewStateMcpSpec();
   try {
     const rootResult = ensureCrewStateMcpInRoot(dest, getPackageVersion(), pinnedSpec);
     if (rootResult.written) {
@@ -908,9 +896,7 @@ async function runEnsureChecks(dest: string, templatesDir: string, filesUpdated:
 
 /** Human-readable single-line description of an McpSpec for success() messages. */
 export function describeMcpSpec(spec: CrewStateMcpSpec): string {
-  // After iter-7 all specs are `npx -y <pkg@version-or-tag> state-mcp`.
-  const pkg = spec.args[1] ?? '<unknown>';
-  return spec.source === 'insider' ? `${pkg} (@insider fallback)` : pkg;
+  return [spec.command, ...spec.args].join(' ');
 }
 
 export function ensureMemoryGovernanceUpgradeDefaults(dest: string): string[] {

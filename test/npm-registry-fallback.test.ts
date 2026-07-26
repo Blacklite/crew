@@ -33,26 +33,12 @@ describe('npm-registry: isCrewCliVersionPublished', () => {
   });
 });
 
-describe('resolveCrewStateMcpSpec: chooses pinned or @insider fallback', () => {
-  beforeEach(() => {
-    _resetNpmRegistryCache();
-  });
-
-  it('falls back to @insider when version is empty / 0.0.0', async () => {
-    const spec = await resolveCrewStateMcpSpec('0.0.0');
+describe('resolveCrewStateMcpSpec: launches the on-PATH crew CLI', () => {
+  it('returns `crew state-mcp` with no registry probe or version pinning', () => {
+    const spec = resolveCrewStateMcpSpec();
     expect(spec).toEqual({
-      command: 'npx',
-      args: ['-y', '@blacklite/crew-cli@insider', 'state-mcp'],
-      source: 'insider',
-    });
-  });
-
-  it('falls back to @insider when version is not published on the registry', async () => {
-    const spec = await resolveCrewStateMcpSpec('999.999.999-not-a-real-version');
-    expect(spec).toEqual({
-      command: 'npx',
-      args: ['-y', '@blacklite/crew-cli@insider', 'state-mcp'],
-      source: 'insider',
+      command: 'crew',
+      args: ['state-mcp'],
     });
   });
 });
