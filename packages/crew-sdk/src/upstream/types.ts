@@ -23,13 +23,36 @@ export interface UpstreamSource {
   ref?: string;
   /** ISO timestamp of when this upstream was added. */
   added_at: string;
-  /** ISO timestamp of last successful sync/validation. */
-  last_synced: string | null;
+  /**
+   * ISO timestamp of last successful sync/validation.
+   *
+   * @deprecated Legacy field. Sync timestamps are mutable machine-local state and
+   * are no longer stored in the tracked `upstream.json` — writing them there made
+   * the file dirty on every sync (and `crew upstream sync` runs from the
+   * post-checkout/post-merge git hooks, so that was every pull and every branch
+   * switch). They now live in `.crew/_upstream_repos/.sync-state.json`, which is
+   * gitignored. Still read for backward compatibility: the CLI migrates this key
+   * out of `upstream.json` the next time an `upstream` command runs.
+   */
+  last_synced?: string | null;
 }
 
 /** The upstream.json config file format. */
 export interface UpstreamConfig {
   upstreams: UpstreamSource[];
+}
+
+/**
+ * Machine-local sync state, persisted to `.crew/_upstream_repos/.sync-state.json`.
+ *
+ * Kept out of `upstream.json` so the tracked config stays byte-stable across syncs.
+ * The `_upstream_repos/` directory is gitignored, so nothing here is ever committed.
+ */
+export interface UpstreamSyncState {
+  /** Schema version for this file. */
+  version: 1;
+  /** Upstream name → ISO timestamp of its last successful sync/validation. */
+  last_synced: Record<string, string>;
 }
 
 /** Resolved content from a single upstream source. */

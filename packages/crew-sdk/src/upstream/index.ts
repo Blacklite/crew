@@ -8,6 +8,7 @@ export type {
   UpstreamType,
   UpstreamSource,
   UpstreamConfig,
+  UpstreamSyncState,
   ResolvedUpstream,
   UpstreamResolution,
 } from './types.js';

@@ -143,6 +143,7 @@ crew upstream remove platform
 **What happens:**
 - Removes entry from `.crew/upstream.json`
 - Deletes cached clone from `.crew/_upstream_repos/{name}` if it exists
+- Drops the upstream's timestamp from `.crew/_upstream_repos/.sync-state.json`
 
 ### `crew upstream list`
 
@@ -187,7 +188,22 @@ crew upstream sync platform
 - For **git** sources: `git pull --ff-only` on the cached clone, or re-clones if needed
 - For **local** sources: validates that the path exists
 - For **export** sources: validates that the file exists
-- Updates `last_synced` timestamp in `upstream.json`
+- Records the sync timestamp in `.crew/_upstream_repos/.sync-state.json`
+
+:::note[Sync timestamps are not tracked in git]
+`upstream.json` is committed, so writing a timestamp into it on every sync left the
+working tree permanently dirty — and because `crew upstream sync` runs from the
+`post-checkout` and `post-merge` git hooks, that meant every pull and every branch
+switch produced a diff.
+
+Timestamps therefore live in `.crew/_upstream_repos/.sync-state.json`, alongside the
+cached clones in a directory crew already gitignores. `upstream.json` now holds only
+declared configuration and stays byte-stable across syncs.
+
+Repos created before this change still carry a `last_synced` key in `upstream.json`.
+The next `crew upstream` command of any kind migrates the value out automatically and
+rewrites the file once; commit that one-time cleanup diff and the churn stops.
+:::
 
 ## SDK API Reference
 
@@ -212,7 +228,9 @@ interface UpstreamSource {
   source: string;         // Path, URL, or export file location
   ref?: string;           // Git ref (only for type: "git")
   added_at: string;       // ISO timestamp
-  last_synced: string | null;  // Last successful sync
+
+  /** @deprecated Legacy — sync timestamps moved to UpstreamSyncState. */
+  last_synced?: string | null;
 }
 ```
 
@@ -223,6 +241,18 @@ The `upstream.json` file format:
 ```typescript
 interface UpstreamConfig {
   upstreams: UpstreamSource[];
+}
+```
+
+#### `UpstreamSyncState`
+
+Machine-local sync state, stored in the gitignored
+`.crew/_upstream_repos/.sync-state.json` so `upstream.json` stays byte-stable:
+
+```typescript
+interface UpstreamSyncState {
+  version: 1;
+  last_synced: Record<string, string>;  // upstream name → ISO timestamp
 }
 ```
 
