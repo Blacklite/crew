@@ -22,11 +22,25 @@ const BOLD = '\x1b[1m';
 const RESET = '\x1b[0m';
 
 const CREW_HOOK_MARKER = '# --- crew-sync-hook ---';
+/**
+ * Closing delimiter for the crew section of a hook file.
+ *
+ * Hooks installed before this marker existed only carry CREW_HOOK_MARKER; the
+ * crew section was always appended last, so `stripCrewSections` treats an
+ * unterminated section as running to end-of-file. That keeps `--force`
+ * reinstalls safe on hooks written by earlier versions.
+ */
+const CREW_HOOK_END_MARKER = '# --- /crew-sync-hook ---';
 
 /**
  * The shell script content for each hook.
- * These are minimal wrappers that call `crew sync`.
- * The CREW_SYNC_ACTIVE env guard prevents recursion.
+ *
+ * The sync hooks (pre-push / post-merge / post-rewrite / post-checkout) run git
+ * inline and export CREW_SYNC_ACTIVE so their own pushes/fetches cannot
+ * re-trigger hooks. post-commit is different: it shells out to `crew sync`,
+ * which owns that guard itself, so it must only read the variable, never set
+ * it. Every section is delimited by CREW_HOOK_MARKER / CREW_HOOK_END_MARKER so
+ * a forced reinstall can replace it in place.
  */
 const HOOK_TEMPLATES: Record<string, string> = {
   'pre-push': `#!/bin/sh
@@ -45,6 +59,7 @@ if [ -z "$CREW_SYNC_ACTIVE" ]; then
   git push --no-verify "$REMOTE" 'refs/notes/crew*:refs/notes/crew*' 2>/dev/null || true
   unset CREW_SYNC_ACTIVE
 fi
+${CREW_HOOK_END_MARKER}
 `,
   'post-merge': `#!/bin/sh
 ${CREW_HOOK_MARKER}
@@ -67,6 +82,7 @@ if [ -z "$CREW_SYNC_ACTIVE" ]; then
   git fetch "$REMOTE" '+refs/notes/crew*:refs/notes/crew*' 2>/dev/null || true
   unset CREW_SYNC_ACTIVE
 fi
+${CREW_HOOK_END_MARKER}
 `,
   'post-rewrite': `#!/bin/sh
 ${CREW_HOOK_MARKER}
@@ -86,6 +102,7 @@ if [ -z "$CREW_SYNC_ACTIVE" ]; then
   git fetch "$REMOTE" '+refs/notes/crew*:refs/notes/crew*' 2>/dev/null || true
   unset CREW_SYNC_ACTIVE
 fi
+${CREW_HOOK_END_MARKER}
 `,
   'post-checkout': `#!/bin/sh
 ${CREW_HOOK_MARKER}
@@ -106,16 +123,25 @@ if [ "\$3" = "1" ] && [ -z "$CREW_SYNC_ACTIVE" ]; then
   git fetch "$REMOTE" '+refs/notes/crew*:refs/notes/crew*' 2>/dev/null || true
   unset CREW_SYNC_ACTIVE
 fi
+${CREW_HOOK_END_MARKER}
 `,
   'pre-commit': `#!/bin/sh
 ${CREW_HOOK_MARKER}
 # WI-1: Guard against accidentally committing two-layer mutable state into the
 # working tree. If the user has staged any .crew/ paths that are owned by the
-# two-layer/orphan backend (decisions.md, agents/*/history.md, casting/, routing/),
-# warn and abort so the state stays on the crew-state orphan branch.
+# two-layer/orphan backend (decisions.md, agents/*/history.md), warn and abort
+# so the state stays on the crew-state orphan branch.
+#
+# The path set must match the crew-state .gitignore block written by
+# 'crew init' (see gitignore-state.ts). Notably it must NOT include
+# .crew/casting/* — casting is authoritative team *identity* (registry,
+# policy, history), it is committed to the default branch, and it has to be
+# readable at clone time, before any state hydration, or persistent agent
+# naming breaks. crew_state_write rejects casting keys for the same reason.
+# .crew/routing.md is static config and is likewise not two-layer state.
 # Installed by: crew init / crew upgrade --state-backend (two-layer/orphan)
 if [ -z "$CREW_SYNC_ACTIVE" ]; then
-  STAGED=$(git diff --cached --name-only 2>/dev/null | grep -E '^\\.crew/(decisions\\.md|agents/.+/history\\.md|casting/|routing/)' || true)
+  STAGED=$(git diff --cached --name-only 2>/dev/null | grep -E '^\\.crew/(decisions\\.md|agents/.+/history\\.md)' || true)
   if [ -n "$STAGED" ]; then
     echo "⚠ crew pre-commit: refusing to commit two-layer state into the working tree." >&2
     echo "  These paths belong on the 'crew-state' orphan branch, not in your normal commits:" >&2
@@ -124,21 +150,27 @@ if [ -z "$CREW_SYNC_ACTIVE" ]; then
     exit 1
   fi
 fi
+${CREW_HOOK_END_MARKER}
 `,
   'post-commit': `#!/bin/sh
 ${CREW_HOOK_MARKER}
-# WI-1: After a working-tree commit, sync any pending two-layer state (decisions,
-# histories, casting) onto the crew-state orphan branch so team-state stays
+# WI-1: After a working-tree commit, sync any pending two-layer state (decisions
+# and agent histories) onto the crew-state orphan branch so team-state stays
 # durable and shareable. Best-effort — never blocks the commit.
 # Installed by: crew init / crew upgrade --state-backend (two-layer/orphan)
+#
+# Unlike the sync hooks above, this hook does not run git itself — it shells out
+# to the crew CLI, which owns the CREW_SYNC_ACTIVE guard (see runSync() in
+# sync.ts: it early-returns when the variable is already set). Exporting the
+# variable here would therefore make the child 'crew sync' a silent no-op, so we
+# only *read* it as a re-entry guard and never set it.
 if [ -z "$CREW_SYNC_ACTIVE" ]; then
-  export CREW_SYNC_ACTIVE=1
   # If the crew CLI is on PATH, ask it to flush any pending state.
   if command -v crew >/dev/null 2>&1; then
     crew sync --quiet 2>/dev/null || true
   fi
-  unset CREW_SYNC_ACTIVE
 fi
+${CREW_HOOK_END_MARKER}
 `,
 };
 
@@ -170,10 +202,45 @@ function getHooksDir(cwd: string): string {
 }
 
 /**
+ * Remove every crew-installed section from an existing hook file, leaving any
+ * user (or husky) content untouched.
+ *
+ * A section runs from CREW_HOOK_MARKER to CREW_HOOK_END_MARKER inclusive.
+ * Sections written by versions that predate the end marker are unterminated;
+ * because the crew section was always appended last, an unterminated section
+ * is treated as running to end-of-file. Multiple sections are all removed,
+ * which cleans up hooks that a previous `--force` reinstall duplicated.
+ */
+export function stripCrewSections(existing: string): string {
+  const lines = existing.split('\n');
+  const kept: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line === undefined) continue;
+
+    if (line.trim() !== CREW_HOOK_MARKER) {
+      kept.push(line);
+      continue;
+    }
+
+    // Skip forward to the matching end marker (inclusive), or to EOF if this
+    // section was written before end markers existed.
+    let j = i + 1;
+    while (j < lines.length && lines[j]?.trim() !== CREW_HOOK_END_MARKER) j++;
+    i = j;
+  }
+
+  return kept.join('\n');
+}
+
+/**
  * Install a single hook, chaining with any existing hook.
  */
 function installHook(hooksDir: string, hookName: string, content: string, force: boolean): 'installed' | 'chained' | 'skipped' {
   const hookPath = path.join(hooksDir, hookName);
+  // The crew section is the template minus its #!/bin/sh line.
+  const crewSection = content.split('\n').slice(1).join('\n');
 
   // Check if hook already exists
   if (fs.existsSync(hookPath)) {
@@ -182,16 +249,23 @@ function installHook(hooksDir: string, hookName: string, content: string, force:
     // Already has our marker — skip unless force
     if (existing.includes(CREW_HOOK_MARKER)) {
       if (!force) return 'skipped';
-      // Force: remove old crew section and re-append
-      const cleaned = existing.split('\n').filter(line => {
-        // Remove lines between markers
-        return true; // simplified: just replace the file
-      }).join('\n');
-      // For simplicity on force, rewrite with chaining
+
+      // Force: replace the previously installed crew section(s) rather than
+      // appending a second one next to them.
+      const base = stripCrewSections(existing).trimEnd();
+      const userContent = base.replace(/^#!.*(\n|$)/, '').trim();
+
+      if (userContent.length === 0) {
+        // Nothing but a crew section (plus maybe a shebang) was in the file.
+        fs.writeFileSync(hookPath, content, { mode: 0o755 });
+        return 'installed';
+      }
+
+      fs.writeFileSync(hookPath, base + '\n\n' + crewSection, { mode: 0o755 });
+      return 'chained';
     }
 
     // Chain: existing hook runs first, then crew hook (without shebang)
-    const crewSection = content.split('\n').slice(1).join('\n'); // remove #!/bin/sh
     const chained = existing.trimEnd() + '\n\n' + crewSection;
     fs.writeFileSync(hookPath, chained, { mode: 0o755 });
     return 'chained';
