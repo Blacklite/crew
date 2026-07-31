@@ -3,6 +3,8 @@
  * Typed configuration interface for Crew teams
  */
 
+import type { CostPolicyConfig } from './models.js';
+
 export interface CrewConfig {
   version: string;
   team: TeamConfig;
@@ -67,6 +69,8 @@ export interface ModelConfig {
   agentReasoningEffortOverrides?: Record<string, string>;
   agentContextTierOverrides?: Record<string, string>;
   taskTypeMapping?: Record<string, string>;
+  /** Cost-ceiling policy (cost axis, separate from tier). Issue #1080/#1183. */
+  costPolicy?: CostPolicyConfig;
 }
 
 export interface HooksConfig {

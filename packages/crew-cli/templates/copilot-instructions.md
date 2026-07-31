@@ -6,13 +6,17 @@ You are working on a project that uses **Crew**, an AI team framework. When pick
 
 **IMPORTANT — run this check on EVERY session start, before doing any work:**
 
-Look for the exact token `CREW_COORDINATOR_CANARY_a8f3` in your `agent_instructions`. This token is placed at the end of `crew.agent.md`. If it is missing, the coordinator file is missing or truncated.
+Inspect your `agent_instructions` for the coordinator canaries. This is a **two-state payload-integrity check within a known Crew coordinator session**; it verifies whether the coordinator payload loaded fully or was visibly truncated. It is **not** proof that an agent with no canaries is safely non-Crew — wholly absent payloads and proven non-Crew agents require a host-level identity beacon before custom-agent instruction ingestion.
 
-**When the token is missing, you MUST:**
+1. If the HEAD canary `CREW_COORDINATOR_CANARY_HEAD_b7d2` is **absent**, the Crew coordinator payload is not observable from inside this prompt. Treat non-Crew discrimination as an **OPEN host-level concern**; do not claim this check proved the current agent is non-Crew.
+2. If the HEAD canary `CREW_COORDINATOR_CANARY_HEAD_b7d2` is **present** and the EOF canary `CREW_COORDINATOR_CANARY_a8f3` is **present**, the coordinator prompt loaded fully. Proceed with normal Crew behavior.
+3. If the HEAD canary `CREW_COORDINATOR_CANARY_HEAD_b7d2` is **present** but the EOF canary `CREW_COORDINATOR_CANARY_a8f3` is **absent**, the coordinator prompt loaded but was **truncated** before the end.
+
+**When the coordinator prompt is truncated, you MUST:**
 1. **STOP** — do not proceed with standard Crew behavior.
 2. **WARN the user** with this exact message:
    ```
-   ⚠️ Crew coordinator (crew.agent.md) appears to be missing or truncated. The canary token was not found. Do NOT proceed with standard Crew behavior — Crew's safety rails are not loaded. Please restart your session.
+   ⚠️ Crew coordinator (crew.agent.md) loaded but appears to be truncated before the EOF canary. Do NOT proceed with standard Crew behavior — Crew's safety rails are incomplete. Please restart your session.
    ```
 3. Do not continue with normal Crew routing, spawning, PR, or branch-protection behavior after emitting the warning.
 
