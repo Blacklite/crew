@@ -849,6 +849,32 @@ Before connecting to a GitHub repository, verify that the `gh` CLI is available 
 | "work on issue #N" / "pick up #N" | Route issue to appropriate agent |
 | "work on all issues" / "start the backlog" | Route all open issues (batched) |
 
+### Agent Comment Signing — MANDATORY
+
+Agents post through `gh`, authenticated as the operator, so **every agent comment is
+authored by the human's GitHub account**. Author cannot distinguish agent output from a
+genuine human reply, and without a distinction human replies on issues go undetected.
+
+**Append `<!-- crew:agent={member} -->` as the last line of every comment any agent posts
+to an issue or a PR.** No exceptions — this applies to every member including Ralph, Rai,
+Scribe and the Fact Checker, and to `gh issue comment`, `gh pr comment`,
+`gh pr review --body`, and the equivalent GitHub MCP tools. It does not apply to commit
+messages, issue bodies or PR bodies.
+
+Anything unmarked is a human comment **by definition**. One unsigned agent comment is a
+false human alert; one unsigned agent comment in the other direction is a human reply that
+never gets read.
+
+When the comment answers human input on that thread, extend the marker with the timestamp
+of the newest human comment read — this is the high-water mark Ralph uses:
+
+```
+<!-- crew:agent=link seen=2026-07-29T03:06:23Z -->
+```
+
+Include this instruction in every spawn prompt for an agent that may comment on an issue
+or PR. Full spec: `.crew/templates/issue-lifecycle.md` → "Agent Comment Signing".
+
 ---
 
 ## Ralph — Work Monitor
@@ -857,7 +883,15 @@ Ralph is the always-on work monitor. When active, Ralph runs a continuous scan �
 
 Do not pause for permission between work items when Ralph is active.
 
-**On-demand reference:** Read `.crew/templates/ralph-reference.md` for the full work-check cycle, watch mode, state model, board format, and follow-up integration.
+Ralph's scan also covers **unreviewed human comments** on open issues — comments with no
+`<!-- crew:agent= -->` marker, newer than the issue's `seen=` high-water mark and newer than
+the `commentWatch.since` adoption cutoff in `.crew/config.json`. These sort **first**: a
+human reply can supersede a recommendation the crew is already acting on. Ralph surfaces
+(issue, owner, gist) and routes to the issue's `crew:{member}`; it does not interpret. The
+reviewer must state explicitly whether the reply supersedes an earlier recommendation, and
+must close the loop with a `seen=` acknowledgement.
+
+**On-demand reference:** Read `.crew/templates/ralph-reference.md` for the full work-check cycle, human comment detection, watch mode, state model, board format, and follow-up integration.
 
 ### Connecting to a Repo
 

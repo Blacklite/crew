@@ -44,6 +44,8 @@ gh pr list --state open --json number,title,author,labels,isDraft,reviewDecision
 
 # Draft PRs (agent work in progress)
 gh pr list --state open --draft --json number,title,author,labels,checks --limit 20
+
+# Unreviewed human comments on open issues (see "Human Comment Detection" below)
 ```
 
 **Step 2 — Categorize findings:**
@@ -51,6 +53,7 @@ gh pr list --state open --draft --json number,title,author,labels,checks --limit
 | Category | Signal | Action |
 |----------|--------|--------|
 | **Untriaged issues** | `crew` label, no `crew:{member}` label | Lead triages: reads issue, assigns `crew:{member}` label |
+| **Human comments** | Comment on an open issue with no `<!-- crew:agent= -->` marker, newer than that issue's high-water mark | Report issue + gist, route to the issue's `crew:{member}` for review |
 | **Assigned but unstarted** | `crew:{member}` label, no assignee or no PR | Spawn the assigned agent to pick it up |
 | **Draft PRs** | PR in draft from crew member | Check if agent needs to continue; if stalled, nudge |
 | **Review feedback** | PR has `CHANGES_REQUESTED` review | Route feedback to PR author agent to address |
@@ -59,7 +62,10 @@ gh pr list --state open --draft --json number,title,author,labels,checks --limit
 | **No work found** | All clear | Report: "📋 Board is clear. Ralph is idling." Suggest `npx @blacklite/crew-cli watch` for persistent polling. |
 
 **Step 3 — Act on highest-priority item:**
-- Process one category at a time, highest priority first (untriaged > assigned > CI failures > review feedback > approved PRs)
+- Process one category at a time, highest priority first (human comments > untriaged > assigned > CI failures > review feedback > approved PRs)
+- **Human comments sort first on purpose.** A human reply can supersede a recommendation the
+  crew is already acting on; surfacing it before spawning more work is what stops the crew
+  building on advice that has been overturned.
 - Spawn agents as needed, collect results
 - **⚡ CRITICAL: After results are collected, DO NOT stop. DO NOT wait for user input. IMMEDIATELY go back to Step 1 and scan again.** This is a loop — Ralph keeps cycling until the board is clear or the user says "idle". Each cycle is one "round".
 - If multiple items exist in the same category, process them in parallel (spawn multiple agents)
@@ -76,6 +82,132 @@ After every 3-5 rounds, pause and report before continuing:
 ```
 
 **Do NOT ask for permission to continue.** Just report and keep going. The user must explicitly say "idle" or "stop" to break the loop. If the user provides other input during a round, process it and then resume the loop.
+
+### Human Comment Detection
+
+A reply from the operator on an issue is a work signal, and it is the one signal Ralph
+historically missed: the scan covers issues, PRs, labels and checks, but not comments. A
+human answer could sit in a thread indefinitely while the crew kept acting on advice that
+answer had already overturned.
+
+**Why author filtering does not work.** Crew agents post through `gh`, authenticated as the
+operator, so agent comments and human comments carry the *same* `author.login`. Filtering on
+author returns everything. Style heuristics are worse — they misfire the first time either
+party writes atypically.
+
+Detection depends on the marker convention in `issue-lifecycle.md` → "Agent Comment Signing":
+every agent comment ends with `<!-- crew:agent={member} -->`, so **an unmarked comment is a
+human comment by definition**. Ralph does not need to recognise humans; it only needs to
+recognise agents, which it can do exactly.
+
+#### High-water mark
+
+Two levels, deliberately:
+
+| Level | Lives in | Suppresses |
+|-------|----------|------------|
+| **Session** | Ralph's in-session state (`commentsReported`, a set of `{issue, createdAt}`) | Re-reporting the same comment on every round of the same session |
+| **Durable** | The `seen=` field on agent comments **in the thread itself** | Re-reporting across sessions, machines and worktrees |
+
+The durable mark lives on GitHub, not on disk, and that is the design choice worth
+defending. A file under `.crew/` would be a mutable, per-checkout, merge-conflicting
+record of something GitHub already stores; agents run in worktrees, in CI and on more
+than one machine, and a local file is wrong in all of those the moment two of them run.
+Putting the mark in the thread means the thread is self-describing: anyone — Ralph, a
+member, a human reading the issue — can tell what has been acknowledged from the issue
+alone.
+
+Per-issue mark = the highest `seen=` value across that issue's marked comments. A marked
+comment with no `seen=` does **not** advance it: an agent posting a status update while a
+human question is outstanding must not silence the question. An unacknowledged human
+comment therefore keeps being reported every session until someone actually answers it —
+that nagging is the feature.
+
+#### Adoption cutoff
+
+Comments posted **before** the signing convention was adopted carry no marker, so a naive
+first run classifies the entire back-catalogue of agent reports as new human comments.
+
+Set a floor once, at adoption, in `.crew/config.json`:
+
+```json
+{
+  "commentWatch": {
+    "repo": "{owner}/{repo}",
+    "since": "{ISO-8601 timestamp of adoption}"
+  }
+}
+```
+
+Comments at or before `since` are never reported, marked or not. This is the only honest
+option: the marker cannot retroactively classify comments that predate it, and back-filling
+markers means editing historical comments in someone else's thread. Do a **one-time manual
+sweep** of pre-cutoff threads when adopting, act on anything genuinely unanswered, and then
+let the cutoff hold the line.
+
+`.crew/config.json` is operator config — `crew upgrade` reads it and never rewrites it — so
+the cutoff survives upgrades.
+
+#### The scan
+
+One GraphQL call for the whole tracker, not one REST call per issue. The per-issue loop
+(`gh issue list` → `gh issue view` per number) works but is O(open issues) requests per
+cycle, and Ralph cycles continuously.
+
+```bash
+CUTOFF=$(jq -r '.commentWatch.since // "1970-01-01T00:00:00Z"' .crew/config.json)
+REPO=$(jq -r '.commentWatch.repo' .crew/config.json)
+
+gh api graphql -F owner="${REPO%%/*}" -F repo="${REPO##*/}" -F issues=50 -F comments=30 -f query='
+  query($owner:String!, $repo:String!, $issues:Int!, $comments:Int!) {
+    repository(owner:$owner, name:$repo) {
+      issues(states:OPEN, first:$issues, orderBy:{field:UPDATED_AT, direction:DESC}) {
+        nodes {
+          number title
+          labels(first:20) { nodes { name } }
+          comments(last:$comments) { nodes { createdAt author { login } body } }
+        }
+      }
+    }
+  }' | jq -r --arg cutoff "$CUTOFF" '
+  def marked: (.body // "") | test("<!--[ \t]*crew:agent=");
+  def seenAt: [ ((.body // "") | scan("<!--[ \t]*crew:agent=[^ \t>]+[^>]*[ \t]seen=([0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9:]+Z)")) ] | flatten | max;
+
+  .data.repository.issues.nodes[]
+  | . as $i
+  | ( [ $i.comments.nodes[] | select(marked) | seenAt | select(. != null) ] | max ) as $ack
+  | ( [ $cutoff, ($ack // $cutoff) ] | max ) as $mark
+  | $i.comments.nodes[]
+  | select(marked | not)
+  | select(.createdAt > $mark)
+  | "\(.createdAt)\t#\($i.number)\t\([ $i.labels.nodes[].name | select(startswith("crew:")) ] | first // "unassigned")\t\(.body | gsub("[\r\n]+"; " ") | .[0:120])"
+  ' | sort -r
+```
+
+`first: 50` / `last: 30` cover a tracker of this size in a single request. If either bound
+is hit, page with `pageInfo { hasNextPage endCursor }` rather than raising the limits — the
+GraphQL node budget is a product of the two.
+
+#### What Ralph does with a hit
+
+1. **Surface, do not interpret.** Report the issue number, the assigned `crew:{member}`, the
+   timestamp, and the first line or two. Ralph detects work; it does not decide what a reply
+   means.
+2. **Route to the owner.** Spawn the issue's assigned `crew:{member}`. If the issue has no
+   `crew:{member}` label, it goes to the Lead as untriaged.
+3. **Require a supersession check.** The reviewer's brief must include: *does this reply
+   overturn a recommendation the crew has already made or is already acting on?* If it does,
+   say so explicitly in the reply — name the superseded recommendation. Do not quietly
+   rewrite the plan.
+4. **Acknowledge.** The reviewer's reply closes the loop with
+   `<!-- crew:agent={member} seen={timestamp of the comment being answered} -->`, which
+   advances the durable mark.
+
+Board line:
+
+```
+💬 Human comments:  2 unreviewed (#84 → link, #81 → sparks)
+```
 
 ### Watch Mode (`crew watch`)
 
@@ -108,6 +240,12 @@ Ralph's state is session-scoped (not persisted to disk):
 - **Round count** — how many check cycles completed
 - **Scope** — what categories to monitor (default: all)
 - **Stats** — issues closed, PRs merged, items processed this session
+- **Comments reported** — `{issue, createdAt}` pairs surfaced this session, so a comment is
+  reported once per session rather than once per round
+
+Session state deliberately does **not** hold the comment high-water mark. A session-scoped
+mark re-reports every old comment at the start of every new session; the durable mark lives
+in the thread as `seen=` (see [Human Comment Detection](#human-comment-detection)).
 
 ### Ralph on the Board
 
@@ -117,6 +255,7 @@ When Ralph reports status, use this format:
 🔄 Ralph — Work Monitor
 ━━━━━━━━━━━━━━━━━━━━━━
 📊 Board Status:
+  💬 Human input:  1 unreviewed comment (#84 → link)
   🔴 Untriaged:    2 issues need triage
   🟡 In Progress:  3 issues assigned, 1 draft PR
   🟢 Ready:        1 PR approved, awaiting merge

@@ -320,6 +320,61 @@ When spawning an agent to work on an issue, include this context block:
 4. Report PR URL to coordinator
 ```
 
+## Agent Comment Signing
+
+Crew agents post through `gh`, which authenticates as the operator. **Every agent
+comment is therefore authored by the human's GitHub account.** Author is useless as a
+discriminator, and style heuristics ("agents write long comments with `##` headers")
+break the moment either party writes atypically.
+
+Sign agent comments instead.
+
+### The marker
+
+Append this as the **last line** of the body of every comment an agent posts to an
+issue or a PR:
+
+```
+<!-- crew:agent={member} -->
+```
+
+- `{member}` is the crew member's roster name, lowercased (`link`, `sparks`, `ralph`).
+- It renders as nothing on GitHub, survives comment edits, and is one `grep` away.
+- **Anything without the marker is, by definition, a human comment.** That inverse is
+  the point: the marker is what makes human replies detectable at all.
+
+Applies to `gh issue comment`, `gh pr comment`, `gh pr review --body`, the equivalent
+GitHub MCP tools, and any workflow that posts on an agent's behalf. It does **not**
+apply to commit messages, PR bodies, or issue bodies — comments only.
+
+### Acknowledging a human reply — the `seen=` field
+
+When an agent comment is a **response to human input on that thread**, add a `seen=`
+field carrying the ISO-8601 timestamp of the newest human comment the agent read:
+
+```
+<!-- crew:agent=link seen=2026-07-29T03:06:23Z -->
+```
+
+`seen=` is the per-issue high-water mark for human comments. Ralph treats every
+unmarked comment newer than the highest `seen=` on that issue as unreviewed and keeps
+surfacing it. A marked comment **without** `seen=` does not advance the mark — a
+status update posted while a human question is still outstanding must not silence
+that question.
+
+Acknowledge honestly. `seen=` asserts "an agent read this and responded to it". It is
+not a dismissal button.
+
+### Anti-patterns
+
+- ❌ Omitting the marker "just this once" — one unmarked agent comment is a false human alert.
+- ❌ Putting the marker anywhere but the last line.
+- ❌ Setting `seen=` to the current time — the value is the timestamp of the comment
+  being acknowledged, not the time of acknowledgement.
+- ❌ Setting `seen=` on a comment that did not actually address the human input.
+- ❌ Back-filling markers onto historical comments — use an adoption cutoff instead
+  (see `ralph-reference.md` → "Adoption cutoff").
+
 ## Ralph's Role in Issue Lifecycle
 
 Ralph (the work monitor) continuously checks issue and PR state:
@@ -402,6 +457,8 @@ All PRs reviewed → All PRs merged → Epic closed
 - ❌ Using `checkout -b` when parallel agents are active (causes working directory conflicts)
 - ❌ Manually transitioning issue states — let the platform and Crew automation handle it
 - ❌ Skipping the branch naming convention — breaks Ralph's tracking logic
+- ❌ Posting an agent comment without the `<!-- crew:agent={member} -->` marker — it will
+  be misread as a human reply and re-routed for review
 
 ## Migration Notes
 
