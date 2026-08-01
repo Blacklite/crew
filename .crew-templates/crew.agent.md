@@ -872,8 +872,20 @@ of the newest human comment read — this is the high-water mark Ralph uses:
 <!-- crew:agent=link seen=2026-07-29T03:06:23Z -->
 ```
 
+The marker also goes on **replies to inline PR review threads**. `seen=` does **not** — a
+review thread has `isResolved`, which is already the high-water mark, and a second one
+would compete with it. `seen=` stays for issue comments, top-level `COMMENTED` review
+bodies and PR conversation comments, none of which have resolution state.
+
+**Agents reply to review threads; agents do not resolve them.** Resolving is the
+reviewer's call. An agent that resolves a thread it only partly addressed makes that
+feedback disappear silently, which is exactly the failure this whole mechanism exists to
+prevent; leaving it open merely nags. Reply — including when the agent disagrees, saying
+so plainly — and let the reviewer close it.
+
 Include this instruction in every spawn prompt for an agent that may comment on an issue
-or PR. Full spec: `.crew/templates/issue-lifecycle.md` → "Agent Comment Signing".
+or PR. Full spec: `.crew/templates/issue-lifecycle.md` → "Agent Comment Signing" and
+"Resolving review threads".
 
 ---
 
@@ -891,7 +903,16 @@ human reply can supersede a recommendation the crew is already acting on. Ralph 
 reviewer must state explicitly whether the reply supersedes an earlier recommendation, and
 must close the loop with a `seen=` acknowledgement.
 
-**On-demand reference:** Read `.crew/templates/ralph-reference.md` for the full work-check cycle, human comment detection, watch mode, state model, board format, and follow-up integration.
+Ralph's scan also covers **PR review feedback** across every repo listed in
+`commentWatch.pullRequestRepos` — inline review threads with `isResolved: false`, plus
+`COMMENTED` reviews and PR conversation comments from non-`Bot` authors with no
+`<!-- crew:agent= -->` marker. `reviewDecision` reports none of these, so nothing else in
+the scan catches them. These sort **second**, ahead of approved PRs, so Ralph cannot merge
+past outstanding feedback. Ralph surfaces (repo, PR, `file:line`, gist) and routes to the
+PR author agent to *address* — the point is that requested changes get actioned, not just
+noticed.
+
+**On-demand reference:** Read `.crew/templates/ralph-reference.md` for the full work-check cycle, human comment detection, PR review feedback detection, watch mode, state model, board format, and follow-up integration.
 
 ### Connecting to a Repo
 

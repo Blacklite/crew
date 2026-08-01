@@ -343,9 +343,16 @@ issue or a PR:
 - **Anything without the marker is, by definition, a human comment.** That inverse is
   the point: the marker is what makes human replies detectable at all.
 
-Applies to `gh issue comment`, `gh pr comment`, `gh pr review --body`, the equivalent
-GitHub MCP tools, and any workflow that posts on an agent's behalf. It does **not**
-apply to commit messages, PR bodies, or issue bodies — comments only.
+Applies to `gh issue comment`, `gh pr comment`, `gh pr review --body`, **replies to
+inline PR review threads** (`gh api .../comments`, `add_reply_to_pull_request_comment`),
+the equivalent GitHub MCP tools, and any workflow that posts on an agent's behalf. It
+does **not** apply to commit messages, PR bodies, or issue bodies — comments only.
+
+The marker is unchanged on review threads, but it does a different job there. On an issue
+it makes human comments detectable. On a review thread — where GitHub's `isResolved`
+already tracks outstanding-ness — it is what lets Ralph tell "an agent has replied here"
+from "nobody has", so an addressed thread stops being re-routed as new work while still
+staying open for the reviewer. See `ralph-reference.md` → "Answered-but-unresolved".
 
 ### Acknowledging a human reply — the `seen=` field
 
@@ -365,6 +372,41 @@ that question.
 Acknowledge honestly. `seen=` asserts "an agent read this and responded to it". It is
 not a dismissal button.
 
+**`seen=` does not apply to inline review threads.** Those carry `isResolved`, so a
+`seen=` field there would be a second high-water mark competing with GitHub's own. Use
+the bare `<!-- crew:agent={member} -->` marker on thread replies. `seen=` still applies
+to top-level `COMMENTED` review bodies and PR conversation comments, which have no
+resolution state of their own.
+
+### Resolving review threads
+
+**Agents reply to review threads. Agents do not resolve them.** Resolution stays with
+the reviewer.
+
+The tempting argument for the other choice is real: resolving is the natural
+acknowledgement, and it keeps the queue clean. But compare how the two options fail.
+
+- An agent resolves a thread it only partly addressed → the feedback disappears from
+  every view the reviewer uses. The failure is **silent**, and nothing surfaces it later.
+- An agent leaves an addressed thread open → the thread stays visible until someone
+  confirms. The failure is **noisy**, and the reviewer sees it immediately.
+
+For a mechanism whose entire purpose is that feedback stops sitting unread, a
+silent-drop failure mode defeats the thing being built. A noisy one merely annoys.
+
+That asymmetry only decides the question because the queue-cleanliness argument has
+another answer: Ralph demotes a thread whose newest comment is a signed agent reply to
+`awaiting confirmation` rather than re-reporting it as new work. The queue stays clean
+without the agent taking the reviewer's button. And if the reviewer replies again, the
+thread returns to the queue on its own.
+
+There is a second reason, smaller but not nothing: resolving another person's review
+thread is theirs to do by convention on GitHub. An agent doing it at scale reads as the
+crew closing its own homework.
+
+**Exception:** if the operator explicitly asks an agent to resolve threads — in the
+session, not inferred from a PR comment — that is a direct instruction and it holds.
+
 ### Anti-patterns
 
 - ❌ Omitting the marker "just this once" — one unmarked agent comment is a false human alert.
@@ -372,6 +414,8 @@ not a dismissal button.
 - ❌ Setting `seen=` to the current time — the value is the timestamp of the comment
   being acknowledged, not the time of acknowledgement.
 - ❌ Setting `seen=` on a comment that did not actually address the human input.
+- ❌ Resolving a review thread to clear it from Ralph's queue.
+- ❌ Silently skipping a review thread the agent disagrees with — reply and say so.
 - ❌ Back-filling markers onto historical comments — use an adoption cutoff instead
   (see `ralph-reference.md` → "Adoption cutoff").
 
