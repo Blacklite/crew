@@ -155,6 +155,15 @@ let the cutoff hold the line.
 `.crew/config.json` is operator config — `crew upgrade` reads it and never rewrites it — so
 the cutoff survives upgrades.
 
+**Raising an existing floor — list the gap first.** If the adoption change sits unmerged for
+a while, it is tempting to advance `since` to the merge time so that unmarked agent comments
+posted in the gap cannot raise false alerts. Enumerate that window before doing it. Advance
+the floor only over unmarked **agent** comments; never over an unanswered **human** one. A
+floor exists for a back-catalogue that cannot be classified after the fact, not for live work
+that can — and burying one real question is a worse outcome than one spurious alert. In
+practice a crew that adopted signing before merging has no unmarked agent comments in the gap
+at all, and the floor should not move.
+
 #### The scan
 
 One GraphQL call for the whole tracker, not one REST call per issue. The per-issue loop
